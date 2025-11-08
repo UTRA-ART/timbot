@@ -1,0 +1,77 @@
+planner_server:
+  ros__parameters:
+    expected_planner_frequency: 100.0
+
+    ##### Global Planner #####
+    # Parameters tweaked largely refer to this doc: https://kaiyuzheng.me/documents/navguide.pdf
+    # In Nav2, the GlobalPlanner plugin replaces move_base's GlobalPlanner.
+    planner_plugins: ["GridBased"]
+
+    GridBased:
+      plugin: "nav2_navfn_planner/NavfnPlanner"
+      # Specifies whether or not to allow plans that traverse unknown space.
+      allow_unknown: true
+      # A tolerance on the goal point for the planner.
+      tolerance: 0.1
+      use_astar: false     # Replaces use_dijkstra (inverted meaning)
+      use_grid_path: false # keep disabled unless you specifically need grid output
+      visualize_potential: true
+      cost_factor: 0.55
+      neutral_cost: 66
+      lethal_cost: 253
+
+    ##### Local Planner #####
+    controller_plugins: ["FollowPath"]
+
+    FollowPath:
+      plugin: "dwb_core::DWBLocalPlanner"
+      
+      # Robot Configuration Parameters
+      acc_lim_x: 5.0
+      acc_lim_y: 0.0
+      acc_lim_theta: 5.0
+
+      max_vel_x: 2.23
+      min_vel_x: -2.23
+      max_vel_y: 0.0
+      min_vel_y: 0.0
+      max_vel_theta: 2.0
+      min_vel_theta: -2.0
+
+      # Goal Tolerance Parameters
+      yaw_goal_tolerance: 3.14
+      xy_goal_tolerance: 0.75
+
+      # Forward Simulation Parameters
+      sim_time: 3.0
+      vx_samples: 15
+      vtheta_samples: 40
+
+      # Trajectory Scoring Parameters
+      path_distance_bias: 60.0
+      goal_distance_bias: 20.0
+      occdist_scale: 0.02
+
+      # The following params in ROS1 DWAPlannerROS/TrajectoryPlannerROS correspond to Nav2 plugin settings
+      # Nav2 uses controller_plugins, not DWAPlannerROS / TrajectoryPlannerROS node names.
+      # DWB replaces DWA and uses parameter plugins for critics and generators.
+
+      # These critics replace pdist_scale/gdist_scale etc:
+      critics: ["RotateToGoal", "Oscillation", "BaseObstacle", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
+
+      PathAlign:
+        scale: 1.125  # from pdist_scale
+      GoalAlign:
+        scale: 0.5    # from gdist_scale
+      PathDist:
+        scale: 1.125  # same as PathAlign for consistency
+      GoalDist:
+        scale: 0.5
+      BaseObstacle:
+        scale: 0.02   # equivalent to occdist_scale
+      Oscillation:
+        scale: 0.0
+      RotateToGoal:
+        scale: 1.0
+
+      # Heading scoring isn't used directly; Nav2 uses critics instead.
