@@ -3,16 +3,11 @@
 <package format="3">
   <name>odom_state</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <description>The odom_state package</description>
   <maintainer email="chris.chen878@gmail.com">cchryx</maintainer>
   <license>TODO: License declaration</license>
 
   <depend>rclpy</depend>
-
-  <test_depend>ament_copyright</test_depend>
-  <test_depend>ament_flake8</test_depend>
-  <test_depend>ament_pep257</test_depend>
-  <test_depend>python3-pytest</test_depend>
 
   <export>
     <build_type>ament_python</build_type>

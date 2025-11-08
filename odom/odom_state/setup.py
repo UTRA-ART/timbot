@@ -15,7 +15,7 @@ setup(
     zip_safe=True,
     maintainer='cchryx',
     maintainer_email='chris.chen878@gmail.com',
-    description='TODO: Package description',
+    description='The odom_state package',
     license='TODO: License declaration',
     extras_require={
         'test': [
