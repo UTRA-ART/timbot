@@ -3,13 +3,18 @@
 <package format="3">
   <name>odom_state</name>
   <version>0.0.0</version>
-  <description>The odom_state package</description>
+  <description>TODO: Package description</description>
   <maintainer email="chris.chen878@gmail.com">cchryx</maintainer>
   <license>TODO: License declaration</license>
 
-  <depend>rclpy</depend>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
 
   <export>
-    <build_type>ament_python</build_type>
+    <build_type>ament_cmake</build_type>
   </export>
 </package>
