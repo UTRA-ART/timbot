@@ -1,0 +1,15 @@
+/home/samson/uart/timbot/cv/lane_detection/install/lane_detection/share/ament_index/resource_index/package_run_dependencies/lane_detection
+/home/samson/uart/timbot/cv/lane_detection/install/lane_detection/share/ament_index/resource_index/parent_prefix_path/lane_detection
+/home/samson/uart/timbot/cv/lane_detection/install/lane_detection/share/lane_detection/environment/ament_prefix_path.sh
+/home/samson/uart/timbot/cv/lane_detection/install/lane_detection/share/lane_detection/environment/ament_prefix_path.dsv
+/home/samson/uart/timbot/cv/lane_detection/install/lane_detection/share/lane_detection/environment/path.sh
+/home/samson/uart/timbot/cv/lane_detection/install/lane_detection/share/lane_detection/environment/path.dsv
+/home/samson/uart/timbot/cv/lane_detection/install/lane_detection/share/lane_detection/local_setup.bash
+/home/samson/uart/timbot/cv/lane_detection/install/lane_detection/share/lane_detection/local_setup.sh
+/home/samson/uart/timbot/cv/lane_detection/install/lane_detection/share/lane_detection/local_setup.zsh
+/home/samson/uart/timbot/cv/lane_detection/install/lane_detection/share/lane_detection/local_setup.dsv
+/home/samson/uart/timbot/cv/lane_detection/install/lane_detection/share/lane_detection/package.dsv
+/home/samson/uart/timbot/cv/lane_detection/install/lane_detection/share/ament_index/resource_index/packages/lane_detection
+/home/samson/uart/timbot/cv/lane_detection/install/lane_detection/share/lane_detection/cmake/lane_detectionConfig.cmake
+/home/samson/uart/timbot/cv/lane_detection/install/lane_detection/share/lane_detection/cmake/lane_detectionConfig-version.cmake
+/home/samson/uart/timbot/cv/lane_detection/install/lane_detection/share/lane_detection/package.xml

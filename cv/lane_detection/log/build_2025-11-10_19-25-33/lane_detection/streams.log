@@ -1,0 +1,46 @@
+[0.008s] Invoking command in '/home/samson/uart/timbot/cv/lane_detection/build/lane_detection': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake /home/samson/uart/timbot/cv/lane_detection -DCMAKE_INSTALL_PREFIX=/home/samson/uart/timbot/cv/lane_detection/install/lane_detection
+[0.018s] -- Found ament_cmake: 1.3.12 (/opt/ros/humble/share/ament_cmake/cmake)
+[0.107s] -- Override CMake install command with custom implementation using symlinks instead of copying resources
+[0.115s] -- Found rclpy: 3.3.17 (/opt/ros/humble/share/rclpy/cmake)
+[0.115s] -- Found sensor_msgs: 4.9.0 (/opt/ros/humble/share/sensor_msgs/cmake)
+[0.140s] -- Found rosidl_generator_c: 3.1.7 (/opt/ros/humble/share/rosidl_generator_c/cmake)
+[0.142s] -- Found rosidl_adapter: 3.1.7 (/opt/ros/humble/share/rosidl_adapter/cmake)
+[0.146s] -- Found rosidl_generator_cpp: 3.1.7 (/opt/ros/humble/share/rosidl_generator_cpp/cmake)
+[0.153s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[0.161s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[0.196s] -- Found cv_bridge: 3.2.1 (/opt/ros/humble/share/cv_bridge/cmake)
+[0.202s] -- Found ament_lint_auto: 0.12.14 (/opt/ros/humble/share/ament_lint_auto/cmake)
+[0.282s] -- Added test 'cppcheck' to perform static code analysis on C / C++ code
+[0.282s] -- Configured cppcheck include dirs: 
+[0.282s] -- Configured cppcheck exclude dirs and/or files: 
+[0.283s] -- Added test 'flake8' to check Python code syntax and style conventions
+[0.285s] -- Added test 'lint_cmake' to check CMake code style
+[0.287s] -- Added test 'pep257' to check Python code against some of the docstring style conventions in PEP 257
+[0.294s] -- Added test 'uncrustify' to check C / C++ code style
+[0.294s] -- Configured uncrustify additional arguments: 
+[0.295s] -- Added test 'xmllint' to check XML markup files
+[0.295s] -- Configuring done
+[0.298s] -- Generating done
+[0.299s] -- Build files have been written to: /home/samson/uart/timbot/cv/lane_detection/build/lane_detection
+[0.302s] Invoked command in '/home/samson/uart/timbot/cv/lane_detection/build/lane_detection' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake /home/samson/uart/timbot/cv/lane_detection -DCMAKE_INSTALL_PREFIX=/home/samson/uart/timbot/cv/lane_detection/install/lane_detection
+[0.304s] Invoking command in '/home/samson/uart/timbot/cv/lane_detection/build/lane_detection': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/samson/uart/timbot/cv/lane_detection/build/lane_detection -- -j8 -l8
+[0.340s] Invoked command in '/home/samson/uart/timbot/cv/lane_detection/build/lane_detection' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/samson/uart/timbot/cv/lane_detection/build/lane_detection -- -j8 -l8
+[0.348s] Invoking command in '/home/samson/uart/timbot/cv/lane_detection/build/lane_detection': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/samson/uart/timbot/cv/lane_detection/build/lane_detection
+[0.353s] -- Install configuration: ""
+[0.353s] -- Execute custom install script
+[0.353s] -- Up-to-date symlink: /home/samson/uart/timbot/cv/lane_detection/install/lane_detection/share/ament_index/resource_index/package_run_dependencies/lane_detection
+[0.353s] -- Up-to-date symlink: /home/samson/uart/timbot/cv/lane_detection/install/lane_detection/share/ament_index/resource_index/parent_prefix_path/lane_detection
+[0.353s] -- Up-to-date symlink: /home/samson/uart/timbot/cv/lane_detection/install/lane_detection/share/lane_detection/environment/ament_prefix_path.sh
+[0.353s] -- Up-to-date symlink: /home/samson/uart/timbot/cv/lane_detection/install/lane_detection/share/lane_detection/environment/ament_prefix_path.dsv
+[0.353s] -- Up-to-date symlink: /home/samson/uart/timbot/cv/lane_detection/install/lane_detection/share/lane_detection/environment/path.sh
+[0.354s] -- Up-to-date symlink: /home/samson/uart/timbot/cv/lane_detection/install/lane_detection/share/lane_detection/environment/path.dsv
+[0.354s] -- Up-to-date symlink: /home/samson/uart/timbot/cv/lane_detection/install/lane_detection/share/lane_detection/local_setup.bash
+[0.354s] -- Up-to-date symlink: /home/samson/uart/timbot/cv/lane_detection/install/lane_detection/share/lane_detection/local_setup.sh
+[0.354s] -- Up-to-date symlink: /home/samson/uart/timbot/cv/lane_detection/install/lane_detection/share/lane_detection/local_setup.zsh
+[0.354s] -- Up-to-date symlink: /home/samson/uart/timbot/cv/lane_detection/install/lane_detection/share/lane_detection/local_setup.dsv
+[0.354s] -- Symlinking: /home/samson/uart/timbot/cv/lane_detection/install/lane_detection/share/lane_detection/package.dsv
+[0.360s] -- Up-to-date symlink: /home/samson/uart/timbot/cv/lane_detection/install/lane_detection/share/ament_index/resource_index/packages/lane_detection
+[0.360s] -- Up-to-date symlink: /home/samson/uart/timbot/cv/lane_detection/install/lane_detection/share/lane_detection/cmake/lane_detectionConfig.cmake
+[0.360s] -- Up-to-date symlink: /home/samson/uart/timbot/cv/lane_detection/install/lane_detection/share/lane_detection/cmake/lane_detectionConfig-version.cmake
+[0.360s] -- Up-to-date symlink: /home/samson/uart/timbot/cv/lane_detection/install/lane_detection/share/lane_detection/package.xml
+[0.361s] Invoked command in '/home/samson/uart/timbot/cv/lane_detection/build/lane_detection' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/samson/uart/timbot/cv/lane_detection/build/lane_detection

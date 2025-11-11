@@ -1,0 +1,4 @@
+Invoking command in '/home/samson/uart/timbot/cv/lane_detection/build/lane_detection': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/samson/uart/timbot/cv/lane_detection/build/lane_detection -- -j8 -l8
+Invoked command in '/home/samson/uart/timbot/cv/lane_detection/build/lane_detection' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/samson/uart/timbot/cv/lane_detection/build/lane_detection -- -j8 -l8
+Invoking command in '/home/samson/uart/timbot/cv/lane_detection/build/lane_detection': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/samson/uart/timbot/cv/lane_detection/build/lane_detection
+Invoked command in '/home/samson/uart/timbot/cv/lane_detection/build/lane_detection' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/samson/uart/timbot/cv/lane_detection/build/lane_detection
