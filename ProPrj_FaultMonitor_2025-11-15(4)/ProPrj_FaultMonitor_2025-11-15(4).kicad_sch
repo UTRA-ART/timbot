@@ -2356,6 +2356,12 @@
 		(color 0 0 0 0)
 		(uuid "b18c957e-47fa-4e85-ade6-8b0f5d0c016d")
 	)
+	(junction
+		(at 17.78 43.18)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "ca085668-7625-4e4e-b045-52e6534b1b4b")
+	)
 	(wire
 		(pts
 			(xy 58.42 96.52) (xy 58.42 109.22)
@@ -2688,6 +2694,16 @@
 	)
 	(wire
 		(pts
+			(xy 17.78 45.72) (xy 17.78 43.18)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8477fff5-cbce-4ac3-807d-8e3722e608ea")
+	)
+	(wire
+		(pts
 			(xy 40.64 20.32) (xy 50.8 20.32)
 		)
 		(stroke
@@ -2805,6 +2821,16 @@
 			(type default)
 		)
 		(uuid "b8c26a3f-1739-49a7-a508-abe43eff6160")
+	)
+	(wire
+		(pts
+			(xy 17.78 43.18) (xy 50.8 43.18)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c29baecc-e9ff-41c5-9e69-f142a8433be0")
 	)
 	(wire
 		(pts
@@ -4341,7 +4367,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 80.01 10.16 90)
+			(at 81.28 10.16 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4389,7 +4415,7 @@
 	)
 	(symbol
 		(lib_id "ProPrj_Fau-easyedapro:Ground-GND")
-		(at 17.78 43.18 0)
+		(at 17.78 45.72 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4397,7 +4423,7 @@
 		(dnp no)
 		(uuid "cc4875cb-ecf3-409d-9e3d-7d5518cf1265")
 		(property "Reference" "#PWR?"
-			(at 17.78 43.18 0)
+			(at 17.78 45.72 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4406,7 +4432,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 17.78 49.53 0)
+			(at 17.78 52.07 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4414,7 +4440,7 @@
 			)
 		)
 		(property "Footprint" "ProPrj_Fau-easyedapro:"
-			(at 17.78 43.18 0)
+			(at 17.78 45.72 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4423,7 +4449,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 17.78 43.18 0)
+			(at 17.78 45.72 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4432,7 +4458,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 17.78 43.18 0)
+			(at 17.78 45.72 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4774,8 +4800,8 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "f6734b70-5a64-4eb1-bc42-91cc08966c64")
-		(property "Reference" "U3"
-			(at 53.34 7.62 0)
+		(property "Reference" "U1"
+			(at 61.976 6.096 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4783,7 +4809,7 @@
 			)
 		)
 		(property "Value" "ESP32-DevKitC"
-			(at 53.34 60.96 0)
+			(at 62.23 60.452 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4979,7 +5005,7 @@
 		(instances
 			(project ""
 				(path "/64884559-cbe4-442b-837a-f1967fbf7136"
-					(reference "U3")
+					(reference "U1")
 					(unit 1)
 				)
 			)
