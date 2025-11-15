@@ -3119,121 +3119,6 @@
 		(uuid "d52e41f7-29ab-4602-83b1-a0ca8c14e5cb")
 	)
 	(symbol
-		(lib_id "ProPrj_Fau-easyedapro:DS18B20T(XBLW)")
-		(at 26.67 25.4 180)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "0f8d5a7b-4aca-4bba-a4e8-b40ed2d0a21c")
-		(property "Reference" "U2"
-			(at 25.654 19.05 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "DS18B20T(XBLW)"
-			(at 21.59 33.02 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "ProPrj_Fau-easyedapro:TO-92-3_L4.5-W3.5-P1.27-L"
-			(at 26.67 25.4 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "https://item.szlcsc.com/datasheet/DS18B20T(XBLW)/43127368.html"
-			(at 26.67 25.4 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 26.67 25.4 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Manufacturer Part" "DS18B20T(XBLW)"
-			(at 26.67 25.4 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Manufacturer" "XBLW(芯伯乐)"
-			(at 26.67 25.4 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Supplier Part" "C41369535"
-			(at 26.67 25.4 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Supplier" "LCSC"
-			(at 26.67 25.4 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "LCSC Part Name" "DS18B20T(XBLW)"
-			(at 26.67 25.4 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "ca88595c-adab-4b93-ae0d-0f7d492858c5")
-		)
-		(pin "2"
-			(uuid "3247c7a1-1026-43f1-9f81-7e0168ac758b")
-		)
-		(pin "3"
-			(uuid "cba4ab89-5d41-4c30-a67b-5f3dc9a580fd")
-		)
-		(instances
-			(project ""
-				(path "/64884559-cbe4-442b-837a-f1967fbf7136"
-					(reference "U2")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "power:+5V")
 		(at 123.19 63.5 90)
 		(unit 1)
@@ -3660,6 +3545,122 @@
 			(project "ProPrj_FaultMonitor_2025-11-15(4)"
 				(path "/64884559-cbe4-442b-837a-f1967fbf7136"
 					(reference "D3")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "ProPrj_Fau-easyedapro:DS18B20T(XBLW)")
+		(at 26.67 25.4 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "6e139bc5-ffb8-4597-9271-a455fa24da3b")
+		(property "Reference" "U3"
+			(at 25.4 15.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "~"
+			(at 25.4 17.78 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "ProPrj_Fau-easyedapro:TO-92-3_L4.5-W3.5-P1.27-L"
+			(at 26.67 25.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "https://item.szlcsc.com/datasheet/DS18B20T(XBLW)/43127368.html"
+			(at 26.67 25.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 26.67 25.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer Part" "DS18B20T(XBLW)"
+			(at 26.67 25.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "XBLW(芯伯乐)"
+			(at 26.67 25.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Supplier Part" "C41369535"
+			(at 26.67 25.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Supplier" "LCSC"
+			(at 26.67 25.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC Part Name" "DS18B20T(XBLW)"
+			(at 26.67 25.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "7bc8353b-d9ca-4ae6-9939-cc95b82f0ef2")
+		)
+		(pin "1"
+			(uuid "2653c9dd-d7fa-430c-8303-28548d985fc5")
+		)
+		(pin "3"
+			(uuid "706b7c85-9e96-44db-8d06-a1292fbfc961")
+		)
+		(instances
+			(project ""
+				(path "/64884559-cbe4-442b-837a-f1967fbf7136"
+					(reference "U3")
 					(unit 1)
 				)
 			)
