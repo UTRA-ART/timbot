@@ -1,2 +1,0 @@
-- Migrate rospy to rclpy in python files
-- https://docs.ros.org/en/humble/How-To-Guides/Migrating-from-ROS1/Migrating-Python-Package-Example.html (CMakeLists no longer used?)

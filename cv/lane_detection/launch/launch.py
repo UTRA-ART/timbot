@@ -15,7 +15,7 @@ def generate_launch_description():
     # Get parameters for lane detection from its yaml file
     lane_detection_params = PathJoinSubstitution([
         # FindPackageShare is used to get the path to the package, which it knows from when you built with colcon
-        FindPackageShare('lane_detection'),'config','lane_detection_params.yaml'
+        FindPackageShare('lane_detection'), 'config', 'lane_detection_params.yaml'
     ])
 
     # Runs lane detection server
