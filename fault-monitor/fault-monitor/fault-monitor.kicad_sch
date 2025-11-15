@@ -5,6 +5,177 @@
 	(uuid "64884559-cbe4-442b-837a-f1967fbf7136")
 	(paper "User" 152.07 189.535)
 	(lib_symbols
+		(symbol "Connector_Generic:Conn_01x03"
+			(pin_names
+				(offset 1.016)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "J"
+				(at 0 5.08 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "Conn_01x03"
+				(at 0 -5.08 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Generic connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "connector"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "Connector*:*_1x??_*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "Conn_01x03_1_1"
+				(rectangle
+					(start -1.27 3.81)
+					(end 1.27 -3.81)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(rectangle
+					(start -1.27 2.667)
+					(end 0 2.413)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(rectangle
+					(start -1.27 0.127)
+					(end 0 -0.127)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(rectangle
+					(start -1.27 -2.413)
+					(end 0 -2.667)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(pin passive line
+					(at -5.08 2.54 0)
+					(length 3.81)
+					(name "Pin_1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 0 0)
+					(length 3.81)
+					(name "Pin_2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 -2.54 0)
+					(length 3.81)
+					(name "Pin_3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "Device:LED"
 			(pin_numbers
 				(hide yes)
@@ -1683,107 +1854,6 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "ProPrj_Fau-easyedapro:Power-5V"
-			(power)
-			(pin_numbers
-				(hide yes)
-			)
-			(pin_names
-				(hide yes)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "#PWR"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Value" ""
-				(at 0 3.81 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" "ProPrj_Fau-easyedapro:"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" "Power-5V"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "Power-5V_1_0"
-				(polyline
-					(pts
-						(xy -1.27 2.54) (xy 1.27 2.54)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0 2.54) (xy 0 1.27)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(pin power_in line
-					(at 0 0 90)
-					(length 1.27)
-					(name "+5V"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 0.0254 0.0254)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
 		(symbol "ProPrj_Fau-easyedapro:XH-2A"
 			(exclude_from_sim no)
 			(in_bom yes)
@@ -1917,178 +1987,6 @@
 						)
 					)
 					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
-		(symbol "ProPrj_Fau-easyedapro:ZX-XH2.54-3PZZ"
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "CN"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" "ProPrj_Fau-easyedapro:CONN-TH_3P-P2.54_2501S-3P"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" "https://item.szlcsc.com/datasheet/ZX-XH2.54-3PZZ/8427550.html"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" "Pins Structure:1x3P Pitch:2.5mm Mounting Type:Through Hole Reference Series:XH Number of Pins:3P Number of Rows:1 Number of PINs Per Row:3 Row Spacing:- Current Rating:3A Contact Material:Brass Contact Plating:Tin Operating Temperature:-25°C~+85°C Operating"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Manufacturer Part" "ZX-XH2.54-3PZZ"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Manufacturer" "Megastar(兆星)"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Supplier Part" "C7429633"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Supplier" "LCSC"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "LCSC Part Name" "1x3P 间距:2.5mm 直插 系列:XH"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "ZX-XH2.54-3PZZ_1_0"
-				(rectangle
-					(start -2.54 -5.08)
-					(end 2.54 5.08)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(circle
-					(center -1.27 3.81)
-					(radius 0.381)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(pin unspecified line
-					(at -5.08 2.54 0)
-					(length 2.54)
-					(name "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin unspecified line
-					(at -5.08 0 0)
-					(length 2.54)
-					(name "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin unspecified line
-					(at -5.08 -2.54 0)
-					(length 2.54)
-					(name "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2325,6 +2223,232 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "power:+5V"
+			(power)
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "#PWR"
+				(at 0 -3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Value" "+5V"
+				(at 0 3.556 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Power symbol creates a global label with name \"+5V\""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "global power"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "+5V_0_1"
+				(polyline
+					(pts
+						(xy -0.762 1.27) (xy 0 2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 2.54) (xy 0.762 1.27)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 0) (xy 0 2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "+5V_1_1"
+				(pin power_in line
+					(at 0 0 90)
+					(length 0)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "power:GND"
+			(power)
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "#PWR"
+				(at 0 -6.35 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Value" "GND"
+				(at 0 -3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "global power"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "GND_0_1"
+				(polyline
+					(pts
+						(xy 0 0) (xy 0 -1.27) (xy 1.27 -1.27) (xy 0 -2.54) (xy -1.27 -1.27) (xy 0 -1.27)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "GND_1_1"
+				(pin power_in line
+					(at 0 0 270)
+					(length 0)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 	)
 	(junction
 		(at 80.01 127)
@@ -2337,12 +2461,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "79dfb3c3-f5ea-4e63-9867-a3d10dd148d2")
-	)
-	(junction
-		(at 45.72 22.86)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "967c8bc4-6567-4949-9b3d-be209a2ef195")
 	)
 	(junction
 		(at 80.01 101.6)
@@ -2361,6 +2479,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "ca085668-7625-4e4e-b045-52e6534b1b4b")
+	)
+	(junction
+		(at 48.26 22.86)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "de3cc867-7bbc-41f3-a7fc-b3a9e3d73775")
 	)
 	(wire
 		(pts
@@ -2421,16 +2545,6 @@
 			(type default)
 		)
 		(uuid "193f2c4f-3ade-4a0b-8f00-d8a8d332aa6d")
-	)
-	(wire
-		(pts
-			(xy 45.72 22.86) (xy 45.72 20.32)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1d69a3f7-2141-4b81-8482-ce8c9032a4b9")
 	)
 	(wire
 		(pts
@@ -2564,7 +2678,7 @@
 	)
 	(wire
 		(pts
-			(xy 45.72 22.86) (xy 31.75 22.86)
+			(xy 31.75 22.86) (xy 48.26 22.86)
 		)
 		(stroke
 			(width 0)
@@ -2601,6 +2715,16 @@
 			(type default)
 		)
 		(uuid "62f28a8c-6c63-4779-b628-96bf5cb8a018")
+	)
+	(wire
+		(pts
+			(xy 125.73 66.04) (xy 123.19 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6a12c87e-9e9a-4fba-8f51-2910ca5f1853")
 	)
 	(wire
 		(pts
@@ -2704,6 +2828,16 @@
 	)
 	(wire
 		(pts
+			(xy 123.19 66.04) (xy 123.19 68.58)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "92de08fb-e062-44b7-b28c-27400daebbd5")
+	)
+	(wire
+		(pts
 			(xy 62.23 38.1) (xy 72.39 38.1)
 		)
 		(stroke
@@ -2751,16 +2885,6 @@
 			(type default)
 		)
 		(uuid "a4c37bbb-f8fb-46ed-aab3-dcd3f39dae39")
-	)
-	(wire
-		(pts
-			(xy 48.26 22.86) (xy 45.72 22.86)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a8732177-bebc-42c4-b6db-15e340e67863")
 	)
 	(wire
 		(pts
@@ -2821,6 +2945,16 @@
 			(type default)
 		)
 		(uuid "b8c26a3f-1739-49a7-a508-abe43eff6160")
+	)
+	(wire
+		(pts
+			(xy 48.26 20.32) (xy 48.26 22.86)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b9a28145-aef4-4777-b7e9-bd01e034c1fa")
 	)
 	(wire
 		(pts
@@ -2931,6 +3065,16 @@
 			(type default)
 		)
 		(uuid "f2e787b0-d963-4d8b-ba2a-7a30b1ffad03")
+	)
+	(wire
+		(pts
+			(xy 123.19 63.5) (xy 125.73 63.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f6477a7a-6fc9-46e6-9430-62e75cd9563c")
 	)
 	(label "24V"
 		(at 115.57 43.18 0)
@@ -3406,6 +3550,73 @@
 		)
 	)
 	(symbol
+		(lib_id "power:+5V")
+		(at 123.19 63.5 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "180c38e3-2f58-4289-ba78-7320f5b647c7")
+		(property "Reference" "#PWR06"
+			(at 127 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+5V"
+			(at 119.38 63.4999 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 123.19 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 123.19 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+5V\""
+			(at 123.19 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "c2c4ead1-4fde-4084-82f8-ffb2568e9e9d")
+		)
+		(instances
+			(project "fault-monitor"
+				(path "/64884559-cbe4-442b-837a-f1967fbf7136"
+					(reference "#PWR06")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "ProPrj_Fau-easyedapro:ZX-XH2.54-6PZZ")
 		(at 123.19 27.94 0)
 		(unit 1)
@@ -3524,136 +3735,6 @@
 			(project ""
 				(path "/64884559-cbe4-442b-837a-f1967fbf7136"
 					(reference "IO")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "ProPrj_Fau-easyedapro:Power-5V")
-		(at 45.72 20.32 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "270480eb-873b-4b0c-8666-759c2555a069")
-		(property "Reference" "#PWR?"
-			(at 45.72 20.32 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "+5V"
-			(at 45.72 16.51 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "ProPrj_Fau-easyedapro:"
-			(at 45.72 20.32 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 45.72 20.32 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power-5V"
-			(at 45.72 20.32 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "ca5d9649-a970-407e-84b7-5f5158dd2e4f")
-		)
-		(instances
-			(project ""
-				(path "/64884559-cbe4-442b-837a-f1967fbf7136"
-					(reference "#PWR?")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "ProPrj_Fau-easyedapro:Power-5V")
-		(at 125.73 63.5 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "380f2fc6-2216-43ad-a6cb-e139f74d013b")
-		(property "Reference" "#PWR?"
-			(at 125.73 63.5 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "+5V"
-			(at 121.92 63.5 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "ProPrj_Fau-easyedapro:"
-			(at 125.73 63.5 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 125.73 63.5 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power-5V"
-			(at 125.73 63.5 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "460b7b4f-2060-4380-8aa5-0c667b0229bb")
-		)
-		(instances
-			(project ""
-				(path "/64884559-cbe4-442b-837a-f1967fbf7136"
-					(reference "#PWR?")
 					(unit 1)
 				)
 			)
@@ -3985,16 +4066,17 @@
 		)
 	)
 	(symbol
-		(lib_id "ProPrj_Fau-easyedapro:Ground-GND")
-		(at 39.37 33.02 0)
+		(lib_id "power:GND")
+		(at 123.19 68.58 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "7aab7500-f548-4f58-b416-5ad4211a02de")
-		(property "Reference" "#PWR?"
-			(at 39.37 33.02 0)
+		(fields_autoplaced yes)
+		(uuid "72ab1b96-01d1-4bbe-8415-0e414b0a8fb6")
+		(property "Reference" "#PWR03"
+			(at 123.19 74.93 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4003,15 +4085,15 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 39.37 39.37 0)
+			(at 123.19 73.66 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Footprint" "ProPrj_Fau-easyedapro:"
-			(at 39.37 33.02 0)
+		(property "Footprint" ""
+			(at 123.19 68.58 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4020,7 +4102,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 39.37 33.02 0)
+			(at 123.19 68.58 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4028,8 +4110,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 39.37 33.02 0)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 123.19 68.58 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4038,12 +4120,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "6e55ad8b-6326-47fa-b4f9-1c40df7f23b0")
+			(uuid "bce4ba3f-0a9e-48a0-a24a-48e0d79d70f5")
 		)
 		(instances
 			(project ""
 				(path "/64884559-cbe4-442b-837a-f1967fbf7136"
-					(reference "#PWR?")
+					(reference "#PWR03")
 					(unit 1)
 				)
 			)
@@ -4127,6 +4209,77 @@
 		)
 	)
 	(symbol
+		(lib_id "Connector_Generic:Conn_01x03")
+		(at 26.67 58.42 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "842529b5-3e24-42fd-942a-e1d92d58d7e9")
+		(property "Reference" "J1"
+			(at 26.67 49.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Conn_01x03"
+			(at 26.67 52.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 26.67 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 26.67 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Generic connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(at 26.67 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "170a7e1b-bde7-4638-a16e-344aba348288")
+		)
+		(pin "3"
+			(uuid "89ef83fc-8584-4ebb-8d36-02c49ad41432")
+		)
+		(pin "2"
+			(uuid "508b3514-012f-4bef-9929-3a7a4771c6ef")
+		)
+		(instances
+			(project ""
+				(path "/64884559-cbe4-442b-837a-f1967fbf7136"
+					(reference "J1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:R")
 		(at 66.04 88.9 90)
 		(unit 1)
@@ -4189,6 +4342,72 @@
 			(project ""
 				(path "/64884559-cbe4-442b-837a-f1967fbf7136"
 					(reference "R1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 39.37 63.5 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "9a519557-b3ca-428e-9350-87d60779adff")
+		(property "Reference" "#PWR01"
+			(at 39.37 69.85 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 39.37 68.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 39.37 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 39.37 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 39.37 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "e741b5fe-d52e-4cfb-97a5-43334ae83ca8")
+		)
+		(instances
+			(project ""
+				(path "/64884559-cbe4-442b-837a-f1967fbf7136"
+					(reference "#PWR01")
 					(unit 1)
 				)
 			)
@@ -4349,16 +4568,17 @@
 		)
 	)
 	(symbol
-		(lib_id "ProPrj_Fau-easyedapro:Ground-GND")
+		(lib_id "power:GND")
 		(at 95.25 27.94 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "c5595c87-0c34-4979-bd79-d94e8af5088e")
-		(property "Reference" "#PWR?"
-			(at 95.25 27.94 0)
+		(fields_autoplaced yes)
+		(uuid "b4740382-50d0-41f1-bf14-2e4fc24aaa10")
+		(property "Reference" "#PWR04"
+			(at 101.6 27.94 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4367,14 +4587,15 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 102.87 27.94 90)
+			(at 99.06 27.9399 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify right)
 			)
 		)
-		(property "Footprint" "ProPrj_Fau-easyedapro:"
+		(property "Footprint" ""
 			(at 95.25 27.94 0)
 			(effects
 				(font
@@ -4392,7 +4613,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
 			(at 95.25 27.94 0)
 			(effects
 				(font
@@ -4402,28 +4623,29 @@
 			)
 		)
 		(pin "1"
-			(uuid "4c53c1da-d28f-4745-b333-81182d86c6c7")
+			(uuid "a0ef2897-f159-4d2d-9aff-6ba013769a35")
 		)
 		(instances
 			(project ""
 				(path "/64884559-cbe4-442b-837a-f1967fbf7136"
-					(reference "#PWR?")
+					(reference "#PWR04")
 					(unit 1)
 				)
 			)
 		)
 	)
 	(symbol
-		(lib_id "ProPrj_Fau-easyedapro:Ground-GND")
-		(at 39.37 63.5 0)
+		(lib_id "power:+5V")
+		(at 48.26 20.32 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "cc4875cb-ecf3-409d-9e3d-7d5518cf1265")
-		(property "Reference" "#PWR?"
-			(at 39.37 63.5 0)
+		(fields_autoplaced yes)
+		(uuid "bdfa1e59-ad6c-4373-acb6-597f5d9c524b")
+		(property "Reference" "#PWR05"
+			(at 48.26 24.13 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4431,16 +4653,16 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "GND"
-			(at 39.37 69.85 0)
+		(property "Value" "+5V"
+			(at 48.26 15.24 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Footprint" "ProPrj_Fau-easyedapro:"
-			(at 39.37 63.5 0)
+		(property "Footprint" ""
+			(at 48.26 20.32 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4449,7 +4671,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 39.37 63.5 0)
+			(at 48.26 20.32 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4457,8 +4679,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 39.37 63.5 0)
+		(property "Description" "Power symbol creates a global label with name \"+5V\""
+			(at 48.26 20.32 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4467,12 +4689,78 @@
 			)
 		)
 		(pin "1"
-			(uuid "38537325-a6dd-48bd-959d-bd2539b3cce5")
+			(uuid "e2b7cabb-da6f-4de4-b8c9-d9f1d2f9ae58")
 		)
 		(instances
 			(project ""
 				(path "/64884559-cbe4-442b-837a-f1967fbf7136"
-					(reference "#PWR?")
+					(reference "#PWR05")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 39.37 33.02 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "dae028d6-530e-41df-a507-ab84752b44a6")
+		(property "Reference" "#PWR02"
+			(at 39.37 39.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 39.37 38.1 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 39.37 33.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 39.37 33.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 39.37 33.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "451a17a2-ad85-4d30-b623-32fcd30d25a9")
+		)
+		(instances
+			(project ""
+				(path "/64884559-cbe4-442b-837a-f1967fbf7136"
+					(reference "#PWR02")
 					(unit 1)
 				)
 			)
@@ -4548,71 +4836,6 @@
 	)
 	(symbol
 		(lib_id "ProPrj_Fau-easyedapro:Ground-GND")
-		(at 125.73 66.04 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "e58fc36d-3e39-489d-8c50-b685377503b2")
-		(property "Reference" "#PWR?"
-			(at 125.73 66.04 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 125.73 72.39 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "ProPrj_Fau-easyedapro:"
-			(at 125.73 66.04 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 125.73 66.04 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 125.73 66.04 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "33db3732-28f0-4992-b369-cbc6d1e23f7c")
-		)
-		(instances
-			(project ""
-				(path "/64884559-cbe4-442b-837a-f1967fbf7136"
-					(reference "#PWR?")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "ProPrj_Fau-easyedapro:Ground-GND")
 		(at 80.01 129.54 0)
 		(unit 1)
 		(exclude_from_sim no)
@@ -4671,121 +4894,6 @@
 			(project ""
 				(path "/64884559-cbe4-442b-837a-f1967fbf7136"
 					(reference "#PWR?")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "ProPrj_Fau-easyedapro:ZX-XH2.54-3PZZ")
-		(at 26.67 58.42 180)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "edde42dd-357a-4b54-985b-496157dc3eb0")
-		(property "Reference" "24V"
-			(at 26.67 52.07 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "ZX-XH2.54-3PZZ"
-			(at 24.13 66.04 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "ProPrj_Fau-easyedapro:CONN-TH_3P-P2.54_2501S-3P"
-			(at 26.67 58.42 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "https://item.szlcsc.com/datasheet/ZX-XH2.54-3PZZ/8427550.html"
-			(at 26.67 58.42 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Pins Structure:1x3P Pitch:2.5mm Mounting Type:Through Hole Reference Series:XH Number of Pins:3P Number of Rows:1 Number of PINs Per Row:3 Row Spacing:- Current Rating:3A Contact Material:Brass Contact Plating:Tin Operating Temperature:-25°C~+85°C Operating"
-			(at 26.67 58.42 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Manufacturer Part" "ZX-XH2.54-3PZZ"
-			(at 26.67 58.42 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Manufacturer" "Megastar(兆星)"
-			(at 26.67 58.42 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Supplier Part" "C7429633"
-			(at 26.67 58.42 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Supplier" "LCSC"
-			(at 26.67 58.42 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "LCSC Part Name" "1x3P 间距:2.5mm 直插 系列:XH"
-			(at 26.67 58.42 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "06db9583-6782-47f0-8e80-f34bd9b39ce3")
-		)
-		(pin "2"
-			(uuid "3df8553c-0078-4da3-8eb1-814d5bdfc1bd")
-		)
-		(pin "3"
-			(uuid "ba503476-eb19-43f3-a745-853160f510d8")
-		)
-		(instances
-			(project ""
-				(path "/64884559-cbe4-442b-837a-f1967fbf7136"
-					(reference "24V")
 					(unit 1)
 				)
 			)
