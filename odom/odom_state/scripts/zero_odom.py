@@ -8,7 +8,7 @@ class ZeroOdomPublisherNode(rclpy.Node):
         super().__init__('zero_odom')
 
         # Makes publisher
-        self.publisher_ = self.create_publisher(Odometry, 'zero_odom', 1)
+        self.publisher = self.create_publisher(Odometry, 'zero_odom', 1)
 
         # Time intervals
         timer_period = 1/5  # seconds
@@ -20,7 +20,7 @@ class ZeroOdomPublisherNode(rclpy.Node):
         self.zero_odom.child_frame_id = "base_link"
 
     def timer_callback(self):
-        self.publisher_.publish(self.zero_odom)
+        self.publisher.publish(self.zero_odom)
 
 
 def main(args = None):
