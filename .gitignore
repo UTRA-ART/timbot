@@ -40,8 +40,9 @@
 # debug information files
 *.dwo
 
-# ignore these foldrs
-*/build/
-*/logs/
-*/devel/
-*/install/
+**/build/
+**/logs/
+**/devel/
+**/install/
+**/__pycache__/
+
