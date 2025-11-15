@@ -44,8 +44,8 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
-        DeclareLaunchArgument('launch_state', default_value='sim'),
-        lane_detection_inference,
-        lane_viz,
-        lane_scan_cpp
+        DeclareLaunchArgument('launch_state', default_value='sim'), # Declare launch argument with default value 'sim'
+        lane_detection_inference,                                   # Add lane detection inference node to launch description
+        lane_viz,                                                   # Add lane visualization node to launch description
+        lane_scan_cpp                                               # Add lane scan node to launch description
     ])
