@@ -39,3 +39,9 @@
 
 # debug information files
 *.dwo
+
+# ignore these foldrs
+*/build/
+*/logs/
+*/devel/
+*/install/
