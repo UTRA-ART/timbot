@@ -57,6 +57,18 @@ class RampNavigateNode : public rclcpp::Node {
     // Migrate ramp navigation logic here
     return;
   }
+
+  bool pass_length(const std::vector<geometry_msgs::msg::Pose>& seg) {
+    const auto& front = seg.front().position;
+    const auto& back = seg.back().position;
+    const float dx = front.x - back.x;
+    const float dy = front.y - back.y;
+    const float dz = front.z - back.z;
+    const float incline_len2 = dx*dx + dy*dy + dz*dz;
+    const float min_len = 2.5;
+    const float max_len = 4;
+    return incline_len2 >= min_len*min_len && incline_len2 <= max_len*max_len;
+  }
 };
 
 
