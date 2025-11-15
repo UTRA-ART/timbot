@@ -39,3 +39,11 @@
 
 # debug information files
 *.dwo
+
+**/build/
+**/logs/
+**/log/
+**/devel/
+**/install/
+**/__pycache__/
+

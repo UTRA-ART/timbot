@@ -1,6 +1,0 @@
-Invoking command in '/home/samson/uart/timbot/cv/lane_detection/build/lane_detection': /usr/bin/cmake /home/samson/uart/timbot/cv/lane_detection -DCMAKE_INSTALL_PREFIX=/home/samson/uart/timbot/cv/lane_detection/install/lane_detection
-Invoked command in '/home/samson/uart/timbot/cv/lane_detection/build/lane_detection' returned '0': /usr/bin/cmake /home/samson/uart/timbot/cv/lane_detection -DCMAKE_INSTALL_PREFIX=/home/samson/uart/timbot/cv/lane_detection/install/lane_detection
-Invoking command in '/home/samson/uart/timbot/cv/lane_detection/build/lane_detection': /usr/bin/cmake --build /home/samson/uart/timbot/cv/lane_detection/build/lane_detection -- -j8 -l8
-Invoked command in '/home/samson/uart/timbot/cv/lane_detection/build/lane_detection' returned '0': /usr/bin/cmake --build /home/samson/uart/timbot/cv/lane_detection/build/lane_detection -- -j8 -l8
-Invoking command in '/home/samson/uart/timbot/cv/lane_detection/build/lane_detection': /usr/bin/cmake --install /home/samson/uart/timbot/cv/lane_detection/build/lane_detection
-Invoked command in '/home/samson/uart/timbot/cv/lane_detection/build/lane_detection' returned '0': /usr/bin/cmake --install /home/samson/uart/timbot/cv/lane_detection/build/lane_detection

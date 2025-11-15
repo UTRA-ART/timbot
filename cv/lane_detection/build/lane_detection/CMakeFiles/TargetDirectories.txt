@@ -1,9 +1,0 @@
-/home/samson/uart/timbot/cv/lane_detection/build/lane_detection/CMakeFiles/uninstall.dir
-/home/samson/uart/timbot/cv/lane_detection/build/lane_detection/CMakeFiles/lane_detection_uninstall.dir
-/home/samson/uart/timbot/cv/lane_detection/build/lane_detection/CMakeFiles/test.dir
-/home/samson/uart/timbot/cv/lane_detection/build/lane_detection/CMakeFiles/edit_cache.dir
-/home/samson/uart/timbot/cv/lane_detection/build/lane_detection/CMakeFiles/rebuild_cache.dir
-/home/samson/uart/timbot/cv/lane_detection/build/lane_detection/CMakeFiles/list_install_components.dir
-/home/samson/uart/timbot/cv/lane_detection/build/lane_detection/CMakeFiles/install.dir
-/home/samson/uart/timbot/cv/lane_detection/build/lane_detection/CMakeFiles/install/local.dir
-/home/samson/uart/timbot/cv/lane_detection/build/lane_detection/CMakeFiles/install/strip.dir
