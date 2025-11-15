@@ -4524,7 +4524,7 @@
 				(justify right)
 			)
 		)
-		(property "Value" "R_Potentiometer"
+		(property "Value" "10K"
 			(at 118.11 52.0699 0)
 			(effects
 				(font
