@@ -151,6 +151,37 @@ class RampNavigateNode : public rclcpp::Node {
 
 }
 
+void cross(geometry_msgs::msg::PoseStamped goal, const float xmid, const float ymid, const Eigen::Matrix2d ramp2map) {
+    std_msgs::Bool is_on_ramp;
+    is_on_ramp.data = true;
+    ramp_routine_pub.publish(is_on_ramp); // Send message that we are currently crossing ramp
+        
+    const float ramp_traverse_dist = 8; // Total distance to traverse 
+    const int traverse_count = 8; // How many goal points to set along the ramp
+    const Eigen::Vector2d incr = ramp2map * Eigen::Vector2d(ramp_traverse_dist / traverse_count, 0); // Make it a tiny bit past the ramp
+
+    float px = xmid;
+    float py = ymid;
+
+    // Set goals at repeated small increments across ramp
+    for (int i = 0; i < traverse_count; i += 1) {
+      //goal.target_pose.header.stamp = ros::Time::now();
+      px += incr[0];
+      py += incr[1];
+      goal.pose.position.x = px;
+      goal.pose.position.y = py;
+
+      ac.async_send_goal(goal /*, goal options*/);
+
+      // wait for the result, this might not be correct
+      std::shared_future<WrappedResult> result = ac.async_get_result();
+      result.wait();
+    }
+        
+    ROS_INFO("Finished Ramp Crossing");
+    state = no_ramp; // After we finish crossing ramp
+  }
+
   bool pass_length(const std::vector<geometry_msgs::msg::Pose>& seg) {
     const auto& front = seg.front().position;
     const auto& back = seg.back().position;
