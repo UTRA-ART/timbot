@@ -1729,131 +1729,6 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "ProPrj_Fau-easyedapro:Ground-GND"
-			(power)
-			(pin_numbers
-				(hide yes)
-			)
-			(pin_names
-				(hide yes)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "#PWR"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Value" "GND"
-				(at 0 -6.35 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" "ProPrj_Fau-easyedapro:"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "Ground-GND_1_0"
-				(polyline
-					(pts
-						(xy -2.54 -2.54) (xy 2.54 -2.54)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy -1.778 -3.302) (xy 1.778 -3.302)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy -1.016 -4.064) (xy 1.016 -4.064)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy -0.254 -4.826) (xy 0.254 -4.826)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(pin power_in line
-					(at 0 0 270)
-					(length 2.54)
-					(name "GND"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 0.0254 0.0254)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
 		(symbol "ProPrj_Fau-easyedapro:XH-2A"
 			(exclude_from_sim no)
 			(in_bom yes)
@@ -4835,16 +4710,17 @@
 		)
 	)
 	(symbol
-		(lib_id "ProPrj_Fau-easyedapro:Ground-GND")
+		(lib_id "power:GND")
 		(at 80.01 129.54 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "eb555378-2ff4-4e6a-b51a-7f254262080e")
-		(property "Reference" "#PWR?"
-			(at 80.01 129.54 0)
+		(fields_autoplaced yes)
+		(uuid "e92581be-be58-4cfb-99e5-181968522b8b")
+		(property "Reference" "#PWR07"
+			(at 80.01 135.89 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4853,14 +4729,14 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 80.01 135.89 0)
+			(at 80.01 134.62 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Footprint" "ProPrj_Fau-easyedapro:"
+		(property "Footprint" ""
 			(at 80.01 129.54 0)
 			(effects
 				(font
@@ -4878,7 +4754,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
 			(at 80.01 129.54 0)
 			(effects
 				(font
@@ -4888,12 +4764,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "6ad976db-a773-49eb-9904-bed3560b2d6b")
+			(uuid "83a79d4d-bcab-41bf-86c8-9e8b01f7cf0d")
 		)
 		(instances
 			(project ""
 				(path "/64884559-cbe4-442b-837a-f1967fbf7136"
-					(reference "#PWR?")
+					(reference "#PWR07")
 					(unit 1)
 				)
 			)
