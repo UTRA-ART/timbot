@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "ProPrj_FaultMonitor_2025-11-15(4)")(type "KiCad")(uri "$(KIPRJMOD)/fault-monitor.pretty")(options "")(descr ""))
+)

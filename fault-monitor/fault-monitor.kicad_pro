@@ -451,7 +451,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "ProPrj_FaultMonitor_2025-11-15(4).kicad_pro",
+    "filename": "fault-monitor.kicad_pro",
     "version": 3
   },
   "net_settings": {

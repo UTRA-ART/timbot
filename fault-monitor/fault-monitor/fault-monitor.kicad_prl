@@ -59,7 +59,7 @@
     "ssh_key": ""
   },
   "meta": {
-    "filename": "ProPrj_FaultMonitor_2025-11-15(4).kicad_prl",
+    "filename": "fault-monitor.kicad_prl",
     "version": 5
   },
   "net_inspector_panel": {
