@@ -5,6 +5,7 @@
 #include <nav2_msgs/action/navigate_to_pose.hpp>
 #include <nav2_bt_navigator/navigators/navigate_to_pose.hpp>
 #include <rclcpp_action/rclcpp_action.hpp>
+#include <rclcpp_action/client_goal_handle.hpp>
 #include <string>
 #include <tf2_ros/transform_listener.h>
 
@@ -174,7 +175,7 @@ void cross(geometry_msgs::msg::PoseStamped goal, const float xmid, const float y
       ac.async_send_goal(goal /*, goal options*/);
 
       // wait for the result, this might not be correct
-      std::shared_future<WrappedResult> result = ac.async_get_result();
+      std::shared_future<rclcpp::client_goal_handle::WrappedResult> result = ac.async_get_result();
       result.wait();
     }
         
