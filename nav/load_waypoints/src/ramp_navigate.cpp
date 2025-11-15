@@ -3,6 +3,7 @@
 #include <functional>
 #include <memory>
 #include <nav2_msgs/action/navigate_to_pose.hpp>
+#include <nav2_bt_navigator/navigators/navigate_to_pose.hpp>
 #include <rclcpp_action/rclcpp_action.hpp>
 #include <string>
 #include <tf2_ros/transform_listener.h>
@@ -124,10 +125,31 @@ class RampNavigateNode : public rclcpp::Node {
     }
   }
 
-  // A bit more after this
-
-    return;
+  // Set a move base goal for the middle front of the ramp
+  geometry_msgs::msg::PoseStamped goal;
+  goal.pose.position.x = px;
+  goal.pose.position.y = py;
+  goal.pose.orientation.w = 1;
+  while (!ac.waitForServer(rclcpp::Duration(0.0))) {
+    ROS_INFO("Waiting for the move_base action server to come up");
   }
+  
+  // Might not be the right function
+  ac.async_send_goal(goal/*, options, allows to specify callback functions*/);
+
+  const float goalerror2 = (px - caff.x()) * (px - caff.x()) + (py - caff.y()) * (py - caff.y());
+  if (goalerror2 < 2.0) {
+    ROS_INFO("ON RAMP: Initiating ramp crossing");
+    state = on_ramp;
+    cross(goal, xmid, ymid, ramp2map); // Continue rest of navigation across ramp
+
+    std_msgs::Bool naving_msg;
+    naving_msg.data = false;
+    ramp_naving_pub.publish(naving_msg);
+    ramps_to_cross -= 1;
+  }
+
+}
 
   bool pass_length(const std::vector<geometry_msgs::msg::Pose>& seg) {
     const auto& front = seg.front().position;
