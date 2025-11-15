@@ -5,6 +5,7 @@
 #include <nav2_msgs/action/navigate_to_pose.hpp>
 #include <rclcpp_action/rclcpp_action.hpp>
 #include <string>
+#include <tf2_ros/transform_listener.h>
 
 #include "geometry_msgs/msg/pose_array.hpp"
 #include "nav_msgs/msg/path.hpp"
@@ -50,11 +51,81 @@ class RampNavigateNode : public rclcpp::Node {
   float slope, xmid, ymid, px, py;
 
   // Eigen::Matrix2d ramp2map;
+  tf2_ros::TransformListener tfListener;
   // tf::TransformListener tfListener;
 
   void rampFrontCallback(
       const geometry_msgs::msg::PoseArray::SharedPtr ramp_seg) {
     // Migrate ramp navigation logic here
+    if (state == on_ramp || ramps_to_cross <= 0) {
+      return;
+    }
+
+    // If the length of ramp segment is not within expected range, do not proceed
+    // Also make sure the ramp is detected for more than one time point (confirm it's actually there)
+    if (!pass_length(ramp_seg->poses)) {
+      if (pre_ramp_detections > 0) {
+        no_ramp_period += 1;
+        if (no_ramp_period > 3) {
+          pre_ramp_detections = 0;
+          no_ramp_period = 0;
+        }
+      }
+      return;
+    }
+    pre_ramp_detections += 1;
+
+    // Obtain base_link -> map transform
+    tf2_ros::TransformStamped transform;
+    tfListener.lookupTransform("map", "base_link", ros::Time(0), transform);
+    const auto& caff = transform.getOrigin();
+
+    // Find the middle point in front of ramp
+    const auto& front = ramp_seg->poses.front().position;
+    const auto& back = ramp_seg->poses.back().position;
+    const float x_len = back.x - front.x;
+    const float y_len = back.y - front.y;
+    const float len = sqrt(x_len*x_len + y_len*y_len); // Length of detected ramp segment
+
+    Eigen::Matrix2d ramp2map_;
+    ramp2map_ << y_len, x_len,
+                -x_len, y_len;
+    ramp2map_ = ramp2map_ / len;
+    Eigen::Vector2d mid(-1, 0.5 * len);
+    Eigen::Vector2d midmap = ramp2map * mid + Eigen::Vector2d(front.x, front.y);
+
+    // Make the goal closer to ramp until within proximity
+    // to mitigate  error caused by calculating the front of ramp to be too far away
+    const float goal_dist2 = (midmap[0] - caff.x())*(midmap[0] - caff.x()) + (midmap[1] - caff.y())*(midmap[1] - caff.y());
+    if (goal_dist2 > 3.0*3.0) {
+      midmap = ramp2map * Eigen::Vector2d(0, 0.5 * len) + Eigen::Vector2d(front.x, front.y);
+    }
+
+    const float mvavg = 0.5;
+    const float mvavg_st = 1 - mvavg;
+
+    ramp2map = ramp2map * mvavg_st + mvavg * ramp2map_;
+    xmid = xmid * mvavg_st + mvavg * midmap[0];
+    ymid = ymid * mvavg_st + mvavg * midmap[1];
+
+    // Goal x, y in map frame
+    px = xmid;
+    py = ymid;
+
+    if (state == no_ramp) {
+      if (pre_ramp_detections < 10) {
+        return;
+      } else {
+        state = to_ramp;
+        pre_ramp_detections = 0;
+        std_msgs::Bool naving_msg;
+        naving_msg.data = true;
+        ramp_naving_pub.publish(naving_msg); // Send message that we are current in ramp navigation mode
+    }
+  }
+
+  // A bit more after this
+
     return;
   }
 
