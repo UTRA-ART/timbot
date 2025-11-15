@@ -8,7 +8,8 @@ from launch_ros.substitutions import FindPackageShare
 from launch.substitutions import PathJoinSubstitution
 
 def generate_launch_description():
-    # TODO: DO WE STILL USE THIS?
+    # TODO: We previously used launch_state to switch the zed camera topic image is mapped to.
+    # It was commented out, so it's unclear if it's still needed. We will use RGB for now and see if any issues arise.
     launch_state = LaunchConfiguration('launch_state')
 
     # Get parameters for lane detection from its yaml file
@@ -24,7 +25,7 @@ def generate_launch_description():
         name='lane_detection_inference',                            # Name of the node
         output='screen',
         parameters=[lane_detection_params],                         # Custom parameters
-        remappings=[('image', '/zed_node/left/image_rect_color')],  # Remap input image topic to ZED camera topic
+        remappings=[('image', '/zed_node/rgb/image_rect_color')],   # Remap input image topic to ZED camera topic
     )
 
     # Visualizes lane detection results
