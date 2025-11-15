@@ -2327,44 +2327,44 @@
 		)
 	)
 	(junction
-		(at 58.42 109.22)
+		(at 80.01 127)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "37b8044c-4369-4a8c-af34-e231c7772c7f")
 	)
 	(junction
-		(at 26.67 55.88)
+		(at 48.26 73.66)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "79dfb3c3-f5ea-4e63-9867-a3d10dd148d2")
 	)
 	(junction
-		(at 24.13 5.08)
+		(at 45.72 22.86)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "967c8bc4-6567-4949-9b3d-be209a2ef195")
 	)
 	(junction
-		(at 58.42 83.82)
+		(at 80.01 101.6)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "9cfb5a78-3f37-4489-851a-8869d23736bd")
 	)
 	(junction
-		(at 58.42 96.52)
+		(at 80.01 114.3)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "b18c957e-47fa-4e85-ade6-8b0f5d0c016d")
 	)
 	(junction
-		(at 17.78 43.18)
+		(at 39.37 60.96)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "ca085668-7625-4e4e-b045-52e6534b1b4b")
 	)
 	(wire
 		(pts
-			(xy 58.42 96.52) (xy 58.42 109.22)
+			(xy 80.01 114.3) (xy 80.01 127)
 		)
 		(stroke
 			(width 0)
@@ -2374,7 +2374,7 @@
 	)
 	(wire
 		(pts
-			(xy 17.78 40.64) (xy 10.16 40.64)
+			(xy 39.37 58.42) (xy 31.75 58.42)
 		)
 		(stroke
 			(width 0)
@@ -2384,7 +2384,7 @@
 	)
 	(wire
 		(pts
-			(xy 104.14 27.94) (xy 102.87 27.94)
+			(xy 125.73 45.72) (xy 124.46 45.72)
 		)
 		(stroke
 			(width 0)
@@ -2394,7 +2394,7 @@
 	)
 	(wire
 		(pts
-			(xy 31.75 27.94) (xy 31.75 96.52)
+			(xy 53.34 45.72) (xy 53.34 114.3)
 		)
 		(stroke
 			(width 0)
@@ -2404,7 +2404,7 @@
 	)
 	(wire
 		(pts
-			(xy 36.83 33.02) (xy 36.83 71.12)
+			(xy 58.42 50.8) (xy 58.42 88.9)
 		)
 		(stroke
 			(width 0)
@@ -2414,7 +2414,7 @@
 	)
 	(wire
 		(pts
-			(xy 58.42 109.22) (xy 58.42 111.76)
+			(xy 80.01 127) (xy 80.01 129.54)
 		)
 		(stroke
 			(width 0)
@@ -2424,7 +2424,7 @@
 	)
 	(wire
 		(pts
-			(xy 24.13 5.08) (xy 24.13 2.54)
+			(xy 45.72 22.86) (xy 45.72 20.32)
 		)
 		(stroke
 			(width 0)
@@ -2434,7 +2434,7 @@
 	)
 	(wire
 		(pts
-			(xy 34.29 30.48) (xy 34.29 83.82)
+			(xy 55.88 48.26) (xy 55.88 101.6)
 		)
 		(stroke
 			(width 0)
@@ -2444,7 +2444,7 @@
 	)
 	(wire
 		(pts
-			(xy 17.78 10.16) (xy 17.78 15.24)
+			(xy 39.37 27.94) (xy 39.37 33.02)
 		)
 		(stroke
 			(width 0)
@@ -2454,7 +2454,7 @@
 	)
 	(wire
 		(pts
-			(xy 17.78 43.18) (xy 17.78 40.64)
+			(xy 39.37 60.96) (xy 39.37 58.42)
 		)
 		(stroke
 			(width 0)
@@ -2464,7 +2464,7 @@
 	)
 	(wire
 		(pts
-			(xy 36.83 71.12) (xy 40.64 71.12)
+			(xy 58.42 88.9) (xy 62.23 88.9)
 		)
 		(stroke
 			(width 0)
@@ -2474,7 +2474,7 @@
 	)
 	(wire
 		(pts
-			(xy 93.98 40.64) (xy 102.87 40.64)
+			(xy 115.57 58.42) (xy 124.46 58.42)
 		)
 		(stroke
 			(width 0)
@@ -2484,7 +2484,7 @@
 	)
 	(wire
 		(pts
-			(xy 58.42 71.12) (xy 58.42 83.82)
+			(xy 80.01 88.9) (xy 80.01 101.6)
 		)
 		(stroke
 			(width 0)
@@ -2494,7 +2494,7 @@
 	)
 	(wire
 		(pts
-			(xy 73.66 27.94) (xy 80.01 27.94)
+			(xy 95.25 45.72) (xy 101.6 45.72)
 		)
 		(stroke
 			(width 0)
@@ -2504,7 +2504,7 @@
 	)
 	(wire
 		(pts
-			(xy 99.06 5.08) (xy 91.44 5.08)
+			(xy 120.65 22.86) (xy 113.03 22.86)
 		)
 		(stroke
 			(width 0)
@@ -2514,7 +2514,7 @@
 	)
 	(wire
 		(pts
-			(xy 73.66 33.02) (xy 88.9 33.02)
+			(xy 95.25 50.8) (xy 110.49 50.8)
 		)
 		(stroke
 			(width 0)
@@ -2524,7 +2524,7 @@
 	)
 	(wire
 		(pts
-			(xy 99.06 10.16) (xy 93.98 10.16)
+			(xy 120.65 27.94) (xy 115.57 27.94)
 		)
 		(stroke
 			(width 0)
@@ -2534,7 +2534,7 @@
 	)
 	(wire
 		(pts
-			(xy 12.7 55.88) (xy 26.67 55.88)
+			(xy 34.29 73.66) (xy 48.26 73.66)
 		)
 		(stroke
 			(width 0)
@@ -2544,7 +2544,7 @@
 	)
 	(wire
 		(pts
-			(xy 93.98 25.4) (xy 93.98 27.94)
+			(xy 115.57 43.18) (xy 115.57 45.72)
 		)
 		(stroke
 			(width 0)
@@ -2554,7 +2554,7 @@
 	)
 	(wire
 		(pts
-			(xy 102.87 40.64) (xy 102.87 27.94)
+			(xy 124.46 58.42) (xy 124.46 45.72)
 		)
 		(stroke
 			(width 0)
@@ -2564,7 +2564,7 @@
 	)
 	(wire
 		(pts
-			(xy 24.13 5.08) (xy 10.16 5.08)
+			(xy 45.72 22.86) (xy 31.75 22.86)
 		)
 		(stroke
 			(width 0)
@@ -2574,7 +2574,7 @@
 	)
 	(wire
 		(pts
-			(xy 24.13 7.62) (xy 10.16 7.62)
+			(xy 45.72 25.4) (xy 31.75 25.4)
 		)
 		(stroke
 			(width 0)
@@ -2584,7 +2584,7 @@
 	)
 	(wire
 		(pts
-			(xy 31.75 27.94) (xy 50.8 27.94)
+			(xy 53.34 45.72) (xy 72.39 45.72)
 		)
 		(stroke
 			(width 0)
@@ -2594,7 +2594,7 @@
 	)
 	(wire
 		(pts
-			(xy 93.98 40.64) (xy 93.98 38.1)
+			(xy 115.57 58.42) (xy 115.57 55.88)
 		)
 		(stroke
 			(width 0)
@@ -2604,7 +2604,7 @@
 	)
 	(wire
 		(pts
-			(xy 24.13 40.64) (xy 50.8 40.64)
+			(xy 45.72 58.42) (xy 72.39 58.42)
 		)
 		(stroke
 			(width 0)
@@ -2614,7 +2614,7 @@
 	)
 	(wire
 		(pts
-			(xy 55.88 83.82) (xy 58.42 83.82)
+			(xy 77.47 101.6) (xy 80.01 101.6)
 		)
 		(stroke
 			(width 0)
@@ -2624,7 +2624,7 @@
 	)
 	(wire
 		(pts
-			(xy 17.78 10.16) (xy 10.16 10.16)
+			(xy 39.37 27.94) (xy 31.75 27.94)
 		)
 		(stroke
 			(width 0)
@@ -2634,7 +2634,7 @@
 	)
 	(wire
 		(pts
-			(xy 99.06 15.24) (xy 85.09 15.24)
+			(xy 120.65 33.02) (xy 106.68 33.02)
 		)
 		(stroke
 			(width 0)
@@ -2644,7 +2644,7 @@
 	)
 	(wire
 		(pts
-			(xy 38.1 45.72) (xy 50.8 45.72)
+			(xy 59.69 63.5) (xy 72.39 63.5)
 		)
 		(stroke
 			(width 0)
@@ -2654,7 +2654,7 @@
 	)
 	(wire
 		(pts
-			(xy 10.16 38.1) (xy 50.8 38.1)
+			(xy 31.75 55.88) (xy 72.39 55.88)
 		)
 		(stroke
 			(width 0)
@@ -2664,7 +2664,7 @@
 	)
 	(wire
 		(pts
-			(xy 29.21 25.4) (xy 29.21 109.22)
+			(xy 50.8 43.18) (xy 50.8 127)
 		)
 		(stroke
 			(width 0)
@@ -2674,7 +2674,7 @@
 	)
 	(wire
 		(pts
-			(xy 88.9 45.72) (xy 73.66 45.72)
+			(xy 110.49 63.5) (xy 95.25 63.5)
 		)
 		(stroke
 			(width 0)
@@ -2684,7 +2684,7 @@
 	)
 	(wire
 		(pts
-			(xy 55.88 96.52) (xy 58.42 96.52)
+			(xy 77.47 114.3) (xy 80.01 114.3)
 		)
 		(stroke
 			(width 0)
@@ -2694,7 +2694,7 @@
 	)
 	(wire
 		(pts
-			(xy 17.78 45.72) (xy 17.78 43.18)
+			(xy 39.37 63.5) (xy 39.37 60.96)
 		)
 		(stroke
 			(width 0)
@@ -2704,7 +2704,7 @@
 	)
 	(wire
 		(pts
-			(xy 40.64 20.32) (xy 50.8 20.32)
+			(xy 62.23 38.1) (xy 72.39 38.1)
 		)
 		(stroke
 			(width 0)
@@ -2714,7 +2714,7 @@
 	)
 	(wire
 		(pts
-			(xy 10.16 43.18) (xy 12.7 43.18)
+			(xy 31.75 60.96) (xy 34.29 60.96)
 		)
 		(stroke
 			(width 0)
@@ -2724,7 +2724,7 @@
 	)
 	(wire
 		(pts
-			(xy 36.83 33.02) (xy 50.8 33.02)
+			(xy 58.42 50.8) (xy 72.39 50.8)
 		)
 		(stroke
 			(width 0)
@@ -2734,7 +2734,7 @@
 	)
 	(wire
 		(pts
-			(xy 99.06 12.7) (xy 86.36 12.7)
+			(xy 120.65 30.48) (xy 107.95 30.48)
 		)
 		(stroke
 			(width 0)
@@ -2744,7 +2744,7 @@
 	)
 	(wire
 		(pts
-			(xy 55.88 71.12) (xy 58.42 71.12)
+			(xy 77.47 88.9) (xy 80.01 88.9)
 		)
 		(stroke
 			(width 0)
@@ -2754,7 +2754,7 @@
 	)
 	(wire
 		(pts
-			(xy 26.67 5.08) (xy 24.13 5.08)
+			(xy 48.26 22.86) (xy 45.72 22.86)
 		)
 		(stroke
 			(width 0)
@@ -2764,7 +2764,7 @@
 	)
 	(wire
 		(pts
-			(xy 99.06 2.54) (xy 88.9 2.54)
+			(xy 120.65 20.32) (xy 110.49 20.32)
 		)
 		(stroke
 			(width 0)
@@ -2774,7 +2774,7 @@
 	)
 	(wire
 		(pts
-			(xy 82.55 48.26) (xy 73.66 48.26)
+			(xy 104.14 66.04) (xy 95.25 66.04)
 		)
 		(stroke
 			(width 0)
@@ -2784,7 +2784,7 @@
 	)
 	(wire
 		(pts
-			(xy 99.06 7.62) (xy 86.36 7.62)
+			(xy 120.65 25.4) (xy 107.95 25.4)
 		)
 		(stroke
 			(width 0)
@@ -2794,7 +2794,7 @@
 	)
 	(wire
 		(pts
-			(xy 55.88 109.22) (xy 58.42 109.22)
+			(xy 77.47 127) (xy 80.01 127)
 		)
 		(stroke
 			(width 0)
@@ -2804,7 +2804,7 @@
 	)
 	(wire
 		(pts
-			(xy 93.98 25.4) (xy 104.14 25.4)
+			(xy 115.57 43.18) (xy 125.73 43.18)
 		)
 		(stroke
 			(width 0)
@@ -2814,7 +2814,7 @@
 	)
 	(wire
 		(pts
-			(xy 29.21 109.22) (xy 40.64 109.22)
+			(xy 50.8 127) (xy 62.23 127)
 		)
 		(stroke
 			(width 0)
@@ -2824,7 +2824,7 @@
 	)
 	(wire
 		(pts
-			(xy 17.78 43.18) (xy 50.8 43.18)
+			(xy 39.37 60.96) (xy 72.39 60.96)
 		)
 		(stroke
 			(width 0)
@@ -2834,7 +2834,7 @@
 	)
 	(wire
 		(pts
-			(xy 24.13 7.62) (xy 24.13 40.64)
+			(xy 45.72 25.4) (xy 45.72 58.42)
 		)
 		(stroke
 			(width 0)
@@ -2844,7 +2844,7 @@
 	)
 	(wire
 		(pts
-			(xy 31.75 96.52) (xy 40.64 96.52)
+			(xy 53.34 114.3) (xy 62.23 114.3)
 		)
 		(stroke
 			(width 0)
@@ -2854,7 +2854,7 @@
 	)
 	(wire
 		(pts
-			(xy 26.67 5.08) (xy 26.67 55.88)
+			(xy 48.26 22.86) (xy 48.26 73.66)
 		)
 		(stroke
 			(width 0)
@@ -2864,7 +2864,7 @@
 	)
 	(wire
 		(pts
-			(xy 26.67 55.88) (xy 50.8 55.88)
+			(xy 48.26 73.66) (xy 72.39 73.66)
 		)
 		(stroke
 			(width 0)
@@ -2874,7 +2874,7 @@
 	)
 	(wire
 		(pts
-			(xy 88.9 38.1) (xy 73.66 38.1)
+			(xy 110.49 55.88) (xy 95.25 55.88)
 		)
 		(stroke
 			(width 0)
@@ -2884,7 +2884,7 @@
 	)
 	(wire
 		(pts
-			(xy 29.21 25.4) (xy 50.8 25.4)
+			(xy 50.8 43.18) (xy 72.39 43.18)
 		)
 		(stroke
 			(width 0)
@@ -2894,7 +2894,7 @@
 	)
 	(wire
 		(pts
-			(xy 34.29 83.82) (xy 40.64 83.82)
+			(xy 55.88 101.6) (xy 62.23 101.6)
 		)
 		(stroke
 			(width 0)
@@ -2904,7 +2904,7 @@
 	)
 	(wire
 		(pts
-			(xy 58.42 83.82) (xy 58.42 96.52)
+			(xy 80.01 101.6) (xy 80.01 114.3)
 		)
 		(stroke
 			(width 0)
@@ -2914,7 +2914,7 @@
 	)
 	(wire
 		(pts
-			(xy 12.7 55.88) (xy 12.7 43.18)
+			(xy 34.29 73.66) (xy 34.29 60.96)
 		)
 		(stroke
 			(width 0)
@@ -2924,7 +2924,7 @@
 	)
 	(wire
 		(pts
-			(xy 34.29 30.48) (xy 50.8 30.48)
+			(xy 55.88 48.26) (xy 72.39 48.26)
 		)
 		(stroke
 			(width 0)
@@ -2933,7 +2933,7 @@
 		(uuid "f2e787b0-d963-4d8b-ba2a-7a30b1ffad03")
 	)
 	(label "24V"
-		(at 93.98 25.4 0)
+		(at 115.57 43.18 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -2943,7 +2943,7 @@
 		(uuid "01641499-da91-4318-9204-c730113a823c")
 	)
 	(label "ALARMLEFT"
-		(at 86.36 12.7 0)
+		(at 107.95 30.48 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -2953,7 +2953,7 @@
 		(uuid "0935da51-2f9a-4bbb-a967-5b56c4db5e60")
 	)
 	(label "ALARMRIGHT"
-		(at 85.09 15.24 0)
+		(at 106.68 33.02 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -2963,7 +2963,7 @@
 		(uuid "173043ac-75f2-499b-8481-2ebef3425f9c")
 	)
 	(label "ALARMLEFT"
-		(at 38.1 45.72 0)
+		(at 59.69 63.5 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -2973,7 +2973,7 @@
 		(uuid "24f291db-de8f-4e1b-8015-7fdd3bdf84fc")
 	)
 	(label "STOPALL"
-		(at 40.64 20.32 0)
+		(at 62.23 38.1 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -2983,7 +2983,7 @@
 		(uuid "3c5b096a-2be8-4af7-b005-43c82ff0c30d")
 	)
 	(label "SOFTSTART"
-		(at 86.36 7.62 0)
+		(at 107.95 25.4 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -2993,7 +2993,7 @@
 		(uuid "60c642e2-43aa-46c7-8e70-9e4f2060fe09")
 	)
 	(label "STOPALL"
-		(at 88.9 2.54 0)
+		(at 110.49 20.32 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3003,7 +3003,7 @@
 		(uuid "6692258c-3241-40f1-8dcf-cc02a211dc9e")
 	)
 	(label "FAN"
-		(at 93.98 10.16 0)
+		(at 115.57 27.94 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3013,7 +3013,7 @@
 		(uuid "93c82d0c-8044-4684-af2e-62fb4a1bace9")
 	)
 	(label "RELAY"
-		(at 76.2 48.26 0)
+		(at 97.79 66.04 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3023,7 +3023,7 @@
 		(uuid "95b79aaa-a4df-4626-a1d0-8854d2d398a8")
 	)
 	(label "SOFTSTART"
-		(at 76.2 38.1 0)
+		(at 97.79 55.88 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3033,7 +3033,7 @@
 		(uuid "aaa0f7d3-2663-41e8-bf4f-a27705b47088")
 	)
 	(label "ALARMRIGHT"
-		(at 76.2 45.72 0)
+		(at 97.79 63.5 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3043,7 +3043,7 @@
 		(uuid "b8d40728-cafd-4e56-89bd-73baa2d2d353")
 	)
 	(label "FAN"
-		(at 76.2 27.94 0)
+		(at 97.79 45.72 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3053,7 +3053,7 @@
 		(uuid "bc476db6-3a0c-4f10-bfd5-42aa0adce2ed")
 	)
 	(label "RELAY"
-		(at 91.44 5.08 0)
+		(at 113.03 22.86 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3064,7 +3064,7 @@
 	)
 	(symbol
 		(lib_id "ProPrj_Fau-easyedapro:3362P-103-3H")
-		(at 93.98 33.02 90)
+		(at 115.57 50.8 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -3072,7 +3072,7 @@
 		(dnp no)
 		(uuid "0880243e-7d8d-4578-969f-14bab0cd637d")
 		(property "Reference" "R5"
-			(at 96.52 33.02 90)
+			(at 118.11 50.8 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3080,7 +3080,7 @@
 			)
 		)
 		(property "Value" "10kΩ"
-			(at 96.52 35.56 90)
+			(at 118.11 53.34 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3089,7 +3089,7 @@
 			)
 		)
 		(property "Footprint" "ProPrj_Fau-easyedapro:RES-ADJ-TH_3362P"
-			(at 93.98 33.02 0)
+			(at 115.57 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3098,7 +3098,7 @@
 			)
 		)
 		(property "Datasheet" "https://item.szlcsc.com/datasheet/3362P-103-3H/50920314.html"
-			(at 93.98 33.02 0)
+			(at 115.57 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3107,7 +3107,7 @@
 			)
 		)
 		(property "Description" "Resistance:10kΩ Tolerance:±10% Tolerance:±10% Power(Watts):500mW Temperature Coefficient:±250ppm/°C Temperature Coefficient:±250ppm/°C Number of Turns:"
-			(at 93.98 33.02 0)
+			(at 115.57 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3116,7 +3116,7 @@
 			)
 		)
 		(property "Manufacturer Part" "3362P-103-3H"
-			(at 93.98 33.02 0)
+			(at 115.57 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3125,7 +3125,7 @@
 			)
 		)
 		(property "Manufacturer" "BAOTER(宝特)"
-			(at 93.98 33.02 0)
+			(at 115.57 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3134,7 +3134,7 @@
 			)
 		)
 		(property "Supplier Part" "C48642051"
-			(at 93.98 33.02 0)
+			(at 115.57 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3143,7 +3143,7 @@
 			)
 		)
 		(property "Supplier" "LCSC"
-			(at 93.98 33.02 0)
+			(at 115.57 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3152,7 +3152,7 @@
 			)
 		)
 		(property "LCSC Part Name" "3362P 10KΩ±10% 高精度 高可靠 高稳定"
-			(at 93.98 33.02 0)
+			(at 115.57 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3180,7 +3180,7 @@
 	)
 	(symbol
 		(lib_id "ProPrj_Fau-easyedapro:DS18B20T(XBLW)")
-		(at 5.08 7.62 180)
+		(at 26.67 25.4 180)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -3188,7 +3188,7 @@
 		(dnp no)
 		(uuid "0f8d5a7b-4aca-4bba-a4e8-b40ed2d0a21c")
 		(property "Reference" "U2"
-			(at 4.064 1.27 0)
+			(at 25.654 19.05 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3196,7 +3196,7 @@
 			)
 		)
 		(property "Value" "DS18B20T(XBLW)"
-			(at 0 15.24 0)
+			(at 21.59 33.02 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3204,7 +3204,7 @@
 			)
 		)
 		(property "Footprint" "ProPrj_Fau-easyedapro:TO-92-3_L4.5-W3.5-P1.27-L"
-			(at 5.08 7.62 0)
+			(at 26.67 25.4 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3213,7 +3213,7 @@
 			)
 		)
 		(property "Datasheet" "https://item.szlcsc.com/datasheet/DS18B20T(XBLW)/43127368.html"
-			(at 5.08 7.62 0)
+			(at 26.67 25.4 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3222,7 +3222,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 5.08 7.62 0)
+			(at 26.67 25.4 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3231,7 +3231,7 @@
 			)
 		)
 		(property "Manufacturer Part" "DS18B20T(XBLW)"
-			(at 5.08 7.62 0)
+			(at 26.67 25.4 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3240,7 +3240,7 @@
 			)
 		)
 		(property "Manufacturer" "XBLW(芯伯乐)"
-			(at 5.08 7.62 0)
+			(at 26.67 25.4 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3249,7 +3249,7 @@
 			)
 		)
 		(property "Supplier Part" "C41369535"
-			(at 5.08 7.62 0)
+			(at 26.67 25.4 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3258,7 +3258,7 @@
 			)
 		)
 		(property "Supplier" "LCSC"
-			(at 5.08 7.62 0)
+			(at 26.67 25.4 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3267,7 +3267,7 @@
 			)
 		)
 		(property "LCSC Part Name" "DS18B20T(XBLW)"
-			(at 5.08 7.62 0)
+			(at 26.67 25.4 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3295,7 +3295,7 @@
 	)
 	(symbol
 		(lib_id "ProPrj_Fau-easyedapro:XH-2A")
-		(at 109.22 46.99 180)
+		(at 130.81 64.77 180)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -3303,7 +3303,7 @@
 		(dnp no)
 		(uuid "17d7c3e8-7460-47f3-bbaa-97f3340d91ad")
 		(property "Reference" "5V"
-			(at 111.506 43.18 0)
+			(at 133.096 60.96 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3311,7 +3311,7 @@
 			)
 		)
 		(property "Value" "XH-2A"
-			(at 109.22 52.07 0)
+			(at 130.81 69.85 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3319,7 +3319,7 @@
 			)
 		)
 		(property "Footprint" "ProPrj_Fau-easyedapro:CONN-TH_XH-2A"
-			(at 109.22 46.99 0)
+			(at 130.81 64.77 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3328,7 +3328,7 @@
 			)
 		)
 		(property "Datasheet" "https://item.szlcsc.com/datasheet/XH-2A/20789.html"
-			(at 109.22 46.99 0)
+			(at 130.81 64.77 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3337,7 +3337,7 @@
 			)
 		)
 		(property "Description" "Pins Structure:1x2P Pitch:2.5mm Mounting Type:Through Hole Reference Series:XH Number of Pins:2P Number of Rows:1 Number of PINs Per Row:2 Row Spacing:- Current Rating:- Contact Material:- Contact Plating:- Operating Temperature:- Operating Temperature:-"
-			(at 109.22 46.99 0)
+			(at 130.81 64.77 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3346,7 +3346,7 @@
 			)
 		)
 		(property "Manufacturer Part" "XH-2A"
-			(at 109.22 46.99 0)
+			(at 130.81 64.77 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3355,7 +3355,7 @@
 			)
 		)
 		(property "Manufacturer" "BOOMELE(博穆精密)"
-			(at 109.22 46.99 0)
+			(at 130.81 64.77 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3364,7 +3364,7 @@
 			)
 		)
 		(property "Supplier Part" "C20079"
-			(at 109.22 46.99 0)
+			(at 130.81 64.77 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3373,7 +3373,7 @@
 			)
 		)
 		(property "Supplier" "LCSC"
-			(at 109.22 46.99 0)
+			(at 130.81 64.77 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3382,7 +3382,7 @@
 			)
 		)
 		(property "LCSC Part Name" "1x2P 间距:2.5mm 直插 系列:XH"
-			(at 109.22 46.99 0)
+			(at 130.81 64.77 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3407,7 +3407,7 @@
 	)
 	(symbol
 		(lib_id "ProPrj_Fau-easyedapro:ZX-XH2.54-6PZZ")
-		(at 101.6 10.16 0)
+		(at 123.19 27.94 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -3415,7 +3415,7 @@
 		(dnp no)
 		(uuid "1b0a2067-078c-48a0-aa6b-771204595dd6")
 		(property "Reference" "IO"
-			(at 103.886 -1.27 0)
+			(at 125.476 16.51 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3423,7 +3423,7 @@
 			)
 		)
 		(property "Value" "ZX-XH2.54-6PZZ"
-			(at 101.6 20.32 0)
+			(at 123.19 38.1 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3431,7 +3431,7 @@
 			)
 		)
 		(property "Footprint" "ProPrj_Fau-easyedapro:CONN-TH_6P-P2.50_ZX-XH2.54-6PZZ"
-			(at 101.6 10.16 0)
+			(at 123.19 27.94 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3440,7 +3440,7 @@
 			)
 		)
 		(property "Datasheet" "https://item.szlcsc.com/datasheet/ZX-XH2.54-6PZZ/8427553.html"
-			(at 101.6 10.16 0)
+			(at 123.19 27.94 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3449,7 +3449,7 @@
 			)
 		)
 		(property "Description" "Pins Structure:1x6P Pitch:2.5mm Mounting Type:Through Hole Reference Series:XH Number of Pins:6P Number of Rows:1 Number of PINs Per Row:6 Row Spacing:- Current Rating:3A Contact Material:Brass Contact Plating:Tin Operating Temperature:-25°C~+85°C Operating"
-			(at 101.6 10.16 0)
+			(at 123.19 27.94 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3458,7 +3458,7 @@
 			)
 		)
 		(property "Manufacturer Part" "ZX-XH2.54-6PZZ"
-			(at 101.6 10.16 0)
+			(at 123.19 27.94 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3467,7 +3467,7 @@
 			)
 		)
 		(property "Manufacturer" "Megastar(兆星)"
-			(at 101.6 10.16 0)
+			(at 123.19 27.94 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3476,7 +3476,7 @@
 			)
 		)
 		(property "Supplier Part" "C7429636"
-			(at 101.6 10.16 0)
+			(at 123.19 27.94 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3485,7 +3485,7 @@
 			)
 		)
 		(property "Supplier" "LCSC"
-			(at 101.6 10.16 0)
+			(at 123.19 27.94 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3494,7 +3494,7 @@
 			)
 		)
 		(property "LCSC Part Name" "1x6P 间距:2.5mm 直插 系列:XH"
-			(at 101.6 10.16 0)
+			(at 123.19 27.94 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3531,7 +3531,7 @@
 	)
 	(symbol
 		(lib_id "ProPrj_Fau-easyedapro:Power-5V")
-		(at 24.13 2.54 0)
+		(at 45.72 20.32 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -3539,7 +3539,7 @@
 		(dnp no)
 		(uuid "270480eb-873b-4b0c-8666-759c2555a069")
 		(property "Reference" "#PWR?"
-			(at 24.13 2.54 0)
+			(at 45.72 20.32 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3548,7 +3548,7 @@
 			)
 		)
 		(property "Value" "+5V"
-			(at 24.13 -1.27 0)
+			(at 45.72 16.51 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3556,7 +3556,7 @@
 			)
 		)
 		(property "Footprint" "ProPrj_Fau-easyedapro:"
-			(at 24.13 2.54 0)
+			(at 45.72 20.32 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3565,7 +3565,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 24.13 2.54 0)
+			(at 45.72 20.32 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3574,7 +3574,7 @@
 			)
 		)
 		(property "Description" "Power-5V"
-			(at 24.13 2.54 0)
+			(at 45.72 20.32 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3596,7 +3596,7 @@
 	)
 	(symbol
 		(lib_id "ProPrj_Fau-easyedapro:Power-5V")
-		(at 104.14 45.72 90)
+		(at 125.73 63.5 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -3604,7 +3604,7 @@
 		(dnp no)
 		(uuid "380f2fc6-2216-43ad-a6cb-e139f74d013b")
 		(property "Reference" "#PWR?"
-			(at 104.14 45.72 0)
+			(at 125.73 63.5 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3613,7 +3613,7 @@
 			)
 		)
 		(property "Value" "+5V"
-			(at 100.33 45.72 90)
+			(at 121.92 63.5 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3621,7 +3621,7 @@
 			)
 		)
 		(property "Footprint" "ProPrj_Fau-easyedapro:"
-			(at 104.14 45.72 0)
+			(at 125.73 63.5 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3630,7 +3630,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 104.14 45.72 0)
+			(at 125.73 63.5 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3639,7 +3639,7 @@
 			)
 		)
 		(property "Description" "Power-5V"
-			(at 104.14 45.72 0)
+			(at 125.73 63.5 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3661,7 +3661,7 @@
 	)
 	(symbol
 		(lib_id "ProPrj_Fau-easyedapro:XH-2A")
-		(at 109.22 26.67 180)
+		(at 130.81 44.45 180)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -3669,7 +3669,7 @@
 		(dnp no)
 		(uuid "4a1a81a5-ff7c-4edd-9cc2-8faa52c7a94c")
 		(property "Reference" "24V"
-			(at 111.76 22.86 0)
+			(at 133.35 40.64 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3677,7 +3677,7 @@
 			)
 		)
 		(property "Value" "XH-2A"
-			(at 109.22 31.75 0)
+			(at 130.81 49.53 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3685,7 +3685,7 @@
 			)
 		)
 		(property "Footprint" "ProPrj_Fau-easyedapro:CONN-TH_XH-2A"
-			(at 109.22 26.67 0)
+			(at 130.81 44.45 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3694,7 +3694,7 @@
 			)
 		)
 		(property "Datasheet" "https://item.szlcsc.com/datasheet/XH-2A/20789.html"
-			(at 109.22 26.67 0)
+			(at 130.81 44.45 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3703,7 +3703,7 @@
 			)
 		)
 		(property "Description" "Pins Structure:1x2P Pitch:2.5mm Mounting Type:Through Hole Reference Series:XH Number of Pins:2P Number of Rows:1 Number of PINs Per Row:2 Row Spacing:- Current Rating:- Contact Material:- Contact Plating:- Operating Temperature:- Operating Temperature:-"
-			(at 109.22 26.67 0)
+			(at 130.81 44.45 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3712,7 +3712,7 @@
 			)
 		)
 		(property "Manufacturer Part" "XH-2A"
-			(at 109.22 26.67 0)
+			(at 130.81 44.45 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3721,7 +3721,7 @@
 			)
 		)
 		(property "Manufacturer" "BOOMELE(博穆精密)"
-			(at 109.22 26.67 0)
+			(at 130.81 44.45 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3730,7 +3730,7 @@
 			)
 		)
 		(property "Supplier Part" "C20079"
-			(at 109.22 26.67 0)
+			(at 130.81 44.45 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3739,7 +3739,7 @@
 			)
 		)
 		(property "Supplier" "LCSC"
-			(at 109.22 26.67 0)
+			(at 130.81 44.45 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3748,7 +3748,7 @@
 			)
 		)
 		(property "LCSC Part Name" "1x2P 间距:2.5mm 直插 系列:XH"
-			(at 109.22 26.67 0)
+			(at 130.81 44.45 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3773,7 +3773,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 44.45 83.82 90)
+		(at 66.04 101.6 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -3782,7 +3782,7 @@
 		(fields_autoplaced yes)
 		(uuid "4ed4112e-42e0-40c7-92f3-2c1ed2659b9c")
 		(property "Reference" "R2"
-			(at 44.45 77.47 90)
+			(at 66.04 95.25 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3790,7 +3790,7 @@
 			)
 		)
 		(property "Value" "R"
-			(at 44.45 80.01 90)
+			(at 66.04 97.79 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3798,7 +3798,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 44.45 85.598 90)
+			(at 66.04 103.378 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3807,7 +3807,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 44.45 83.82 0)
+			(at 66.04 101.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3816,7 +3816,7 @@
 			)
 		)
 		(property "Description" "Resistor"
-			(at 44.45 83.82 0)
+			(at 66.04 101.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3841,7 +3841,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 44.45 109.22 90)
+		(at 66.04 127 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -3850,7 +3850,7 @@
 		(fields_autoplaced yes)
 		(uuid "64497354-0d13-4b12-b77f-bee9c2de1cac")
 		(property "Reference" "R4"
-			(at 44.45 102.87 90)
+			(at 66.04 120.65 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3858,7 +3858,7 @@
 			)
 		)
 		(property "Value" "R"
-			(at 44.45 105.41 90)
+			(at 66.04 123.19 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3866,7 +3866,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 44.45 110.998 90)
+			(at 66.04 128.778 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3875,7 +3875,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 44.45 109.22 0)
+			(at 66.04 127 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3884,7 +3884,7 @@
 			)
 		)
 		(property "Description" "Resistor"
-			(at 44.45 109.22 0)
+			(at 66.04 127 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3909,7 +3909,7 @@
 	)
 	(symbol
 		(lib_id "Device:LED")
-		(at 52.07 96.52 180)
+		(at 73.66 114.3 180)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -3918,7 +3918,7 @@
 		(fields_autoplaced yes)
 		(uuid "69e6997e-c2b3-488f-8c93-833aa21dabd0")
 		(property "Reference" "D3"
-			(at 53.6575 88.9 0)
+			(at 75.2475 106.68 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3926,7 +3926,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 53.6575 91.44 0)
+			(at 75.2475 109.22 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3934,7 +3934,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 52.07 96.52 0)
+			(at 73.66 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3943,7 +3943,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 52.07 96.52 0)
+			(at 73.66 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3952,7 +3952,7 @@
 			)
 		)
 		(property "Description" "Light emitting diode"
-			(at 52.07 96.52 0)
+			(at 73.66 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3961,7 +3961,7 @@
 			)
 		)
 		(property "Sim.Pins" "1=K 2=A"
-			(at 52.07 96.52 0)
+			(at 73.66 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3986,7 +3986,7 @@
 	)
 	(symbol
 		(lib_id "ProPrj_Fau-easyedapro:Ground-GND")
-		(at 17.78 15.24 0)
+		(at 39.37 33.02 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -3994,7 +3994,7 @@
 		(dnp no)
 		(uuid "7aab7500-f548-4f58-b416-5ad4211a02de")
 		(property "Reference" "#PWR?"
-			(at 17.78 15.24 0)
+			(at 39.37 33.02 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4003,7 +4003,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 17.78 21.59 0)
+			(at 39.37 39.37 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4011,7 +4011,7 @@
 			)
 		)
 		(property "Footprint" "ProPrj_Fau-easyedapro:"
-			(at 17.78 15.24 0)
+			(at 39.37 33.02 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4020,7 +4020,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 17.78 15.24 0)
+			(at 39.37 33.02 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4029,7 +4029,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 17.78 15.24 0)
+			(at 39.37 33.02 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4051,7 +4051,7 @@
 	)
 	(symbol
 		(lib_id "Device:LED")
-		(at 52.07 109.22 180)
+		(at 73.66 127 180)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4060,7 +4060,7 @@
 		(fields_autoplaced yes)
 		(uuid "7defaddf-50af-44ac-8707-5b9f7a13d91f")
 		(property "Reference" "D4"
-			(at 53.6575 101.6 0)
+			(at 75.2475 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4068,7 +4068,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 53.6575 104.14 0)
+			(at 75.2475 121.92 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4076,7 +4076,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 52.07 109.22 0)
+			(at 73.66 127 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4085,7 +4085,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 52.07 109.22 0)
+			(at 73.66 127 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4094,7 +4094,7 @@
 			)
 		)
 		(property "Description" "Light emitting diode"
-			(at 52.07 109.22 0)
+			(at 73.66 127 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4103,7 +4103,7 @@
 			)
 		)
 		(property "Sim.Pins" "1=K 2=A"
-			(at 52.07 109.22 0)
+			(at 73.66 127 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4128,7 +4128,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 44.45 71.12 90)
+		(at 66.04 88.9 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4137,7 +4137,7 @@
 		(fields_autoplaced yes)
 		(uuid "874420b9-3f37-4a9a-9501-82f79c5aa4a1")
 		(property "Reference" "R1"
-			(at 44.45 64.77 90)
+			(at 66.04 82.55 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4145,7 +4145,7 @@
 			)
 		)
 		(property "Value" "R"
-			(at 44.45 67.31 90)
+			(at 66.04 85.09 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4153,7 +4153,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 44.45 72.898 90)
+			(at 66.04 90.678 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4162,7 +4162,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 44.45 71.12 0)
+			(at 66.04 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4171,7 +4171,7 @@
 			)
 		)
 		(property "Description" "Resistor"
-			(at 44.45 71.12 0)
+			(at 66.04 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4196,7 +4196,7 @@
 	)
 	(symbol
 		(lib_id "Device:LED")
-		(at 52.07 83.82 180)
+		(at 73.66 101.6 180)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4205,7 +4205,7 @@
 		(fields_autoplaced yes)
 		(uuid "9a7a761a-5579-4c23-9bb7-ab64957f519a")
 		(property "Reference" "D2"
-			(at 53.6575 76.2 0)
+			(at 75.2475 93.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4213,7 +4213,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 53.6575 78.74 0)
+			(at 75.2475 96.52 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4221,7 +4221,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 52.07 83.82 0)
+			(at 73.66 101.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4230,7 +4230,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 52.07 83.82 0)
+			(at 73.66 101.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4239,7 +4239,7 @@
 			)
 		)
 		(property "Description" "Light emitting diode"
-			(at 52.07 83.82 0)
+			(at 73.66 101.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4248,7 +4248,7 @@
 			)
 		)
 		(property "Sim.Pins" "1=K 2=A"
-			(at 52.07 83.82 0)
+			(at 73.66 101.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4273,7 +4273,7 @@
 	)
 	(symbol
 		(lib_id "Device:LED")
-		(at 52.07 71.12 180)
+		(at 73.66 88.9 180)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4282,7 +4282,7 @@
 		(fields_autoplaced yes)
 		(uuid "9ff103e1-a75a-417c-8df6-9ee0ed51db85")
 		(property "Reference" "D1"
-			(at 53.6575 63.5 0)
+			(at 75.2475 81.28 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4290,7 +4290,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 53.6575 66.04 0)
+			(at 75.2475 83.82 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4298,7 +4298,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 52.07 71.12 0)
+			(at 73.66 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4307,7 +4307,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 52.07 71.12 0)
+			(at 73.66 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4316,7 +4316,7 @@
 			)
 		)
 		(property "Description" "Light emitting diode"
-			(at 52.07 71.12 0)
+			(at 73.66 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4325,7 +4325,7 @@
 			)
 		)
 		(property "Sim.Pins" "1=K 2=A"
-			(at 52.07 71.12 0)
+			(at 73.66 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4350,7 +4350,7 @@
 	)
 	(symbol
 		(lib_id "ProPrj_Fau-easyedapro:Ground-GND")
-		(at 73.66 10.16 90)
+		(at 95.25 27.94 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4358,7 +4358,7 @@
 		(dnp no)
 		(uuid "c5595c87-0c34-4979-bd79-d94e8af5088e")
 		(property "Reference" "#PWR?"
-			(at 73.66 10.16 0)
+			(at 95.25 27.94 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4367,7 +4367,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 81.28 10.16 90)
+			(at 102.87 27.94 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4375,7 +4375,7 @@
 			)
 		)
 		(property "Footprint" "ProPrj_Fau-easyedapro:"
-			(at 73.66 10.16 0)
+			(at 95.25 27.94 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4384,7 +4384,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 73.66 10.16 0)
+			(at 95.25 27.94 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4393,7 +4393,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 73.66 10.16 0)
+			(at 95.25 27.94 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4415,7 +4415,7 @@
 	)
 	(symbol
 		(lib_id "ProPrj_Fau-easyedapro:Ground-GND")
-		(at 17.78 45.72 0)
+		(at 39.37 63.5 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4423,7 +4423,7 @@
 		(dnp no)
 		(uuid "cc4875cb-ecf3-409d-9e3d-7d5518cf1265")
 		(property "Reference" "#PWR?"
-			(at 17.78 45.72 0)
+			(at 39.37 63.5 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4432,7 +4432,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 17.78 52.07 0)
+			(at 39.37 69.85 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4440,7 +4440,7 @@
 			)
 		)
 		(property "Footprint" "ProPrj_Fau-easyedapro:"
-			(at 17.78 45.72 0)
+			(at 39.37 63.5 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4449,7 +4449,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 17.78 45.72 0)
+			(at 39.37 63.5 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4458,7 +4458,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 17.78 45.72 0)
+			(at 39.37 63.5 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4480,7 +4480,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 44.45 96.52 90)
+		(at 66.04 114.3 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4489,7 +4489,7 @@
 		(fields_autoplaced yes)
 		(uuid "df81b584-caf3-45a2-b626-0bf739563816")
 		(property "Reference" "R3"
-			(at 44.45 90.17 90)
+			(at 66.04 107.95 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4497,7 +4497,7 @@
 			)
 		)
 		(property "Value" "R"
-			(at 44.45 92.71 90)
+			(at 66.04 110.49 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4505,7 +4505,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 44.45 98.298 90)
+			(at 66.04 116.078 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4514,7 +4514,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 44.45 96.52 0)
+			(at 66.04 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4523,7 +4523,7 @@
 			)
 		)
 		(property "Description" "Resistor"
-			(at 44.45 96.52 0)
+			(at 66.04 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4548,7 +4548,7 @@
 	)
 	(symbol
 		(lib_id "ProPrj_Fau-easyedapro:Ground-GND")
-		(at 104.14 48.26 0)
+		(at 125.73 66.04 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4556,7 +4556,7 @@
 		(dnp no)
 		(uuid "e58fc36d-3e39-489d-8c50-b685377503b2")
 		(property "Reference" "#PWR?"
-			(at 104.14 48.26 0)
+			(at 125.73 66.04 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4565,7 +4565,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 104.14 54.61 0)
+			(at 125.73 72.39 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4573,7 +4573,7 @@
 			)
 		)
 		(property "Footprint" "ProPrj_Fau-easyedapro:"
-			(at 104.14 48.26 0)
+			(at 125.73 66.04 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4582,7 +4582,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 104.14 48.26 0)
+			(at 125.73 66.04 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4591,7 +4591,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 104.14 48.26 0)
+			(at 125.73 66.04 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4613,7 +4613,7 @@
 	)
 	(symbol
 		(lib_id "ProPrj_Fau-easyedapro:Ground-GND")
-		(at 58.42 111.76 0)
+		(at 80.01 129.54 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4621,7 +4621,7 @@
 		(dnp no)
 		(uuid "eb555378-2ff4-4e6a-b51a-7f254262080e")
 		(property "Reference" "#PWR?"
-			(at 58.42 111.76 0)
+			(at 80.01 129.54 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4630,7 +4630,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 58.42 118.11 0)
+			(at 80.01 135.89 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4638,7 +4638,7 @@
 			)
 		)
 		(property "Footprint" "ProPrj_Fau-easyedapro:"
-			(at 58.42 111.76 0)
+			(at 80.01 129.54 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4647,7 +4647,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 58.42 111.76 0)
+			(at 80.01 129.54 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4656,7 +4656,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 58.42 111.76 0)
+			(at 80.01 129.54 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4678,7 +4678,7 @@
 	)
 	(symbol
 		(lib_id "ProPrj_Fau-easyedapro:ZX-XH2.54-3PZZ")
-		(at 5.08 40.64 180)
+		(at 26.67 58.42 180)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4686,7 +4686,7 @@
 		(dnp no)
 		(uuid "edde42dd-357a-4b54-985b-496157dc3eb0")
 		(property "Reference" "24V"
-			(at 5.08 34.29 0)
+			(at 26.67 52.07 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4694,7 +4694,7 @@
 			)
 		)
 		(property "Value" "ZX-XH2.54-3PZZ"
-			(at 2.54 48.26 0)
+			(at 24.13 66.04 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4702,7 +4702,7 @@
 			)
 		)
 		(property "Footprint" "ProPrj_Fau-easyedapro:CONN-TH_3P-P2.54_2501S-3P"
-			(at 5.08 40.64 0)
+			(at 26.67 58.42 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4711,7 +4711,7 @@
 			)
 		)
 		(property "Datasheet" "https://item.szlcsc.com/datasheet/ZX-XH2.54-3PZZ/8427550.html"
-			(at 5.08 40.64 0)
+			(at 26.67 58.42 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4720,7 +4720,7 @@
 			)
 		)
 		(property "Description" "Pins Structure:1x3P Pitch:2.5mm Mounting Type:Through Hole Reference Series:XH Number of Pins:3P Number of Rows:1 Number of PINs Per Row:3 Row Spacing:- Current Rating:3A Contact Material:Brass Contact Plating:Tin Operating Temperature:-25°C~+85°C Operating"
-			(at 5.08 40.64 0)
+			(at 26.67 58.42 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4729,7 +4729,7 @@
 			)
 		)
 		(property "Manufacturer Part" "ZX-XH2.54-3PZZ"
-			(at 5.08 40.64 0)
+			(at 26.67 58.42 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4738,7 +4738,7 @@
 			)
 		)
 		(property "Manufacturer" "Megastar(兆星)"
-			(at 5.08 40.64 0)
+			(at 26.67 58.42 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4747,7 +4747,7 @@
 			)
 		)
 		(property "Supplier Part" "C7429633"
-			(at 5.08 40.64 0)
+			(at 26.67 58.42 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4756,7 +4756,7 @@
 			)
 		)
 		(property "Supplier" "LCSC"
-			(at 5.08 40.64 0)
+			(at 26.67 58.42 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4765,7 +4765,7 @@
 			)
 		)
 		(property "LCSC Part Name" "1x3P 间距:2.5mm 直插 系列:XH"
-			(at 5.08 40.64 0)
+			(at 26.67 58.42 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4793,7 +4793,7 @@
 	)
 	(symbol
 		(lib_id "ProPrj_Fau-easyedapro:ESP32-DEVKITC")
-		(at 62.23 33.02 0)
+		(at 83.82 50.8 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4801,7 +4801,7 @@
 		(dnp no)
 		(uuid "f6734b70-5a64-4eb1-bc42-91cc08966c64")
 		(property "Reference" "U1"
-			(at 61.976 6.096 0)
+			(at 83.566 23.876 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4809,7 +4809,7 @@
 			)
 		)
 		(property "Value" "ESP32-DevKitC"
-			(at 62.23 60.452 0)
+			(at 83.82 78.232 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4817,7 +4817,7 @@
 			)
 		)
 		(property "Footprint" "ProPrj_Fau-easyedapro:BULETM-SMD_ESP32-DEVKITC"
-			(at 62.23 33.02 0)
+			(at 83.82 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4826,7 +4826,7 @@
 			)
 		)
 		(property "Datasheet" "https://atta.szlcsc.com/upload/public/pdf/source/20200521/C529586_D6FCDAFCFF160B3EDDF7DF28D600699D.pdf"
-			(at 62.23 33.02 0)
+			(at 83.82 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4835,7 +4835,7 @@
 			)
 		)
 		(property "Description" "CPU:- ROM Size:- Number of I/O: USB:- WIFI Protocols:- Bluetooth:- Ethernet:- Audio & Video Interface:- Multimedia Support:- Card Type:- Power Supply Type:- Power Supply:- POE Support:- Resolution:- Temperature Range:-"
-			(at 62.23 33.02 0)
+			(at 83.82 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4844,7 +4844,7 @@
 			)
 		)
 		(property "Manufacturer Part" "ESP32-DevKitC"
-			(at 62.23 33.02 0)
+			(at 83.82 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4853,7 +4853,7 @@
 			)
 		)
 		(property "Manufacturer" "ESPRESSIF(乐鑫)"
-			(at 62.23 33.02 0)
+			(at 83.82 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4862,7 +4862,7 @@
 			)
 		)
 		(property "Supplier Part" "C571180"
-			(at 62.23 33.02 0)
+			(at 83.82 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4871,7 +4871,7 @@
 			)
 		)
 		(property "Supplier" "LCSC"
-			(at 62.23 33.02 0)
+			(at 83.82 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4880,7 +4880,7 @@
 			)
 		)
 		(property "LCSC Part Name" "开发板"
-			(at 62.23 33.02 0)
+			(at 83.82 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5011,4 +5011,10 @@
 			)
 		)
 	)
+	(sheet_instances
+		(path "/"
+			(page "1")
+		)
+	)
+	(embedded_fonts no)
 )
