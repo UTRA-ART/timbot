@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "Necessary_Imports")(type "KiCad")(uri "${KIPRJMOD}/Footprints/Necessary_Imports.kicad_sym")(options "")(descr ""))
+)
