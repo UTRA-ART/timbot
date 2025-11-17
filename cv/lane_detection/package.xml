@@ -5,6 +5,7 @@
   <version>0.0.0</version>
   <description>TODO: Package description</description>
   <maintainer email="nevo.abigail@gmail.com">nevoa</maintainer>
+  <author email="samson@samsonajadalu.com">Samson Ajadalu</author>
   <license>TODO: License declaration</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>                  <!-- Replaces catkin -->
