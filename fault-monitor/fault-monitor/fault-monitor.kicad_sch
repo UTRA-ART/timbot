@@ -4323,7 +4323,7 @@
 				)
 			)
 		)
-		(property "Footprint" "ProPrj_Fau-easyedapro:TO-92-3_L4.5-W3.5-P1.27-L"
+		(property "Footprint" "Package_TO_SOT_THT:TO-92L"
 			(at 26.67 25.4 0)
 			(effects
 				(font
@@ -5501,7 +5501,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
+		(property "Footprint" "Potentiometer_THT:Potentiometer_ACP_CA9-V10_Vertical"
 			(at 121.92 50.8 0)
 			(effects
 				(font
@@ -5571,7 +5571,7 @@
 				)
 			)
 		)
-		(property "Footprint" "ProPrj_Fau-easyedapro:BULETM-SMD_ESP32-DEVKITC"
+		(property "Footprint" "PCM_Espressif:ESP32-DevKitC"
 			(at 83.82 50.8 0)
 			(effects
 				(font
