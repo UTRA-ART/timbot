@@ -3824,7 +3824,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "TerminalBlock_WAGO:TerminalBlock_WAGO_2601-1106_1x06_P3.50mm_Horizontal"
+		(property "Footprint" "TerminalBlock_WAGO_3D:TerminalBlock_WAGO_2601-1106_1x06_P3.50mm_Horizontal-3D"
 			(at 124.46 130.81 0)
 			(effects
 				(font
@@ -3906,7 +3906,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "TerminalBlock_WAGO:TerminalBlock_WAGO_2601-1102_1x02_P3.50mm_Horizontal"
+		(property "Footprint" "TerminalBlock_WAGO_3D:TerminalBlock_WAGO_2601-1102_1x02_P3.50mm_Horizontal-3D"
 			(at 124.46 110.49 0)
 			(effects
 				(font
@@ -4507,7 +4507,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "TerminalBlock_WAGO:TerminalBlock_WAGO_2601-1102_1x02_P3.50mm_Horizontal"
+		(property "Footprint" "TerminalBlock_WAGO_3D:TerminalBlock_WAGO_2601-1102_1x02_P3.50mm_Horizontal-3D"
 			(at 106.68 17.78 0)
 			(effects
 				(font
@@ -4577,7 +4577,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "TerminalBlock_WAGO:TerminalBlock_WAGO_2601-1102_1x02_P3.50mm_Horizontal"
+		(property "Footprint" "TerminalBlock_WAGO_3D:TerminalBlock_WAGO_2601-1102_1x02_P3.50mm_Horizontal-3D"
 			(at 121.92 38.1 0)
 			(effects
 				(font
@@ -4722,7 +4722,7 @@
 				)
 			)
 		)
-		(property "Footprint" "TerminalBlock_WAGO:TerminalBlock_WAGO_2601-1103_1x03_P3.50mm_Horizontal"
+		(property "Footprint" "TerminalBlock_WAGO_3D:TerminalBlock_WAGO_2601-1103_1x03_P3.50mm_Horizontal-3D"
 			(at 26.67 58.42 0)
 			(effects
 				(font
@@ -5216,7 +5216,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "TerminalBlock_WAGO:TerminalBlock_WAGO_2601-1106_1x06_P3.50mm_Horizontal"
+		(property "Footprint" "TerminalBlock_WAGO_3D:TerminalBlock_WAGO_2601-1106_1x06_P3.50mm_Horizontal-3D"
 			(at 124.46 91.44 0)
 			(effects
 				(font

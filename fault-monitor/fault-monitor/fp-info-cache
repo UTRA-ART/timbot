@@ -1,4 +1,4 @@
-26887554639103564
+26892845134608768
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -74827,8 +74827,8 @@ ESP32-DevKitC-ReversePinOrder
 
 
 0
-0
-0
+38
+38
 PCM_Espressif
 ESP32-DevKitM-1
 ESP32-DevKitC: https://docs.espressif.com/projects/esp-idf/en/latest/esp32/hw-reference/esp32/get-started-devkitc.html
@@ -104698,6 +104698,27 @@ THT Terminal Block WAGO 2601-3124 pitch 3.5mm size 85.5x12.8mm drill 1.2mm pad 2
 0
 48
 24
+TerminalBlock_WAGO_3D
+TerminalBlock_WAGO_2601-1102_1x02_P3.50mm_Horizontal-3D
+Terminal Block WAGO 2601-1102, 2 pins, pitch 3.5mm, size 8.5x14.5mm, drill diameter 1.2mm, pad diameter 2.3mm, https://www.wago.com/global/pcb-terminal-blocks-and-pluggable-connectors/pcb-terminal-block/p/2601-1102, script-generated using https://gitlab.com/kicad/libraries/kicad-footprint-generator/-/tree/master/scripts/TerminalBlock_WAGO
+THT Terminal Block WAGO 2601-1102 pitch 3.5mm size 8.5x14.5mm drill 1.2mm pad 2.3mm
+0
+4
+2
+TerminalBlock_WAGO_3D
+TerminalBlock_WAGO_2601-1103_1x03_P3.50mm_Horizontal-3D
+Terminal Block WAGO 2601-1103, 3 pins, pitch 3.5mm, size 12x14.5mm, drill diameter 1.2mm, pad diameter 2.3mm, https://www.wago.com/global/pcb-terminal-blocks-and-pluggable-connectors/pcb-terminal-block/p/2601-1103, script-generated using https://gitlab.com/kicad/libraries/kicad-footprint-generator/-/tree/master/scripts/TerminalBlock_WAGO
+THT Terminal Block WAGO 2601-1103 pitch 3.5mm size 12x14.5mm drill 1.2mm pad 2.3mm
+0
+6
+3
+TerminalBlock_WAGO_3D
+TerminalBlock_WAGO_2601-1106_1x06_P3.50mm_Horizontal-3D
+Terminal Block WAGO 2601-1106, 6 pins, pitch 3.5mm, size 22.5x14.5mm, drill diameter 1.2mm, pad diameter 2.3mm, https://www.wago.com/global/pcb-terminal-blocks-and-pluggable-connectors/pcb-terminal-block/p/2601-1106, script-generated using https://gitlab.com/kicad/libraries/kicad-footprint-generator/-/tree/master/scripts/TerminalBlock_WAGO
+THT Terminal Block WAGO 2601-1106 pitch 3.5mm size 22.5x14.5mm drill 1.2mm pad 2.3mm
+0
+12
+6
 TerminalBlock_Wuerth
 Wuerth_691311400102_P7.62mm
 1x2 Close Vertical PCB Header WR-TBL Series 3114 https://www.we-online.com/components/products/datasheet/691311400102.pdf
