@@ -3824,7 +3824,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Connector_Wago:Wago_734-136_1x06_P3.50mm_Vertical"
+		(property "Footprint" "TerminalBlock_WAGO:TerminalBlock_WAGO_2601-1106_1x06_P3.50mm_Horizontal"
 			(at 124.46 130.81 0)
 			(effects
 				(font
@@ -3906,7 +3906,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Connector_Wago:Wago_734-132_1x02_P3.50mm_Vertical"
+		(property "Footprint" "TerminalBlock_WAGO:TerminalBlock_WAGO_2601-1102_1x02_P3.50mm_Horizontal"
 			(at 124.46 110.49 0)
 			(effects
 				(font
@@ -4507,7 +4507,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Connector_Wago:Wago_734-132_1x02_P3.50mm_Vertical"
+		(property "Footprint" "TerminalBlock_WAGO:TerminalBlock_WAGO_2601-1102_1x02_P3.50mm_Horizontal"
 			(at 106.68 17.78 0)
 			(effects
 				(font
@@ -4577,7 +4577,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Connector_Wago:Wago_734-132_1x02_P3.50mm_Vertical"
+		(property "Footprint" "TerminalBlock_WAGO:TerminalBlock_WAGO_2601-1102_1x02_P3.50mm_Horizontal"
 			(at 121.92 38.1 0)
 			(effects
 				(font
@@ -4722,7 +4722,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_Wago:Wago_734-133_1x03_P3.50mm_Vertical"
+		(property "Footprint" "TerminalBlock_WAGO:TerminalBlock_WAGO_2601-1103_1x03_P3.50mm_Horizontal"
 			(at 26.67 58.42 0)
 			(effects
 				(font
@@ -5216,7 +5216,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Connector_Wago:Wago_734-136_1x06_P3.50mm_Vertical"
+		(property "Footprint" "TerminalBlock_WAGO:TerminalBlock_WAGO_2601-1106_1x06_P3.50mm_Horizontal"
 			(at 124.46 88.9 0)
 			(effects
 				(font
