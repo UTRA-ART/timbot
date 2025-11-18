@@ -3,11 +3,14 @@
 #include <functional>
 #include <memory>
 #include <nav2_msgs/action/navigate_to_pose.hpp>
-#include <nav2_bt_navigator/navigators/navigate_to_pose.hpp>
 #include <rclcpp_action/rclcpp_action.hpp>
 #include <rclcpp_action/client_goal_handle.hpp>
 #include <string>
 #include <tf2_ros/transform_listener.h>
+#include <tf2_ros/buffer.h>
+
+#include <geometry_msgs/msg/transform_stamped.hpp>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 
 #include "geometry_msgs/msg/pose_array.hpp"
 #include "nav_msgs/msg/path.hpp"
@@ -19,12 +22,15 @@ enum State { no_ramp, to_ramp, on_ramp };
 
 class RampNavigateNode : public rclcpp::Node {
  public:
-  RampNavigateNode() : Node("RampNavigateNode") {
+  using NavigateToPoseAction = nav2_msgs::action::NavigateToPose; 
+  using GoalHandle = rclcpp_action::ClientGoalHandle<NavigateToPoseAction>;
+
+  RampNavigateNode() : Node("RampNavigateNode"), tfBuffer(this->get_clock()), tfListener(tfBuffer) {
     state = no_ramp;
     ramps_to_cross = 1;
 
     ac = rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
-        shared_from_this(), "/move_base");
+        this, "/move_base");
 
     ramp_seg_sub = this->create_subscription<geometry_msgs::msg::PoseArray>(
         "/ramp_seg", 10,
@@ -52,8 +58,9 @@ class RampNavigateNode : public rclcpp::Node {
       0;  // How many times pre_ramp_detections is NOT incremented
   float slope, xmid, ymid, px, py;
 
-  // Eigen::Matrix2d ramp2map;
+  Eigen::Matrix2d ramp2map;
   tf2_ros::TransformListener tfListener;
+  tf2_ros::Buffer tfBuffer;
   // tf::TransformListener tfListener;
 
   void rampFrontCallback(
@@ -78,9 +85,10 @@ class RampNavigateNode : public rclcpp::Node {
     pre_ramp_detections += 1;
 
     // Obtain base_link -> map transform
-    tf2_ros::TransformStamped transform;
-    tfListener.lookupTransform("map", "base_link", ros::Time(0), transform);
-    const auto& caff = transform.getOrigin();
+    geometry_msgs::msg::TransformStamped transform = tfBuffer.lookupTransform("map", "base_link", tf2::TimePointZero);
+    tf2::Transform tfTransform;
+    tf2::fromMsg(transform.transform, tfTransform);
+    const auto& caff = tfTransform.getOrigin();
 
     // Find the middle point in front of ramp
     const auto& front = ramp_seg->poses.front().position;
@@ -120,33 +128,38 @@ class RampNavigateNode : public rclcpp::Node {
       } else {
         state = to_ramp;
         pre_ramp_detections = 0;
-        std_msgs::Bool naving_msg;
+        std_msgs::msg::Bool naving_msg;
         naving_msg.data = true;
-        ramp_naving_pub.publish(naving_msg); // Send message that we are current in ramp navigation mode
+        ramp_naving_pub->publish(naving_msg); // Send message that we are current in ramp navigation mode
     }
   }
 
   // Set a move base goal for the middle front of the ramp
-  geometry_msgs::msg::PoseStamped goal;
-  goal.pose.position.x = px;
-  goal.pose.position.y = py;
-  goal.pose.orientation.w = 1;
-  while (!ac.waitForServer(rclcpp::Duration(0.0))) {
-    ROS_INFO("Waiting for the move_base action server to come up");
-  }
+  auto goal_msg = NavigateToPoseAction::Goal();
+  goal_msg.pose.header.frame_id = "map";
+  goal_msg.pose.header.stamp = this->now();
+  goal_msg.pose.pose.position.x = px;
+  goal_msg.pose.pose.position.y = py;
+  goal_msg.pose.pose.orientation.w = 1.0;
+
+  ac->wait_for_action_server();
+
+  auto send_goal_options = rclcpp_action::Client<NavigateToPoseAction>::SendGoalOptions();
+  send_goal_options.feedback_callback = 
+      std::bind(&RampNavigateNode::feedback_callback, this, 
+                std::placeholders::_1, std::placeholders::_2);
   
-  // Might not be the right function
-  ac.async_send_goal(goal/*, options, allows to specify callback functions*/);
+  ac->async_send_goal(goal_msg, send_goal_options);
 
   const float goalerror2 = (px - caff.x()) * (px - caff.x()) + (py - caff.y()) * (py - caff.y());
   if (goalerror2 < 2.0) {
-    ROS_INFO("ON RAMP: Initiating ramp crossing");
+    RCLCPP_INFO(this->get_logger(), "ON RAMP: Initiating ramp crossing");
     state = on_ramp;
-    cross(goal, xmid, ymid, ramp2map); // Continue rest of navigation across ramp
+    cross(goal_msg, xmid, ymid, ramp2map); // Continue rest of navigation across ramp
 
-    std_msgs::Bool naving_msg;
+    std_msgs::msg::Bool naving_msg;
     naving_msg.data = false;
-    ramp_naving_pub.publish(naving_msg);
+    ramp_naving_pub->publish(naving_msg);
     ramps_to_cross -= 1;
   }
 
@@ -179,7 +192,7 @@ void cross(geometry_msgs::msg::PoseStamped goal, const float xmid, const float y
       result.wait();
     }
         
-    ROS_INFO("Finished Ramp Crossing");
+    RCLCPP_INFO(this->get_logger(), "Finished Ramp Crossing");
     state = no_ramp; // After we finish crossing ramp
   }
 
@@ -193,6 +206,10 @@ void cross(geometry_msgs::msg::PoseStamped goal, const float xmid, const float y
     const float min_len = 2.5;
     const float max_len = 4;
     return incline_len2 >= min_len*min_len && incline_len2 <= max_len*max_len;
+  }
+
+  void feedback_callback(GoalHandle::SharedPtr, const std::shared_ptr<const NavigateToPoseAction::Feedback> feedback) {
+    RCLCPP_INFO(this->get_logger(), "Received feedback");
   }
 };
 

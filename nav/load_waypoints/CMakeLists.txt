@@ -17,6 +17,9 @@ find_package(geometry_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(nav2_msgs REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(tf2_ros REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
 
 # Eigen3
 find_package(Eigen3 REQUIRED)
@@ -32,6 +35,9 @@ ament_target_dependencies(load_waypoints
   nav_msgs
   std_msgs
   nav2_msgs
+  tf2
+  tf2_ros
+  tf2_geometry_msgs
 )
 
 target_include_directories(load_waypoints PUBLIC
