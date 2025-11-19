@@ -155,7 +155,7 @@ class RampNavigateNode : public rclcpp::Node {
   if (goalerror2 < 2.0) {
     RCLCPP_INFO(this->get_logger(), "ON RAMP: Initiating ramp crossing");
     state = on_ramp;
-    cross(goal_msg, xmid, ymid, ramp2map); // Continue rest of navigation across ramp
+    cross(goal_msg, xmid, ymid, ramp2map, send_goal_options); // Continue rest of navigation across ramp
 
     std_msgs::msg::Bool naving_msg;
     naving_msg.data = false;
@@ -165,10 +165,10 @@ class RampNavigateNode : public rclcpp::Node {
 
 }
 
-void cross(geometry_msgs::msg::PoseStamped goal, const float xmid, const float ymid, const Eigen::Matrix2d ramp2map) {
-    std_msgs::Bool is_on_ramp;
+void cross(NavigateToPoseAction::Goal goal, const float xmid, const float ymid, const Eigen::Matrix2d ramp2map, rclcpp_action::Client<NavigateToPoseAction>::SendGoalOptions send_goal_options) {
+    std_msgs::msg::Bool is_on_ramp;
     is_on_ramp.data = true;
-    ramp_routine_pub.publish(is_on_ramp); // Send message that we are currently crossing ramp
+    ramp_routine_pub->publish(is_on_ramp); // Send message that we are currently crossing ramp
         
     const float ramp_traverse_dist = 8; // Total distance to traverse 
     const int traverse_count = 8; // How many goal points to set along the ramp
@@ -182,14 +182,14 @@ void cross(geometry_msgs::msg::PoseStamped goal, const float xmid, const float y
       //goal.target_pose.header.stamp = ros::Time::now();
       px += incr[0];
       py += incr[1];
-      goal.pose.position.x = px;
-      goal.pose.position.y = py;
+      goal.pose.pose.position.x = px;
+      goal.pose.pose.position.y = py;
 
-      ac.async_send_goal(goal /*, goal options*/);
+      ac->async_send_goal(goal, send_goal_options);
 
       // wait for the result, this might not be correct
-      std::shared_future<rclcpp::client_goal_handle::WrappedResult> result = ac.async_get_result();
-      result.wait();
+      // std::shared_future<rclcpp::client_goal_handle::WrappedResult> result = ac.async_get_result();
+      // result.wait();
     }
         
     RCLCPP_INFO(this->get_logger(), "Finished Ramp Crossing");
