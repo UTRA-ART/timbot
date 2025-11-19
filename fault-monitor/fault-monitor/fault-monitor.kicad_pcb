@@ -7500,6 +7500,14 @@
 		(uuid "b84b9ee2-1fad-468a-8264-547546b32b03")
 	)
 	(segment
+		(start 110.5 106)
+		(end 115.5 106)
+		(width 0.2)
+		(layer "F.Cu")
+		(net 12)
+		(uuid "c9058433-c7e5-439c-835c-f6141fa00d31")
+	)
+	(segment
 		(start 63.401 59.981)
 		(end 63.401 74.352206)
 		(width 0.2)
