@@ -3622,7 +3622,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x01_P2.54mm_Vertical"
 			(at 104.14 50.8 0)
 			(effects
 				(font
@@ -3754,7 +3754,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
 			(at 105.41 44.45 0)
 			(effects
 				(font
@@ -3824,7 +3824,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "TerminalBlock_WAGO_3D:TerminalBlock_WAGO_2601-1106_1x06_P3.50mm_Horizontal-3D"
 			(at 124.46 130.81 0)
 			(effects
 				(font
@@ -3906,7 +3906,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "TerminalBlock_WAGO_3D:TerminalBlock_WAGO_2601-1102_1x02_P3.50mm_Horizontal-3D"
 			(at 124.46 110.49 0)
 			(effects
 				(font
@@ -4032,7 +4032,7 @@
 				)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "2.2k"
 			(at 66.04 97.79 90)
 			(effects
 				(font
@@ -4040,7 +4040,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
 			(at 66.04 103.378 90)
 			(effects
 				(font
@@ -4110,7 +4110,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
 			(at 89.662 129.54 90)
 			(effects
 				(font
@@ -4170,7 +4170,7 @@
 				)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "2.2k"
 			(at 66.04 123.19 90)
 			(effects
 				(font
@@ -4178,7 +4178,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
 			(at 66.04 128.778 90)
 			(effects
 				(font
@@ -4246,7 +4246,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "LED_THT:LED_D5.0mm"
 			(at 73.66 114.3 0)
 			(effects
 				(font
@@ -4323,7 +4323,7 @@
 				)
 			)
 		)
-		(property "Footprint" "ProPrj_Fau-easyedapro:TO-92-3_L4.5-W3.5-P1.27-L"
+		(property "Footprint" "Package_TO_SOT_THT:TO-92L"
 			(at 26.67 25.4 0)
 			(effects
 				(font
@@ -4507,7 +4507,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "TerminalBlock_WAGO_3D:TerminalBlock_WAGO_2601-1102_1x02_P3.50mm_Horizontal-3D"
 			(at 106.68 17.78 0)
 			(effects
 				(font
@@ -4577,7 +4577,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "TerminalBlock_WAGO_3D:TerminalBlock_WAGO_2601-1102_1x02_P3.50mm_Horizontal-3D"
 			(at 121.92 38.1 0)
 			(effects
 				(font
@@ -4645,7 +4645,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "LED_THT:LED_D5.0mm"
 			(at 73.66 127 0)
 			(effects
 				(font
@@ -4722,7 +4722,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "TerminalBlock_WAGO_3D:TerminalBlock_WAGO_2601-1103_1x03_P3.50mm_Horizontal-3D"
 			(at 26.67 58.42 0)
 			(effects
 				(font
@@ -4785,7 +4785,7 @@
 				)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "2.2k"
 			(at 66.04 85.09 90)
 			(effects
 				(font
@@ -4793,7 +4793,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
 			(at 66.04 90.678 90)
 			(effects
 				(font
@@ -4927,7 +4927,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "LED_THT:LED_D5.0mm"
 			(at 73.66 101.6 0)
 			(effects
 				(font
@@ -5004,7 +5004,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "LED_THT:LED_D5.0mm"
 			(at 73.66 88.9 0)
 			(effects
 				(font
@@ -5190,16 +5190,16 @@
 	)
 	(symbol
 		(lib_id "Connector_Generic:Conn_01x06")
-		(at 124.46 88.9 0)
+		(at 124.46 91.44 0)
+		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "c64ae3ef-986c-4dc2-9318-097f4cd07159")
 		(property "Reference" "J7"
-			(at 127 88.8999 0)
+			(at 127 91.4401 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5208,7 +5208,7 @@
 			)
 		)
 		(property "Value" "Conn_01x06"
-			(at 127 91.4399 0)
+			(at 127 88.9001 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5216,8 +5216,8 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
-			(at 124.46 88.9 0)
+		(property "Footprint" "TerminalBlock_WAGO_3D:TerminalBlock_WAGO_2601-1106_1x06_P3.50mm_Horizontal-3D"
+			(at 124.46 91.44 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5226,7 +5226,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 124.46 88.9 0)
+			(at 124.46 91.44 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5235,7 +5235,7 @@
 			)
 		)
 		(property "Description" "Generic connector, single row, 01x06, script generated (kicad-library-utils/schlib/autogen/connector/)"
-			(at 124.46 88.9 0)
+			(at 124.46 91.44 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5262,7 +5262,7 @@
 			(uuid "4f00c2a7-d261-4adf-8f45-91b13f9d612d")
 		)
 		(instances
-			(project ""
+			(project "fault-monitor"
 				(path "/64884559-cbe4-442b-837a-f1967fbf7136"
 					(reference "J7")
 					(unit 1)
@@ -5298,7 +5298,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
 			(at 97.282 129.54 90)
 			(effects
 				(font
@@ -5424,7 +5424,7 @@
 				)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "2.2k"
 			(at 66.04 110.49 90)
 			(effects
 				(font
@@ -5432,7 +5432,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
 			(at 66.04 116.078 90)
 			(effects
 				(font
@@ -5501,7 +5501,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Potentiometer_THT:Potentiometer_ACP_CA9-V10_Vertical"
 			(at 121.92 50.8 0)
 			(effects
 				(font
@@ -5571,7 +5571,7 @@
 				)
 			)
 		)
-		(property "Footprint" "ProPrj_Fau-easyedapro:BULETM-SMD_ESP32-DEVKITC"
+		(property "Footprint" "PCM_Espressif:ESP32-DevKitC-ReversePinOrder"
 			(at 83.82 50.8 0)
 			(effects
 				(font
