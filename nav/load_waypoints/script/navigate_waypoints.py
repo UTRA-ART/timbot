@@ -173,5 +173,27 @@ class NavigateWaypoints:
             pass
         
         return waited_for_transform
+    
+    def get_next_waypoint(self):
+        waypoint = self.waypoints[self.curr_waypoint_idx]
+        node.get_logger().info("Next Goal: %s"%(waypoint["description"]))
+        if self.curr_waypoint_idx == 3 and self.start_direction == 1: # curr_waypoint_idx = 2 means heading towards id 2
+            self.ignore_lidar = True 
+        elif self.curr_waypoint_idx == 2 and self.start_direction == -1:
+            self.ignore_lidar = True 
+        else:
+            self.ignore_lidar = False
 
+        for i in range(10):
+            publisher.publish(self.ignore_lidar)
+
+        self.curr_waypoint_idx += self.start_direction
+        if self.curr_waypoint_idx < 0 and self.current_lap < self.laps:
+            self.current_lap += 1
+            self.curr_waypoint_idx = len(self.waypoints) - 1
+        elif self.curr_waypoint_idx >= len(self.waypoints) and self.current_lap < self.laps:
+            self.current_lap += 1
+            self.curr_waypoint_idx = 0
+        
+        return waypoint
 
