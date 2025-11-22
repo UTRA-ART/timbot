@@ -1,0 +1,6 @@
+<launch>
+    <arg name="launch_state" default="sim"/>
+
+    <node pkg="load_waypoints" exec="nav_options.py" name="nav_control" output="screen" />
+
+</launch> 
