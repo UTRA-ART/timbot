@@ -9,13 +9,17 @@ planner_server:
 
     GridBased:
       plugin: "nav2_navfn_planner/NavfnPlanner"
-      # Specifies whether or not to allow plans that traverse unknown space.
+      # Whether or not to allow plans that traverse unknown space
       allow_unknown: true
-      # A tolerance on the goal point for the planner.
+      # Successful arrival is allowed within 0.1 meters of the target point
       tolerance: 0.1
+      # false: dijkstra; true: A*
       use_astar: false     # Replaces use_dijkstra (inverted meaning)
+      # output the plan as a grid path
       use_grid_path: false # keep disabled unless you specifically need grid output
+      # Publish the gradient field (for debugging purposes)
       visualize_potential: true
+      # cost parameters
       cost_factor: 0.55
       neutral_cost: 66
       lethal_cost: 253
@@ -26,11 +30,12 @@ planner_server:
     FollowPath:
       plugin: "dwb_core::DWBLocalPlanner"
       
-      # Robot Configuration Parameters
+      # Robot acceleration limits
       acc_lim_x: 5.0
       acc_lim_y: 0.0
       acc_lim_theta: 5.0
 
+      # Robot velocity limits
       max_vel_x: 2.23
       min_vel_x: -2.23
       max_vel_y: 0.0
@@ -38,8 +43,9 @@ planner_server:
       max_vel_theta: 2.0
       min_vel_theta: -2.0
 
-      # Goal Tolerance Parameters
+      # considered successful as long as the direction is within ±180°
       yaw_goal_tolerance: 3.14
+      # considered arrived within a range of 0.75 meters
       xy_goal_tolerance: 0.75
 
       # Forward Simulation Parameters
@@ -47,7 +53,7 @@ planner_server:
       vx_samples: 15
       vtheta_samples: 40
 
-      # Trajectory Scoring Parameters
+      # Trajectory Scoring Parameters: behavioral preferences
       path_distance_bias: 60.0
       goal_distance_bias: 20.0
       occdist_scale: 0.02

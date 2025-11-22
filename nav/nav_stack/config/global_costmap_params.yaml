@@ -1,3 +1,5 @@
+# Global path planning
+
 global_costmap:
   ros__parameters:
     global_frame: map            # Map frame for global costmap
