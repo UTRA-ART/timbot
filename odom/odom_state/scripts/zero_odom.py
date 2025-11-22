@@ -26,10 +26,10 @@ class ZeroOdomPublisherNode(rclpy.Node):
 def main(args = None):
     rclpy.init(args=args)
 
-    odom_plotter_node = ZeroOdomPublisherNode()
-    rclpy.spin(odom_plotter_node)
+    node = ZeroOdomPublisherNode()
+    rclpy.spin(node)
     
-    odom_plotter_node.destroy_node()
+    node.destroy_node()
     rclpy.shutdown()
 
 if __name__ == "__main__":
