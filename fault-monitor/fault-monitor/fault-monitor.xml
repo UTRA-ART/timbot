@@ -1,0 +1,832 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<export version="E">
+  <design>
+    <source>/home/aaa/GitHub/timbot/fault-monitor/fault-monitor/fault-monitor.kicad_sch</source>
+    <date>2025-11-22T15:19:53-0500</date>
+    <tool>Eeschema 9.0.6</tool>
+    <sheet number="1" name="/" tstamps="/">
+      <title_block>
+        <title/>
+        <company/>
+        <rev/>
+        <date/>
+        <source>fault-monitor.kicad_sch</source>
+        <comment number="1" value=""/>
+        <comment number="2" value=""/>
+        <comment number="3" value=""/>
+        <comment number="4" value=""/>
+        <comment number="5" value=""/>
+        <comment number="6" value=""/>
+        <comment number="7" value=""/>
+        <comment number="8" value=""/>
+        <comment number="9" value=""/>
+      </title_block>
+    </sheet>
+  </design>
+  <components>
+    <comp ref="D1">
+      <value>LED</value>
+      <footprint>LED_THT:LED_D5.0mm</footprint>
+      <datasheet>~</datasheet>
+      <description>Light emitting diode</description>
+      <fields>
+        <field name="Sim.Pins">1=K 2=A</field>
+        <field name="Footprint">LED_THT:LED_D5.0mm</field>
+        <field name="Datasheet">~</field>
+        <field name="Description">Light emitting diode</field>
+      </fields>
+      <libsource lib="Device" part="LED" description="Light emitting diode"/>
+      <property name="Sim.Pins" value="1=K 2=A"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="fault-monitor.kicad_sch"/>
+      <property name="ki_keywords" value="LED diode"/>
+      <property name="ki_fp_filters" value="LED* LED_SMD:* LED_THT:*"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>9ff103e1-a75a-417c-8df6-9ee0ed51db85</tstamps>
+    </comp>
+    <comp ref="D2">
+      <value>LED</value>
+      <footprint>LED_THT:LED_D5.0mm</footprint>
+      <datasheet>~</datasheet>
+      <description>Light emitting diode</description>
+      <fields>
+        <field name="Sim.Pins">1=K 2=A</field>
+        <field name="Footprint">LED_THT:LED_D5.0mm</field>
+        <field name="Datasheet">~</field>
+        <field name="Description">Light emitting diode</field>
+      </fields>
+      <libsource lib="Device" part="LED" description="Light emitting diode"/>
+      <property name="Sim.Pins" value="1=K 2=A"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="fault-monitor.kicad_sch"/>
+      <property name="ki_keywords" value="LED diode"/>
+      <property name="ki_fp_filters" value="LED* LED_SMD:* LED_THT:*"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>9a7a761a-5579-4c23-9bb7-ab64957f519a</tstamps>
+    </comp>
+    <comp ref="D3">
+      <value>LED</value>
+      <footprint>LED_THT:LED_D5.0mm</footprint>
+      <datasheet>~</datasheet>
+      <description>Light emitting diode</description>
+      <fields>
+        <field name="Sim.Pins">1=K 2=A</field>
+        <field name="Footprint">LED_THT:LED_D5.0mm</field>
+        <field name="Datasheet">~</field>
+        <field name="Description">Light emitting diode</field>
+      </fields>
+      <libsource lib="Device" part="LED" description="Light emitting diode"/>
+      <property name="Sim.Pins" value="1=K 2=A"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="fault-monitor.kicad_sch"/>
+      <property name="ki_keywords" value="LED diode"/>
+      <property name="ki_fp_filters" value="LED* LED_SMD:* LED_THT:*"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>69e6997e-c2b3-488f-8c93-833aa21dabd0</tstamps>
+    </comp>
+    <comp ref="D4">
+      <value>LED</value>
+      <footprint>LED_THT:LED_D5.0mm</footprint>
+      <datasheet>~</datasheet>
+      <description>Light emitting diode</description>
+      <fields>
+        <field name="Sim.Pins">1=K 2=A</field>
+        <field name="Footprint">LED_THT:LED_D5.0mm</field>
+        <field name="Datasheet">~</field>
+        <field name="Description">Light emitting diode</field>
+      </fields>
+      <libsource lib="Device" part="LED" description="Light emitting diode"/>
+      <property name="Sim.Pins" value="1=K 2=A"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="fault-monitor.kicad_sch"/>
+      <property name="ki_keywords" value="LED diode"/>
+      <property name="ki_fp_filters" value="LED* LED_SMD:* LED_THT:*"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>7defaddf-50af-44ac-8707-5b9f7a13d91f</tstamps>
+    </comp>
+    <comp ref="J1">
+      <value>Conn_01x03</value>
+      <footprint>TerminalBlock_WAGO_3D:TerminalBlock_WAGO_2601-1103_1x03_P3.50mm_Horizontal-3D</footprint>
+      <datasheet>~</datasheet>
+      <description>Generic connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)</description>
+      <fields>
+        <field name="Footprint">TerminalBlock_WAGO_3D:TerminalBlock_WAGO_2601-1103_1x03_P3.50mm_Horizontal-3D</field>
+        <field name="Datasheet">~</field>
+        <field name="Description">Generic connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)</field>
+      </fields>
+      <libsource lib="Connector_Generic" part="Conn_01x03" description="Generic connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="fault-monitor.kicad_sch"/>
+      <property name="ki_keywords" value="connector"/>
+      <property name="ki_fp_filters" value="Connector*:*_1x??_*"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>842529b5-3e24-42fd-942a-e1d92d58d7e9</tstamps>
+    </comp>
+    <comp ref="J2">
+      <value>Conn_01x06</value>
+      <footprint>TerminalBlock_WAGO_3D:TerminalBlock_WAGO_2601-1106_1x06_P3.50mm_Horizontal-3D</footprint>
+      <datasheet>~</datasheet>
+      <description>Generic connector, single row, 01x06, script generated (kicad-library-utils/schlib/autogen/connector/)</description>
+      <fields>
+        <field name="Footprint">TerminalBlock_WAGO_3D:TerminalBlock_WAGO_2601-1106_1x06_P3.50mm_Horizontal-3D</field>
+        <field name="Datasheet">~</field>
+        <field name="Description">Generic connector, single row, 01x06, script generated (kicad-library-utils/schlib/autogen/connector/)</field>
+      </fields>
+      <libsource lib="Connector_Generic" part="Conn_01x06" description="Generic connector, single row, 01x06, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="fault-monitor.kicad_sch"/>
+      <property name="ki_keywords" value="connector"/>
+      <property name="ki_fp_filters" value="Connector*:*_1x??_*"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>2be6aac9-c348-4944-9844-5149eca4513b</tstamps>
+    </comp>
+    <comp ref="J3">
+      <value>Conn_01x02</value>
+      <footprint>TerminalBlock_WAGO_3D:TerminalBlock_WAGO_2601-1102_1x02_P3.50mm_Horizontal-3D</footprint>
+      <datasheet>~</datasheet>
+      <description>Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)</description>
+      <fields>
+        <field name="Footprint">TerminalBlock_WAGO_3D:TerminalBlock_WAGO_2601-1102_1x02_P3.50mm_Horizontal-3D</field>
+        <field name="Datasheet">~</field>
+        <field name="Description">Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)</field>
+      </fields>
+      <libsource lib="Connector_Generic" part="Conn_01x02" description="Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="fault-monitor.kicad_sch"/>
+      <property name="ki_keywords" value="connector"/>
+      <property name="ki_fp_filters" value="Connector*:*_1x??_*"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>7d91a707-5e17-4fde-b0bc-8bfa0616c162</tstamps>
+    </comp>
+    <comp ref="J4">
+      <value>Conn_01x02</value>
+      <footprint>TerminalBlock_WAGO_3D:TerminalBlock_WAGO_2601-1102_1x02_P3.50mm_Horizontal-3D</footprint>
+      <datasheet>~</datasheet>
+      <description>Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)</description>
+      <fields>
+        <field name="Footprint">TerminalBlock_WAGO_3D:TerminalBlock_WAGO_2601-1102_1x02_P3.50mm_Horizontal-3D</field>
+        <field name="Datasheet">~</field>
+        <field name="Description">Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)</field>
+      </fields>
+      <libsource lib="Connector_Generic" part="Conn_01x02" description="Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="fault-monitor.kicad_sch"/>
+      <property name="ki_keywords" value="connector"/>
+      <property name="ki_fp_filters" value="Connector*:*_1x??_*"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>3f78e1a6-2a18-468e-94b1-2dc3599da178</tstamps>
+    </comp>
+    <comp ref="J5">
+      <value>Conn_01x02</value>
+      <footprint>Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical</footprint>
+      <datasheet>~</datasheet>
+      <description>Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)</description>
+      <fields>
+        <field name="Footprint">Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical</field>
+        <field name="Datasheet">~</field>
+        <field name="Description">Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)</field>
+      </fields>
+      <libsource lib="Connector_Generic" part="Conn_01x02" description="Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="fault-monitor.kicad_sch"/>
+      <property name="ki_keywords" value="connector"/>
+      <property name="ki_fp_filters" value="Connector*:*_1x??_*"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>260ddcf1-d6f1-4ce6-be45-fe4c54072b11</tstamps>
+    </comp>
+    <comp ref="J6">
+      <value>Conn_01x02</value>
+      <footprint>TerminalBlock_WAGO_3D:TerminalBlock_WAGO_2601-1102_1x02_P3.50mm_Horizontal-3D</footprint>
+      <datasheet>~</datasheet>
+      <description>Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)</description>
+      <fields>
+        <field name="Footprint">TerminalBlock_WAGO_3D:TerminalBlock_WAGO_2601-1102_1x02_P3.50mm_Horizontal-3D</field>
+        <field name="Datasheet">~</field>
+        <field name="Description">Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)</field>
+      </fields>
+      <libsource lib="Connector_Generic" part="Conn_01x02" description="Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="fault-monitor.kicad_sch"/>
+      <property name="ki_keywords" value="connector"/>
+      <property name="ki_fp_filters" value="Connector*:*_1x??_*"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>75c40424-37be-4738-b0b0-487e9b5145e7</tstamps>
+    </comp>
+    <comp ref="J7">
+      <value>Conn_01x06</value>
+      <footprint>TerminalBlock_WAGO_3D:TerminalBlock_WAGO_2601-1106_1x06_P3.50mm_Horizontal-3D</footprint>
+      <datasheet>~</datasheet>
+      <description>Generic connector, single row, 01x06, script generated (kicad-library-utils/schlib/autogen/connector/)</description>
+      <fields>
+        <field name="Footprint">TerminalBlock_WAGO_3D:TerminalBlock_WAGO_2601-1106_1x06_P3.50mm_Horizontal-3D</field>
+        <field name="Datasheet">~</field>
+        <field name="Description">Generic connector, single row, 01x06, script generated (kicad-library-utils/schlib/autogen/connector/)</field>
+      </fields>
+      <libsource lib="Connector_Generic" part="Conn_01x06" description="Generic connector, single row, 01x06, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="fault-monitor.kicad_sch"/>
+      <property name="ki_keywords" value="connector"/>
+      <property name="ki_fp_filters" value="Connector*:*_1x??_*"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>c64ae3ef-986c-4dc2-9318-097f4cd07159</tstamps>
+    </comp>
+    <comp ref="R1">
+      <value>2.2k</value>
+      <footprint>Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal</footprint>
+      <datasheet>~</datasheet>
+      <description>Resistor</description>
+      <fields>
+        <field name="Footprint">Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal</field>
+        <field name="Datasheet">~</field>
+        <field name="Description">Resistor</field>
+      </fields>
+      <libsource lib="Device" part="R" description="Resistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="fault-monitor.kicad_sch"/>
+      <property name="ki_keywords" value="R res resistor"/>
+      <property name="ki_fp_filters" value="R_*"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>874420b9-3f37-4a9a-9501-82f79c5aa4a1</tstamps>
+    </comp>
+    <comp ref="R2">
+      <value>2.2k</value>
+      <footprint>Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal</footprint>
+      <datasheet>~</datasheet>
+      <description>Resistor</description>
+      <fields>
+        <field name="Footprint">Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal</field>
+        <field name="Datasheet">~</field>
+        <field name="Description">Resistor</field>
+      </fields>
+      <libsource lib="Device" part="R" description="Resistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="fault-monitor.kicad_sch"/>
+      <property name="ki_keywords" value="R res resistor"/>
+      <property name="ki_fp_filters" value="R_*"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>4ed4112e-42e0-40c7-92f3-2c1ed2659b9c</tstamps>
+    </comp>
+    <comp ref="R3">
+      <value>2.2k</value>
+      <footprint>Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal</footprint>
+      <datasheet>~</datasheet>
+      <description>Resistor</description>
+      <fields>
+        <field name="Footprint">Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal</field>
+        <field name="Datasheet">~</field>
+        <field name="Description">Resistor</field>
+      </fields>
+      <libsource lib="Device" part="R" description="Resistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="fault-monitor.kicad_sch"/>
+      <property name="ki_keywords" value="R res resistor"/>
+      <property name="ki_fp_filters" value="R_*"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>df81b584-caf3-45a2-b626-0bf739563816</tstamps>
+    </comp>
+    <comp ref="R4">
+      <value>2.2k</value>
+      <footprint>Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal</footprint>
+      <datasheet>~</datasheet>
+      <description>Resistor</description>
+      <fields>
+        <field name="Footprint">Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal</field>
+        <field name="Datasheet">~</field>
+        <field name="Description">Resistor</field>
+      </fields>
+      <libsource lib="Device" part="R" description="Resistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="fault-monitor.kicad_sch"/>
+      <property name="ki_keywords" value="R res resistor"/>
+      <property name="ki_fp_filters" value="R_*"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>64497354-0d13-4b12-b77f-bee9c2de1cac</tstamps>
+    </comp>
+    <comp ref="R5">
+      <value>10k</value>
+      <footprint>Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal</footprint>
+      <datasheet>~</datasheet>
+      <description>Resistor</description>
+      <fields>
+        <field name="Footprint">Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal</field>
+        <field name="Datasheet">~</field>
+        <field name="Description">Resistor</field>
+      </fields>
+      <libsource lib="Device" part="R" description="Resistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="fault-monitor.kicad_sch"/>
+      <property name="ki_keywords" value="R res resistor"/>
+      <property name="ki_fp_filters" value="R_*"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>d8f670a7-bab8-4a77-88bc-0411057f7423</tstamps>
+    </comp>
+    <comp ref="R6">
+      <value>10k</value>
+      <footprint>Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal</footprint>
+      <datasheet>~</datasheet>
+      <description>Resistor</description>
+      <fields>
+        <field name="Footprint">Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal</field>
+        <field name="Datasheet">~</field>
+        <field name="Description">Resistor</field>
+      </fields>
+      <libsource lib="Device" part="R" description="Resistor"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="fault-monitor.kicad_sch"/>
+      <property name="ki_keywords" value="R res resistor"/>
+      <property name="ki_fp_filters" value="R_*"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>5ebbdc83-4231-4cce-83ec-0e1ced13cfca</tstamps>
+    </comp>
+    <comp ref="RV1">
+      <value>10K</value>
+      <footprint>DigiKey:POT_N6L30T0N_AMP</footprint>
+      <datasheet>~</datasheet>
+      <description>Potentiometer</description>
+      <fields>
+        <field name="Footprint">DigiKey:POT_N6L30T0N_AMP</field>
+        <field name="Datasheet">~</field>
+        <field name="Description">Potentiometer</field>
+      </fields>
+      <libsource lib="Device" part="R_Potentiometer" description="Potentiometer"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="fault-monitor.kicad_sch"/>
+      <property name="ki_keywords" value="resistor variable"/>
+      <property name="ki_fp_filters" value="Potentiometer*"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>eb3600b0-c4e5-4e63-a47f-02e7c113d31b</tstamps>
+    </comp>
+    <comp ref="TP1">
+      <value>TestPoint</value>
+      <footprint>Connector_PinHeader_2.54mm:PinHeader_1x01_P2.54mm_Vertical</footprint>
+      <datasheet>~</datasheet>
+      <description>test point</description>
+      <fields>
+        <field name="Footprint">Connector_PinHeader_2.54mm:PinHeader_1x01_P2.54mm_Vertical</field>
+        <field name="Datasheet">~</field>
+        <field name="Description">test point</field>
+      </fields>
+      <libsource lib="Connector" part="TestPoint" description="test point"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="fault-monitor.kicad_sch"/>
+      <property name="ki_keywords" value="test point tp"/>
+      <property name="ki_fp_filters" value="Pin* Test*"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>1989e4f2-ed92-43bc-8dc1-326ebe95b9d1</tstamps>
+    </comp>
+    <comp ref="U1">
+      <value>ESP32-DevKitC</value>
+      <footprint>PCM_Espressif:ESP32-DevKitC-ReversePinOrder</footprint>
+      <datasheet>https://atta.szlcsc.com/upload/public/pdf/source/20200521/C529586_D6FCDAFCFF160B3EDDF7DF28D600699D.pdf</datasheet>
+      <description>CPU:- ROM Size:- Number of I/O: USB:- WIFI Protocols:- Bluetooth:- Ethernet:- Audio &amp; Video Interface:- Multimedia Support:- Card Type:- Power Supply Type:- Power Supply:- POE Support:- Resolution:- Temperature Range:-</description>
+      <fields>
+        <field name="Manufacturer Part">ESP32-DevKitC</field>
+        <field name="Manufacturer">ESPRESSIF(乐鑫)</field>
+        <field name="Supplier Part">C571180</field>
+        <field name="Supplier">LCSC</field>
+        <field name="LCSC Part Name">开发板</field>
+        <field name="Footprint">PCM_Espressif:ESP32-DevKitC-ReversePinOrder</field>
+        <field name="Datasheet">https://atta.szlcsc.com/upload/public/pdf/source/20200521/C529586_D6FCDAFCFF160B3EDDF7DF28D600699D.pdf</field>
+        <field name="Description">CPU:- ROM Size:- Number of I/O: USB:- WIFI Protocols:- Bluetooth:- Ethernet:- Audio &amp; Video Interface:- Multimedia Support:- Card Type:- Power Supply Type:- Power Supply:- POE Support:- Resolution:- Temperature Range:-</field>
+      </fields>
+      <libsource lib="ProPrj_Fau-easyedapro" part="ESP32-DEVKITC" description="CPU:- ROM Size:- Number of I/O: USB:- WIFI Protocols:- Bluetooth:- Ethernet:- Audio &amp; Video Interface:- Multimedia Support:- Card Type:- Power Supply Type:- Power Supply:- POE Support:- Resolution:- Temperature Range:-"/>
+      <property name="Manufacturer Part" value="ESP32-DevKitC"/>
+      <property name="Manufacturer" value="ESPRESSIF(乐鑫)"/>
+      <property name="Supplier Part" value="C571180"/>
+      <property name="Supplier" value="LCSC"/>
+      <property name="LCSC Part Name" value="开发板"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="fault-monitor.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>f6734b70-5a64-4eb1-bc42-91cc08966c64</tstamps>
+    </comp>
+    <comp ref="U3">
+      <value>~</value>
+      <footprint>Package_TO_SOT_THT:TO-92L</footprint>
+      <datasheet>https://item.szlcsc.com/datasheet/DS18B20T(XBLW)/43127368.html</datasheet>
+      <fields>
+        <field name="Manufacturer Part">DS18B20T(XBLW)</field>
+        <field name="Manufacturer">XBLW(芯伯乐)</field>
+        <field name="Supplier Part">C41369535</field>
+        <field name="Supplier">LCSC</field>
+        <field name="LCSC Part Name">DS18B20T(XBLW)</field>
+        <field name="Footprint">Package_TO_SOT_THT:TO-92L</field>
+        <field name="Datasheet">https://item.szlcsc.com/datasheet/DS18B20T(XBLW)/43127368.html</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="ProPrj_Fau-easyedapro" part="DS18B20T(XBLW)" description=""/>
+      <property name="Manufacturer Part" value="DS18B20T(XBLW)"/>
+      <property name="Manufacturer" value="XBLW(芯伯乐)"/>
+      <property name="Supplier Part" value="C41369535"/>
+      <property name="Supplier" value="LCSC"/>
+      <property name="LCSC Part Name" value="DS18B20T(XBLW)"/>
+      <property name="Sheetname" value="Root"/>
+      <property name="Sheetfile" value="fault-monitor.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>6e139bc5-ffb8-4597-9271-a455fa24da3b</tstamps>
+    </comp>
+  </components>
+  <libparts>
+    <libpart lib="Connector" part="TestPoint">
+      <description>test point</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>Pin*</fp>
+        <fp>Test*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">TP</field>
+        <field name="Value">TestPoint</field>
+        <field name="Footprint"/>
+        <field name="Datasheet">~</field>
+        <field name="Description">test point</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Connector_Generic" part="Conn_01x02">
+      <description>Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>Connector*:*_1x??_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">J</field>
+        <field name="Value">Conn_01x02</field>
+        <field name="Footprint"/>
+        <field name="Datasheet">~</field>
+        <field name="Description">Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)</field>
+      </fields>
+      <pins>
+        <pin num="1" name="Pin_1" type="passive"/>
+        <pin num="2" name="Pin_2" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Connector_Generic" part="Conn_01x03">
+      <description>Generic connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>Connector*:*_1x??_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">J</field>
+        <field name="Value">Conn_01x03</field>
+        <field name="Footprint"/>
+        <field name="Datasheet">~</field>
+        <field name="Description">Generic connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)</field>
+      </fields>
+      <pins>
+        <pin num="1" name="Pin_1" type="passive"/>
+        <pin num="2" name="Pin_2" type="passive"/>
+        <pin num="3" name="Pin_3" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Connector_Generic" part="Conn_01x06">
+      <description>Generic connector, single row, 01x06, script generated (kicad-library-utils/schlib/autogen/connector/)</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>Connector*:*_1x??_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">J</field>
+        <field name="Value">Conn_01x06</field>
+        <field name="Footprint"/>
+        <field name="Datasheet">~</field>
+        <field name="Description">Generic connector, single row, 01x06, script generated (kicad-library-utils/schlib/autogen/connector/)</field>
+      </fields>
+      <pins>
+        <pin num="1" name="Pin_1" type="passive"/>
+        <pin num="2" name="Pin_2" type="passive"/>
+        <pin num="3" name="Pin_3" type="passive"/>
+        <pin num="4" name="Pin_4" type="passive"/>
+        <pin num="5" name="Pin_5" type="passive"/>
+        <pin num="6" name="Pin_6" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Device" part="LED">
+      <description>Light emitting diode</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>LED*</fp>
+        <fp>LED_SMD:*</fp>
+        <fp>LED_THT:*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">D</field>
+        <field name="Value">LED</field>
+        <field name="Footprint"/>
+        <field name="Datasheet">~</field>
+        <field name="Description">Light emitting diode</field>
+        <field name="Sim.Pins">1=K 2=A</field>
+      </fields>
+      <pins>
+        <pin num="1" name="K" type="passive"/>
+        <pin num="2" name="A" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Device" part="R">
+      <description>Resistor</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>R_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">R</field>
+        <field name="Value">R</field>
+        <field name="Footprint"/>
+        <field name="Datasheet">~</field>
+        <field name="Description">Resistor</field>
+      </fields>
+      <pins>
+        <pin num="1" name="" type="passive"/>
+        <pin num="2" name="" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Device" part="R_Potentiometer">
+      <description>Potentiometer</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>Potentiometer*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">RV</field>
+        <field name="Value">R_Potentiometer</field>
+        <field name="Footprint"/>
+        <field name="Datasheet">~</field>
+        <field name="Description">Potentiometer</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="passive"/>
+        <pin num="2" name="2" type="passive"/>
+        <pin num="3" name="3" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="ProPrj_Fau-easyedapro" part="DS18B20T(XBLW)">
+      <docs>https://item.szlcsc.com/datasheet/DS18B20T(XBLW)/43127368.html</docs>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value"/>
+        <field name="Footprint">ProPrj_Fau-easyedapro:TO-92-3_L4.5-W3.5-P1.27-L</field>
+        <field name="Datasheet">https://item.szlcsc.com/datasheet/DS18B20T(XBLW)/43127368.html</field>
+        <field name="Description"/>
+        <field name="Manufacturer Part">DS18B20T(XBLW)</field>
+        <field name="Manufacturer">XBLW(芯伯乐)</field>
+        <field name="Supplier Part">C41369535</field>
+        <field name="Supplier">LCSC</field>
+        <field name="LCSC Part Name">DS18B20T(XBLW)</field>
+      </fields>
+      <pins>
+        <pin num="1" name="GND" type="unspecified"/>
+        <pin num="2" name="DQ" type="unspecified"/>
+        <pin num="3" name="VDD" type="unspecified"/>
+      </pins>
+    </libpart>
+    <libpart lib="ProPrj_Fau-easyedapro" part="ESP32-DEVKITC">
+      <description>CPU:- ROM Size:- Number of I/O: USB:- WIFI Protocols:- Bluetooth:- Ethernet:- Audio &amp; Video Interface:- Multimedia Support:- Card Type:- Power Supply Type:- Power Supply:- POE Support:- Resolution:- Temperature Range:-</description>
+      <docs>https://atta.szlcsc.com/upload/public/pdf/source/20200521/C529586_D6FCDAFCFF160B3EDDF7DF28D600699D.pdf</docs>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value"/>
+        <field name="Footprint">ProPrj_Fau-easyedapro:BULETM-SMD_ESP32-DEVKITC</field>
+        <field name="Datasheet">https://atta.szlcsc.com/upload/public/pdf/source/20200521/C529586_D6FCDAFCFF160B3EDDF7DF28D600699D.pdf</field>
+        <field name="Description">CPU:- ROM Size:- Number of I/O: USB:- WIFI Protocols:- Bluetooth:- Ethernet:- Audio &amp; Video Interface:- Multimedia Support:- Card Type:- Power Supply Type:- Power Supply:- POE Support:- Resolution:- Temperature Range:-</field>
+        <field name="Manufacturer Part">ESP32-DevKitC</field>
+        <field name="Manufacturer">ESPRESSIF(乐鑫)</field>
+        <field name="Supplier Part">C571180</field>
+        <field name="Supplier">LCSC</field>
+        <field name="LCSC Part Name">开发板</field>
+      </fields>
+      <pins>
+        <pin num="1" name="3V3" type="unspecified"/>
+        <pin num="2" name="EN" type="unspecified"/>
+        <pin num="3" name="VP" type="unspecified"/>
+        <pin num="4" name="VN" type="unspecified"/>
+        <pin num="5" name="IO34" type="unspecified"/>
+        <pin num="6" name="IO35" type="unspecified"/>
+        <pin num="7" name="IO32" type="unspecified"/>
+        <pin num="8" name="IO33" type="unspecified"/>
+        <pin num="9" name="IO25" type="unspecified"/>
+        <pin num="10" name="IO26" type="unspecified"/>
+        <pin num="11" name="IO27" type="unspecified"/>
+        <pin num="12" name="IO14" type="unspecified"/>
+        <pin num="13" name="IO12" type="unspecified"/>
+        <pin num="14" name="GND" type="unspecified"/>
+        <pin num="15" name="IO13" type="unspecified"/>
+        <pin num="16" name="D2" type="unspecified"/>
+        <pin num="17" name="D3" type="unspecified"/>
+        <pin num="18" name="CMD" type="unspecified"/>
+        <pin num="19" name="5V" type="unspecified"/>
+        <pin num="20" name="GND" type="unspecified"/>
+        <pin num="21" name="IO23" type="unspecified"/>
+        <pin num="22" name="IO22" type="unspecified"/>
+        <pin num="23" name="TX" type="unspecified"/>
+        <pin num="24" name="RX" type="unspecified"/>
+        <pin num="25" name="IO21" type="unspecified"/>
+        <pin num="26" name="GND" type="unspecified"/>
+        <pin num="27" name="IO19" type="unspecified"/>
+        <pin num="28" name="IO18" type="unspecified"/>
+        <pin num="29" name="IO5" type="unspecified"/>
+        <pin num="30" name="IO17" type="unspecified"/>
+        <pin num="31" name="IO16" type="unspecified"/>
+        <pin num="32" name="IO4" type="unspecified"/>
+        <pin num="33" name="IO0" type="unspecified"/>
+        <pin num="34" name="IO2" type="unspecified"/>
+        <pin num="35" name="IO15" type="unspecified"/>
+        <pin num="36" name="D1" type="unspecified"/>
+        <pin num="37" name="D0" type="unspecified"/>
+        <pin num="38" name="CLK" type="unspecified"/>
+      </pins>
+    </libpart>
+  </libparts>
+  <libraries>
+    <library logical="Connector">
+      <uri>/usr/share/kicad/symbols//Connector.kicad_sym</uri>
+    </library>
+    <library logical="Connector_Generic">
+      <uri>/usr/share/kicad/symbols//Connector_Generic.kicad_sym</uri>
+    </library>
+    <library logical="Device">
+      <uri>/usr/share/kicad/symbols//Device.kicad_sym</uri>
+    </library>
+    <library logical="ProPrj_Fau-easyedapro">
+      <uri>/home/aaa/GitHub/timbot/fault-monitor/fault-monitor/ProPrj_Fau-easyedapro.kicad_sym</uri>
+    </library>
+  </libraries>
+  <nets>
+    <net code="1" name="+5V" class="Default">
+      <node ref="J1" pin="1" pinfunction="Pin_1" pintype="passive"/>
+      <node ref="J4" pin="1" pinfunction="Pin_1" pintype="passive"/>
+      <node ref="R5" pin="1" pintype="passive"/>
+      <node ref="R6" pin="1" pintype="passive"/>
+      <node ref="U1" pin="19" pinfunction="5V" pintype="unspecified"/>
+      <node ref="U3" pin="3" pinfunction="VDD" pintype="unspecified"/>
+    </net>
+    <net code="2" name="/ALARMLEFT" class="Default">
+      <node ref="J2" pin="5" pinfunction="Pin_5" pintype="passive"/>
+      <node ref="R5" pin="2" pintype="passive"/>
+      <node ref="U1" pin="15" pinfunction="IO13" pintype="unspecified"/>
+    </net>
+    <net code="3" name="/ALARMRIGHT" class="Default">
+      <node ref="J2" pin="6" pinfunction="Pin_6" pintype="passive"/>
+      <node ref="R6" pin="2" pintype="passive"/>
+      <node ref="U1" pin="34" pinfunction="IO2" pintype="unspecified"/>
+    </net>
+    <net code="4" name="/FAN" class="Default">
+      <node ref="J2" pin="4" pinfunction="Pin_4" pintype="passive"/>
+      <node ref="U1" pin="27" pinfunction="IO19" pintype="unspecified"/>
+    </net>
+    <net code="5" name="/IO0" class="Default">
+      <node ref="J7" pin="6" pinfunction="Pin_6" pintype="passive"/>
+      <node ref="U1" pin="33" pinfunction="IO0" pintype="unspecified"/>
+    </net>
+    <net code="6" name="/IO4" class="Default">
+      <node ref="J7" pin="5" pinfunction="Pin_5" pintype="passive"/>
+      <node ref="U1" pin="32" pinfunction="IO4" pintype="unspecified"/>
+    </net>
+    <net code="7" name="/IO17" class="Default">
+      <node ref="J7" pin="4" pinfunction="Pin_4" pintype="passive"/>
+      <node ref="U1" pin="30" pinfunction="IO17" pintype="unspecified"/>
+    </net>
+    <net code="8" name="/IO18" class="Default">
+      <node ref="J7" pin="3" pinfunction="Pin_3" pintype="passive"/>
+      <node ref="U1" pin="28" pinfunction="IO18" pintype="unspecified"/>
+    </net>
+    <net code="9" name="/IO21" class="Default">
+      <node ref="J7" pin="2" pinfunction="Pin_2" pintype="passive"/>
+      <node ref="U1" pin="25" pinfunction="IO21" pintype="unspecified"/>
+    </net>
+    <net code="10" name="/IO22" class="Default">
+      <node ref="J7" pin="1" pinfunction="Pin_1" pintype="passive"/>
+      <node ref="U1" pin="22" pinfunction="IO22" pintype="unspecified"/>
+    </net>
+    <net code="11" name="/RELAY" class="Default">
+      <node ref="J2" pin="2" pinfunction="Pin_2" pintype="passive"/>
+      <node ref="U1" pin="35" pinfunction="IO15" pintype="unspecified"/>
+    </net>
+    <net code="12" name="/SOFTSTART" class="Default">
+      <node ref="J2" pin="3" pinfunction="Pin_3" pintype="passive"/>
+      <node ref="U1" pin="31" pinfunction="IO16" pintype="unspecified"/>
+    </net>
+    <net code="13" name="/STOPALL" class="Default">
+      <node ref="J2" pin="1" pinfunction="Pin_1" pintype="passive"/>
+      <node ref="U1" pin="5" pinfunction="IO34" pintype="unspecified"/>
+    </net>
+    <net code="14" name="GND" class="Default">
+      <node ref="D1" pin="1" pinfunction="K" pintype="passive"/>
+      <node ref="D2" pin="1" pinfunction="K" pintype="passive"/>
+      <node ref="D3" pin="1" pinfunction="K" pintype="passive"/>
+      <node ref="D4" pin="1" pinfunction="K" pintype="passive"/>
+      <node ref="J1" pin="2" pinfunction="Pin_2" pintype="passive"/>
+      <node ref="J4" pin="2" pinfunction="Pin_2" pintype="passive"/>
+      <node ref="U1" pin="14" pinfunction="GND" pintype="unspecified"/>
+      <node ref="U1" pin="20" pinfunction="GND" pintype="unspecified"/>
+      <node ref="U1" pin="26" pinfunction="GND" pintype="unspecified"/>
+      <node ref="U3" pin="1" pinfunction="GND" pintype="unspecified"/>
+    </net>
+    <net code="15" name="Net-(D1-A)" class="Default">
+      <node ref="D1" pin="2" pinfunction="A" pintype="passive"/>
+      <node ref="R1" pin="2" pintype="passive"/>
+    </net>
+    <net code="16" name="Net-(D2-A)" class="Default">
+      <node ref="D2" pin="2" pinfunction="A" pintype="passive"/>
+      <node ref="R2" pin="2" pintype="passive"/>
+    </net>
+    <net code="17" name="Net-(D3-A)" class="Default">
+      <node ref="D3" pin="2" pinfunction="A" pintype="passive"/>
+      <node ref="R3" pin="2" pintype="passive"/>
+    </net>
+    <net code="18" name="Net-(D4-A)" class="Default">
+      <node ref="D4" pin="2" pinfunction="A" pintype="passive"/>
+      <node ref="R4" pin="2" pintype="passive"/>
+    </net>
+    <net code="19" name="Net-(J1-Pin_3)" class="Default">
+      <node ref="J1" pin="3" pinfunction="Pin_3" pintype="passive"/>
+      <node ref="U1" pin="12" pinfunction="IO14" pintype="unspecified"/>
+    </net>
+    <net code="20" name="Net-(J3-Pin_1)" class="Default">
+      <node ref="J3" pin="1" pinfunction="Pin_1" pintype="passive"/>
+      <node ref="RV1" pin="3" pinfunction="3" pintype="passive"/>
+    </net>
+    <net code="21" name="Net-(J3-Pin_2)" class="Default">
+      <node ref="J3" pin="2" pinfunction="Pin_2" pintype="passive"/>
+      <node ref="RV1" pin="1" pinfunction="1" pintype="passive"/>
+    </net>
+    <net code="22" name="Net-(J5-Pin_1)" class="Default">
+      <node ref="J5" pin="1" pinfunction="Pin_1" pintype="passive"/>
+      <node ref="U1" pin="29" pinfunction="IO5" pintype="unspecified"/>
+    </net>
+    <net code="23" name="Net-(J5-Pin_2)" class="Default">
+      <node ref="J5" pin="2" pinfunction="Pin_2" pintype="passive"/>
+      <node ref="RV1" pin="2" pinfunction="2" pintype="passive"/>
+      <node ref="TP1" pin="1" pinfunction="1" pintype="passive"/>
+    </net>
+    <net code="24" name="Net-(J6-Pin_1)" class="Default">
+      <node ref="J6" pin="1" pinfunction="Pin_1" pintype="passive"/>
+      <node ref="U1" pin="23" pinfunction="TX" pintype="unspecified"/>
+    </net>
+    <net code="25" name="Net-(J6-Pin_2)" class="Default">
+      <node ref="J6" pin="2" pinfunction="Pin_2" pintype="passive"/>
+      <node ref="U1" pin="24" pinfunction="RX" pintype="unspecified"/>
+    </net>
+    <net code="26" name="Net-(U1-IO12)" class="Default">
+      <node ref="U1" pin="13" pinfunction="IO12" pintype="unspecified"/>
+      <node ref="U3" pin="2" pinfunction="DQ" pintype="unspecified"/>
+    </net>
+    <net code="27" name="Net-(U1-IO25)" class="Default">
+      <node ref="R2" pin="1" pintype="passive"/>
+      <node ref="U1" pin="9" pinfunction="IO25" pintype="unspecified"/>
+    </net>
+    <net code="28" name="Net-(U1-IO26)" class="Default">
+      <node ref="R1" pin="1" pintype="passive"/>
+      <node ref="U1" pin="10" pinfunction="IO26" pintype="unspecified"/>
+    </net>
+    <net code="29" name="Net-(U1-IO32)" class="Default">
+      <node ref="R4" pin="1" pintype="passive"/>
+      <node ref="U1" pin="7" pinfunction="IO32" pintype="unspecified"/>
+    </net>
+    <net code="30" name="Net-(U1-IO33)" class="Default">
+      <node ref="R3" pin="1" pintype="passive"/>
+      <node ref="U1" pin="8" pinfunction="IO33" pintype="unspecified"/>
+    </net>
+    <net code="31" name="unconnected-(U1-3V3-Pad1)" class="Default">
+      <node ref="U1" pin="1" pinfunction="3V3" pintype="unspecified"/>
+    </net>
+    <net code="32" name="unconnected-(U1-CLK-Pad38)" class="Default">
+      <node ref="U1" pin="38" pinfunction="CLK" pintype="unspecified"/>
+    </net>
+    <net code="33" name="unconnected-(U1-CMD-Pad18)" class="Default">
+      <node ref="U1" pin="18" pinfunction="CMD" pintype="unspecified"/>
+    </net>
+    <net code="34" name="unconnected-(U1-D0-Pad37)" class="Default">
+      <node ref="U1" pin="37" pinfunction="D0" pintype="unspecified"/>
+    </net>
+    <net code="35" name="unconnected-(U1-D1-Pad36)" class="Default">
+      <node ref="U1" pin="36" pinfunction="D1" pintype="unspecified"/>
+    </net>
+    <net code="36" name="unconnected-(U1-D2-Pad16)" class="Default">
+      <node ref="U1" pin="16" pinfunction="D2" pintype="unspecified"/>
+    </net>
+    <net code="37" name="unconnected-(U1-D3-Pad17)" class="Default">
+      <node ref="U1" pin="17" pinfunction="D3" pintype="unspecified"/>
+    </net>
+    <net code="38" name="unconnected-(U1-EN-Pad2)" class="Default">
+      <node ref="U1" pin="2" pinfunction="EN" pintype="unspecified"/>
+    </net>
+    <net code="39" name="unconnected-(U1-IO23-Pad21)" class="Default">
+      <node ref="U1" pin="21" pinfunction="IO23" pintype="unspecified"/>
+    </net>
+    <net code="40" name="unconnected-(U1-IO27-Pad11)" class="Default">
+      <node ref="U1" pin="11" pinfunction="IO27" pintype="unspecified"/>
+    </net>
+    <net code="41" name="unconnected-(U1-IO35-Pad6)" class="Default">
+      <node ref="U1" pin="6" pinfunction="IO35" pintype="unspecified"/>
+    </net>
+    <net code="42" name="unconnected-(U1-VN-Pad4)" class="Default">
+      <node ref="U1" pin="4" pinfunction="VN" pintype="unspecified"/>
+    </net>
+    <net code="43" name="unconnected-(U1-VP-Pad3)" class="Default">
+      <node ref="U1" pin="3" pinfunction="VP" pintype="unspecified"/>
+    </net>
+  </nets>
+</export>

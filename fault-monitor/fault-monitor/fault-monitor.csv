@@ -1,0 +1,12 @@
+#,Reference,Qty,Value,Footprint,DNP
+1,"D1, D2, D3, D4",4,LED,LED_THT:LED_D5.0mm,
+2,J1,1,Conn_01x03,TerminalBlock_WAGO_3D:TerminalBlock_WAGO_2601-1103_1x03_P3.50mm_Horizontal-3D,
+3,"J2, J7",2,Conn_01x06,TerminalBlock_WAGO_3D:TerminalBlock_WAGO_2601-1106_1x06_P3.50mm_Horizontal-3D,
+4,"J3, J4, J6",3,Conn_01x02,TerminalBlock_WAGO_3D:TerminalBlock_WAGO_2601-1102_1x02_P3.50mm_Horizontal-3D,
+5,J5,1,Conn_01x02,Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical,
+6,"R1, R2, R3, R4",4,2.2k,Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal,
+7,"R5, R6",2,10k,Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal,
+8,RV1,1,10K,DigiKey:POT_N6L30T0N_AMP,
+9,TP1,1,TestPoint,Connector_PinHeader_2.54mm:PinHeader_1x01_P2.54mm_Vertical,
+10,U1,1,ESP32-DevKitC,PCM_Espressif:ESP32-DevKitC-ReversePinOrder,
+11,U3,1,DS18B20T,Package_TO_SOT_THT:TO-92L,

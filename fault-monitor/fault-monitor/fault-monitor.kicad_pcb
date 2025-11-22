@@ -6980,14 +6980,6 @@
 		(uuid "76f8af9a-7383-4de9-89e1-73576e9302ce")
 	)
 	(segment
-		(start 110.415 76.05156)
-		(end 109.08344 74.72)
-		(width 0.2)
-		(layer "B.Cu")
-		(net 1)
-		(uuid "7defa544-249b-47a1-8c0f-a68cd23b45c7")
-	)
-	(segment
 		(start 115.415 48.55156)
 		(end 117 50.13656)
 		(width 0.2)

@@ -5501,7 +5501,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Potentiometer_THT:Potentiometer_ACP_CA9-V10_Vertical"
+		(property "Footprint" "DigiKey:POT_N6L30T0N_AMP"
 			(at 121.92 50.8 0)
 			(effects
 				(font
