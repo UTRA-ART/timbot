@@ -161,7 +161,7 @@ class NavigateWaypoints:
                         now = self.get_clock().now()
 
                         # Wait for transform from /map to /utm
-                        buffer.lookupTransform("/map", "/utm", now, 5.0)
+                        buffer.lookup_transform("/map", "/utm", now, 5.0)
                         node.get_logger().info("Transform found. Time waited for transform: %s s"%(rospy.get_time() - start_time))
                         waited_for_transform = True
                         break
@@ -196,4 +196,19 @@ class NavigateWaypoints:
             self.curr_waypoint_idx = 0
         
         return waypoint
+    
+    def get_pose_from_gps(self, longitude, latitude, frame, pose_test_var = None):
+        '''converts gps coordinates to frame (odom,map,etc)'''
+        
+        # create PoseStamped message to set up for do_transform_pose
+        utm_coords = utm.from_latlon(latitude, longitude)#latitude and longitude transformed into UTM
+        utm_pose = PoseStamped()
+        utm_pose.header.frame_id = 'utm'
+        utm_pose.pose.position.x = utm_coords[0]
+        utm_pose.pose.position.y = utm_coords[1]
+        utm_pose.pose.orientation.w = 1.0 # to make sure its right side up
+
+        p_in_frame = self.buffer.transform(utm_pose ,"/"+frame, 1.0)
+
+        return p_in_frame
 
