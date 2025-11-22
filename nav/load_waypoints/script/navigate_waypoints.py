@@ -134,5 +134,44 @@ class NavigateWaypoints:
                 self.waypoints[i]["id"] = i
                 j += 1
 
+    def wait_for_utm_transform(self):
+        '''
+        Description: 
+            Used to wait for a transform from the /map frame to /utm frame (which indicates that the GPS is ready). This accounts/simulates for gps start-up time. 
+            Once the transform is detected, this function will exit. 
+        '''
+
+        # Initialize transform listener
+        buffer = Buffer()
+        listener = TransformListener(buffer, self)
+
+        rate = node.create_rate(10.0)
+
+        start_time = self.get_clock().now()
+
+        try:
+            while rclpy.ok():
+                time_waited = self.get_clock().now() - start_time
+                if (time_waited) >= self.max_time_for_transform:
+                    node.get_logger().info("Waiting for transform timed out. Time waited for transform: %s s"%(time_waited))
+                    waited_for_transform = False
+                    break
+                else:
+                    try:
+                        now = self.get_clock().now()
+
+                        # Wait for transform from /map to /utm
+                        buffer.lookupTransform("/map", "/utm", now, 5.0)
+                        node.get_logger().info("Transform found. Time waited for transform: %s s"%(rospy.get_time() - start_time))
+                        waited_for_transform = True
+                        break
+                    except:
+                        pass
+                
+                rate.sleep()
+        except:
+            pass
+        
+        return waited_for_transform
 
 
