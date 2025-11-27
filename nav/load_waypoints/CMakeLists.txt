@@ -10,6 +10,7 @@ if(NOT CMAKE_CXX_STANDARD)
 endif()
 
 # Find required ROS2 packages
+find_package(ament_cmake_python REQUIRED)
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_action REQUIRED)
@@ -46,8 +47,11 @@ target_include_directories(load_waypoints PUBLIC
   ${EIGEN3_INCLUDE_DIR}
 )
 
-install(TARGETS load_waypoints
+install(
+  PROGRAMS
+    scripts/nav_options.py
   DESTINATION lib/${PROJECT_NAME}
 )
+
 
 ament_package()
