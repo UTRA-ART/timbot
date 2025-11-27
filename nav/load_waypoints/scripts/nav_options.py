@@ -63,7 +63,7 @@ class RoverNavigator(Node):
         self.active = False  # Indicates if the rover is actively navigating to a goal
 
         # Create service for handling navigation requests
-        self.nacigation_service = self.create_service(RoverNavigation, 'rover_navigation', self.handle_navigation_request)
+        self.navigation_service = self.create_service(RoverNavigation, 'rover_navigation', self.handle_navigation_request)
 
         self.subscription = self.create_subscription(PoseStamped, '/tracked_pose', self.odometry_callback, 10)
         
@@ -95,14 +95,7 @@ class RoverNavigator(Node):
 
     def navigate_to_goal(self, goal_pos):
         self.get_logger().info(f"Navigating to goal: (x: {goal_pos[0]}, y: {goal_pos[1]})")
-        action_client = self.send_goal_to_move_base(goal_pos)
-        finished_within_time = action_client.wait_for_result(rospy.Duration(600))
-        
-        if not finished_within_time:
-            action_client.cancel_goal()
-            self.get_logger().info("Time out!")
-        else:
-            self.get_logger().info("Reached nav goal!")
+        self.send_goal_to_move_base(goal_pos)
 
     def get_pose_from_gps(self, longitude, latitude):
         '''Converts GPS coordinates to map frame, same method from 'navigate_waypoints.py'''
