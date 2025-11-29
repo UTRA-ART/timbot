@@ -167,7 +167,7 @@ class NavigateWaypoints:
 
                         # Wait for transform from /map to /utm
                         buffer.lookup_transform("/map", "/utm", now, 5.0)
-                        node.get_logger().info("Transform found. Time waited for transform: %s s"%(rospy.get_time() - start_time))
+                        node.get_logger().info("Transform found. Time waited for transform: %s s"%(self.get_clock().now() - start_time))
                         waited_for_transform = True
                         break
                     except:
@@ -227,7 +227,7 @@ class NavigateWaypoints:
         # Creates a new goal with the NavigateToPose constructor
         goal = NavigateToPose()
         goal.pose.header.frame_id = curr_waypoint["frame_id"]
-        goal.pose.header.stamp = rospy.Time.now()
+        goal.pose.header.stamp = self.get_clock().now()
 
         #while not reached Goal, resend the goal. 
         #if finished goal, send the next goal and start again. 
@@ -285,10 +285,27 @@ class NavigateWaypoints:
     def ramp_naving_callback(self, ramp_naving):
         with self.cv_ramp_naving:
             self.ramp_naving = ramp_naving.data
-            # rospy.loginfo("Message from /ramp_naving {}".format(self.ramp_naving))
             if not self.ramp_naving:
-                # rospy.loginfo("Sending a wake up call")
                 self.cv_ramp_naving.notify_all() # Notifies blocked threads to recheck their condition
+    
+    if __name__ == "__main__":
+        # Pick json file with desired GPS coordinates
+        launch_state = node.declare_parameter('/load_waypoints_server/launch_state', """default value""")
+        launch_state = "IGVC"
+        if launch_state == "sim":
+            static_waypoint_file = 'static_waypoints_pavement.json'
+        else:
+            static_waypoint_file = 'IGVC_practice.json'
+
+        rclpy.create_node('navigate_waypoints')
+        waypoints = NavigateWaypoints(static_waypoint_file, max_time_for_transform=60.0)
+    
+        # waypoints.navigate_waypoints()
+        t = th.Thread(target=waypoints.navigate_waypoints)
+        t.start()
+        rclpy.spin(waypoints)
+        t.join()
+        rospy.create_node('Finished Navigating!!')
 
             
 
