@@ -266,11 +266,20 @@ class NavigateWaypoints:
                     break
                 else:
                     times += 1
-
-
+    
     def recieve_result():
         self.result_received = 1
         return 1
+
+    def navigate_waypoints(self):
+        while True:
+            curr_waypoint = self.get_next_waypoint()
+            self.send_and_wait_goal_to_move_base(curr_waypoint)
+            if self.ramp_naving:
+                break
+
+            if (self.current_lap >= self.laps):
+                break
 
             
 
