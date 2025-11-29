@@ -280,6 +280,15 @@ class NavigateWaypoints:
 
             if (self.current_lap >= self.laps):
                 break
+    
+    # Constanting updating the threading conditions
+    def ramp_naving_callback(self, ramp_naving):
+        with self.cv_ramp_naving:
+            self.ramp_naving = ramp_naving.data
+            # rospy.loginfo("Message from /ramp_naving {}".format(self.ramp_naving))
+            if not self.ramp_naving:
+                # rospy.loginfo("Sending a wake up call")
+                self.cv_ramp_naving.notify_all() # Notifies blocked threads to recheck their condition
 
             
 
