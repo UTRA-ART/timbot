@@ -41,9 +41,9 @@ class OdomPlotterNode(rclpy.Node):
     def plot(self):
         gt_x, gt_y, gt_z = [], [], []
         for gt_odom in self.ground_truth_states:
-            gt_x.append(gt_odom.pose.pose.position.x)
-            gt_y.append(gt_odom.pose.pose.position.y)
-            gt_z.append(gt_odom.pose.pose.position.z)
+            gt_x.append(gt_odom.pose.position.x)
+            gt_y.append(gt_odom.pose.position.y)
+            gt_z.append(gt_odom.pose.position.z)
 
         tracked_x, tracked_y, tracked_z = [], [], []
         for tracked in self.tracked_poses:
