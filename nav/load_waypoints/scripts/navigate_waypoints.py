@@ -1,5 +1,7 @@
 from ament_index_python.packages import get_package_share_directory
 from tf2_ros.transform_listener import TransformListener
+from rclpy.action import ActionClient
+import time
 
 import threading as th
 
@@ -31,6 +33,9 @@ class NavigateWaypoints:
         self.cv_ramp_naving = th.Condition()
 
         self.ramp_wp_sub = node.create_subscription(Bool, 'ramp_naving', self.ramp_naving_callback)
+
+        # Used to wait for result after async_send_goal
+        self.result_received = 0
 
     def populate_waypoint_dict(self):
         '''
@@ -211,4 +216,63 @@ class NavigateWaypoints:
         p_in_frame = self.buffer.transform(utm_pose ,"/"+frame, 1.0)
 
         return p_in_frame
+
+    def send_and_wait_goal_to_move_base(self, curr_waypoint):
+        # Create an action client called "move_base" with action definition file "MoveBaseAction"
+        action_client = ActionClient(self, MoveBaseAction, '/move_base')
+
+        # Waits until the action server has started up and started listening for goals.
+        action_client.wait_for_server()
+
+        # Creates a new goal with the NavigateToPose constructor
+        goal = NavigateToPose()
+        goal.pose.header.frame_id = curr_waypoint["frame_id"]
+        goal.pose.header.stamp = rospy.Time.now()
+
+        #while not reached Goal, resend the goal. 
+        #if finished goal, send the next goal and start again. 
+        finished_within_time = 0
+
+        times = 0
+
+        # Send goals repeatedly  
+        while 1:
+            # Set goal position and orientation
+            pose = self.get_pose_from_gps(curr_waypoint["longitude"], curr_waypoint["latitude"], curr_waypoint["frame_id"])
+            goal.pose = pose.pose
+
+            # Sends goal and waits until the action is completed (or aborted if it is impossible)
+            goal_handle = action_client.send_goal_async(goal)
+            action_client.async_get_result(goal_handle, self.recieve_result)
+
+            elapsed_time = 0
+            while (time.sleep(0.01)):
+                if result_received == 1:
+                    result_received = 0
+                    break
+                elapsed_time += 0.01
+
+                if elapsed_time >= 5:
+                    break
+            
+            with self.cv_ramp_naving:
+                if self.ramp_naving:
+                    node.get_logger().info("Normal nav INTERRUPTED") # ramp_navigate.cpp takes over
+                    self.cv_ramp_naving.wait_for(lambda : not self.ramp_naving) # Stalls here (thread blocked) until ramp nav completed 
+                    node.get_logger().info("Returning to waypoint navigation")
+                    break
+                elif finished_within_time:
+                    node.get_logger().info("Reached nav goal")
+                    break
+                else:
+                    times += 1
+
+
+    def recieve_result():
+        self.result_received = 1
+        return 1
+
+            
+
+
 
