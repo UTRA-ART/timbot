@@ -1,3 +1,6 @@
+# NavSat configuration for odom_state node
+# Using GPS data to correct odometry drift
+
 frequency: 5.0
 #delay: 0.0  # Simulated GPS needs no start-up time
 delay: 20.0 # Real GPS start-up time

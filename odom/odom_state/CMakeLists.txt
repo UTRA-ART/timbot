@@ -53,10 +53,15 @@ find_package(std_msgs REQUIRED)
 
 # Install Python executables
 install(PROGRAMS
-  scripts/graph_odom.py
-  scripts/ground_truth_node.py
   scripts/twist_odom.py
-  scripts/zero_odom.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+# Install debugging scripts
+install(PROGRAMS
+  debugging_scripts/graph_odom.py
+  debugging_scripts/ground_truth_node.py
+  debugging_scripts/zero_odom.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
