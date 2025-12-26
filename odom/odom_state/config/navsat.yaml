@@ -1,0 +1,27 @@
+# NavSat configuration for odom_state node
+# Using GPS data to correct odometry drift
+
+frequency: 5.0
+#delay: 0.0  # Simulated GPS needs no start-up time
+delay: 20.0 # Real GPS start-up time
+# world_frame: map
+
+# Initial configuration
+#magnetic_declination_radians: -0.1306 # toronto?
+magnetic_declination_radians: -0.1302 # Detroit
+yaw_offset: 3.1416  # pi rad since 0 yaw == West
+zero_altitude: true
+
+# Publishing data
+publish_filtered_gps: true
+broadcast_cartesian_transform: true # NOTE: publishes transform (frame specified from input odometry) --> UTM
+broadcast_cartesian_transform_as_parent_frame: true
+
+# Misc
+use_odometry_yaw: false
+wait_for_datum: false
+transform_timeout: 0
+
+# debugging
+print_diagnostics: true
+debug: true
