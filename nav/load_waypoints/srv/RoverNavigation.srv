@@ -1,0 +1,6 @@
+# RoverNavigation.srv
+string goal_type  # "abs", "rel", "gps"
+geometry_msgs/Point goal
+---
+bool success
+string message
