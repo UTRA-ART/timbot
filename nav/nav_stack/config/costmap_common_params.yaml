@@ -1,0 +1,23 @@
+# Obstacles within a height of 3.3 meters are allowed to be perceived
+max_obstacle_height: 3.3  # Can be large, matched to obstacle range
+
+# Define the robot footprint as a polygon (list of [x, y] points)
+footprint: 
+  - [-0.49, -0.46]
+  - [-0.49, 0.46]
+  - [0.45, 0.46]
+  - [0.59, 0.10]
+  - [0.59, -0.10]
+  - [0.45, -0.46]
+
+map_type: costmap
+
+observation_sources: laser_scan_sensor
+
+laser_scan_sensor:
+  topic: /scan
+  data_type: LaserScan
+  clearing: true
+  marking: true
+  obstacle_range: 3.0
+  raytrace_range: 3.3

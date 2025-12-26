@@ -1,0 +1,228 @@
+# nav2_params.yaml - unified Nav2 parameter file (global + local costmaps, planner, controller, BT, lifecycle)
+###############################################################################
+# Note: adjust file paths (e.g. for the behavior tree xml) and any frame/topic
+# names to match your robot. This is a direct merge of the configs you've provided,
+# converted to Nav2 (ROS2) syntax.
+###############################################################################
+
+# ----------------------------
+# Planner Server (global planner)
+# ----------------------------
+planner_server:
+  ros__parameters:
+    expected_planner_frequency: 100.0
+
+    planner_plugins: ["GridBased"]
+
+    GridBased:
+      plugin: "nav2_navfn_planner/NavfnPlanner"
+      allow_unknown: true
+      tolerance: 0.1
+      use_astar: false
+      use_grid_path: false
+      visualize_potential: true
+      cost_factor: 0.55
+      neutral_cost: 66
+      lethal_cost: 253
+
+# ----------------------------
+# Controller Server (local planner - DWB)
+# ----------------------------
+controller_server:
+  ros__parameters:
+    controller_frequency: 20.0
+    controller_plugins: ["FollowPath"]
+
+    FollowPath:
+      plugin: "dwb_core::DWBLocalPlanner"
+
+      # Robot kinematic / dynamic limits
+      acc_lim_x: 5.0
+      acc_lim_y: 0.0
+      acc_lim_theta: 5.0
+
+      max_vel_x: 2.23
+      min_vel_x: -2.23
+      max_vel_y: 0.0
+      min_vel_y: 0.0
+      max_vel_theta: 2.0
+      min_vel_theta: -2.0
+
+      # Goal tolerances
+      yaw_goal_tolerance: 3.14
+      xy_goal_tolerance: 0.75
+
+      # Forward simulation
+      sim_time: 3.0
+      vx_samples: 15
+      vtheta_samples: 40
+
+      # Scoring biases
+      path_distance_bias: 60.0
+      goal_distance_bias: 20.0
+      occdist_scale: 0.02
+
+      # DWB critics (replaces ROS1 pdist/gdist etc)
+      critics: ["RotateToGoal", "Oscillation", "BaseObstacle", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
+
+      PathAlign:
+        scale: 1.125
+      GoalAlign:
+        scale: 0.5
+      PathDist:
+        scale: 1.125
+      GoalDist:
+        scale: 0.5
+      BaseObstacle:
+        scale: 0.02
+      Oscillation:
+        scale: 0.0
+      RotateToGoal:
+        scale: 1.0
+
+# ----------------------------
+# Global Costmap
+# ----------------------------
+global_costmap:
+  ros__parameters:
+    global_frame: map
+    robot_base_frame: base_link
+    update_frequency: 5.0
+    publish_frequency: 2.0
+    static_map: true
+    rolling_window: true
+    always_send_full_costmap: false
+
+    width: 100.0
+    height: 100.0
+    # resolution: 0.02
+
+    plugins:
+      - {name: obstacle_layer, type: "nav2_costmap_2d::ObstacleLayer"}
+      - {name: inflation_layer, type: "nav2_costmap_2d::InflationLayer"}
+
+    obstacle_layer:
+      enabled: true
+      track_unknown_space: true
+      observation_sources: laser_scan_sensor cv_laser_scan
+
+      laser_scan_sensor:
+        min_obstacle_height: -10.0
+        max_obstacle_height: 10.0
+        sensor_frame: bottom_lidar_link
+        data_type: LaserScan
+        topic: /scan_modified
+        marking: true
+        clearing: true
+        obstacle_range: 7.7
+        raytrace_range: 8.0
+        inf_is_valid: true
+        expected_update_rate: 5.0
+
+      cv_laser_scan:
+        min_obstacle_height: -10.0
+        max_obstacle_height: 10.0
+        sensor_frame: bottom_lidar_link
+        data_type: LaserScan
+        topic: /cv/lane_detections_scan
+        marking: true
+        clearing: true
+        obstacle_range: 3.7
+        raytrace_range: 4.0
+        inf_is_valid: true
+        expected_update_rate: 20.0
+
+    inflation_layer:
+      enabled: true
+      inflation_radius: 1.0
+      cost_scaling_factor: 2.0
+
+# ----------------------------
+# Local Costmap
+# ----------------------------
+local_costmap:
+  ros__parameters:
+    global_frame: odom
+    robot_base_frame: base_link
+    update_frequency: 20.0
+    publish_frequency: 10.0
+    static_map: false
+    rolling_window: true
+    always_send_full_costmap: false
+
+    width: 15.0
+    height: 15.0
+    resolution: 0.05
+    footprint: "[[-0.49, -0.46], [-0.49, 0.46], [0.45, 0.46], [0.59, 0.10], [0.59, -0.10], [0.45, -0.46]]"
+
+    plugins:
+      - {name: obstacle_layer, type: "nav2_costmap_2d::ObstacleLayer"}
+      - {name: inflation_layer, type: "nav2_costmap_2d::InflationLayer"}
+
+    obstacle_layer:
+      enabled: true
+      track_unknown_space: true
+      observation_sources: laser_scan_sensor cv_laser_scan
+
+      laser_scan_sensor:
+        min_obstacle_height: -10.0
+        max_obstacle_height: 10.0
+        sensor_frame: bottom_lidar_link
+        data_type: LaserScan
+        topic: /scan_modified
+        marking: true
+        clearing: true
+        obstacle_range: 7.7
+        raytrace_range: 8.0
+        inf_is_valid: true
+        expected_update_rate: 10.0
+
+      cv_laser_scan:
+        min_obstacle_height: -10.0
+        max_obstacle_height: 10.0
+        sensor_frame: bottom_lidar_link
+        data_type: LaserScan
+        topic: /cv/lane_detections_scan
+        marking: true
+        clearing: true
+        obstacle_range: 3.7
+        raytrace_range: 4.0
+        inf_is_valid: true
+        expected_update_rate: 20.0
+
+    inflation_layer:
+      enabled: true
+      inflation_radius: 1.0
+      cost_scaling_factor: 2.0
+
+# ----------------------------
+# Behavior Tree Navigator (minimal params)
+# ----------------------------
+bt_navigator:
+  ros__parameters:
+    use_sim_time: False
+    bt_xml_filename: "behavior_trees/navigate_w_replanning_and_recovery.xml"
+    plugin_lib_names: []
+    default_bt: "NavigateToPose"
+
+# ----------------------------
+# Lifecycle Manager
+# ----------------------------
+lifecycle_manager_navigation:
+  ros__parameters:
+    use_sim_time: False
+    autostart: true
+    node_names: ["controller_server", "planner_server", "bt_navigator", "global_costmap", "local_costmap"]
+
+# ----------------------------
+# Other helpful params (AMCL / map server can be added if you use localization)
+# ----------------------------
+# map_server:
+#   ros__parameters:
+#     yaml_filename: "/path/to/your/map.yaml"
+#
+# amcl:
+#   ros__parameters:
+#     use_sim_time: False
+#     odom_frame_id: "odom"
+#     base_frame_id: "base_link"
