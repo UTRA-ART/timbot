@@ -46,3 +46,4 @@
 **/install/
 **/__pycache__/
 
+.vscode/
