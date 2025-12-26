@@ -11,6 +11,8 @@ find_package(ament_cmake REQUIRED)
 # Install directories
 install(DIRECTORY
   rover_model
+  launch
+  rviz
   DESTINATION share/${PROJECT_NAME}/
 )
 
