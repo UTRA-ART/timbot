@@ -13,6 +13,7 @@ install(DIRECTORY
   rover_model
   launch
   rviz
+  config
   DESTINATION share/${PROJECT_NAME}/
 )
 
