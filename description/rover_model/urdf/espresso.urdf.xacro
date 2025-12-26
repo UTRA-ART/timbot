@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.6.0-4-g7f85cfe  Build Version: 1.6.7995.38578
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot name="espresso" xmlns:xacro="http://ros.org/wiki/xacro">
+
+	<link name="base_link" />
+
+	<!-- Includes -->
+	<xacro:include filename="$(find description)/rover_model/urdf/plugins.gazebo.xacro"/>
+
+	<!-- stand_link: origin for anything on the stand; located in the middle, on the top of the stand plate -->
+	<xacro:include filename="$(find description)/rover_model/urdf/stand_link.urdf.xacro"/>
+
+	<!-- wheels: associated to wheels that can be moved by a motor and the caster wheel -->
+    <xacro:include filename="$(find description)/rover_model/urdf/wheels.urdf.xacro"/>
+
+	<link name="chassis_link">
+		<inertial>
+			<origin xyz="-0.040859 0.00033673 -0.054592" rpy="0 0 0" />
+			<mass value="40.135" />
+			<inertia
+				ixx="0.58726"
+				ixy="1.3916E-05"
+				ixz="8.6833E-05"
+				iyy="0.27783"
+				iyz="1.0234E-06"
+				izz="0.67281" />
+		</inertial>
+
+		<visual>
+			<origin xyz="0 0 0" rpy="0 0 0" />
+			<geometry>
+				<mesh filename="package://description/rover_model/meshes/chassis_link.STL" />
+			</geometry>
+			<material name="">
+				<color rgba="0.79216 0.81961 0.93333 1" />
+			</material>
+		</visual>
+
+		<collision>
+			<origin xyz="0 0 0" rpy="0 0 0" />
+			<geometry>
+				<mesh filename="package://description/rover_model/meshes/chassis_link.STL" />
+			</geometry>
+		</collision>
+	</link>
+
+	<joint name="chassis_joint" type="fixed">
+		<origin xyz="0 0 0.34041" rpy="0 0 0" />
+		<parent link="base_link" />
+		<child link="chassis_link" />
+		<axis xyz="0 0 0" />
+	</joint>
+
+	<gazebo reference="chassis_link">
+		<material>Gazebo/Grey</material>
+	</gazebo>
+
+	<!-- Upper LIDAR -->
+	<link name="top_lidar_link">
+		<inertial>
+			<origin xyz="0.012061 -0.00053309 -0.018931" rpy="0 0 0" />
+			<mass value="0.073082" />
+			<inertia
+				ixx="1.9579E-05"
+				ixy="-1.0452E-07"
+				ixz="-4.2823E-07"
+				iyy="2.4126E-05"
+				iyz="9.3469E-09"
+				izz="4.1417E-05" />
+		</inertial>
+
+		<visual>
+			<origin xyz="0 0 0" rpy="0 0 0" />
+			<geometry>
+				<mesh filename="package://description/rover_model/meshes/lidar_link.STL" />
+			</geometry>
+			<material name="">
+				<color rgba="0 0 1 1" />
+			</material>
+		</visual>
+
+		<collision>
+			<origin xyz="0 0 0" rpy="0 0 0" />
+			<geometry>
+				<mesh filename="package://description/rover_model/meshes/lidar_link.STL" />
+			</geometry>
+		</collision>
+	</link>
+
+	<joint name="top_lidar_joint" type="fixed">
+		<origin xyz="0.52049 -0.005698 ${distance_to_second_lidar - 0.069334}" rpy="0 0 0" />
+		<!-- before z =  0.0056661 -->
+		<parent link="chassis_link" />
+		<child link="top_lidar_link" />
+		<axis xyz="0 0 0" />
+	</joint>
+
+	<gazebo reference="top_lidar_link">
+		<material>Gazebo/Blue</material>
+	</gazebo>
+
+	<!-- Lower LIDAR -->
+	<link name="bottom_lidar_link">
+		<inertial>
+			<origin xyz="-0.044335 2.8732E-05 -0.021084" rpy="0 0 0" />
+			<mass value="0.46918" />
+			<inertia
+				ixx="0.0018061"
+				ixy="-1.363E-06"
+				ixz="7.5472E-05"
+				iyy="0.0004731"
+				iyz="8.5341E-07"
+				izz="0.001728" />
+		</inertial>
+
+		<visual>
+			<origin xyz="0 0 0" rpy="0 0 0" />
+			<geometry>
+				<mesh filename="package://description/rover_model/meshes/lidar_link.STL" />
+			</geometry>
+			<material name="">
+				<color rgba="0 0 1 1" />
+			</material>
+		</visual>
+
+		<collision>
+			<origin xyz="0 0 0" rpy="0 0 0" />
+			<geometry>
+				<mesh filename="package://description/rover_model/meshes/lidar_link.STL" />
+			</geometry>
+		</collision>
+	</link>
+
+	<joint name="bottom_lidar_joint" type="fixed">
+		<origin xyz="0.52049 -0.005698 -0.069334" rpy="0 0 0" />
+		<parent link="chassis_link" />
+		<child link="bottom_lidar_link" />
+		<axis xyz="0 0 0" />
+	</joint>
+
+	<gazebo reference="bottom_lidar_link">
+		<material>Gazebo/Blue</material>
+	</gazebo>
+
+</robot>
