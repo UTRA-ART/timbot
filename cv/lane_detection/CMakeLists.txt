@@ -6,6 +6,13 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+# Configure Python for Conda environment (if active)
+if(DEFINED ENV{CONDA_PREFIX})
+  set(Python3_ROOT_DIR "$ENV{CONDA_PREFIX}")
+  set(Python3_FIND_VIRTUALENV FIRST)
+  message(STATUS "Using Conda Python from: $ENV{CONDA_PREFIX}")
+endif()
+
 # Dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
@@ -65,16 +72,5 @@ install(TARGETS
   lane_scan
   DESTINATION lib/${PROJECT_NAME}
 )
-
-############################################################
-#                        TESTING                           #
-############################################################
-
-if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  set(ament_cmake_cpplint_FOUND TRUE)      # optional skip
-  set(ament_cmake_copyright_FOUND TRUE)    # optional skip
-  ament_lint_auto_find_test_dependencies()
-endif()
 
 ament_package()

@@ -42,6 +42,7 @@
 
 **/build/
 **/logs/
+**/log/
 **/devel/
 **/install/
 **/__pycache__/

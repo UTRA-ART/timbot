@@ -1,0 +1,30 @@
+# ROS2 Python dependencies for building and running timbot packages
+# Install with: pip install -r requirements.txt
+
+# Required for ROS2 message generation
+empy==3.3.4
+lark==1.1.5
+
+# Core scientific computing
+numpy>=1.21.0
+
+# Computer vision (for lane_detection package)
+opencv-python>=4.5.0
+opencv-contrib-python>=4.5.0
+
+# Deep learning (for YOLO lane detection)
+torch>=2.0.0
+torchvision>=0.15.0
+ultralytics>=8.0.0
+
+# Additional dependencies
+scipy>=1.7.0
+matplotlib>=3.3.0
+pandas>=1.3.0
+scikit-learn>=0.24.0
+
+# GPS coordinate conversion (for navigation)
+pyutm>=0.7.0
+
+# ROS2 Python client library support
+pyyaml>=5.4.0
