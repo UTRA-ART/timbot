@@ -4,7 +4,8 @@ import os
 
 def generate_launch_description():
     # Get absolute path to igvc_ramp.world file
-    ramp_file = os.path.join(os.getcwd(), 'igvc_ramp.world')
+    launch_dir = os.path.dirname(os.path.abspath(__file__))
+    ramp_file = os.path.join(launch_dir, 'igvc_ramp.world')
     
     gazebo = ExecuteProcess(
         cmd=['gazebo', '--verbose', '-s', 'libgazebo_ros_factory.so', ramp_file],
