@@ -135,11 +135,29 @@ class Scheduler(Node):
     def run(self):
         """Main scheduler execution"""
         try:
-            # Set manual override
+            # Set manual override - publish directly instead of external command
             self.get_logger().info('Setting manual override...')
-            self.publish_topic_once('/pause_navigation', 'std_msgs/msg/Bool', 'data: true')
+            
+            # Create publisher for manual override
+            manual_pub = self.create_publisher(Bool, '/pause_navigation', 10)
+            
+            # Wait a moment for publisher to be established
+            time.sleep(0.5)
+            
+            # Publish manual override message
+            manual_msg = Bool()
+            manual_msg.data = True
+            manual_pub.publish(manual_msg)
+            
+            # Allow some time for the message to be processed
+            time.sleep(0.1)
+            
+            # Wait for the subscription callback to trigger
             self.wait_for_condition('manual_default_set', 5)
             self.get_logger().info('Manual mode set to True.')
+
+            # Clean up publisher
+            self.destroy_publisher(manual_pub)
 
             # Launch state publisher
             self.get_logger().info('Initializing state publisher...')
