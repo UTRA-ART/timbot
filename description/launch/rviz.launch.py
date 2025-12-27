@@ -9,7 +9,7 @@ def generate_launch_description():
     rviz_config = PathJoinSubstitution([
         FindPackageShare("description"),
         "rviz",
-        "espresso.rviz"
+        "timbot.rviz"
     ])
     
     # RViz node
