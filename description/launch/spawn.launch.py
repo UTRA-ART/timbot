@@ -113,10 +113,10 @@ def generate_launch_description():
         parameters=[robot_description]
     )
     
-    # Twist multiplexer
+    # Twist multiplexer - Updated to use your custom package
     twist_mux = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([
-            FindPackageShare('twist_mux'),
+            FindPackageShare('timbot_twist_mux'),  # Changed from 'twist_mux' to 'timbot_twist_mux'
             '/launch/twist_mux.launch.py'
         ]),
         launch_arguments={
