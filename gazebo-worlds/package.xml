@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>gazebo_worlds</name>
+  <version>0.0.0</version>
+  <description>Gazebo world files and launch scripts</description>
+  <maintainer email="your@email.com">Your Name</maintainer>
+  <license>TODO</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

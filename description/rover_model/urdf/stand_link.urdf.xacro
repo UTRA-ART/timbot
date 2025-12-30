@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.6.0-4-g7f85cfe  Build Version: 1.6.7995.38578
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot name="stand_link" xmlns:xacro="http://ros.org/wiki/xacro">
+    
+    <!-- Includes -->
+    <xacro:include filename="$(find description)/rover_model/urdf/constants.xacro"/>
+  
+    <link name="stand_link">
+        <inertial>
+            <origin xyz="0.000229157903262472 0.0038685225549956 0.00576901453025613" rpy="0 0 0" />
+            <mass value="0.230738007647473" />
+            <inertia
+                ixx="0.0007751891369661"
+                ixy="1.42155279926012E-07"
+                ixz="-1.93289911661184E-06"
+                iyy="0.000429374438189671"
+                iyz="1.9215645736234E-08"
+                izz="0.00119774793119647" />
+        </inertial>
+
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://description/rover_model/meshes/stand_link.STL" />
+            </geometry>
+            <material name="">
+                <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+            </material>
+        </visual>
+
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://description/rover_model/meshes/stand_link.STL" />
+            </geometry>
+        </collision>
+    </link>
+
+    <joint name="stand_joint" type="fixed">
+        <origin xyz="0.178 0.001524 0.26861" rpy="0 0 0" />
+        <parent link="chassis_link" />
+        <child link="stand_link" />
+        <axis xyz="0 0 0" />
+    </joint>
+
+    <gazebo reference="stand_link">
+        <material>Gazebo/Grey</material>
+    </gazebo>
+
+    <!-- ZED Camera -->
+    <!-- NOTE: this frame is for convenience, multicamera will use the subsequent left camera frames -->
+    <link name="zed_link">
+        <inertial>
+            <origin xyz="0.015551 -5.9022E-12 -0.00052325" rpy="0 0 0" />
+            <mass value="0.15372" />
+            <inertia
+                ixx="0.00037683"
+                ixy="5.4859E-14"
+                ixz="7.1076E-08"
+                iyy="2.3081E-05"
+                iyz="1.2981E-12"
+                izz="0.00037897" />
+        </inertial>
+
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://description/rover_model/meshes/zed_link.STL" />
+            </geometry>
+            <material name="">
+                <color rgba="0 0 1 1" />
+            </material>
+        </visual>
+
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://description/rover_model/meshes/zed_link.STL" />
+            </geometry>
+        </collision>
+    </link>
+
+    <joint name="zed_joint" type="fixed">
+        <origin xyz="0.044163 0 ${ZED_camera_to_top_plate_z}" rpy="0 ${ZED_camera_pitch} 0" />
+        <parent link="stand_link" />
+        <child link="zed_link" />
+        <axis xyz="0 0 0" />
+    </joint>
+
+    <gazebo reference="zed_link">
+        <material>Gazebo/Blue</material>
+    </gazebo>
+
+    <!-- Generate Left Camera frame -->
+    <!-- NOTE: Specify frame of left camera (lens) because right one is specified relative to it by the multicamera plugin -->
+    <link name="left_camera_link"/>
+
+    <joint name="left_camera_joint" type="fixed">
+        <parent link="zed_link"/>
+        <child link="left_camera_link"/>
+        <origin xyz="0 ${ZED_stereo_offset / 2.0} 0" rpy="0 0 0"/>
+    </joint>
+
+    <!-- Generate an optical frame http://www.ros.org/reps/rep-0103.html#suffix-frames so that ros and opencv can operate on the camera frame correctly -->
+    <link name="left_camera_link_optical"/>
+
+    <joint name="left_camera_link_optical_joint" type="fixed">
+        <parent link="left_camera_link"/>
+        <child link="left_camera_link_optical"/>
+        <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}"/>
+    </joint>
+
+    <!-- IMU -->
+    <!-- Due to the requirements of cartographer, the imu_link frame is located on same height as base_link, but the model is located on top of the stand -->
+    <link name="imu_link">
+        <inertial>
+            <origin xyz="3.0642E-07 -2.658E-07 0.0062442" rpy="0 0 0" />
+            <mass value="0.016518" />
+            <inertia
+                ixx="1.9791E-06"
+                ixy="-5.5078E-12"
+                ixz="-2.4742E-11"
+                iyy="2.0783E-06"
+                iyz="2.5252E-11"
+                izz="3.6277E-06" />
+        </inertial>
+
+        <visual>
+            <origin xyz="0 0 0.61854" rpy="0 0 0" /> <!-- Physical imu located on stand -->
+            <!-- z-pos of visual model moved back up to stand height
+                 z: imu_z_dist_to_stand + chassis_to_stand_link_z_dist + chassis_to_base_link_dist} -->
+            <geometry>
+                <mesh filename="package://description/rover_model/meshes/imu_link.STL" />
+            </geometry>
+            <material name="">
+                <color rgba="0 0 1 1" />
+            </material>
+        </visual>
+
+        <collision>
+            <origin xyz="0 0 0.61854" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://description/rover_model/meshes/imu_link.STL" />
+            </geometry>
+        </collision>
+    </link>
+
+    <joint name="imu_joint" type="fixed">
+        <origin xyz="0.159347 0 0" rpy="0 0 0" />
+        <!-- The x-pos is same as it's actual position on the stand, but z-pos same as base_link
+             x: imu_x_dist_to_stand + chassis_to_stand_link_x_dist -->
+        <parent link="base_link" /> <!-- The frame origin is centered on base_link -->
+        <child link="imu_link" />
+        <axis xyz="0 0 0" />
+    </joint>
+
+    <gazebo reference="imu_link">
+        <material>Gazebo/Blue</material>
+    </gazebo>
+
+    <!-- GPS -->
+    <link name="gps_link">
+        <inertial>
+            <origin xyz="6.6071E-09 -4.3415E-07 0.0051035" rpy="0 0 0" />
+            <mass value="0.0040365" />
+            <inertia
+                ixx="1.6183E-07"
+                ixy="1.7388E-12"
+                ixz="-1.2753E-12"
+                iyy="1.6176E-07"
+                iyz="-9.0374E-15"
+                izz="2.6794E-07" />
+        </inertial>
+
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://description/rover_model/meshes/gps_link.STL" />
+            </geometry>
+            <material name="">
+                <color rgba="0 0 1 1" />
+            </material>
+        </visual>
+
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://description/rover_model/meshes/gps_link.STL" />
+            </geometry>
+        </collision>
+    </link>
+
+    <joint name="gps_joint" type="fixed">
+        <origin xyz="-0.054799 0 0.0095015" rpy="0 0 0" />
+        <parent link="stand_link" />
+        <child link="gps_link" />
+        <axis xyz="0 0 1" />
+    </joint>
+
+    <gazebo reference="gps_link">
+        <material>Gazebo/Blue</material>
+    </gazebo>
+
+</robot>

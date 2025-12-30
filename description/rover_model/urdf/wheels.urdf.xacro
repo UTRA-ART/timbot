@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.6.0-4-g7f85cfe  Build Version: 1.6.7995.38578
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot name="wheels" xmlns:xacro="http://ros.org/wiki/xacro">
+
+    <!-- Motor Transmissions (for left+right wheels) -->
+    <xacro:macro name="Transmission" params="joint">
+        <transmission name="trans_${joint}">
+            <type>transmission_interface/SimpleTransmission</type>
+            <joint name="${joint}">
+                <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            </joint>
+            <actuator name="${joint}_motor"/>
+        </transmission>
+    </xacro:macro>
+
+    <!-- Left Wheel -->
+    <link name="left_wheel_link">
+        <inertial>
+            <origin xyz="-8.2128E-11 0 9.544E-08" rpy="0 0 0" />
+            <mass value="3.533" />
+            <inertia
+                ixx="0.017314"
+                ixy="-5.4493E-20"
+                ixz="3.6017E-11"
+                iyy="0.030562"
+                iyz="1.8924E-18"
+                izz="0.017314" />
+        </inertial>
+
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://description/rover_model/meshes/leftwheel_link.STL" />
+            </geometry>
+            <material name="">
+                <color rgba="0.34118 0.34118 0.34118 1" />
+            </material>
+        </visual>
+
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://description/rover_model/meshes/leftwheel_link.STL" />
+            </geometry>
+        </collision>
+    </link>
+
+    <joint name="left_wheel_joint" type="continuous">
+        <origin xyz="0.30478 0.40518 -0.21541" rpy="0 0 0" />
+        <parent link="chassis_link" />
+        <child link="left_wheel_link" />
+        <axis xyz="0 1 0" />
+    </joint>
+
+    <gazebo reference="left_wheel_link">
+        <material>Gazebo/Black</material>
+        <mu1 value="1.0"/>
+        <mu2 value="1.0"/>
+        <kp value="10000000.0" />
+        <kd value="1.0" />
+    </gazebo>
+
+    <xacro:Transmission joint="left_wheel_joint"/>
+
+    <!-- Right Wheel -->
+    <link name="right_wheel_link">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <mass value="3.533" />
+            <inertia
+                ixx="0.017314"
+                ixy="-5.2822E-19"
+                ixz="-3.6017E-11"
+                iyy="0.030562"
+                iyz="-4.3099E-19"
+                izz="0.017314" />
+        </inertial>
+
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://description/rover_model/meshes/rightwheel_link.STL" />
+            </geometry>
+            <material name="">
+                <color rgba="0.34118 0.34118 0.34118 1" />
+            </material>
+        </visual>
+
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://description/rover_model/meshes/rightwheel_link.STL" />
+            </geometry>
+        </collision>
+    </link>
+
+    <joint name="right_wheel_joint" type="continuous">
+        <origin xyz="0.30482 -0.40518 -0.21541" rpy="0 0 0" />
+        <parent link="chassis_link" />
+        <child link="right_wheel_link" />
+        <axis xyz="0 1 0" />
+    </joint>
+
+    <gazebo reference="right_wheel_link">
+        <material>Gazebo/Black</material>
+        <mu1 value="1.0"/>
+        <mu2 value="1.0"/>
+        <kp value="10000000.0" />
+        <kd value="1.0" />
+    </gazebo>
+
+    <xacro:Transmission joint="right_wheel_joint"/>
+
+    <!-- Caster Wheel -->
+    <link name="caster_link">
+        <inertial>
+            <origin xyz="-0.02078 3.2838E-05 -0.11441" rpy="0 0 0" />
+            <mass value="1.0439" />
+            <inertia
+                ixx="0.0025162"
+                ixy="2.4976E-07"
+                ixz="8.7516E-05"
+                iyy="0.0036508"
+                iyz="2.0109E-06"
+                izz="0.0021048" />
+        </inertial>
+
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://description/rover_model/meshes/caster_link.STL" />
+            </geometry>
+            <material name="">
+                <color rgba="0.34118 0.34118 0.34118 1" />
+            </material>
+        </visual>
+
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://description/rover_model/meshes/caster_link.STL" />
+            </geometry>
+        </collision>
+    </link>
+
+    <joint name="caster_joint" type="fixed">
+        <origin xyz="-0.36833 0.001524 -0.13183" rpy="0 0 0" />
+        <parent link="chassis_link" />
+        <child link="caster_link" />
+        <axis xyz="0 0 0" />
+    </joint>
+
+    <gazebo reference="caster_link">
+        <material>Gazebo/Black</material>
+        <mu1 value="0.1"/>
+        <mu2 value="0.1"/>
+        <kp value="10000000.0" />
+        <kd value="1.0" />
+    </gazebo>
+
+</robot>
