@@ -28,3 +28,7 @@ pyutm>=0.2.1
 
 # ROS2 Python client library support
 pyyaml>=5.4.0
+
+#
+catkin_pkg>=0.5.2
+setuptools

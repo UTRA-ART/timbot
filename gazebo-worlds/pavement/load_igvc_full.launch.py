@@ -8,7 +8,8 @@ def generate_launch_description():
     world_file = os.path.join(launch_dir, 'igvc_full.world')
     
     gazebo = ExecuteProcess(
-        cmd=['gazebo', '--verbose', '-s', 'libgazebo_ros_factory.so', world_file],
+        #cmd=['gazebo', '--verbose', '-s', 'libgazebo_ros_factory.so', world_file],
+        cmd=['ign', 'gazebo', 'sim', world_file, '--verbose'],
         output='screen'
     )
 
