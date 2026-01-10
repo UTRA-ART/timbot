@@ -18,7 +18,7 @@ Gazebo worlds define simulation environments for testing the robot in various sc
 Launch a simulation world:
 
 ```bash
-ros2 launch gazebo_ros gazebo.launch.py world:=/path/to/world/file.world
+ros2 launch gazebo_worlds load_igvc_full.launch.py
 ```
 
 ## Common World Types
