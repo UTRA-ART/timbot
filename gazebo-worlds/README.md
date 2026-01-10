@@ -16,6 +16,7 @@ Gazebo worlds define simulation environments for testing the robot in various sc
 ## Environment Paths
 set the gazebo environment path to: 
 export GZ_SIM_RESOURCE_PATH=~/.gazebo/models:$GZ_SIM_RESOURCE_PATH
+export GZ_SIM_RESOURCE_PATH=$HOME/projects/timbot/gazebo-worlds/models:~/.gazebo/models:$GZ_SIM_RESOURCE_PATH
 ## Usage
 
 Launch a simulation world:

@@ -28,7 +28,7 @@
           <max_contacts>10</max_contacts>
         </collision>
         <visual name='visual'>
-          <cast_shadows>0</cast_shadows>
+          <cast_shadows>false</cast_shadows>
           <geometry>
             <plane>
               <normal>0 0 1</normal>
@@ -36,11 +36,16 @@
             </plane>
           </geometry>
           <material>
-            <script>
-              <uri>model://igvc_basic_ground/materials/scripts</uri>
-              <uri>model://igvc_basic_ground/materials/textures</uri>
-              <name>igvc_pavement/Image</name>
-            </script>
+            <ambient>1 1 1 1</ambient>
+            <diffuse>1 1 1 1</diffuse>
+            <specular>0 0 0 1</specular>
+            <pbr>
+              <metal>
+                <metalness>0.0</metalness>
+                <roughness>0.9</roughness>
+                <albedo_map>IGVC_pavement.png</albedo_map>
+              </metal>
+            </pbr>
           </material>
         </visual>
         <velocity_decay>
