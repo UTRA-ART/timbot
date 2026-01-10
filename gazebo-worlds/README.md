@@ -13,6 +13,9 @@ Gazebo worlds define simulation environments for testing the robot in various sc
 - `.sdf` files - Model definitions
 - Configuration files for simulated sensors
 
+## Environment Paths
+set the gazebo environment path to: 
+export GZ_SIM_RESOURCE_PATH=~/.gazebo/models:$GZ_SIM_RESOURCE_PATH
 ## Usage
 
 Launch a simulation world:
