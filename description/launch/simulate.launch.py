@@ -1,10 +1,12 @@
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, GroupAction
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, GroupAction, ExecuteProcess, SetEnvironmentVariable
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, TextSubstitution
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
+from ament_index_python.packages import get_package_share_directory
+import os
 
 def generate_launch_description():
     
@@ -39,27 +41,35 @@ def generate_launch_description():
         description='IGVC world type: pavement (2022 IGVC)'
     )
     
-    # World file path
+    # Get package directories
+    gazebo_worlds_share = get_package_share_directory('gazebo_worlds')
+    
+    # Set GZ_SIM_RESOURCE_PATH for Gazebo to find models and textures
+    home_dir = os.path.expanduser('~')
+    gz_resource_path = SetEnvironmentVariable(
+        name='GZ_SIM_RESOURCE_PATH',
+        value=os.path.join(gazebo_worlds_share) + ':' + 
+              os.path.join(home_dir, '.gazebo/models') + ':' +
+              os.environ.get('GZ_SIM_RESOURCE_PATH', '')
+    )
+    
+    # World file path (constructed for ExecuteProcess)
+    # Note: We use PathJoinSubstitution for the world file
     world_file = PathJoinSubstitution([
         FindPackageShare('gazebo_worlds'),
         LaunchConfiguration('world_type'),
         ['igvc_', LaunchConfiguration('world'), '.world']
     ])
     
-    # Gazebo launch
+    # Ignition Gazebo launch using ros_gz_sim
     gazebo = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([
-            FindPackageShare('gazebo_ros'),
-            '/launch/gazebo.launch.py'
+            FindPackageShare('ros_gz_sim'),
+            '/launch/gz_sim.launch.py'
         ]),
         launch_arguments={
-            'world': world_file,
-            'paused': 'false',
-            'verbose': 'false',
-            'use_sim_time': 'true',
-            'gui': LaunchConfiguration('use_gui'),
-            'debug': 'false',
-            'server_required': 'false'
+            'gz_args': ['-r -v 4 ', world_file],
+            'on_exit_shutdown': 'true'
         }.items()
     )
     
@@ -74,13 +84,13 @@ def generate_launch_description():
         }.items()
     )
     
-    # Filter lidar data
-    filter_lidar = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([
-            FindPackageShare('filter_lidar_data'),
-            '/launch/filter_lidar_data.launch.py'
-        ])
-    )
+    # Filter lidar data (optional - comment out if package doesn't exist)
+    # filter_lidar = IncludeLaunchDescription(
+    #     PythonLaunchDescriptionSource([
+    #         FindPackageShare('filter_lidar_data'),
+    #         '/launch/filter_lidar_data.launch.py'
+    #     ])
+    # )
     
     # RViz (conditional)
     rviz_group = GroupAction(
@@ -100,18 +110,19 @@ def generate_launch_description():
         package='tf2_ros',
         executable='static_transform_publisher',
         name='ground_truth_transform',
-        arguments=['-19.5', '0', '0', '1.5707', '0', '0', 'world', 'ground_truth']
+        arguments=['--x', '-19.5', '--y', '0', '--z', '0', '--roll', '1.5707', '--pitch', '0', '--yaw', '0', '--frame-id', 'world', '--child-frame-id', 'ground_truth']
     )
     
-    # Cartographer
-    cartographer = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([
-            FindPackageShare('description'),
-            '/launch/cartographer.launch.py'
-        ])
-    )
+    # Cartographer (optional - comment out if not needed initially)
+    # cartographer = IncludeLaunchDescription(
+    #     PythonLaunchDescriptionSource([
+    #         FindPackageShare('description'),
+    #         '/launch/cartographer.launch.py'
+    #     ])
+    # )
 
     return LaunchDescription([
+        gz_resource_path,
         use_gui_arg,
         rqt_steer_arg,
         rviz_arg,
@@ -119,8 +130,8 @@ def generate_launch_description():
         world_type_arg,
         gazebo,
         spawn_robot,
-        filter_lidar,
+        # filter_lidar,  # Commented out
         rviz_group,
         ground_truth_tf,
-        cartographer
+        # cartographer  # Commented out
     ])

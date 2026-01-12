@@ -71,11 +71,17 @@ install(
   DESTINATION lib/${PROJECT_NAME}
 )
 
-install(
-  PROGRAMS
-    scripts/nav_options.py
+# Install Python scripts as executables
+install(PROGRAMS
+  src/navigate_waypoints.py
+  src/nav_options.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
+# Install launch files
+install(DIRECTORY
+  launch
+  DESTINATION share/${PROJECT_NAME}/
+)
 
 ament_package()

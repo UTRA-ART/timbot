@@ -27,69 +27,35 @@ def generate_launch_description():
     pkg_dir = get_package_share_directory('nav_stack')
     config_dir = os.path.join(pkg_dir, 'config')
 
-    # YAML config files
-    costmap_common = os.path.join(config_dir, 'costmap_common_params.yaml')
-    local_costmap = os.path.join(config_dir, 'local_costmap_params.yaml')
-    global_costmap = os.path.join(config_dir, 'global_costmap_params.yaml')
-    planners = os.path.join(config_dir, 'local_global_planner.yaml')
-
-    # Nav2 parameter file
+    # Nav2 parameter file (contains costmap params, planner, controller, bt_navigator)
     nav2_params = os.path.join(config_dir, 'nav2_params.yaml')
 
-    # Nav2 brings multiple nodes (planner, controller, costmaps, bt_navigator, etc.)
-    # Normally, they are launched together using nav2_bringup
-    # but here's a custom standalone setup
+    # In Nav2, costmaps are integrated into planner_server and controller_server
+    # There is no standalone 'costmap_server' executable
     
-    #finds path to a built-in Behaviour Tree XML file (comes with Nav2)
-    #replaces move_base functionality
-    #contains nodes for later
-
+    # Behavior Tree XML file for navigation logic
     bt_xml = os.path.join(get_package_share_directory('nav2_bt_navigator'), 'behavior_trees', 'navigate_w_replanning_and_recovery.xml')
 
-    #nodes break navigation into smaller parts
-    #global_costmap used by planner_server
-    #considers where the robot can go in the entire map
-
-    global_costmap_node  = Node(
-        package='nav2_costmap_2d',
-        executable='costmap_server',
-        name='global_costmap',
-        output='screen',
-        parameters=[costmap_common, global_costmap, planners, {'use_sim_time': LaunchConfiguration('use_sim_time')}], #launch argument is now connected to the parameters, meaning they follow simulated time
-    )
-
-    #local_costmap used by controller_server
-    #focuses on immediate surroundings of the robot for short-term path adjustments
-    local_costmap_node  = Node(
-        package='nav2_costmap_2d',
-        executable='costmap_server',
-        name='local_costmap',
-        output='screen',
-        parameters=[costmap_common, local_costmap, planners, {'use_sim_time': LaunchConfiguration('use_sim_time')}],
-    )
-
-
-    #Planner (global planner)
-    #computes global paths from robot pose to goal pose
-    #uses global_costmap_node API, queries obstacle info to avoid obstacles
-    #essentially reads global map under namespace global_costmap and plans path
+    # Planner Server (global planner + global costmap)
+    # Computes global paths from robot pose to goal pose
+    # The global_costmap parameters are loaded from nav2_params.yaml
     planner_node = Node(
         package='nav2_planner',
         executable='planner_server',
         name='planner_server',
         output='screen',
-        parameters=[planners, {'use_sim_time': LaunchConfiguration('use_sim_time')}],
+        parameters=[nav2_params, {'use_sim_time': LaunchConfiguration('use_sim_time')}],
     )
 
-    #local planner (DWB controller)
-    #computes velocity commands (cmd_vel) to follow global path
-    #reads local_costmap to return motor commands
+    # Controller Server (local planner + local costmap)
+    # Computes velocity commands (cmd_vel) to follow global path
+    # The local_costmap parameters are loaded from nav2_params.yaml
     controller_node = Node(
         package="nav2_controller",
         executable="controller_server",
         name="controller_server",
         output="screen",
-        parameters=[planners, {'use_sim_time': LaunchConfiguration('use_sim_time')}],
+        parameters=[nav2_params, {'use_sim_time': LaunchConfiguration('use_sim_time')}],
         remappings=[("cmd_vel", "nav_vel")]
     )
 
@@ -105,7 +71,7 @@ def generate_launch_description():
     )
 
     # Lifecycle manager (brings all Nav2 nodes up)
-    #starts all nodes in correct order
+    # Starts all nodes in correct order
     lifecycle_manager_node = Node(
         package='nav2_lifecycle_manager',
         executable='lifecycle_manager',
@@ -115,24 +81,20 @@ def generate_launch_description():
             'use_sim_time': LaunchConfiguration('use_sim_time'),
             'autostart': True,
             'node_names': [
-                'controller_server',
                 'planner_server',
-                'local_costmap',
-                'global_costmap',
+                'controller_server',
                 'bt_navigator'
             ]
         }]
     )
 
 
-    #LaunchDescription is a container for actions, collects nodes, launch arguments, etc.
-    #executes all actions in order
+    # LaunchDescription is a container for actions, collects nodes, launch arguments, etc.
+    # Executes all actions in order
     return LaunchDescription([
-        declare_sim_arg, #declares launch argument so you can switch/set simulation time vs. real time
-        global_costmap_node, #starts global costmap server
-        local_costmap_node, #starts local costmap server
-        planner_node, #reads global costmap and starts planner server
-        controller_node, #reads local costmap and starts controller (DWB) server
-        bt_navigator_node, #starts behaviour tree navigator
-        lifecycle_manager_node #starts lifecycle manager
+        declare_sim_arg,      # Declares launch argument for simulation time
+        planner_node,         # Global planner (includes global costmap)
+        controller_node,      # Local controller/planner (includes local costmap)
+        bt_navigator_node,    # Behavior tree navigator
+        lifecycle_manager_node  # Lifecycle manager
     ])

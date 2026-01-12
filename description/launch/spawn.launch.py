@@ -38,7 +38,7 @@ def generate_launch_description():
     
     z_arg = DeclareLaunchArgument(
         'z',
-        default_value='0.0026', 
+        default_value='0.5', 
         description='Z position'
     )
     
@@ -76,13 +76,13 @@ def generate_launch_description():
     
     robot_description = {'robot_description': robot_description_content}
     
-    # Spawn robot in Gazebo
+    # Spawn robot in Ignition Gazebo using ros_gz_sim
     spawn_robot = Node(
-        package='gazebo_ros',
-        executable='spawn_entity.py',
+        package='ros_gz_sim',
+        executable='create',
         name='spawn_espresso',
         arguments=[
-            '-entity', 'espresso',
+            '-name', 'espresso',
             '-topic', 'robot_description',
             '-x', LaunchConfiguration('x'),
             '-y', LaunchConfiguration('y'), 

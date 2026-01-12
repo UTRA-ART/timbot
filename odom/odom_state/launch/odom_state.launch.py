@@ -20,7 +20,7 @@ def generate_launch_description():
 
     ekf_local = Node(
         package='robot_localization',
-        executable='ekf_localization_node',
+        executable='ekf_node',
         name='ekf_local',
         output='screen',
         remappings=[("odometry/filtered", "odometry/local")],
@@ -29,16 +29,16 @@ def generate_launch_description():
 
     ekf_global = Node(
         package='robot_localization',
-        executable='ekf_localization_node',
+        executable='ekf_node',
         name='ekf_global',
         output='screen',
         remappings=[('odometry/filtered', 'odometry/global')],
         parameters=[odom_global_yaml]
-    ),
+    )
 
     navsat_transform_node = GroupAction(
             condition=IfCondition(
-                PythonExpression([launch_state, " == 'sim'"])
+                PythonExpression(["'", launch_state, "' == 'sim'"])
             ),
             actions=[
                 Node(

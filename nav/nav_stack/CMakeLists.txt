@@ -13,11 +13,19 @@ endif()
 # Find dependencies
 find_package(ament_cmake REQUIRED)
 
-# Install launch files
+# Install launch files and config
 install(DIRECTORY
   launch
   config
   DESTINATION share/${PROJECT_NAME}/
+)
+
+# Install debugging/testing scripts
+install(PROGRAMS
+  debugging_scripts/fake_robot_sim.py
+  debugging_scripts/send_nav_goal.py
+  debugging_scripts/check_nav_status.py
+  DESTINATION lib/${PROJECT_NAME}
 )
 
 ament_package()
