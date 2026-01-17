@@ -253,7 +253,7 @@ class CircularMotionVerifier(Node):
             self.get_logger().error('Install with: pip install matplotlib')
             return
         
-        self.get_logger().info('Generating plots...')
+        print('Generating plots...')
         
         # Create figure with subplots
         fig, axes = plt.subplots(2, 2, figsize=(14, 12))
@@ -393,7 +393,7 @@ class CircularMotionVerifier(Node):
         # Save plot
         output_path = '/tmp/odom_circular_motion_analysis.png'
         plt.savefig(output_path, dpi=150)
-        self.get_logger().info(f'Plot saved to: {output_path}')
+        print(f'Plot saved to: {output_path}')
         
         # Also save a simple trajectory plot
         fig2, ax = plt.subplots(figsize=(10, 10))
@@ -430,45 +430,45 @@ class CircularMotionVerifier(Node):
 
     def print_final_report(self):
         """Print final analysis report."""
-        self.get_logger().info('')
-        self.get_logger().info('='*70)
-        self.get_logger().info('FINAL ANALYSIS REPORT')
-        self.get_logger().info('='*70)
-        self.get_logger().info(f'Expected radius: {self.expected_radius:.3f} m')
-        self.get_logger().info(f'(linear_vel={self.linear_vel} m/s / angular_vel={self.angular_vel} rad/s)')
-        self.get_logger().info('')
+        print('')
+        print('='*70)
+        print('FINAL ANALYSIS REPORT')
+        print('='*70)
+        print(f'Expected radius: {self.expected_radius:.3f} m')
+        print(f'(linear_vel={self.linear_vel} m/s / angular_vel={self.angular_vel} rad/s)')
+        print('')
         
         for data, name in [(self.wheel_odom_data, 'Wheel Odom (Input)'),
                            (self.odom_local_data, 'EKF Local'),
                            (self.odom_global_data, 'EKF Global')]:
             metrics = self.analyze_data(data, name)
             if metrics:
-                self.get_logger().info(f'--- {name} ---')
-                self.get_logger().info(f'  Data points:     {metrics["points"]}')
-                self.get_logger().info(f'  Fitted radius:   {metrics["radius"]:.3f} m')
-                self.get_logger().info(f'  Radius error:    {metrics["radius_error"]:.3f} m ({metrics["radius_error_pct"]:.1f}%)')
-                self.get_logger().info(f'  Circle fit RMSE: {metrics["circle_fit_error"]*100:.2f} cm')
-                self.get_logger().info(f'  Center:          ({metrics["center_x"]:.3f}, {metrics["center_y"]:.3f})')
-                self.get_logger().info(f'  Total distance:  {metrics["total_distance"]:.2f} m')
-                self.get_logger().info(f'  Total rotation:  {metrics["total_rotation_deg"]:.1f}°')
-                self.get_logger().info(f'  Full circles:    {metrics["full_circles"]:.2f}')
+                print(f'--- {name} ---')
+                print(f'  Data points:     {metrics["points"]}')
+                print(f'  Fitted radius:   {metrics["radius"]:.3f} m')
+                print(f'  Radius error:    {metrics["radius_error"]:.3f} m ({metrics["radius_error_pct"]:.1f}%)')
+                print(f'  Circle fit RMSE: {metrics["circle_fit_error"]*100:.2f} cm')
+                print(f'  Center:          ({metrics["center_x"]:.3f}, {metrics["center_y"]:.3f})')
+                print(f'  Total distance:  {metrics["total_distance"]:.2f} m')
+                print(f'  Total rotation:  {metrics["total_rotation_deg"]:.1f}°')
+                print(f'  Full circles:    {metrics["full_circles"]:.2f}')
                 
                 # Pass/Fail verdict
                 if metrics["radius_error_pct"] < 10:
-                    self.get_logger().info(f'  Verdict:         ✓ EXCELLENT (error < 10%)')
+                    print(f'  Verdict:         ✓ EXCELLENT (error < 10%)')
                 elif metrics["radius_error_pct"] < 20:
-                    self.get_logger().info(f'  Verdict:         ✓ GOOD (error < 20%)')
+                    print(f'  Verdict:         ✓ GOOD (error < 20%)')
                 elif metrics["radius_error_pct"] < 50:
-                    self.get_logger().info(f'  Verdict:         ⚠ MARGINAL (error < 50%)')
+                    print(f'  Verdict:         ⚠ MARGINAL (error < 50%)')
                 else:
-                    self.get_logger().info(f'  Verdict:         ✗ POOR (error >= 50%)')
-                self.get_logger().info('')
+                    print(f'  Verdict:         ✗ POOR (error >= 50%)')
+                    print('')
             else:
-                self.get_logger().info(f'--- {name} ---')
-                self.get_logger().info(f'  No data received')
-                self.get_logger().info('')
+                print(f'--- {name} ---')
+                print(f'  No data received')
+                print('')
         
-        self.get_logger().info('='*70)
+            print('='*70)
 
 
 def main(args=None):
@@ -478,13 +478,13 @@ def main(args=None):
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:
-        node.get_logger().info('')
-        node.get_logger().info('Interrupted! Generating final report...')
-    finally:
+        print('')
+        print('Interrupted! Generating final report...')
         node.print_final_report()
         node.generate_plots()
-        node.destroy_node()
-        rclpy.shutdown()
+    # finally:
+    #     node.destroy_node()
+    #     rclpy.shutdown()
 
 
 if __name__ == '__main__':
