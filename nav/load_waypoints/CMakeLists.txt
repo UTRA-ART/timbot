@@ -84,4 +84,10 @@ install(DIRECTORY
   DESTINATION share/${PROJECT_NAME}/
 )
 
+# Install JSON waypoint files
+install(DIRECTORY
+  jsons
+  DESTINATION share/${PROJECT_NAME}/
+)
+
 ament_package()

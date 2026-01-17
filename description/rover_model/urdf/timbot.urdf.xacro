@@ -4,10 +4,18 @@
      For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
 <robot name="espresso" xmlns:xacro="http://ros.org/wiki/xacro">
 
+	<!-- Argument to select Gazebo version: 'classic' or 'ignition' -->
+	<xacro:arg name="gazebo_version" default="ignition"/>
+
 	<link name="base_link" />
 
-	<!-- Includes -->
-	<xacro:include filename="$(find description)/rover_model/urdf/plugins.gazebo.xacro"/>
+	<!-- Includes - Select plugins based on Gazebo version -->
+	<xacro:if value="${'$(arg gazebo_version)' == 'ignition'}">
+		<xacro:include filename="$(find description)/rover_model/urdf/plugins.ignition.xacro"/>
+	</xacro:if>
+	<xacro:if value="${'$(arg gazebo_version)' == 'classic'}">
+		<xacro:include filename="$(find description)/rover_model/urdf/plugins.gazebo.xacro"/>
+	</xacro:if>
 
 	<!-- stand_link: origin for anything on the stand; located in the middle, on the top of the stand plate -->
 	<xacro:include filename="$(find description)/rover_model/urdf/stand_link.urdf.xacro"/>

@@ -1,0 +1,230 @@
+<?xml version="1.0"?>
+<robot name="plugins_ignition" xmlns:xacro="http://ros.org/wiki/xacro">
+
+    <!-- Includes -->
+    <xacro:include filename="$(find description)/rover_model/urdf/constants.xacro"/>
+
+    <!-- ========== IGNITION GAZEBO PLUGINS ========== -->
+    <!-- These plugins work with Ignition Gazebo (Fortress) instead of Gazebo Classic -->
+
+    <!-- Differential Drive Control -->
+    <gazebo>
+        <plugin filename="ignition-gazebo-diff-drive-system" name="ignition::gazebo::systems::DiffDrive">
+            <left_joint>${wheel_left_joint}</left_joint>
+            <right_joint>${wheel_right_joint}</right_joint>
+            <wheel_separation>${wheels_separation}</wheel_separation>
+            <wheel_radius>${wheel_diameter/2}</wheel_radius>
+            <max_linear_acceleration>${wheel_acceleration}</max_linear_acceleration>
+            <min_linear_acceleration>-${wheel_acceleration}</min_linear_acceleration>
+            <max_angular_acceleration>2.0</max_angular_acceleration>
+            <min_angular_acceleration>-2.0</min_angular_acceleration>
+            <odom_publish_frequency>30</odom_publish_frequency>
+            <topic>cmd_vel</topic>
+            <odom_topic>odom</odom_topic>
+            <tf_topic>tf</tf_topic>
+            <frame_id>odom</frame_id>
+            <child_frame_id>base_link</child_frame_id>
+        </plugin>
+    </gazebo>
+
+    <!-- Joint State Publisher (publishes wheel joint states) -->
+    <gazebo>
+        <plugin filename="ignition-gazebo-joint-state-publisher-system" name="ignition::gazebo::systems::JointStatePublisher">
+            <joint_name>${wheel_left_joint}</joint_name>
+            <joint_name>${wheel_right_joint}</joint_name>
+            <topic>joint_states</topic>
+        </plugin>
+    </gazebo>
+
+    <!-- IMU Sensor -->
+    <gazebo reference="imu_link">
+        <sensor name="imu_sensor" type="imu">
+            <always_on>true</always_on>
+            <update_rate>${imu_update_rate}</update_rate>
+            <visualize>true</visualize>
+            <topic>imu/data</topic>
+            <enable_metrics>true</enable_metrics>
+            <imu>
+                <angular_velocity>
+                    <x>
+                        <noise type="gaussian">
+                            <mean>0.0</mean>
+                            <stddev>0.0002</stddev>
+                        </noise>
+                    </x>
+                    <y>
+                        <noise type="gaussian">
+                            <mean>0.0</mean>
+                            <stddev>0.0002</stddev>
+                        </noise>
+                    </y>
+                    <z>
+                        <noise type="gaussian">
+                            <mean>0.0</mean>
+                            <stddev>0.0002</stddev>
+                        </noise>
+                    </z>
+                </angular_velocity>
+                <linear_acceleration>
+                    <x>
+                        <noise type="gaussian">
+                            <mean>0.0</mean>
+                            <stddev>0.017</stddev>
+                        </noise>
+                    </x>
+                    <y>
+                        <noise type="gaussian">
+                            <mean>0.0</mean>
+                            <stddev>0.017</stddev>
+                        </noise>
+                    </y>
+                    <z>
+                        <noise type="gaussian">
+                            <mean>0.0</mean>
+                            <stddev>0.017</stddev>
+                        </noise>
+                    </z>
+                </linear_acceleration>
+            </imu>
+        </sensor>
+    </gazebo>
+
+    <!-- GPS/NavSat Sensor -->
+    <gazebo reference="gps_link">
+        <sensor name="navsat_sensor" type="navsat">
+            <always_on>true</always_on>
+            <update_rate>${gps_update_rate}</update_rate>
+            <topic>gps/fix</topic>
+            <navsat>
+                <position_sensing>
+                    <horizontal>
+                        <noise type="gaussian">
+                            <mean>0.0</mean>
+                            <stddev>0.5</stddev>
+                        </noise>
+                    </horizontal>
+                    <vertical>
+                        <noise type="gaussian">
+                            <mean>0.0</mean>
+                            <stddev>1.0</stddev>
+                        </noise>
+                    </vertical>
+                </position_sensing>
+                <velocity_sensing>
+                    <horizontal>
+                        <noise type="gaussian">
+                            <mean>0.0</mean>
+                            <stddev>0.1</stddev>
+                        </noise>
+                    </horizontal>
+                    <vertical>
+                        <noise type="gaussian">
+                            <mean>0.0</mean>
+                            <stddev>0.1</stddev>
+                        </noise>
+                    </vertical>
+                </velocity_sensing>
+            </navsat>
+        </sensor>
+    </gazebo>
+
+    <!-- Bottom LIDAR (GPU Ray) -->
+    <gazebo reference="bottom_lidar_link">
+        <sensor name="bottom_lidar" type="gpu_lidar">
+            <always_on>true</always_on>
+            <update_rate>${laser_update_rate}</update_rate>
+            <visualize>${laser_visualize}</visualize>
+            <topic>scan_lower</topic>
+            <lidar>
+                <scan>
+                    <horizontal>
+                        <samples>${laser_horizontal_samples}</samples>
+                        <resolution>${laser_horizontal_resolution}</resolution>
+                        <min_angle>${laser_horizontal_min_angle}</min_angle>
+                        <max_angle>${laser_horizontal_max_angle}</max_angle>
+                    </horizontal>
+                    <vertical>
+                        <samples>1</samples>
+                        <resolution>1</resolution>
+                        <min_angle>0</min_angle>
+                        <max_angle>0</max_angle>
+                    </vertical>
+                </scan>
+                <range>
+                    <min>${laser_range_min}</min>
+                    <max>${laser_range_max}</max>
+                    <resolution>0.01</resolution>
+                </range>
+                <noise>
+                    <type>gaussian</type>
+                    <mean>${laser_noise_mean}</mean>
+                    <stddev>0.003</stddev>
+                </noise>
+            </lidar>
+        </sensor>
+    </gazebo>
+
+    <!-- Top LIDAR (GPU Ray) -->
+    <gazebo reference="top_lidar_link">
+        <sensor name="top_lidar" type="gpu_lidar">
+            <always_on>true</always_on>
+            <update_rate>${laser_update_rate}</update_rate>
+            <visualize>${laser_visualize}</visualize>
+            <topic>scan_upper</topic>
+            <lidar>
+                <scan>
+                    <horizontal>
+                        <samples>${laser_horizontal_samples}</samples>
+                        <resolution>${laser_horizontal_resolution}</resolution>
+                        <min_angle>${laser_horizontal_min_angle}</min_angle>
+                        <max_angle>${laser_horizontal_max_angle}</max_angle>
+                    </horizontal>
+                    <vertical>
+                        <samples>1</samples>
+                        <resolution>1</resolution>
+                        <min_angle>0</min_angle>
+                        <max_angle>0</max_angle>
+                    </vertical>
+                </scan>
+                <range>
+                    <min>${laser_range_min}</min>
+                    <max>${laser_range_max}</max>
+                    <resolution>0.01</resolution>
+                </range>
+                <noise>
+                    <type>gaussian</type>
+                    <mean>${laser_noise_mean}</mean>
+                    <stddev>0.003</stddev>
+                </noise>
+            </lidar>
+        </sensor>
+    </gazebo>
+
+    <!-- Stereo Camera (left) -->
+    <gazebo reference="left_camera_link">
+        <sensor name="camera_left" type="camera">
+            <always_on>true</always_on>
+            <update_rate>${ZED_image_refresh}</update_rate>
+            <visualize>false</visualize>
+            <topic>zed_node/left/image_raw</topic>
+            <camera>
+                <horizontal_fov>${ZED_image_hfov}</horizontal_fov>
+                <image>
+                    <width>${ZED_image_width}</width>
+                    <height>${ZED_image_height}</height>
+                    <format>R8G8B8</format>
+                </image>
+                <clip>
+                    <near>0.02</near>
+                    <far>300</far>
+                </clip>
+                <noise>
+                    <type>gaussian</type>
+                    <mean>0.0</mean>
+                    <stddev>0.007</stddev>
+                </noise>
+            </camera>
+        </sensor>
+    </gazebo>
+
+</robot>

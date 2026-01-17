@@ -51,7 +51,7 @@ class NavigateWaypoints:
         base_dir = get_package_share_directory('load_waypoints')
 
         # Load in static waypoints (provided at competition time) 
-        with open(base_dir + '/scripts/'+ self.static_waypoint_file) as f:
+        with open(base_dir + '/jsons/'+ self.static_waypoint_file) as f:
             try:
                 waypoint_data = json.load(f)
             except:
