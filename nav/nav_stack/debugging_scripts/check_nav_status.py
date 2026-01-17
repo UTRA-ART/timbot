@@ -9,6 +9,9 @@ Usage:
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, DurabilityPolicy
+from rclpy.duration import Duration
+from rclpy.time import Time
+from tf2_ros import Buffer, TransformListener
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import LaserScan
 from geometry_msgs.msg import Twist
@@ -27,6 +30,10 @@ class NavStatusChecker(Node):
             Odometry, '/odometry/local', self.odom_cb, 10)
         self.scan_sub = self.create_subscription(
             LaserScan, '/scan_modified', self.scan_cb, 10)
+        
+        # TF listener
+        self.tf_buffer = Buffer()
+        self.tf_listener = TransformListener(self.tf_buffer, self)
         
         # Timer to check and report status
         self.timer = self.create_timer(2.0, self.check_status)
@@ -53,16 +60,28 @@ class NavStatusChecker(Node):
         
         # Check TF
         self.get_logger().info('\nTF Frames:')
+        # try:
+        #     result = subprocess.run(
+        #         ['ros2', 'run', 'tf2_ros', 'tf2_echo', 'map', 'base_link'],
+        #         capture_output=True, text=True, timeout=2)
+        #     if 'Exception' in result.stderr or 'error' in result.stderr.lower():
+        #         self.get_logger().info('  map -> base_link: ✗ NOT AVAILABLE')
+        #     else:
+        #         self.get_logger().info('  map -> base_link: ✓ AVAILABLE')
+        # except subprocess.TimeoutExpired:
+        #     self.get_logger().info('  map -> base_link: ✗ TIMEOUT')
+        # except Exception as e:
+        #     self.get_logger().info(f'  map -> base_link: ✗ ERROR ({e})')
+
+        # Alternative TF check using tf2_ros Buffer to avoid mistaken timeout reports.
         try:
-            result = subprocess.run(
-                ['ros2', 'run', 'tf2_ros', 'tf2_echo', 'map', 'base_link'],
-                capture_output=True, text=True, timeout=2)
-            if 'Exception' in result.stderr or 'error' in result.stderr.lower():
-                self.get_logger().info('  map -> base_link: ✗ NOT AVAILABLE')
-            else:
-                self.get_logger().info('  map -> base_link: ✓ AVAILABLE')
-        except subprocess.TimeoutExpired:
-            self.get_logger().info('  map -> base_link: ✗ TIMEOUT')
+            ok = self.tf_buffer.can_transform(
+                target_frame='map',
+                source_frame='base_link',
+                time=Time(),  
+                timeout=Duration(seconds=0.5),
+            )
+            self.get_logger().info(f'  map -> base_link: {"✓ AVAILABLE" if ok else "✗ NOT AVAILABLE"}')
         except Exception as e:
             self.get_logger().info(f'  map -> base_link: ✗ ERROR ({e})')
         
