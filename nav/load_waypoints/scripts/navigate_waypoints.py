@@ -1,12 +1,16 @@
+import rclpy
 from ament_index_python.packages import get_package_share_directory
 from tf2_ros.transform_listener import TransformListener
 from rclpy.action import ActionClient
+from geometry_msgs.msg import PoseStamped
+from nav2_msgs.action import NavigateToPose
 import time
+import utm
 
 import threading as th
 
 
-class NavigateWaypoints:
+class NavigateWaypoints:    
     def __init__(self, static_waypoint_file, max_time_for_transform):
         self.waypoints = dict()
         self.static_waypoint_file = static_waypoint_file
@@ -27,12 +31,12 @@ class NavigateWaypoints:
 
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
-        self.publisher = node.create_publisher(Bool, '/waypoint_int', 10)
+        self.publisher = self.create_publisher(Bool, '/waypoint_int', 10)
 
         self.ramp_naving = False
         self.cv_ramp_naving = th.Condition()
 
-        self.ramp_wp_sub = node.create_subscription(Bool, 'ramp_naving', self.ramp_naving_callback)
+        self.ramp_wp_sub = self.create_subscription(Bool, 'ramp_naving', self.ramp_naving_callback)
 
         # Used to wait for result after async_send_goal
         self.result_received = 0
