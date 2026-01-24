@@ -65,8 +65,9 @@ def generate_launch_description():
     ])
     
     # Launch Gazebo using ExecuteProcess (same as working load_igvc_full.launch.py)
+    # -r flag auto-runs the simulation (unpaused)
     gazebo = ExecuteProcess(
-        cmd=['ign', 'gazebo', 'sim', world_file_path, '--verbose'],
+        cmd=['ign', 'gazebo', 'sim', '-r', world_file_path, '--verbose'],
         output='screen',
         env=env
     )
@@ -131,7 +132,7 @@ def generate_launch_description():
         arguments=[
             # Diff drive: cmd_vel (ROS -> Ign) and odom (Ign -> ROS)
             '/cmd_vel@geometry_msgs/msg/Twist]ignition.msgs.Twist',
-            # Publish to wheel_odom/quat_synced for EKF (matches odom_local.yaml config)
+            # Odometry from diff_drive for EKF
             '/odom@nav_msgs/msg/Odometry[ignition.msgs.Odometry',
             # IMU sensor - publish to /imu/data for EKF (matches odom_local.yaml)
             '/imu/data@sensor_msgs/msg/Imu[ignition.msgs.IMU',
@@ -163,6 +164,16 @@ def generate_launch_description():
         executable='relay',
         name='scan_relay',
         arguments=['/scan_lower', '/scan_modified'],
+        output='screen'
+    )
+
+    # ========== TOPIC RELAY: nav_vel -> cmd_vel ==========
+    # Nav2 controller outputs to /nav_vel, but Gazebo diff_drive expects /cmd_vel
+    nav_vel_relay = Node(
+        package='topic_tools',
+        executable='relay',
+        name='nav_vel_relay',
+        arguments=['/nav_vel', '/cmd_vel'],
         output='screen'
     )
 
@@ -228,17 +239,41 @@ def generate_launch_description():
     )
     
     # ========== ODOM (robot_localization) ==========
-    odom_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([
-            PathJoinSubstitution([
-                FindPackageShare('odom_state'),
-                'launch',
-                'odom_state.launch.py'
-            ])
-        ]),
-        launch_arguments={
-            'launch_state': 'sim'
-        }.items()
+    # NOTE: odom_state.launch.py doesn't support use_sim_time arg, so we launch EKF nodes directly
+    odom_state_dir = get_package_share_directory('odom_state')
+    odom_local_yaml = os.path.join(odom_state_dir, 'config', 'odom_local.yaml')
+    odom_global_yaml = os.path.join(odom_state_dir, 'config', 'odom_global.yaml')
+    navsat_yaml = os.path.join(odom_state_dir, 'config', 'navsat.yaml')
+
+    ekf_local = Node(
+        package='robot_localization',
+        executable='ekf_node',
+        name='ekf_local',
+        output='screen',
+        remappings=[("odometry/filtered", "odometry/local")],
+        parameters=[odom_local_yaml, {
+            'use_sim_time': True,
+            'publish_tf': True,  # Publish odom->base_link transform (required for Cartographer)
+        }]
+    )
+
+    ekf_global = Node(
+        package='robot_localization',
+        executable='ekf_node',
+        name='ekf_global',
+        output='screen',
+        remappings=[('odometry/filtered', 'odometry/global')],
+        parameters=[odom_global_yaml, {'use_sim_time': True}]
+    )
+
+    navsat_transform_node = Node(
+        package='robot_localization',
+        executable='navsat_transform_node',
+        name='navsat_transform_node',
+        output='screen',
+        respawn=True,
+        remappings=[('odometry/filtered', 'odometry/local')],
+        parameters=[navsat_yaml, {'use_sim_time': True}]
     )
     
     # ========== NAV2 (move_base) ==========
@@ -279,8 +314,12 @@ def generate_launch_description():
         odom_relay,
         # Scan relay (scan_lower -> scan_modified for nav2)
         scan_relay,
-        # Odom (robot_localization - publishes odom->base_link)
-        odom_launch,
+        # Nav vel relay (nav_vel -> cmd_vel for Gazebo)
+        nav_vel_relay,
+        # Odom (robot_localization EKF nodes with use_sim_time)
+        ekf_local,
+        ekf_global,
+        navsat_transform_node,
         # Cartographer SLAM (publishes map->odom and /map)
         TimerAction(
             period=5.0,  # Delay to let sensors start publishing

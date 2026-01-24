@@ -7,6 +7,23 @@
     <!-- ========== IGNITION GAZEBO PLUGINS ========== -->
     <!-- These plugins work with Ignition Gazebo (Fortress) instead of Gazebo Classic -->
 
+    <!-- CRITICAL: Sensors system plugin - required for all sensors to work -->
+    <gazebo>
+        <plugin filename="ignition-gazebo-sensors-system" name="ignition::gazebo::systems::Sensors">
+            <render_engine>ogre2</render_engine>
+        </plugin>
+    </gazebo>
+
+    <!-- CRITICAL: IMU system plugin - required for IMU sensor -->
+    <gazebo>
+        <plugin filename="ignition-gazebo-imu-system" name="ignition::gazebo::systems::Imu"/>
+    </gazebo>
+
+    <!-- CRITICAL: NavSat (GPS) system plugin - required for GPS sensor -->
+    <gazebo>
+        <plugin filename="ignition-gazebo-navsat-system" name="ignition::gazebo::systems::NavSat"/>
+    </gazebo>
+
     <!-- Differential Drive Control -->
     <gazebo>
         <plugin filename="ignition-gazebo-diff-drive-system" name="ignition::gazebo::systems::DiffDrive">
@@ -43,6 +60,7 @@
             <update_rate>${imu_update_rate}</update_rate>
             <visualize>true</visualize>
             <topic>imu/data</topic>
+            <ignition_frame_id>imu_link</ignition_frame_id>
             <enable_metrics>true</enable_metrics>
             <imu>
                 <angular_velocity>
@@ -135,6 +153,7 @@
             <update_rate>${laser_update_rate}</update_rate>
             <visualize>${laser_visualize}</visualize>
             <topic>scan_lower</topic>
+            <ignition_frame_id>bottom_lidar_link</ignition_frame_id>
             <lidar>
                 <scan>
                     <horizontal>
@@ -171,6 +190,7 @@
             <update_rate>${laser_update_rate}</update_rate>
             <visualize>${laser_visualize}</visualize>
             <topic>scan_upper</topic>
+            <ignition_frame_id>top_lidar_link</ignition_frame_id>
             <lidar>
                 <scan>
                     <horizontal>
