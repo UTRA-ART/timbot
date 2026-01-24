@@ -2,10 +2,9 @@
 Minimal simulation launch file for testing Gazebo + RViz with Cartographer SLAM.
 Uses existing configurations - same as real robot.
 """
-
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, ExecuteProcess, TimerAction, IncludeLaunchDescription
-from launch.conditions import IfCondition
+from launch.conditions import IfCondition, UnlessCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, Command, PathJoinSubstitution
 from launch_ros.actions import Node
@@ -66,8 +65,17 @@ def generate_launch_description():
     
     # Launch Gazebo using ExecuteProcess (same as working load_igvc_full.launch.py)
     # -r flag auto-runs the simulation (unpaused)
-    gazebo = ExecuteProcess(
+    # -s flag runs headless (server-only, no GUI)
+    gazebo_gui = ExecuteProcess(
+        condition=IfCondition(LaunchConfiguration('use_gui')),
         cmd=['ign', 'gazebo', 'sim', '-r', world_file_path, '--verbose'],
+        output='screen',
+        env=env
+    )
+    
+    gazebo_headless = ExecuteProcess(
+        condition=UnlessCondition(LaunchConfiguration('use_gui')),
+        cmd=['ign', 'gazebo', 'sim', '-r', '-s', world_file_path, '--verbose'],
         output='screen',
         env=env
     )
@@ -199,6 +207,36 @@ def generate_launch_description():
         ]
     )
     
+    
+    
+    # ========== ODOM (robot_localization) ==========
+    # NOTE: odom_state.launch.py doesn't support use_sim_time arg, so we launch EKF nodes directly
+    odom_state_dir = get_package_share_directory('odom_state')
+    odom_local_yaml = os.path.join(odom_state_dir, 'config', 'odom_local.yaml')
+    odom_global_yaml = os.path.join(odom_state_dir, 'config', 'odom_global.yaml')
+    navsat_yaml = os.path.join(odom_state_dir, 'config', 'navsat.yaml')
+
+    ekf_local = Node(
+        package='robot_localization',
+        executable='ekf_node',
+        name='ekf_local',
+        output='screen',
+        remappings=[("odometry/filtered", "odometry/local")],
+        parameters=[odom_local_yaml, {
+            'use_sim_time': True,
+            'publish_tf': True,  # Publish odom->base_link transform (required for Cartographer)
+        }]
+    )
+
+    ekf_global = Node(
+        package='robot_localization',
+        executable='ekf_node',
+        name='ekf_global',
+        output='screen',
+        remappings=[('odometry/filtered', 'odometry/global')],
+        parameters=[odom_global_yaml, {'use_sim_time': True}]
+    )
+
     # ========== CARTOGRAPHER SLAM ==========
     # Uses existing cartographer.lua config
     # Provides: map frame, map->odom transform
@@ -237,34 +275,6 @@ def generate_launch_description():
             '-publish_period_sec', '1.0'
         ]
     )
-    
-    # ========== ODOM (robot_localization) ==========
-    # NOTE: odom_state.launch.py doesn't support use_sim_time arg, so we launch EKF nodes directly
-    odom_state_dir = get_package_share_directory('odom_state')
-    odom_local_yaml = os.path.join(odom_state_dir, 'config', 'odom_local.yaml')
-    odom_global_yaml = os.path.join(odom_state_dir, 'config', 'odom_global.yaml')
-    navsat_yaml = os.path.join(odom_state_dir, 'config', 'navsat.yaml')
-
-    ekf_local = Node(
-        package='robot_localization',
-        executable='ekf_node',
-        name='ekf_local',
-        output='screen',
-        remappings=[("odometry/filtered", "odometry/local")],
-        parameters=[odom_local_yaml, {
-            'use_sim_time': True,
-            'publish_tf': True,  # Publish odom->base_link transform (required for Cartographer)
-        }]
-    )
-
-    ekf_global = Node(
-        package='robot_localization',
-        executable='ekf_node',
-        name='ekf_global',
-        output='screen',
-        remappings=[('odometry/filtered', 'odometry/global')],
-        parameters=[odom_global_yaml, {'use_sim_time': True}]
-    )
 
     navsat_transform_node = Node(
         package='robot_localization',
@@ -302,24 +312,27 @@ def generate_launch_description():
         roll_arg,
         pitch_arg,
         yaw_arg,
-        # Gazebo
-        gazebo,
-        # Robot
-        spawn_robot,
-        joint_state_publisher,
-        robot_state_publisher,
-        # ROS-Ignition Bridge (bridges sensor data from Gazebo to ROS)
-        ros_gz_bridge,
-        # Odom relay (odom -> wheel_odom/quat_synced for EKF)
-        odom_relay,
-        # Scan relay (scan_lower -> scan_modified for nav2)
-        scan_relay,
-        # Nav vel relay (nav_vel -> cmd_vel for Gazebo)
-        nav_vel_relay,
-        # Odom (robot_localization EKF nodes with use_sim_time)
-        ekf_local,
-        ekf_global,
-        navsat_transform_node,
+        # Gazebo (t=0s)
+        gazebo_gui,
+        gazebo_headless,
+        # Robot spawn (t=2s)
+        TimerAction(period=2.0, actions=[spawn_robot]),
+        # State publishers (t=4s)
+        TimerAction(period=4.0, actions=[joint_state_publisher]),
+        TimerAction(period=6.0, actions=[robot_state_publisher]),
+        # ROS-Ignition Bridge (t=8s)
+        TimerAction(period=8.0, actions=[ros_gz_bridge]),
+        # Odom relay (t=10s)
+        TimerAction(period=10.0, actions=[odom_relay]),
+        # Scan relay (t=12s)
+        TimerAction(period=12.0, actions=[scan_relay]),
+        # Nav vel relay (t=14s)
+        TimerAction(period=14.0, actions=[nav_vel_relay]),
+        # EKF local (t=16s)
+        TimerAction(period=16.0, actions=[ekf_local]),
+        # EKF global (t=18s)
+        TimerAction(period=18.0, actions=[ekf_global]),
+        TimerAction(period=19.0, actions=[navsat_transform_node]),
         # Cartographer SLAM (publishes map->odom and /map)
         TimerAction(
             period=5.0,  # Delay to let sensors start publishing
@@ -327,6 +340,6 @@ def generate_launch_description():
         ),
         # Nav2
         nav_launch,
-        # RViz
-        rviz_node
+        # RViz (t=20s)
+        TimerAction(period=20.0, actions=[rviz_node])
     ])
