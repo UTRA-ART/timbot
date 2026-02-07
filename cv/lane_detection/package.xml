@@ -8,7 +8,7 @@
   <author email="samson@samsonajadalu.com">Samson Ajadalu</author>
   <license>TODO: License declaration</license>
 
-  <buildtool_depend>ament_cmake</buildtool_depend>                  <!-- Replaces catkin -->
+  <buildtool_depend>ament_cmake_python</buildtool_depend>                  <!-- Replaces catkin -->
 
   <build_depend>rosidl_default_generators</build_depend>
 

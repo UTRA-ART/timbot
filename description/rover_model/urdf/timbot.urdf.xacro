@@ -2,7 +2,7 @@
 <!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
      Commit Version: 1.6.0-4-g7f85cfe  Build Version: 1.6.7995.38578
      For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
-<robot name="espresso" xmlns:xacro="http://ros.org/wiki/xacro">
+<robot name="timbot" xmlns:xacro="http://ros.org/wiki/xacro">
 
 	<!-- Argument to select Gazebo version: 'classic' or 'ignition' -->
 	<xacro:arg name="gazebo_version" default="ignition"/>
@@ -46,10 +46,16 @@
 			</material>
 		</visual>
 
-		<collision>
+		<!-- <collision>
 			<origin xyz="0 0 0" rpy="0 0 0" />
 			<geometry>
 				<mesh filename="package://description/rover_model/meshes/chassis_link.STL" />
+			</geometry>
+		</collision> -->
+		<collision>
+			<origin xyz="0 0 0" rpy="0 0 0" />
+			<geometry>
+				<box size="0.9 0.6 0.3"/> 
 			</geometry>
 		</collision>
 	</link>
