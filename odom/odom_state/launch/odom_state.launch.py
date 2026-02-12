@@ -61,6 +61,7 @@ def generate_launch_description():
         name='navsat_transform_node',
         output='screen',
         respawn=False,
+        arguments=['--ros-args', '--log-level', 'warn'],
         remappings=[('/odometry/filtered', '/odometry/local')],
         parameters=[
             navsat_yaml,

@@ -53,11 +53,6 @@ find_package(std_msgs REQUIRED)
 
 # Install debugging scripts
 install(PROGRAMS
-  debugging_scripts/graph_odom.py
-  debugging_scripts/ground_truth_node.py
-  debugging_scripts/zero_odom.py
-  debugging_scripts/fake_sensor_publisher.py
-  debugging_scripts/verify_circular_motion.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

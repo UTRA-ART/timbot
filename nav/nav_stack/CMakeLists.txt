@@ -22,9 +22,6 @@ install(DIRECTORY
 
 # Install debugging/testing scripts
 install(PROGRAMS
-  debugging_scripts/fake_robot_sim.py
-  debugging_scripts/send_nav_goal.py
-  debugging_scripts/check_nav_status.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

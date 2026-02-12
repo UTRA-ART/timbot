@@ -17,11 +17,12 @@ import os
 def generate_launch_description():
     #creates launch argument named use_sim_time
     #default value is true, meaning nodes will use simulation time from Gazebo
-    declare_sim_arg = DeclareLaunchArgument(
-        'use_sim_time',
+    use_sim_time_arg = DeclareLaunchArgument(
+        'sim',
         default_value='true',
         description='Use simulation (Gazebo) clock if true'
     )
+    use_sim_time = LaunchConfiguration('sim')
 
     # Get package directory
     pkg_dir = get_package_share_directory('nav_stack')
@@ -44,7 +45,7 @@ def generate_launch_description():
         executable='planner_server',
         name='planner_server',
         output='screen',
-        parameters=[nav2_params, {'use_sim_time': LaunchConfiguration('use_sim_time')}],
+        parameters=[nav2_params, {'use_sim_time': use_sim_time}],
     )
 
     # Controller Server (local planner + local costmap)
@@ -55,7 +56,7 @@ def generate_launch_description():
         executable="controller_server",
         name="controller_server",
         output="screen",
-        parameters=[nav2_params, {'use_sim_time': LaunchConfiguration('use_sim_time')}],
+        parameters=[nav2_params, {'use_sim_time': use_sim_time}],
         remappings=[("cmd_vel", "nav_vel")]
     )
 
@@ -67,7 +68,7 @@ def generate_launch_description():
         executable='bt_navigator',
         name='bt_navigator',
         output='screen',
-        parameters=[nav2_params, {'use_sim_time': LaunchConfiguration('use_sim_time'), "default_bt_xml_filename": bt_xml}],
+        parameters=[nav2_params, {'use_sim_time': use_sim_time, "default_bt_xml_filename": bt_xml}],
     )
 
     # Lifecycle manager (brings all Nav2 nodes up)
@@ -78,7 +79,7 @@ def generate_launch_description():
         name='lifecycle_manager_navigation',
         output='screen',
         parameters=[{
-            'use_sim_time': LaunchConfiguration('use_sim_time'),
+            'use_sim_time': use_sim_time,
             'autostart': True,
             'node_names': [
                 'planner_server',
@@ -92,7 +93,7 @@ def generate_launch_description():
     # LaunchDescription is a container for actions, collects nodes, launch arguments, etc.
     # Executes all actions in order
     return LaunchDescription([
-        declare_sim_arg,      # Declares launch argument for simulation time
+        use_sim_time_arg,      # Declares launch argument for simulation time
         planner_node,         # Global planner (includes global costmap)
         controller_node,      # Local controller/planner (includes local costmap)
         bt_navigator_node,    # Behavior tree navigator
