@@ -1,0 +1,47 @@
+{
+    "start_direction": "north",
+    "laps": 1,
+    "add_corners": true,
+    "waypoints" : [
+        {
+            "id" : 0,
+            "longitude" : 0.0,
+            "latitude" : 0.000175,
+            "description"  : "Top middle (north side)",
+            "test_loc_description": "North edge center",
+            "frame_id" : "map",
+            "pose_test" : [0, 19.5, 0, 0, 0, 0],
+            "pose_test_norm" : [0, 19.5, 0, 0, 0, 0]
+        },
+        {    
+            "id" : 1,
+            "longitude" : 0.000175,
+            "latitude" : 0.0,
+            "description"  : "Right middle (east side)",
+            "test_loc_description": "East edge center",
+            "frame_id" : "map",
+            "pose_test" : [19.5, 0, 0, 0, 0, 0],
+            "pose_test_norm" : [19.5, 0, 0, 0, 0, 0]
+        },
+        {
+            "id" : 2,
+            "longitude" : 0.0,
+            "latitude" : -0.000175,
+            "description"  : "Bottom middle (south side)",
+            "test_loc_description": "South edge center",
+            "frame_id" : "map",
+            "pose_test" : [0, -19.5, 0, 0, 0, 0],
+            "pose_test_norm" : [0, -19.5, 0, 0, 0, 0]
+        },
+        {
+            "id" : 3,
+            "longitude" : -0.000175,
+            "latitude" : 0.0,
+            "description"  : "Left middle (west side - near start)",
+            "test_loc_description": "West edge center",
+            "frame_id" : "map",
+            "pose_test" : [-19.5, 0, 0, 0, 0, 0],
+            "pose_test_norm" : [-19.5, 0, 0, 0, 0, 0]
+        }
+    ]
+}
