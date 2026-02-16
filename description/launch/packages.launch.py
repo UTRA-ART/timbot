@@ -47,10 +47,9 @@ def generate_launch_description():
             '--ros-args', '--log-level', 'warn'
         ],
         remappings=[
-            ('scan', '/scan_lower'),  # Bottom LIDAR for Cartographer
-            ('scan_2', '/scan_upper'),  # Top LIDAR
+            ('scan', '/scan_modified'),  # Bottom LIDAR after filter_lidar_data node
             ('imu', '/imu/data'),  # IMU topic from simulation
-            ('fix', '/gps/fix'),  # GPS topic from simulation
+            # GPS disabled in cartographer — navsat handles GPS separately
         ]
     )
 
@@ -68,18 +67,40 @@ def generate_launch_description():
     )
 
     # --- 4. Navigation (Nav2) [FUTURE] ---
-    # nav2_launch = IncludeLaunchDescription(
-    #     PythonLaunchDescriptionSource([
-    #         PathJoinSubstitution([
-    #             FindPackageShare('nav_stack'),
-    #             'launch',
-    #             'move_base.launch.py'
-    #         ])
-    #     ]),
-    #     launch_arguments={
-    #         'use_sim_time': use_sim_time
-    #     }.items()
-    # )
+    nav2_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([
+            PathJoinSubstitution([
+                FindPackageShare('nav_stack'),
+                'launch',
+                'move_base.launch.py'
+            ])
+        ]),
+        launch_arguments={
+            'use_sim_time': use_sim_time
+        }.items()
+    )
+
+    # filter_lidar_data launch
+    filter_lidar_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([
+            FindPackageShare('filter_lidar_data'),
+            '/launch/filter_lidar_data.launch.py'
+        ]),
+        launch_arguments={
+            'sim': use_sim_time,
+        }.items()
+    )
+
+    # load_waypoints launch
+    load_waypoints_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([
+            FindPackageShare('load_waypoints'),
+            '/launch/load_waypoints.launch.py'
+        ]),
+        launch_arguments={
+            'sim': use_sim_time,
+        }.items()
+    )
 
     # --- 5. Rviz (Visualization) ---
     rviz_config = PathJoinSubstitution([
@@ -102,8 +123,8 @@ def generate_launch_description():
         odom_state_launch,
         cartographer_node,
         occupancy_grid_node,
-        # launch nav2 after a delay to ensure Cartographer is up
-        # TimerAction(period=5.0, actions=[nav2_launch]),
-        # launch rviz after a delay
-        TimerAction(period=7.0, actions=[rviz_node]),
+        filter_lidar_launch,
+        TimerAction(period=5.0, actions=[nav2_launch]),
+        TimerAction(period=7.0, actions=[load_waypoints_launch]),
+        TimerAction(period=10.0, actions=[rviz_node]),
     ])

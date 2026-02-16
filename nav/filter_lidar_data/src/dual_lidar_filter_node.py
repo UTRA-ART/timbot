@@ -100,9 +100,9 @@ class DualLidarFilterNode(Node):
         )
 
         self.get_logger().info(f'DualLidarFilterNode started')
-        self.get_logger().info(f'  Main LiDAR: {self.main_lidar_topic}')
-        self.get_logger().info(f'  Upper LiDAR: {self.upper_lidar_topic}')
-        self.get_logger().info(f'  Output: {self.out_topic}')
+        # self.get_logger().info(f'  Main LiDAR: {self.main_lidar_topic}')
+        # self.get_logger().info(f'  Upper LiDAR: {self.upper_lidar_topic}')
+        # self.get_logger().info(f'  Output: {self.out_topic}')
 
     def get_second_idx_from_first_idx(self, prim_idx: int, main_lidar_len: int) -> int:
         """Map index from main lidar to corresponding upper lidar index."""
@@ -150,6 +150,8 @@ class DualLidarFilterNode(Node):
 
     def ramp_filter(self, main_ranges: list) -> list:
         """Filter out ramp points by comparing with upper lidar."""
+        import math # ensure math is imported at the top of your file
+        
         out = main_ranges.copy()
         size = len(out)
         all_inf = True
@@ -160,29 +162,41 @@ class DualLidarFilterNode(Node):
         end_idx = int(size - begin_idx)
 
         for i in range(size):
+            # 1. Apply FOV range limiting FIRST (Skip useless math)
+            if self.limit_output_range and (i < begin_idx or i > end_idx):
+                out[i] = float('nan') # Nav2 ignores these rays (cropping FOV)
+                continue
+                
             upper_idx = self.get_second_idx_from_first_idx(i, size)
+            
             if upper_idx < len(self.last_upper_ranges):
                 comp_depth = self.last_upper_ranges[upper_idx]
-                depth = comp_depth - main_ranges[i]
+                main_depth = main_ranges[i]
 
-                if depth > self.min_ramp_depth:
-                    out[i] = float('inf')  # Remove ramp points
+                # 2. SAFE MATH: Prevent 'inf - inf = NaN'
+                if math.isinf(comp_depth) or math.isinf(main_depth) or math.isnan(comp_depth) or math.isnan(main_depth):
+                    out[i] = main_depth # Keep the original inf/nan
                 else:
-                    out[i] = main_ranges[i]
+                    # Both are real numbers, safe to subtract!
+                    depth = comp_depth - main_depth
+                    if depth > self.min_ramp_depth:
+                        out[i] = float('inf')  # Remove ramp points
+                    else:
+                        out[i] = main_depth
             else:
                 out[i] = main_ranges[i]
 
-            # Apply range limiting
-            if self.limit_output_range and (i < begin_idx or i > end_idx):
-                out[i] = float('nan')
-            elif not math.isinf(out[i]) and not math.isnan(out[i]):
+            # Track if we have any real obstacles
+            if not math.isinf(out[i]) and not math.isnan(out[i]):
                 all_inf = False
 
-        # Cartographer fix: if all inf, set one point to avoid issues
+        # 3. NAV2-FRIENDLY CARTOGRAPHER FIX
         if all_inf:
-            out = [float('nan')] * size
+            # DO NOT set everything to NaN! Keep them as 'inf' so Nav2 clears free space.
             if self.init_lidar_fill < 50:
-                out[0] = 3.0
+                # Give Cartographer exactly ONE real point directly in front to prevent startup crash
+                center_idx = int(size / 2) 
+                out[center_idx] = 3.0 
                 self.init_lidar_fill += 1
 
         return out

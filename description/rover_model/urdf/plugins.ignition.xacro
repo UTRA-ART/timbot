@@ -113,18 +113,19 @@
             <always_on>true</always_on>
             <update_rate>${gps_update_rate}</update_rate>
             <topic>/gps/fix</topic>
+            <ignition_frame_id>gps_link</ignition_frame_id>
             <navsat>
                 <position_sensing>
                     <horizontal>
                         <noise type="gaussian">
                             <mean>0.0</mean>
-                            <stddev>0.5</stddev>
+                            <stddev>2.0</stddev>
                         </noise>
                     </horizontal>
                     <vertical>
                         <noise type="gaussian">
                             <mean>0.0</mean>
-                            <stddev>1.0</stddev>
+                            <stddev>3.0</stddev>
                         </noise>
                     </vertical>
                 </position_sensing>

@@ -50,7 +50,7 @@ class RampNavigateNode(Node):
         self.tf_listener = tf2_ros.TransformListener(self.tf_buffer, self)
 
         # Action client for Nav2
-        self.nav_client = ActionClient(self, NavigateToPose, '/move_base')
+        self.nav_client = ActionClient(self, NavigateToPose, '/navigate_to_pose')
 
         # Subscriber for ramp segment detections
         self.ramp_seg_sub = self.create_subscription(

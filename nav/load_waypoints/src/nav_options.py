@@ -52,7 +52,7 @@ import tf2_ros
 from tf2_ros import TransformListener
 
 import utm
-from load_waypoints.srv import RoverNavigation, RoverNavigationResponse
+from load_waypoints.srv import RoverNavigation
 
 class RoverNavigator(Node):
     def __init__(self):
@@ -79,7 +79,7 @@ class RoverNavigator(Node):
         return relative_coords
 
     def send_goal_to_move_base(self, goal_pos):
-        action_client = ActionClient(self, NavigateToPose, '/move_base')
+        action_client = ActionClient(self, NavigateToPose, '/navigate_to_pose')
         action_client.wait_for_server()
 
         goal = NavigateToPose()
@@ -116,16 +116,16 @@ class RoverNavigator(Node):
                                                 # rover will move to target in /map frame
         elif req.goal_type == 'rel':
             if self.current_pos is None:
-                return RoverNavigationResponse(False, "Current position not yet initialized.")
+                return RoverNavigation.Response(False, "Current position not yet initialized.")
             goal_pos = (self.current_pos[0] + req.goal.x, self.current_pos[1] + req.goal.y) # if 'goal_type' = 'rel', calculate target
                                                                                             # relative to rover's current position
         elif req.goal_type == 'gps':
             goal_pos = self.get_pose_from_gps(req.goal.x, req.goal.y)
         else:
-            return RoverNavigationResponse(False, "Invalid goal type.")
+            return RoverNavigation.Response(False, "Invalid goal type.")
         
         self.navigate_to_goal(goal_pos)
-        return RoverNavigationResponse(True, "Navigating to goal.")
+        return RoverNavigation.Response(True, "Navigating to goal.")
     
     def goal_response_callback(self, future):
         self.goal_handle = future.result()

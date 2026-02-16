@@ -62,7 +62,9 @@ def generate_launch_description():
         output='screen',
         respawn=False,
         arguments=['--ros-args', '--log-level', 'warn'],
-        remappings=[('/odometry/filtered', '/odometry/local')],
+        remappings=[('/odometry/filtered', '/odometry/global'), 
+                    ('/gps/fix', '/gps/fix_cov'), 
+                    ('/imu', '/imu/data')],
         parameters=[
             navsat_yaml,
             {'use_sim_time': use_sim_time},
@@ -70,9 +72,37 @@ def generate_launch_description():
         ]
     )
 
+    pose_relay = Node(
+        package='odom_state',
+        executable='pose_relay.py',
+        name='pose_relay',
+        output='screen',
+        parameters=[
+            {'use_sim_time': use_sim_time},
+            {'input_topic': '/tracked_pose'},
+            {'output_topic': '/tracked_pose_cov'},
+            {'position_covariance': 0.05},
+            {'orientation_covariance': 0.01}
+        ]
+    )
+
+    gps_cov_relay = Node(
+        package='odom_state',
+        executable='gps_cov_relay.py',
+        name='gps_cov_relay',
+        output='screen',
+        parameters=[
+            {'use_sim_time': use_sim_time},
+            {'horizontal_stddev': 2.0},
+            {'vertical_stddev': 3.0}
+        ]
+    )
+
     return LaunchDescription([
         use_sim_time_arg,
         ekf_local,
+        pose_relay,
+        gps_cov_relay,
         ekf_global,
         navsat_transform_node
     ])

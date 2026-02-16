@@ -51,8 +51,10 @@ find_package(std_msgs REQUIRED)
 ## Install ##
 #############
 
-# Install debugging scripts
+# Install Python scripts
 install(PROGRAMS
+  src/pose_relay.py
+  src/gps_cov_relay.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

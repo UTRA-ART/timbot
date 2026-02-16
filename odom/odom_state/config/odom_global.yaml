@@ -1,8 +1,10 @@
 /**:
   ros__parameters:
-    frequency: 50.0
+    frequency: 30.0
 
-    # Odometry global is SUPPOSED to go to cartographer and is a merge of local+gps odom. This is supposed to be the most accurate absolute odometry
+    # ekf_global fuses cartographer SLAM pose + GPS to produce a smooth map→odom transform
+    # Data flow: cartographer /tracked_pose_cov (position/yaw) + /odometry/gps (GPS correction, differential)
+    # Cartographer does NOT use GPS — it only does local SLAM (lidar + odom + IMU)
 
     # Specify planar environment
     two_d_mode: true
@@ -12,7 +14,7 @@
     base_link_frame: base_link
     world_frame: map
 
-    # publish transform: world_frame --> odom_frame
+    # Publish map → odom transform (cartographer no longer publishes this)
     publish_tf: true
 
     transform_time_offset: 0.05
@@ -20,39 +22,53 @@
     # See /diagnostics topic for debug
     print_diagnostics: true
 
+    # Process noise covariance (15x15 diagonal)
+    # Order: x, y, z, roll, pitch, yaw, vx, vy, vz, vroll, vpitch, vyaw, ax, ay, az
+    # Tuned for SLAM pose + GPS fusion (lower frequency, higher trust in sensors)
+    process_noise_covariance: [0.01,  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
+                               0.0,   0.01,  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
+                               0.0,   0.0,   0.01,  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
+                               0.0,   0.0,   0.0,   0.01,  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
+                               0.0,   0.0,   0.0,   0.0,   0.01,  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
+                               0.0,   0.0,   0.0,   0.0,   0.0,   0.02,  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
+                               0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.025, 0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
+                               0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.025, 0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
+                               0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.01,  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
+                               0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.01,  0.0,   0.0,   0.0,   0.0,   0.0,
+                               0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.01,  0.0,   0.0,   0.0,   0.0,
+                               0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.02,  0.0,   0.0,   0.0,
+                               0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.01,  0.0,   0.0,
+                               0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.01,  0.0,
+                               0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.01]
+
+    ## Pose Sensor(s) ##
+
+    # Cartographer tracked pose (converted from PoseStamped by pose_relay node)
+    # Provides absolute x, y, yaw position in the map frame
+    # Already fuses odom + IMU + lidar + GPS internally, so no GPS needed here
+    pose0: /tracked_pose_cov
+    pose0_config: [true , true , false,
+                   false, false, true ,
+                   false, false, false,
+                   false, false, false,
+                   false, false, false]
+    pose0_queue_size: 10
+    pose0_differential: false
+    pose0_relative: false
+
     ## Odometry Sensor(s) ##
 
-
-    odom0: /odometry/local
-    odom0_config: [true , true , true ,
-                   true , true , true ,
-                   true , true , true , # Z vel is true now cause we have a Z true in odom_local (zed_node)
-                   true , true , true ,
-                   false, false, false] # Acceleration can be on/off, testing
-    odom0_queue_size: 10
-    odom0_differential: true
-    odom0_relative: false
-
-    # odom0: wheel_odom/euler # Real wheel_encoder data
-    # # odom0: fake_odom_wheel_encoder_quat # IRL wheel encoder data
-    # odom0_config: [false , false , false,
-    #                false, false, false,
-    #                true , true , false,
-    #                false, false, true ,
-    #                false, false, false]
-    # odom0_queue_size: 10
-    # odom0_differential: false 
-    # odom0_relative: false
-
-    odom1: /odometry/gps
-    odom1_config: [true , true , false, # Only uses x, y position
+    # GPS odometry from navsat (differential position correction)
+    # Provides global x, y drift correction on top of cartographer's local SLAM
+    odom0: /odometry/gps
+    odom0_config: [true , true , false,
                    false, false, false,
                    false, false, false,
                    false, false, false,
                    false, false, false]
-    odom1_queue_size: 10
-    odom1_differential: true
-    odom1_relative: false
+    odom0_queue_size: 10
+    odom0_differential: true
+    odom0_relative: false
 
     # odom2: zed_node/odom
     # odom2_config: [true, true, false,

@@ -89,13 +89,14 @@ global_costmap:
     robot_base_frame: base_link
     update_frequency: 5.0
     publish_frequency: 2.0
-    static_map: true
+    static_map: false
     rolling_window: true
     always_send_full_costmap: false
 
     width: 100.0
     height: 100.0
-    # resolution: 0.02
+    resolution: 0.05
+    footprint: "[[-0.49, -0.46], [-0.49, 0.46], [0.45, 0.46], [0.59, 0.10], [0.59, -0.10], [0.45, -0.46]]"
 
     plugins:
       - {name: obstacle_layer, type: "nav2_costmap_2d::ObstacleLayer"}
@@ -195,12 +196,39 @@ local_costmap:
       inflation_radius: 1.0
       cost_scaling_factor: 2.0
 
+behavior_server:
+  ros__parameters:
+
+    costmap_topic: local_costmap/costmap_raw
+    footprint_topic: local_costmap/published_footprint
+    cycle_frequency: 10.0
+    behavior_plugins: ["spin", "backup", "drive_on_heading", "wait"]
+    spin:
+      plugin: "nav2_behaviors/Spin"
+    backup:
+      plugin: "nav2_behaviors/BackUp"
+    drive_on_heading:
+      plugin: "nav2_behaviors/DriveOnHeading"
+    wait:
+      plugin: "nav2_behaviors/Wait"
+    global_frame: odom
+    robot_base_frame: base_link
+    transform_tolerance: 0.1
+    simulate_ahead_time: 2.0
+    max_rotational_vel: 1.0
+    min_rotational_vel: 0.4
+    rotational_acc_lim: 3.2
+    # Added Limits to fix your warning
+    max_vel_x: 2.23
+    min_vel_x: -2.23
+    acc_lim_x: 2.5
+    acc_lim_theta: 3.2
+
 # ----------------------------
 # Behavior Tree Navigator (minimal params)
 # ----------------------------
 bt_navigator:
   ros__parameters:
-    use_sim_time: False
     global_frame: map
     robot_base_frame: base_link
     odom_topic: /odometry/local
@@ -260,7 +288,6 @@ bt_navigator:
 # ----------------------------
 lifecycle_manager_navigation:
   ros__parameters:
-    use_sim_time: False
     autostart: true
     node_names: ["controller_server", "planner_server", "bt_navigator", "global_costmap", "local_costmap"]
 

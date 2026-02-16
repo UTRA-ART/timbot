@@ -49,8 +49,6 @@ def generate_launch_description():
         value_type=str
     )
     
-    robot_description = {'robot_description': robot_description_content}
-    
     # --- Nodes ---
 
     # 1. ROS-Gazebo Bridge
@@ -68,7 +66,7 @@ def generate_launch_description():
             '/scan_lower@sensor_msgs/msg/LaserScan[ignition.msgs.LaserScan',
             '/scan_upper@sensor_msgs/msg/LaserScan[ignition.msgs.LaserScan',
             
-            # Bridge the GPS
+            # Bridge the GPS (gps_cov_relay adds covariance → /gps/fix_cov)
             '/gps/fix@sensor_msgs/msg/NavSatFix[ignition.msgs.NavSat',
             
             # Bridge the IMU
@@ -80,7 +78,8 @@ def generate_launch_description():
             # Receive raw odometry FROM Gazebo (Optional, but good for debugging)
             '/odom@nav_msgs/msg/Odometry[ignition.msgs.Odometry'
         ],
-        output='screen'
+        output='screen',
+        parameters=[{'use_sim_time': use_sim_time}]
     )
 
     # 2. Spawn Robot (The "Create" Node)
@@ -99,7 +98,8 @@ def generate_launch_description():
             '-P', LaunchConfiguration('pitch'),
             '-Y', LaunchConfiguration('yaw')
         ],
-        output='screen'
+        output='screen',
+        parameters=[{'use_sim_time': use_sim_time}]
     )
     
     # 3. Joint State Publisher
@@ -111,8 +111,8 @@ def generate_launch_description():
         name='joint_state_publisher',
         condition=UnlessCondition(use_sim_time), 
         parameters=[
-            {'rate': 50},
-            robot_description
+            {'rate': 50,
+            'robot_description': robot_description_content}
         ]
     )
     
@@ -123,8 +123,9 @@ def generate_launch_description():
         executable='robot_state_publisher',
         name='robot_state_publisher',
         parameters=[
-            {'use_sim_time': use_sim_time}, # Important!
-            robot_description
+            {'use_sim_time': use_sim_time,
+            'robot_description': robot_description_content,
+            'publish_frequency': 50.0}
         ]
     )
     
