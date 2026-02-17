@@ -71,7 +71,6 @@ def generate_launch_description():
         output="screen",
         parameters=[nav2_params_configured, {'use_sim_time': use_sim_time}],
         arguments=['--ros-args', '--log-level', 'warn'],
-        remappings=[("cmd_vel", "nav_vel")]
     )
 
     behavior_server_node = Node(
