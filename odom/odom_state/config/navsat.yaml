@@ -1,7 +1,7 @@
 /**:
   ros__parameters:
     frequency: 5.0
-    delay: 0.0
+    delay: 1.0
     
     # Use the first GPS fix to set origin if datum fails
     wait_for_datum: false 
