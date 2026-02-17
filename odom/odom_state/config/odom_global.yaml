@@ -1,8 +1,10 @@
 /**:
   ros__parameters:
-    frequency: 30.0
+    frequency: 10.0
 
-    # ekf_global fuses cartographer SLAM pose + GPS to produce a smooth map→odom transform
+    # ekf_global fuses cartographer SLAM pose + GPS to produce map→odom TF.
+    # Pipeline: ekf_local (odom→base_link) → cartographer (tracked_pose, NO TF)
+    #         → ekf_global (map→odom via SLAM+GPS) → navsat (utm→map)
     # Data flow: cartographer /tracked_pose_cov (position/yaw) + /odometry/gps (GPS correction, differential)
     # Cartographer does NOT use GPS — it only does local SLAM (lidar + odom + IMU)
 
@@ -14,7 +16,9 @@
     base_link_frame: base_link
     world_frame: map
 
-    # Publish map → odom transform (cartographer no longer publishes this)
+    # ekf_global IS the authority on map→odom.
+    # Cartographer's TF output is redirected to /tf_carto (via launch remap)
+    # so there is no conflict — only ekf_global publishes map→odom on /tf.
     publish_tf: true
 
     transform_time_offset: 0.05
@@ -69,6 +73,10 @@
     odom0_queue_size: 10
     odom0_differential: true
     odom0_relative: false
+
+    # Reject GPS outliers: innovations > 2 Mahalanobis std devs are discarded.
+    # Aggressive threshold since GPS is noisy and cartographer provides stable pose.
+    odom0_rejection_threshold: 2.0
 
     # odom2: zed_node/odom
     # odom2_config: [true, true, false,

@@ -124,7 +124,7 @@ def generate_launch_description():
         cartographer_node,
         occupancy_grid_node,
         filter_lidar_launch,
-        TimerAction(period=5.0, actions=[nav2_launch]),
-        TimerAction(period=7.0, actions=[load_waypoints_launch]),
-        TimerAction(period=10.0, actions=[rviz_node]),
+        rviz_node,
+        TimerAction(period=2.0, actions=[nav2_launch]),
+        # TimerAction(period=7.0, actions=[load_waypoints_launch]),
     ])

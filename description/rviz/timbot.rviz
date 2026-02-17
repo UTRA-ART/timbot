@@ -106,6 +106,8 @@ Visualization Manager:
           Value: true
         top_lidar_link:
           Value: true
+        utm:
+          Value: true
         zed_link:
           Value: true
       Marker Scale: 1
@@ -114,30 +116,31 @@ Visualization Manager:
       Show Axes: true
       Show Names: true
       Tree:
-        map:
-          odom:
-            base_link:
-              chassis_link:
-                bottom_lidar_link:
-                  {}
-                caster_link:
-                  {}
-                left_wheel_link:
-                  {}
-                right_wheel_link:
-                  {}
-                stand_link:
-                  gps_link:
+        utm:
+          map:
+            odom:
+              base_link:
+                chassis_link:
+                  bottom_lidar_link:
                     {}
-                  zed_link:
-                    left_camera_link:
-                      left_camera_link_optical:
-                        {}
-                top_lidar_link:
+                  caster_link:
+                    {}
+                  left_wheel_link:
+                    {}
+                  right_wheel_link:
+                    {}
+                  stand_link:
+                    gps_link:
+                      {}
+                    zed_link:
+                      left_camera_link:
+                        left_camera_link_optical:
+                          {}
+                  top_lidar_link:
+                    {}
+                imu_link:
                   {}
-              imu_link:
-                {}
-      Update Interval: 0
+      Update Interval: 1
       Value: true
     - Alpha: 0.699999988079071
       Class: rviz_default_plugins/Map
@@ -282,7 +285,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 6.1401143074035645
+      Distance: 7.481935501098633
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -297,10 +300,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.5453975200653076
+      Pitch: 0.5353975296020508
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz_default_plugins)
-      Yaw: 3.393580913543701
+      Yaw: 3.413581609725952
     Saved: ~
 Window Geometry:
   Displays:
@@ -318,5 +321,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1200
-  X: 2109
-  Y: -13
+  X: 2181
+  Y: 52

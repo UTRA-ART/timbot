@@ -1,6 +1,6 @@
 from launch import LaunchDescription
 from launch_ros.actions import Node
-from launch.actions import DeclareLaunchArgument
+from launch.actions import DeclareLaunchArgument, TimerAction
 from launch.substitutions import LaunchConfiguration, PythonExpression
 from ament_index_python.packages import get_package_share_directory
 import os
@@ -68,7 +68,7 @@ def generate_launch_description():
         parameters=[
             navsat_yaml,
             {'use_sim_time': use_sim_time},
-            {'launch_state': launch_state}
+            {'launch_state': launch_state},
         ]
     )
 
@@ -93,8 +93,8 @@ def generate_launch_description():
         output='screen',
         parameters=[
             {'use_sim_time': use_sim_time},
-            {'horizontal_stddev': 2.0},
-            {'vertical_stddev': 3.0}
+            {'horizontal_stddev': 3.0},
+            {'vertical_stddev': 4.0}
         ]
     )
 

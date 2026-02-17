@@ -50,6 +50,7 @@ options = {
   tracking_frame = "imu_link",
   published_frame = "base_link",
   odom_frame = "odom",
+  publish_to_tf = false,
   provide_odom_frame = false,
   publish_tracked_pose = true,
   publish_frame_projected_to_2d = false,
