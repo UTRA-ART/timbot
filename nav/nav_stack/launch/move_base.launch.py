@@ -12,6 +12,8 @@ from launch_ros.actions import Node
 #returns the share directory of the given package 
 from ament_index_python.packages import get_package_share_directory
 import os
+from launch_ros.descriptions import ParameterFile
+from nav2_common.launch import RewrittenYaml
 
 
 def generate_launch_description():
@@ -29,7 +31,17 @@ def generate_launch_description():
     config_dir = os.path.join(pkg_dir, 'config')
 
     # Nav2 parameter file (contains costmap params, planner, controller, bt_navigator)
-    nav2_params = os.path.join(config_dir, 'nav2_params.yaml')
+    nav2_params_configured = os.path.join(config_dir, 'nav2_params.yaml')
+
+    #allow type conversion
+    # nav2_params_configured = ParameterFile(
+    #     RewrittenYaml(
+    #         source_file=nav2_params,
+    #         root_key='',
+    #         param_rewrites={'use_sim_time': use_sim_time},
+    #         convert_types=True),
+    #     allow_substs=True
+    # )
 
     # In Nav2, costmaps are integrated into planner_server and controller_server
     # There is no standalone 'costmap_server' executable
@@ -45,7 +57,7 @@ def generate_launch_description():
         executable='planner_server',
         name='planner_server',
         output='screen',
-        parameters=[nav2_params, {'use_sim_time': use_sim_time}],
+        parameters=[nav2_params_configured, {'use_sim_time': use_sim_time}],
         arguments=['--ros-args', '--log-level', 'warn'],
     )
 
@@ -57,7 +69,7 @@ def generate_launch_description():
         executable="controller_server",
         name="controller_server",
         output="screen",
-        parameters=[nav2_params, {'use_sim_time': use_sim_time}],\
+        parameters=[nav2_params_configured, {'use_sim_time': use_sim_time}],
         arguments=['--ros-args', '--log-level', 'warn'],
         remappings=[("cmd_vel", "nav_vel")]
     )
@@ -67,7 +79,7 @@ def generate_launch_description():
         executable='behavior_server',
         name='behavior_server',
         output='screen',
-        parameters=[nav2_params, {'use_sim_time': use_sim_time}],
+        parameters=[nav2_params_configured, {'use_sim_time': use_sim_time}],
         arguments=['--ros-args', '--log-level', 'warn']
     )
 
@@ -79,7 +91,7 @@ def generate_launch_description():
         executable='bt_navigator',
         name='bt_navigator',
         output='screen',
-        parameters=[nav2_params, {'use_sim_time': use_sim_time, "default_bt_xml_filename": bt_xml}],
+        parameters=[nav2_params_configured, {'use_sim_time': use_sim_time, "default_bt_xml_filename": bt_xml}],
         arguments=['--ros-args', '--log-level', 'warn']
     )
 
