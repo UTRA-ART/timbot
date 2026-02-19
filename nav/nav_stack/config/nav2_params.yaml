@@ -59,7 +59,7 @@ local_costmap:
         plugin: "nav2_costmap_2d::InflationLayer"
         enabled: true
         inflation_radius: 1.0
-        cost_scaling_factor: 5.0
+        cost_scaling_factor: 20.0
 
 # Global path planning
 
@@ -136,7 +136,7 @@ global_costmap:
       inflation_layer:
         enabled: true
         inflation_radius: 1.0
-        cost_scaling_factor: 5.0
+        cost_scaling_factor: 20.0
 
 # ----------------------------
 # Behavior Server (recovery behaviors)
