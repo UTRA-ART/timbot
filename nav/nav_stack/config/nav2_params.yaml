@@ -5,8 +5,8 @@ local_costmap:
     ros__parameters:
       global_frame: odom
       robot_base_frame: base_link
-      update_frequency: 20.0
-      publish_frequency: 10.0
+      update_frequency: 5.0
+      publish_frequency: 2.0
       static_map: false
       rolling_window: true
       always_send_full_costmap: false
@@ -15,7 +15,7 @@ local_costmap:
       resolution: 0.05  # Nav2 usually needs this defined explicitly
       always_send_full_costmap: true
 
-      footprint: "[ [0.2, 0.15], [0.2, -0.15], [-0.2, -0.15], [-0.2, 0.15] ]"
+      footprint: "[ [0.5, 0.46], [0.5, -0.46], [-0.5, -0.46], [-0.5, 0.46] ]"
       footprint_padding: 0.01
 
       # Plugin definitions (note the new plugin syntax)
@@ -58,8 +58,8 @@ local_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         enabled: true
-        inflation_radius: 0.55
-        cost_scaling_factor: 3.0
+        inflation_radius: 1.0
+        cost_scaling_factor: 5.0
 
 # Global path planning
 
@@ -77,7 +77,7 @@ global_costmap:
       height: 100
       # resolution: 0.02   # Optional, set if not defined elsewhere
 
-      footprint: "[ [0.2, 0.15], [0.2, -0.15], [-0.2, -0.15], [-0.2, 0.15] ]"
+      footprint: "[ [0.5, 0.46], [0.5, -0.46], [-0.5, -0.46], [-0.5, 0.46] ]"
       footprint_padding: 0.01
 
       # Declare which costmap layers to load
@@ -85,6 +85,18 @@ global_costmap:
         - {name: static_layer, type: "nav2_costmap_2d::StaticLayer"}
         - {name: obstacle_layer, type: "nav2_costmap_2d::ObstacleLayer"}
         - {name: inflation_layer, type: "nav2_costmap_2d::InflationLayer"}
+
+      # ---- Static Layer ----
+      static_layer:
+        enabled: true
+        map_topic: /map
+        subscribe_to_updates: true
+        trinary_costmap: true
+        use_maximum: false
+        lethal_cost_threshold: 100
+        unknown_cost_value: -1
+        track_unknown_space: true
+        map_subscribe_transient_local: true
 
       # ---- Obstacle Layer ----
       obstacle_layer:
@@ -123,8 +135,8 @@ global_costmap:
       # ---- Inflation Layer ----
       inflation_layer:
         enabled: true
-        inflation_radius: 0.55
-        cost_scaling_factor: 3.0
+        inflation_radius: 1.0
+        cost_scaling_factor: 5.0
 
 # ----------------------------
 # Behavior Server (recovery behaviors)
@@ -176,7 +188,7 @@ planner_server:
 # ----------------------------
 controller_server:
   ros__parameters:
-    controller_frequency: 10.0
+    controller_frequency: 5.0
     controller_plugins: ["FollowPath"]
     progress_checker_plugin: "progress_checker"
     goal_checker_plugins: ["general_goal_checker"]
@@ -207,26 +219,40 @@ controller_server:
       publish_cost_grid_pc: true
 
       # Robot kinematic / dynamic limits
-      acc_lim_x: 5.0
+      acc_lim_x: 1.0
       acc_lim_y: 0.0
-      acc_lim_theta: 5.0
+      acc_lim_theta: 0.5
+      decel_lim_x: -1.0
+      decel_lim_y: 0.0
+      decel_lim_theta: -0.5
 
-      max_vel_x: 2.23
-      min_vel_x: -2.23
+      max_vel_x: 1.0
+      min_vel_x: -1.0
       max_vel_y: 0.0
       min_vel_y: 0.0
-      max_vel_theta: 2.0
-      min_vel_theta: -2.0
+      max_vel_theta: 1.0
+      min_vel_theta: -1.0
+      
+      # Minimum speeds to consider (CRITICAL for trajectory generation)
+      min_speed_xy: 0.0
+      max_speed_xy: 2.23
+      min_speed_theta: 0.0
 
       # Goal tolerances
       yaw_goal_tolerance: 3.14
       xy_goal_tolerance: 0.25
 
       # Forward simulation
-      sim_time: 2.0
-      vx_samples: 30
-      vtheta_samples: 40
+      sim_time: 1.5
+      vx_samples: 20
+      vtheta_samples: 20
       vy_samples: 1
+      linear_granularity: 0.05
+      angular_granularity: 0.025
+      
+      # Scores for trajectory generation
+      trans_stopped_velocity: 0.25
+      theta_stopped_velocity: 0.25
 
       # Scoring biases
       path_distance_bias: 20.0
@@ -236,13 +262,13 @@ controller_server:
       # DWB critics - order matters! RotateToGoal should be LAST (only for final pose alignment)
       critics: ["Oscillation", "BaseObstacle", "PathAlign", "PathDist", "GoalAlign", "GoalDist", "RotateToGoal"]
 
-      PathAlign.scale: 32.0
+      PathAlign.scale: 10.0
       PathAlign.forward_point_distance: 0.5
       PathDist.scale: 32.0
       GoalAlign.scale: 5.0
       GoalAlign.forward_point_distance: 0.5
-      GoalDist.scale: 24.0
-      BaseObstacle.scale: 0.02
+      GoalDist.scale: 10.0
+      BaseObstacle.scale: 10.0
       RotateToGoal.scale: 10.0
       RotateToGoal.slowing_factor: 0.3
       Oscillation.scale: 1.0
@@ -256,7 +282,7 @@ bt_navigator:
     global_frame: map
     robot_base_frame: base_link
     odom_topic: /odometry/local
-    bt_loop_duration: 10
+    bt_loop_duration: 100
     default_server_timeout: 20
     # These are the default Nav2 behavior tree plugins
     plugin_lib_names:

@@ -24,4 +24,4 @@
     # Heading Setup
     yaw_offset: 1.5708  # Correct for ENU if IMU is North-facing
     use_odometry_yaw: true
-    magnetic_declination_radians: -0.1306
+    magnetic_declination_radians: 0.0 # for sim
