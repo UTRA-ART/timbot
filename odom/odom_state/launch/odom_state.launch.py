@@ -1,7 +1,8 @@
-from launch import LaunchDescription
+from launch import LaunchDescription, LaunchContext
 from launch_ros.actions import Node
-from launch.actions import DeclareLaunchArgument, TimerAction
-from launch.substitutions import LaunchConfiguration, PythonExpression
+from launch.actions import DeclareLaunchArgument, TimerAction, OpaqueFunction
+from launch.substitutions import LaunchConfiguration, PythonExpression, PathJoinSubstitution
+from launch_ros.substitutions import FindPackageShare
 from ament_index_python.packages import get_package_share_directory
 import os
 
@@ -15,19 +16,39 @@ def generate_launch_description():
     )
     use_sim_time = LaunchConfiguration('sim')
 
-    # 2. Derive launch_state automatically
+    # 2. Optional config_file argument — allows the main launch orchestrator
+    #    to specify which YAML config to use (default: odom.yaml)
+    config_file_arg = DeclareLaunchArgument(
+        'config_file',
+        default_value='odom.yaml',
+        description='Name of the odom config file in odom_state/config/'
+    )
+
+    # 3. mute_warnings argument — suppresses warning-level log output
+    mute_warnings_arg = DeclareLaunchArgument(
+        'mute_warnings',
+        default_value='false',
+        description='If true, set log level to error instead of warn'
+    )
+    mute_warnings = LaunchConfiguration('mute_warnings')
+    log_level = PythonExpression([
+        "'error' if '", mute_warnings, "' == 'true' else 'warn'"
+    ])
+
+    # 3. Derive launch_state automatically
     # If use_sim_time is true, state is 'sim'. Otherwise 'real'.
     launch_state = PythonExpression([
         "'sim' if '", use_sim_time, "' == 'true' else 'real'"
     ])
 
-    # 3. Path Setup
-    odom_state_dir = get_package_share_directory('odom_state')
-    odom_local_yaml = os.path.join(odom_state_dir, 'config', 'odom_local.yaml')
-    odom_global_yaml = os.path.join(odom_state_dir, 'config', 'odom_global.yaml')
-    navsat_yaml = os.path.join(odom_state_dir, 'config', 'navsat.yaml')
+    # 4. Path Setup — config file resolved via launch argument
+    odom_yaml = PathJoinSubstitution([
+        FindPackageShare('odom_state'), 'config', LaunchConfiguration('config_file')
+    ])
 
-    # 4. Nodes (Now receiving the time parameter!)
+    # 4. Nodes
+    # Each node loads from the combined odom.yaml; node name matches the YAML key
+    # so ROS2 automatically picks the correct section.
     
     ekf_local = Node(
         package='robot_localization',
@@ -36,7 +57,7 @@ def generate_launch_description():
         output='screen',
         remappings=[('/odometry/filtered', '/odometry/local')],
         parameters=[
-            odom_local_yaml, 
+            odom_yaml, 
             {'use_sim_time': use_sim_time}, 
             {'launch_state': launch_state} 
         ]
@@ -49,7 +70,7 @@ def generate_launch_description():
         output='screen',
         remappings=[('/odometry/filtered', '/odometry/global')],
         parameters=[
-            odom_global_yaml,
+            odom_yaml,
             {'use_sim_time': use_sim_time},
             {'launch_state': launch_state}
         ]
@@ -61,12 +82,12 @@ def generate_launch_description():
         name='navsat_transform_node',
         output='screen',
         respawn=False,
-        arguments=['--ros-args', '--log-level', 'warn'],
+        arguments=['--ros-args', '--log-level', log_level],
         remappings=[('/odometry/filtered', '/odometry/global'), 
                     ('/gps/fix', '/gps/fix_cov'), 
                     ('/imu', '/imu/data')],
         parameters=[
-            navsat_yaml,
+            odom_yaml,
             {'use_sim_time': use_sim_time},
             {'launch_state': launch_state},
         ]
@@ -100,6 +121,8 @@ def generate_launch_description():
 
     return LaunchDescription([
         use_sim_time_arg,
+        config_file_arg,
+        mute_warnings_arg,
         ekf_local,
         pose_relay,
         gps_cov_relay,

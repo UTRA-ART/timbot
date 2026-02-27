@@ -19,6 +19,17 @@ def generate_launch_description():
     )
     use_sim_time = LaunchConfiguration('sim')
 
+    # mute_warnings argument — suppresses warning-level log output
+    mute_warnings_arg = DeclareLaunchArgument(
+        'mute_warnings',
+        default_value='false',
+        description='If true, set log level to error instead of warn'
+    )
+    mute_warnings = LaunchConfiguration('mute_warnings')
+    log_level = PythonExpression([
+        "'error' if '", mute_warnings, "' == 'true' else 'warn'"
+    ])
+
     # This is currently unused
     # world_type_arg = DeclareLaunchArgument(
     #     'world_type',
@@ -76,7 +87,8 @@ def generate_launch_description():
             '/cmd_vel@geometry_msgs/msg/Twist]ignition.msgs.Twist',
             
             # Receive raw odometry FROM Gazebo (Optional, but good for debugging)
-            '/odom@nav_msgs/msg/Odometry[ignition.msgs.Odometry'
+            '/odom@nav_msgs/msg/Odometry[ignition.msgs.Odometry',
+            '--ros-args', '--log-level', log_level
         ],
         output='screen',
         parameters=[{'use_sim_time': use_sim_time}]
@@ -143,6 +155,7 @@ def generate_launch_description():
 
     return LaunchDescription([
         use_sim_time_arg,
+        mute_warnings_arg,
         # world_type_arg,
         x_arg, y_arg, z_arg, roll_arg, pitch_arg, yaw_arg,
         

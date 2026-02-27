@@ -1,7 +1,8 @@
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
-from launch.substitutions import LaunchConfiguration, PythonExpression
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, PythonExpression
 from launch_ros.actions import Node
+from launch_ros.substitutions import FindPackageShare
 from ament_index_python.packages import get_package_share_directory
 import os
 
@@ -16,16 +17,29 @@ def generate_launch_description():
     )
     use_sim_time = LaunchConfiguration('sim')
 
-    # --- Waypoints File Selection ---
-    # Get package share directory for waypoints
-    pkg_share = get_package_share_directory('load_waypoints')
+    # config_file argument — the waypoints JSON filename
+    # Default: sim_waypoints.json
+    config_file_arg = DeclareLaunchArgument(
+        'config_file',
+        default_value='sim_waypoints.json',
+        description='Name of the waypoints JSON file in load_waypoints/jsons/'
+    )
 
-    # Select waypoints file based on sim argument
-    # sim=true -> pavement waypoints, sim=false -> IGVC course
-    waypoints_file = PythonExpression([
-        "'", os.path.join(pkg_share, 'jsons', 'sim_waypoints.json'), "' if '",
-        use_sim_time, "' == 'true' else '",
-        os.path.join(pkg_share, 'jsons', 'IGVC_course.json'), "'"
+    # mute_warnings argument — suppresses warning-level log output
+    mute_warnings_arg = DeclareLaunchArgument(
+        'mute_warnings',
+        default_value='false',
+        description='If true, set log level to error instead of warn'
+    )
+    mute_warnings = LaunchConfiguration('mute_warnings')
+    log_level = PythonExpression([
+        "'error' if '", mute_warnings, "' == 'true' else 'warn'"
+    ])
+
+    # --- Waypoints File Selection ---
+    # Resolved at launch time via PathJoinSubstitution
+    waypoints_file = PathJoinSubstitution([
+        FindPackageShare('load_waypoints'), 'jsons', LaunchConfiguration('config_file')
     ])
 
     # --- 1. Waypoint Navigation Server ---
@@ -35,6 +49,7 @@ def generate_launch_description():
         executable='navigate_waypoints.py',
         name='load_waypoints_server',
         output='screen',
+        arguments=['--ros-args', '--log-level', log_level],
         parameters=[{
             'use_sim_time': use_sim_time,
             'waypoints_file': waypoints_file
@@ -48,6 +63,7 @@ def generate_launch_description():
         executable='ramp_navigate.py',
         name='ramp_navigate',
         output='screen',
+        arguments=['--ros-args', '--log-level', log_level],
         parameters=[{'use_sim_time': use_sim_time}]
     )
 
@@ -58,11 +74,14 @@ def generate_launch_description():
         executable='nav_options.py',
         name='nav_control',
         output='screen',
+        arguments=['--ros-args', '--log-level', log_level],
         parameters=[{'use_sim_time': use_sim_time}]
     )
 
     return LaunchDescription([
         use_sim_time_arg,
+        config_file_arg,
+        mute_warnings_arg,
         navigate_waypoints_node,
         ramp_navigate_node,
         nav_options_node,

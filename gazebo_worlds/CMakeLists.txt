@@ -3,8 +3,15 @@ project(gazebo_worlds)
 
 find_package(ament_cmake REQUIRED)
 
+# Install launch files
 install(DIRECTORY
-  pavement/
+  launch
+  DESTINATION share/${PROJECT_NAME}/
+)
+
+# Install world files and assets
+install(DIRECTORY
+  worlds
   DESTINATION share/${PROJECT_NAME}/
 )
 

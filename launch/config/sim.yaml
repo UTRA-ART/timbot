@@ -1,0 +1,86 @@
+# =============================================================================
+# Timbot Launch Configuration — Simulation
+# =============================================================================
+# Usage: ros2 launch timbot_launch timbot.launch.py config:=sim.yaml
+# =============================================================================
+
+# --- Global Settings ---
+sim: true
+
+# --- Launch Stages (order matters) ---
+# Each stage runs sequentially. The next stage only starts after the previous
+# one's expected topics/nodes are confirmed alive.
+
+# --- Stage 1: Gazebo Simulator ---
+gazebo:
+  enabled: true
+  gui: true
+  world_file: track.world
+  mute_warnings: false
+  # Expected topics to verify gazebo is running
+  expected_topics:
+    - /clock
+
+# --- Stage 2: Spawn Robot (RSP, bridge, spawn entity) ---
+spawn:
+  enabled: true
+  mute_warnings: false
+  x: "-19.5"
+  y: "0"
+  z: "0.05"
+  roll: "0"
+  pitch: "0"
+  yaw: "1.5708"
+  # Expected topics after spawn completes
+  expected_topics:
+    - /robot_description
+    - /joint_states
+    - /odom
+    - /imu/data
+    - /scan_lower
+
+# --- Stage 3+: Individual Packages (launched sequentially) ---
+
+# --- Odom State (EKF local + global + navsat) ---
+odom_state:
+  enabled: true
+  config_file: odom.yaml
+  mute_warnings: false
+  expected_topics:
+    - /odometry/local
+
+# --- Cartographer (SLAM) ---
+cartographer:
+  enabled: true
+  mute_warnings: true
+  expected_topics:
+    - /map
+
+# --- Filter Lidar Data ---
+filter_lidar:
+  enabled: true
+  mute_warnings: false
+  expected_topics:
+    - /scan_modified
+
+# --- RViz (Visualization) ---
+rviz:
+  enabled: true
+  mute_warnings: true
+  # No topic check needed — rviz is a visualizer
+  expected_topics: []
+
+# --- Nav2 Stack ---
+nav_stack:
+  enabled: true
+  config_file: nav2_params.yaml
+  mute_warnings: true
+  expected_topics:
+    - /local_costmap/costmap
+
+# --- Load Waypoints ---
+load_waypoints:
+  enabled: true
+  config_file: sim_waypoints.json
+  mute_warnings: false
+  expected_topics: []

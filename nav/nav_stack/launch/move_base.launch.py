@@ -4,10 +4,11 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 
 #gives value of the launch argument in any part of launch description
-from launch.substitutions import LaunchConfiguration
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, PythonExpression
 
 #node class to launch ROS2 nodes
 from launch_ros.actions import Node
+from launch_ros.substitutions import FindPackageShare
 
 #returns the share directory of the given package 
 from ament_index_python.packages import get_package_share_directory
@@ -26,12 +27,33 @@ def generate_launch_description():
     )
     use_sim_time = LaunchConfiguration('sim')
 
+    # Optional config_file argument — allows the main launch orchestrator
+    # to specify which nav2 params file to use (default: nav2_params.yaml)
+    config_file_arg = DeclareLaunchArgument(
+        'config_file',
+        default_value='nav2_params.yaml',
+        description='Name of the nav2 config file in nav_stack/config/'
+    )
+
+    # mute_warnings argument — suppresses warning-level log output
+    mute_warnings_arg = DeclareLaunchArgument(
+        'mute_warnings',
+        default_value='false',
+        description='If true, set log level to error instead of warn'
+    )
+    mute_warnings = LaunchConfiguration('mute_warnings')
+    log_level = PythonExpression([
+        "'error' if '", mute_warnings, "' == 'true' else 'warn'"
+    ])
+
     # Get package directory
     pkg_dir = get_package_share_directory('nav_stack')
     config_dir = os.path.join(pkg_dir, 'config')
 
-    # Nav2 parameter file (contains costmap params, planner, controller, bt_navigator)
-    nav2_params_configured = os.path.join(config_dir, 'nav2_params.yaml')
+    # Nav2 parameter file — use PathJoinSubstitution so config_file arg is resolved at launch time
+    nav2_params_configured = PathJoinSubstitution([
+        FindPackageShare('nav_stack'), 'config', LaunchConfiguration('config_file')
+    ])
 
     #allow type conversion
     # nav2_params_configured = ParameterFile(
@@ -58,7 +80,7 @@ def generate_launch_description():
         name='planner_server',
         output='screen',
         parameters=[nav2_params_configured, {'use_sim_time': use_sim_time}],
-        arguments=['--ros-args', '--log-level', 'warn'],
+        arguments=['--ros-args', '--log-level', log_level],
     )
 
     # Controller Server (local planner + local costmap)
@@ -70,7 +92,7 @@ def generate_launch_description():
         name="controller_server",
         output="screen",
         parameters=[nav2_params_configured, {'use_sim_time': use_sim_time}],
-        arguments=['--ros-args', '--log-level', 'warn'],
+        arguments=['--ros-args', '--log-level', log_level],
     )
 
     behavior_server_node = Node(
@@ -79,7 +101,7 @@ def generate_launch_description():
         name='behavior_server',
         output='screen',
         parameters=[nav2_params_configured, {'use_sim_time': use_sim_time}],
-        arguments=['--ros-args', '--log-level', 'warn']
+        arguments=['--ros-args', '--log-level', log_level]
     )
 
     # Behavior Tree Navigator (replaces move_base)
@@ -91,7 +113,7 @@ def generate_launch_description():
         name='bt_navigator',
         output='screen',
         parameters=[nav2_params_configured, {'use_sim_time': use_sim_time, "default_bt_xml_filename": bt_xml}],
-        arguments=['--ros-args', '--log-level', 'warn']
+        arguments=['--ros-args', '--log-level', log_level]
     )
 
     # Lifecycle manager (brings all Nav2 nodes up)
@@ -111,7 +133,7 @@ def generate_launch_description():
                 'behavior_server'
             ]
         }],
-        arguments=['--ros-args', '--log-level', 'warn']
+        arguments=['--ros-args', '--log-level', log_level]
     )
 
 
@@ -119,6 +141,8 @@ def generate_launch_description():
     # Executes all actions in order
     return LaunchDescription([
         use_sim_time_arg,      # Declares launch argument for simulation time
+        config_file_arg,       # Declares config file argument
+        mute_warnings_arg,     # Declares mute_warnings argument
         planner_node,         # Global planner (includes global costmap)
         controller_node,      # Local controller/planner (includes local costmap)
         behavior_server_node, # Behavior server for recovery behaviors

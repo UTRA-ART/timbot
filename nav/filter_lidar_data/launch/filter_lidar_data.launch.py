@@ -14,6 +14,17 @@ def generate_launch_description():
     )
     use_sim_time = LaunchConfiguration('sim')
 
+    # mute_warnings argument — suppresses warning-level log output
+    mute_warnings_arg = DeclareLaunchArgument(
+        'mute_warnings',
+        default_value='false',
+        description='If true, set log level to error instead of warn'
+    )
+    mute_warnings = LaunchConfiguration('mute_warnings')
+    log_level = PythonExpression([
+        "'error' if '", mute_warnings, "' == 'true' else 'warn'"
+    ])
+
     # --- Parameters based on sim/real ---
     # In sim, use 20 degrees for ramp detection; in real, use 45 degrees
     max_theta = PythonExpression([
@@ -33,6 +44,7 @@ def generate_launch_description():
         executable='dual_lidar_filter_node.py',
         name='dual_lidar_filter',
         output='screen',
+        arguments=['--ros-args', '--log-level', log_level],
         parameters=[{
             'use_sim_time': use_sim_time,
             'main_lidar_topic': '/scan_lower',
@@ -52,5 +64,6 @@ def generate_launch_description():
 
     return LaunchDescription([
         use_sim_time_arg,
+        mute_warnings_arg,
         dual_lidar_filter_node,
     ])
