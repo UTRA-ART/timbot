@@ -130,16 +130,16 @@ def generate_launch_description():
     )
     
     # 4. Twist Multiplexer
-    # twist_mux = IncludeLaunchDescription(
-    #     PythonLaunchDescriptionSource([
-    #         FindPackageShare('timbot_twist_mux'),
-    #         '/launch/twist_mux.launch.py'
-    #     ]),
-    #     launch_arguments={
-    #         'cmd_vel_out': 'cmd_vel',
-    #         'use_sim_time': use_sim_time
-    #     }.items()
-    # )
+    twist_mux = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([
+            FindPackageShare('twist_mux'),
+            '/launch/twist_mux_launch.py'
+        ]),
+        launch_arguments={
+            'cmd_vel_out': 'cmd_vel',
+            'use_sim_time': use_sim_time
+        }.items()
+    )
 
     return LaunchDescription([
         use_sim_time_arg,
@@ -150,5 +150,5 @@ def generate_launch_description():
         spawn_robot,
         joint_state_publisher,
         robot_state_publisher,
-        # twist_mux,
+        twist_mux,
     ])
