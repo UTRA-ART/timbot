@@ -26,6 +26,7 @@ def generate_launch_description():
 
     env = os.environ.copy()
     env['IGN_GAZEBO_RESOURCE_PATH'] = gazebo_models_path
+    env['LIBGL_ALWAYS_SOFTWARE'] = '1'
     
     # --- Gazebo Execution Logic ---
     

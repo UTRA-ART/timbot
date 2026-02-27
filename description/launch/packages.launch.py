@@ -126,5 +126,5 @@ def generate_launch_description():
         filter_lidar_launch,
         rviz_node,
         TimerAction(period=2.0, actions=[nav2_launch]),
-        TimerAction(period=4.0, actions=[load_waypoints_launch]),
+        TimerAction(period=5.0, actions=[load_waypoints_launch]),
     ])
