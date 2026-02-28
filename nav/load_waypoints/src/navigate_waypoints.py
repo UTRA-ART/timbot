@@ -31,6 +31,7 @@ import time
 import threading as th
 import utm
 
+from std_srvs.srv import Empty
 
 class NavigateWaypoints(Node):
     def __init__(self):
@@ -83,6 +84,18 @@ class NavigateWaypoints(Node):
         # Set initial waypoint index based on direction
         self.curr_waypoint_idx = 0 if self.start_direction == 1 else len(self.pose_queue) - 2
         self.get_logger().info(f'First goal index: {self.curr_waypoint_idx}, Total waypoints: {len(self.pose_queue)}')
+
+    def clear_costmaps(self):
+        self.get_logger().info('Clearing costmaps before starting mission...')
+        client = self.create_client(Empty, '/global_costmap/clear_entirely_global_costmap')
+        if client.wait_for_service(timeout_sec=2.0):
+            req = Empty.Request()
+            client.call_async(req)
+            
+        client_local = self.create_client(Empty, '/local_costmap/clear_entirely_local_costmap')
+        if client_local.wait_for_service(timeout_sec=2.0):
+            req_local = Empty.Request()
+            client_local.call_async(req_local)
 
     def populate_waypoint_dict(self):
         """Load waypoints from JSON file and convert all to map-frame poses."""
@@ -365,6 +378,7 @@ class NavigateWaypoints(Node):
             self.get_logger().error('No waypoints loaded!')
             return
 
+        self.clear_costmaps()
         while rclpy.ok():
             if self.current_lap >= self.laps:
                 self.get_logger().info('All laps completed!')

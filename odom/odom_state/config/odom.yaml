@@ -172,7 +172,7 @@ ekf_global:
                    false, false, false,
                    false, false, false]
     odom0_queue_size: 10
-    odom0_differential: true
+    odom0_differential: false
     odom0_relative: false
 
     # Reject GPS outliers: innovations > 2 Mahalanobis std devs are discarded.
