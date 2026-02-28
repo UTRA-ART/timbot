@@ -84,8 +84,11 @@ sudo apt-get install python3-pyqt5
 ```
 
 ### Build the Package
+
+Make sure to be in the timbot directory
+
 ```bash
-cd ~/ros2_ws
+cd ~/timbot
 colcon build --packages-select timbot_gui
 source install/setup.bash
 ```
@@ -108,7 +111,7 @@ to a rosbag and writes a `cmd_vel.csv` snapshot in the selected output directory
 # Testing
 1) Launch the GUI
 ```bash
-cd ~/ros2_ws
+cd ~/timbot
 source install/setup.bash
 ros2 run timbot_gui timbot_gui
 ```
