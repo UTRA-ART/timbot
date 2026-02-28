@@ -1,0 +1,8 @@
+[submodule "misc/ds4_driver"]
+	path = misc/ds4_driver
+	url = https://github.com/naoki-mizuno/ds4_driver.git
+	branch = humble-devel
+[submodule "misc/twist_mux"]
+	path = misc/twist_mux
+	url = https://github.com/ros-teleop/twist_mux.git
+	branch = humble
