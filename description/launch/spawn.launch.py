@@ -19,15 +19,15 @@ def generate_launch_description():
     )
     use_sim_time = LaunchConfiguration('sim')
 
-    # mute_warnings argument — suppresses warning-level log output
-    mute_warnings_arg = DeclareLaunchArgument(
-        'mute_warnings',
+    # only_errors argument — suppresses info-level log output
+    only_errors_arg = DeclareLaunchArgument(
+        'only_errors',
         default_value='false',
-        description='If true, set log level to error instead of warn'
+        description='If true, set log level to error instead of info'
     )
-    mute_warnings = LaunchConfiguration('mute_warnings')
+    only_errors = LaunchConfiguration('only_errors')
     log_level = PythonExpression([
-        "'error' if '", mute_warnings, "' == 'true' else 'warn'"
+        "'error' if '", only_errors, "' == 'true' else 'info'"
     ])
 
     # This is currently unused
@@ -155,7 +155,7 @@ def generate_launch_description():
 
     return LaunchDescription([
         use_sim_time_arg,
-        mute_warnings_arg,
+        only_errors_arg,
         # world_type_arg,
         x_arg, y_arg, z_arg, roll_arg, pitch_arg, yaw_arg,
         

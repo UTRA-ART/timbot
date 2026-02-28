@@ -7,6 +7,10 @@ from ament_index_python.packages import get_package_share_directory
 import os
 
 def generate_launch_description():
+    position_covariance = LaunchConfiguration('position_covariance')
+    orientation_covariance = LaunchConfiguration('orientation_covariance')
+    horizontal_stddev = LaunchConfiguration('horizontal_stddev')
+    vertical_stddev = LaunchConfiguration('vertical_stddev')
     
     # 1. Declare the use_sim_time argument (Default to true for safety in this context)
     use_sim_time_arg = DeclareLaunchArgument(
@@ -24,15 +28,15 @@ def generate_launch_description():
         description='Name of the odom config file in odom_state/config/'
     )
 
-    # 3. mute_warnings argument — suppresses warning-level log output
-    mute_warnings_arg = DeclareLaunchArgument(
-        'mute_warnings',
+    # 3. only_errors argument — suppresses info-level log output
+    only_errors_arg = DeclareLaunchArgument(
+        'only_errors',
         default_value='false',
-        description='If true, set log level to error instead of warn'
+        description='If true, set log level to error instead of info'
     )
-    mute_warnings = LaunchConfiguration('mute_warnings')
+    only_errors = LaunchConfiguration('only_errors')
     log_level = PythonExpression([
-        "'error' if '", mute_warnings, "' == 'true' else 'warn'"
+        "'error' if '", only_errors, "' == 'true' else 'info'"
     ])
 
     # 3. Derive launch_state automatically
@@ -102,8 +106,8 @@ def generate_launch_description():
             {'use_sim_time': use_sim_time},
             {'input_topic': '/tracked_pose'},
             {'output_topic': '/tracked_pose_cov'},
-            {'position_covariance': 0.05},
-            {'orientation_covariance': 0.01}
+            {'position_covariance': position_covariance},
+            {'orientation_covariance': orientation_covariance}
         ]
     )
 
@@ -114,15 +118,15 @@ def generate_launch_description():
         output='screen',
         parameters=[
             {'use_sim_time': use_sim_time},
-            {'horizontal_stddev': 3.0},
-            {'vertical_stddev': 4.0}
+            {'horizontal_stddev': horizontal_stddev},
+            {'vertical_stddev': vertical_stddev}
         ]
     )
 
     return LaunchDescription([
         use_sim_time_arg,
         config_file_arg,
-        mute_warnings_arg,
+        only_errors_arg,
         ekf_local,
         pose_relay,
         gps_cov_relay,

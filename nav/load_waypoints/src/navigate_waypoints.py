@@ -23,6 +23,7 @@ from geometry_msgs.msg import PoseStamped
 from std_msgs.msg import Bool
 from sensor_msgs.msg import NavSatFix
 from nav2_msgs.action import NavigateToPose
+from action_msgs.msg import GoalStatus
 
 import json
 import sys
@@ -304,6 +305,9 @@ class NavigateWaypoints(Node):
         # Wait for goal acceptance
         start_time = time.time()
         while self._current_goal_handle is None and (time.time() - start_time) < 10.0:
+            if not rclpy.ok():
+                self.get_logger().info('ROS shutting down, aborting goal acceptance wait.')
+                return False
             time.sleep(0.1)
 
         if self._current_goal_handle is None or not self._current_goal_handle.accepted:
@@ -314,20 +318,33 @@ class NavigateWaypoints(Node):
 
         # Wait for result or ramp interrupt using event-based waiting
         while not self.goal_done_event.is_set():
+            if not rclpy.ok():
+                self.get_logger().info('ROS shutting down, aborting goal execution wait.')
+                return False
+                
             # Check periodically with short timeout
             if self.goal_done_event.wait(timeout=0.5):
                 break
 
+           # Handle ramp interrupt
             with self.cv_ramp_naving:
                 if self.ramp_naving:
                     self.get_logger().info('Navigation interrupted for ramp crossing')
                     if self._current_goal_handle:
                         self._current_goal_handle.cancel_goal_async()
                     self.cv_ramp_naving.wait_for(lambda: not self.ramp_naving)
-                    self.get_logger().info('Resuming waypoint navigation')
-                    return True  # Continue to next waypoint
+                    self.get_logger().info('Ramp crossed. Resuming navigation to the current waypoint.')
+                    
+                    # Return False so the retry loop sends the SAME waypoint again
+                    return False
 
-        self.get_logger().info('Reached waypoint!')
+        # We only reach this point if the goal has finished (success or failure)
+        if self.goal_result and self.goal_result.status == GoalStatus.STATUS_SUCCEEDED:
+            self.get_logger().info(f"Successfully reached: {description}")
+        else:
+            self.get_logger().warn(f"Goal aborted or failed during execution: {description}. Moving to next waypoint.")
+            
+        # Return True so the retry loop breaks and we fetch the next waypoint
         return True
 
     def _goal_response_callback(self, future):
@@ -357,8 +374,17 @@ class NavigateWaypoints(Node):
                 self.get_logger().info('All waypoints visited!')
                 break
 
+            # Fetch the target pose once
             pose, description = self.get_next_waypoint()
-            self.send_goal_to_nav2(pose, description)
+            
+            # Keep trying this specific pose until Nav2 accepts and completes it
+            success = False
+            while rclpy.ok() and not success:
+                success = self.send_goal_to_nav2(pose, description)
+                
+                if not success:
+                    self.get_logger().warn(f"Goal '{description}' was rejected or failed. Retrying in 3 seconds...")
+                    time.sleep(3.0)  # Safe to use time.sleep here because it's in a daemon thread!
 
     def ramp_naving_callback(self, msg):
         """Handle ramp navigation state changes."""
@@ -377,8 +403,8 @@ def main(args=None):
     executor = MultiThreadedExecutor()
     executor.add_node(node)
 
-    # Run navigation in separate thread
-    nav_thread = th.Thread(target=node.navigate_waypoints, name='navigate_waypoints')
+    # Run navigation in separate thread (Add daemon=True)
+    nav_thread = th.Thread(target=node.navigate_waypoints, name='navigate_waypoints', daemon=True)
     nav_thread.start()
 
     try:
@@ -395,8 +421,3 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
-
-            
-
-
-

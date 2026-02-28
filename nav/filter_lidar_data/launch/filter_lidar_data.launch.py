@@ -5,6 +5,18 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
+    main_lidar_topic = LaunchConfiguration('main_lidar_topic')
+    upper_lidar_topic = LaunchConfiguration('upper_lidar_topic')
+    out_topic = LaunchConfiguration('out_topic')
+    distance_to_second_lidar = LaunchConfiguration('distance_to_second_lidar')
+    max_theta_degrees = LaunchConfiguration('max_theta_degrees')
+    compare_lidar_time_tolerance_seconds = LaunchConfiguration('compare_lidar_time_tolerance_seconds')
+    upper_lidar_start_index = LaunchConfiguration('upper_lidar_start_index')
+    upper_lidar_stop_index = LaunchConfiguration('upper_lidar_stop_index')
+    upper_lidar_angular_total_range = LaunchConfiguration('upper_lidar_angular_total_range')
+    main_lidar_angular_total_range = LaunchConfiguration('main_lidar_angular_total_range')
+    limit_output_range = LaunchConfiguration('limit_output_range')
+    desired_output_total_range = LaunchConfiguration('desired_output_total_range')
 
     # --- Arguments ---
     use_sim_time_arg = DeclareLaunchArgument(
@@ -14,15 +26,15 @@ def generate_launch_description():
     )
     use_sim_time = LaunchConfiguration('sim')
 
-    # mute_warnings argument — suppresses warning-level log output
-    mute_warnings_arg = DeclareLaunchArgument(
-        'mute_warnings',
+    # only_errors argument — suppresses info-level log output
+    only_errors_arg = DeclareLaunchArgument(
+        'only_errors',
         default_value='false',
-        description='If true, set log level to error instead of warn'
+        description='If true, set log level to error instead of info'
     )
-    mute_warnings = LaunchConfiguration('mute_warnings')
+    only_errors = LaunchConfiguration('only_errors')
     log_level = PythonExpression([
-        "'error' if '", mute_warnings, "' == 'true' else 'warn'"
+        "'error' if '", only_errors, "' == 'true' else 'info'"
     ])
 
     # --- Parameters based on sim/real ---
@@ -47,23 +59,23 @@ def generate_launch_description():
         arguments=['--ros-args', '--log-level', log_level],
         parameters=[{
             'use_sim_time': use_sim_time,
-            'main_lidar_topic': '/scan_lower',
-            'upper_lidar_topic': '/scan_upper', 
-            'out_topic': '/scan_modified',
-            'distance_to_second_lidar': 0.14,
-            'max_theta_degrees': max_theta,
-            'compare_lidar_time_tolerance_seconds': 2,
-            'upper_lidar_start_index': 0,
-            'upper_lidar_stop_index': upper_stop_index,
-            'upper_lidar_angular_total_range': 360,
-            'main_lidar_angular_total_range': 360,
-            'limit_output_range': True,
-            'desired_output_total_range': 180,
+            'main_lidar_topic': main_lidar_topic,
+            'upper_lidar_topic': upper_lidar_topic,
+            'out_topic': out_topic,
+            'distance_to_second_lidar': distance_to_second_lidar,
+            'max_theta_degrees': max_theta_degrees,
+            'compare_lidar_time_tolerance_seconds': compare_lidar_time_tolerance_seconds,
+            'upper_lidar_start_index': upper_lidar_start_index,
+            'upper_lidar_stop_index': upper_lidar_stop_index,
+            'upper_lidar_angular_total_range': upper_lidar_angular_total_range,
+            'main_lidar_angular_total_range': main_lidar_angular_total_range,
+            'limit_output_range': limit_output_range,
+            'desired_output_total_range': desired_output_total_range,
         }]
     )
 
     return LaunchDescription([
         use_sim_time_arg,
-        mute_warnings_arg,
+        only_errors_arg,
         dual_lidar_filter_node,
     ])

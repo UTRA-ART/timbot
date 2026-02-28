@@ -157,11 +157,19 @@ class RoverNavigator(Node):
 
 ##############################################################################################
 
-if __name__ == "__main__":#
-	# Initializing nav_control node
-	rclpy.init()
+if __name__ == "__main__":
+    # Initializing nav_control node
+    rclpy.init()
+    navigator = RoverNavigator()
 
-	navigator = RoverNavigator()
-
-	# Keep node running until shutting down
-	rclpy.spin(navigator)
+    try:
+        # Keep node running until shutting down
+        rclpy.spin(navigator)
+    except KeyboardInterrupt:
+        # Gracefully catch the Ctrl+C
+        pass
+    finally:
+        # Clean up the node
+        navigator.destroy_node()
+        if rclpy.ok():
+            rclpy.shutdown()

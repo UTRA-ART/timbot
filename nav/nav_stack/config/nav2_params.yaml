@@ -208,7 +208,7 @@ controller_server:
     FollowPath:
       plugin: "dwb_core::DWBLocalPlanner"
       prune_plan: true
-      transform_tolerance: 1.0
+      transform_tolerance: 0.2
       short_circuit_trajectory_evaluation: false
       
       # Trajectory generator - REQUIRED for generating velocity samples

@@ -25,15 +25,15 @@ def generate_launch_description():
         description='Name of the waypoints JSON file in load_waypoints/jsons/'
     )
 
-    # mute_warnings argument — suppresses warning-level log output
-    mute_warnings_arg = DeclareLaunchArgument(
-        'mute_warnings',
+    # only_errors argument — suppresses info-level log output
+    only_errors_arg = DeclareLaunchArgument(
+        'only_errors',
         default_value='false',
-        description='If true, set log level to error instead of warn'
+        description='If true, set log level to error instead of info'
     )
-    mute_warnings = LaunchConfiguration('mute_warnings')
+    only_errors = LaunchConfiguration('only_errors')
     log_level = PythonExpression([
-        "'error' if '", mute_warnings, "' == 'true' else 'warn'"
+        "'error' if '", only_errors, "' == 'true' else 'info'"
     ])
 
     # --- Waypoints File Selection ---
@@ -81,7 +81,7 @@ def generate_launch_description():
     return LaunchDescription([
         use_sim_time_arg,
         config_file_arg,
-        mute_warnings_arg,
+        only_errors_arg,
         navigate_waypoints_node,
         ramp_navigate_node,
         nav_options_node,
