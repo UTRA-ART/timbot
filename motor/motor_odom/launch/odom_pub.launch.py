@@ -1,0 +1,13 @@
+from launch import LaunchDescription
+from launch_ros.actions import Node
+
+
+def generate_launch_description():
+    return LaunchDescription([
+        Node(
+            package='motor_odom',
+            executable='odom_pub_node',
+            name='wheel_odom_pub',
+            output='screen',
+        ),
+    ])

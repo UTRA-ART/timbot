@@ -2,13 +2,14 @@
 <package format="3">
   <name>motor_control</name>
   <version>0.0.0</version>
-  <description>Simple motor control mock</description>
+  <description>Timbot motor control package</description>
   <maintainer email="you@example.com">You</maintainer>
   <license>MIT</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
   <depend>rclpy</depend>
   <depend>geometry_msgs</depend>
+  <depend>std_msgs</depend>
 
   <export>
     <build_type>ament_cmake</build_type>
