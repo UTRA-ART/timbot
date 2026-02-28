@@ -36,9 +36,9 @@
             <max_angular_acceleration>2.0</max_angular_acceleration>
             <min_angular_acceleration>-2.0</min_angular_acceleration>
             <odom_publish_frequency>30</odom_publish_frequency>
-            <topic>cmd_vel</topic>
-            <odom_topic>odom</odom_topic>
-            <tf_topic>tf</tf_topic>
+            <topic>/cmd_vel</topic>
+            <odom_topic>/odom</odom_topic>
+            <tf_topic>/tf</tf_topic>
             <frame_id>odom</frame_id>
             <child_frame_id>base_link</child_frame_id>
         </plugin>
@@ -49,7 +49,7 @@
         <plugin filename="ignition-gazebo-joint-state-publisher-system" name="ignition::gazebo::systems::JointStatePublisher">
             <joint_name>${wheel_left_joint}</joint_name>
             <joint_name>${wheel_right_joint}</joint_name>
-            <topic>joint_states</topic>
+            <topic>/joint_states</topic>
         </plugin>
     </gazebo>
 
@@ -59,7 +59,7 @@
             <always_on>true</always_on>
             <update_rate>${imu_update_rate}</update_rate>
             <visualize>true</visualize>
-            <topic>imu/data</topic>
+            <topic>/imu/data</topic>
             <ignition_frame_id>imu_link</ignition_frame_id>
             <enable_metrics>true</enable_metrics>
             <imu>
@@ -112,19 +112,20 @@
         <sensor name="navsat_sensor" type="navsat">
             <always_on>true</always_on>
             <update_rate>${gps_update_rate}</update_rate>
-            <topic>gps/fix</topic>
+            <topic>/gps/fix</topic>
+            <ignition_frame_id>gps_link</ignition_frame_id>
             <navsat>
                 <position_sensing>
                     <horizontal>
                         <noise type="gaussian">
                             <mean>0.0</mean>
-                            <stddev>0.5</stddev>
+                            <stddev>0.0</stddev>
                         </noise>
                     </horizontal>
                     <vertical>
                         <noise type="gaussian">
                             <mean>0.0</mean>
-                            <stddev>1.0</stddev>
+                            <stddev>0</stddev>
                         </noise>
                     </vertical>
                 </position_sensing>
@@ -132,13 +133,13 @@
                     <horizontal>
                         <noise type="gaussian">
                             <mean>0.0</mean>
-                            <stddev>0.1</stddev>
+                            <stddev>0</stddev>
                         </noise>
                     </horizontal>
                     <vertical>
                         <noise type="gaussian">
                             <mean>0.0</mean>
-                            <stddev>0.1</stddev>
+                            <stddev>0</stddev>
                         </noise>
                     </vertical>
                 </velocity_sensing>
@@ -152,7 +153,7 @@
             <always_on>true</always_on>
             <update_rate>${laser_update_rate}</update_rate>
             <visualize>${laser_visualize}</visualize>
-            <topic>scan_lower</topic>
+            <topic>/scan_lower</topic>
             <ignition_frame_id>bottom_lidar_link</ignition_frame_id>
             <lidar>
                 <scan>
@@ -189,7 +190,7 @@
             <always_on>true</always_on>
             <update_rate>${laser_update_rate}</update_rate>
             <visualize>${laser_visualize}</visualize>
-            <topic>scan_upper</topic>
+            <topic>/scan_upper</topic>
             <ignition_frame_id>top_lidar_link</ignition_frame_id>
             <lidar>
                 <scan>
@@ -226,7 +227,7 @@
             <always_on>true</always_on>
             <update_rate>${ZED_image_refresh}</update_rate>
             <visualize>false</visualize>
-            <topic>zed_node/left/image_raw</topic>
+            <topic>/zed_node/left/image_raw</topic>
             <camera>
                 <horizontal_fov>${ZED_image_hfov}</horizontal_fov>
                 <image>

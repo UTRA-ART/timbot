@@ -1,0 +1,108 @@
+# =============================================================================
+# Timbot Launch Configuration — Simulation
+# =============================================================================
+# Usage: ros2 launch timbot_launch timbot.launch.py config:=sim.yaml
+# =============================================================================
+
+# --- Global Settings ---
+sim: true
+use_topic_check: true  # Set to false to use blind delay_sec instead
+
+# --- Launch Stages (order matters) ---
+# Each stage runs sequentially. If use_topic_check is true, the next stage 
+# starts after the expected topics are alive. Otherwise, it waits for delay_sec.
+
+# --- Stage 1: Gazebo Simulator ---
+gazebo:
+  enabled: true
+  gui: false
+  world_file: track.world
+  only_errors: false
+  delay_sec: 5.0
+  expected_topics: []
+
+# --- Stage 2: Spawn Robot (RSP, bridge, spawn entity) ---
+spawn:
+  enabled: true
+  only_errors: false
+  x: "-19.5"
+  y: "0"
+  z: "0.05"
+  roll: "0"
+  pitch: "0"
+  yaw: "1.5708"
+  delay_sec: 10.0
+  expected_topics:
+    - /clock
+    - /robot_description
+    - /joint_states
+    - /odom
+    - /imu/data
+    - /scan_lower
+
+# --- Stage 3: Odom State (EKF local + global + navsat) ---
+odom_state:
+  enabled: true
+  config_file: odom.yaml
+  only_errors: true
+  delay_sec: 5.0
+  position_covariance: 0.05 # cartographer pose
+  orientation_covariance: 0.01 # cartographer pose
+  horizontal_stddev: 3.0 # gps horizontal error
+  vertical_stddev: 4.0 # gps vertical error
+  expected_topics:
+    - /odometry/local
+
+# --- Stage 4: Filter Lidar Data ---
+filter_lidar:
+  enabled: true
+  only_errors: false
+  delay_sec: 2.0
+  main_lidar_topic: /scan_lower
+  upper_lidar_topic: /scan_upper
+  out_topic: /scan_modified
+  distance_to_second_lidar: 0.14
+  max_theta_degrees: 20.0
+  compare_lidar_time_tolerance_seconds: 2
+  upper_lidar_start_index: 0
+  upper_lidar_stop_index: 1080
+  upper_lidar_angular_total_range: 360
+  main_lidar_angular_total_range: 360
+  limit_output_range: true
+  desired_output_total_range: 180
+  expected_topics:
+    - /scan_modified
+
+# --- Stage 5: Cartographer (SLAM) ---
+cartographer:
+  enabled: true
+  config_file: cartographer.lua
+  only_errors: true
+  delay_sec: 5.0
+  expected_topics:
+    - /map
+
+# --- Stage 6: RViz (Visualization) ---
+rviz:
+  enabled: true
+  only_errors: true
+  delay_sec: 2.0
+  rviz_config: timbot.rviz
+  expected_topics: []
+
+# --- Stage 7: Nav2 Stack ---
+nav_stack:
+  enabled: true
+  config_file: nav2_params.yaml
+  only_errors: true
+  delay_sec: 10.0
+  expected_topics:
+    - /local_costmap/costmap
+
+# --- Stage 8: Load Waypoints ---
+load_waypoints:
+  enabled: true
+  config_file: sim_waypoints.json
+  only_errors: false
+  delay_sec: 2.0
+  expected_topics: []

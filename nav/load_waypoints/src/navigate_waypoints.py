@@ -1,313 +1,437 @@
-from ament_index_python.packages import get_package_share_directory
-from tf2_ros.transform_listener import TransformListener
+#!/usr/bin/env python3
+"""
+Navigate Waypoints Node
+
+Loads GPS waypoints from a JSON file and navigates through them sequentially
+using Nav2. Coordinates with ramp_navigate for ramp crossing.
+"""
+
+import rclpy
+from rclpy.node import Node
 from rclpy.action import ActionClient
+from rclpy.time import Time
+from rclpy.duration import Duration
+from rclpy.executors import MultiThreadedExecutor
+from rclpy.callback_groups import ReentrantCallbackGroup
+
+from ament_index_python.packages import get_package_share_directory
+from tf2_ros.buffer import Buffer
+from tf2_ros.transform_listener import TransformListener
+import tf2_geometry_msgs  # Required to register geometry_msgs types with tf2
+
+from geometry_msgs.msg import PoseStamped
+from std_msgs.msg import Bool
+from sensor_msgs.msg import NavSatFix
+from nav2_msgs.action import NavigateToPose
+from action_msgs.msg import GoalStatus
+
+import json
+import sys
 import time
-
 import threading as th
+import utm
 
+from std_srvs.srv import Empty
 
-class NavigateWaypoints:
-    def __init__(self, static_waypoint_file, max_time_for_transform):
+class NavigateWaypoints(Node):
+    def __init__(self):
+        super().__init__('load_waypoints_server')
+
+        # Get waypoints file from parameter (set by launch file)
+        self.declare_parameter('waypoints_file', '')
+        self.waypoints_file = self.get_parameter('waypoints_file').get_parameter_value().string_value
+
+        if not self.waypoints_file:
+            self.get_logger().error('No waypoints_file parameter provided!')
+            sys.exit(1)
+
+        self.get_logger().info(f'Loading waypoints from: {self.waypoints_file}')
+
+        # State
         self.waypoints = dict()
-        self.static_waypoint_file = static_waypoint_file
-        self.max_time_for_transform = max_time_for_transform
+        self.pose_queue = []  # Queue of (PoseStamped, description) tuples
+        self.max_time_for_transform = 60.0
         self.waited_for_transform = False
-
-        # declare node
-        self.launch_state = node.declare_parameter('/load_waypoints_server/launch_state', """default value""")
         self.ignore_lidar = False
-        self.start_direction = 1
+        self.start_direction = 1 # going clockwise (1)
         self.laps = 0
-
-        self.populate_waypoint_dict()
-
         self.current_lap = 0
-        self.curr_waypoint_idx = 0 if self.start_direction == 1 else len(self.waypoints) - 2
-        node.get_logger().info("First goal: %s" % (self.curr_waypoint_idx))
-
-        self.tf_buffer = Buffer()
-        self.tf_listener = TransformListener(self.tf_buffer, self)
-        self.publisher = node.create_publisher(Bool, '/waypoint_int', 10)
-
+        self.curr_waypoint_idx = 0
+        self.result_received = 0
         self.ramp_naving = False
         self.cv_ramp_naving = th.Condition()
+        self.goal_done_event = th.Event()
+        self.goal_result = None
 
-        self.ramp_wp_sub = node.create_subscription(Bool, 'ramp_naving', self.ramp_naving_callback)
+        # Callback group for action client (reentrant to allow concurrent callbacks)
+        self.action_cb_group = ReentrantCallbackGroup()
 
-        # Used to wait for result after async_send_goal
-        self.result_received = 0
+        # TF2 setup
+        self.tf_buffer = Buffer()
+        self.tf_listener = TransformListener(self.tf_buffer, self)
+
+        # Publishers
+        self.waypoint_pub = self.create_publisher(Bool, '/waypoint_int', 10)
+
+        # Subscribers
+        self.ramp_naving_sub = self.create_subscription(
+            Bool, '/ramp_naving', self.ramp_naving_callback, 10
+        )
+
+        # Load waypoints and convert to poses
+        self.populate_waypoint_dict()
+
+        # Set initial waypoint index based on direction
+        self.curr_waypoint_idx = 0 if self.start_direction == 1 else len(self.pose_queue) - 2
+        self.get_logger().info(f'First goal index: {self.curr_waypoint_idx}, Total waypoints: {len(self.pose_queue)}')
+
+    def clear_costmaps(self):
+        self.get_logger().info('Clearing costmaps before starting mission...')
+        client = self.create_client(Empty, '/global_costmap/clear_entirely_global_costmap')
+        if client.wait_for_service(timeout_sec=2.0):
+            req = Empty.Request()
+            client.call_async(req)
+            
+        client_local = self.create_client(Empty, '/local_costmap/clear_entirely_local_costmap')
+        if client_local.wait_for_service(timeout_sec=2.0):
+            req_local = Empty.Request()
+            client_local.call_async(req_local)
 
     def populate_waypoint_dict(self):
-        '''
-        Description: 
-            Used to populate the waypoint dictionary with i) the static waypoints obtained during competition time and 
-            ii) the first gps coordinate that acts as the final waypoint. 
-        '''
-
-        # Load waypoints into waypoint_data, using ament_index_python as alternative to rospkg
-        # https://robotics.stackexchange.com/questions/86532/ros2-equivalent-of-rospackagegetpath
-        # May not be exactly interchangeable, fix later if necessary
-
-        base_dir = get_package_share_directory('load_waypoints')
-
-        # Load in static waypoints (provided at competition time) 
-        with open(base_dir + '/jsons/'+ self.static_waypoint_file) as f:
-            try:
+        """Load waypoints from JSON file and convert all to map-frame poses."""
+        try:
+            with open(self.waypoints_file, 'r') as f:
                 waypoint_data = json.load(f)
-            except:
-                node.get_logger().info("Invalid JSON")
-                sys.exit(1)
+        except Exception as e:
+            self.get_logger().error(f'Failed to load waypoints file: {e}')
+            sys.exit(1)
 
-        self.start_direction = 1 if waypoint_data["start_direction"] == "north" else -1
-        self.laps = waypoint_data["laps"]
+        self.start_direction = 1 if waypoint_data.get("start_direction", "north") == "north" else -1
+        self.laps = waypoint_data.get("laps", 1)
 
-        node.get_logger().info("start_direction: %s" % (self.start_direction))
+        self.get_logger().info(f'Start direction: {"East" if self.start_direction == 1 else "West"}')
+        self.get_logger().info(f'Laps: {self.laps}')
 
-        # Call method to wait for transform 
+        # Wait for UTM transform (indicates GPS is ready)
         self.waited_for_transform = self.wait_for_utm_transform()
 
-        # Check if successfully waited for the transform within the time limit. If successful, continue populating the waypoint dict. 
-        if self.waited_for_transform:
-            # After waiting UTM transform, capture a message from the gps/fix topic
-            # REPLACE QOS_PROFILE
-            gps_info = rclpy.wait_for_message(NavSatFix, 'navigate_waypoints', 'gps/fix', """qos_profile""", 5)
+        if not self.waited_for_transform:
+            self.get_logger().warn('Waiting for transform from /map to /utm timed out!')
+            return
+
+        # Get initial GPS position and convert to UTM
+        gps_info = self.wait_for_gps_fix()
+        if not gps_info:
+            self.get_logger().error('Failed to get GPS fix')
+            return
+
+        start_utm = utm.from_latlon(gps_info.latitude, gps_info.longitude)
+        self.start_easting = start_utm[0]
+        self.start_northing = start_utm[1]
+        self.utm_zone = start_utm[2]
+        self.utm_letter = start_utm[3]
+        self.get_logger().info(f'Start UTM: ({self.start_easting:.2f}, {self.start_northing:.2f}) Zone {self.utm_zone}{self.utm_letter}')
+
+        frame = waypoint_data["waypoints"][0].get("frame_id", "map")
+
+        # Convert each waypoint lat/lon to UTM, then transform to map frame
+        midpoint_utms = []
+        for wp in waypoint_data["waypoints"]:
+            utm_coords = utm.from_latlon(wp["latitude"], wp["longitude"], force_zone_number=self.utm_zone, force_zone_letter=self.utm_letter)
+            midpoint_utms.append({
+                'easting': utm_coords[0],
+                'northing': utm_coords[1],
+                'description': wp.get("description", f"Waypoint {wp['id']}")
+            })
+            self.get_logger().info(f'Midpoint {wp.get("description", wp["id"])}: UTM ({utm_coords[0]:.2f}, {utm_coords[1]:.2f})')
+
+        # Build waypoint list with corners if requested
+        if waypoint_data.get("add_corners", False):
+            waypoint_utms = self.add_corners_utm(midpoint_utms)
         else:
-            node.get_logger().info("Waiting for transform from /map to /utm timed out!")
-        
-        # Add additional waypoints to the corners of the course to avoid incorrect shortcuts
-        if waypoint_data["add_corners"]:
-            self.add_corners(waypoint_data, gps_info)
-        else:
-            # Parse through json data and create list of lists holding all waypoints
-            for waypoint in waypoint_data["waypoints"]:
-                self.waypoints[waypoint['id']] = waypoint
-        
-        # Append the starting gps coordinate to the waypoints dict as the final waypoint
-        last_coord_idx = len(self.waypoints) 
+            waypoint_utms = midpoint_utms
 
-        # Append a final waypoint to return to the start (i.e. waypoint to return to start)
-        self.waypoints[last_coord_idx] = {
-            'id': last_coord_idx, 
-            'longitude': gps_info.longitude, 
-            'latitude': gps_info.latitude, 
-            'description': 'Initial start location', 
-            'frame_id': waypoint_data["waypoints"][0]["frame_id"] # For now is 'map'
-        }
-
-        # Show waypoints
-        node.get_logger().info("Successfully loaded waypoints dict")
-
-        return
-    
-    def add_corners(self, waypoint_data, gps_info):
-        '''
-        Description: 
-            Add corner waypoints in the lanes to better navigate rover. 
-        '''
-        is_sim = self.launch_state == "sim"
-        frame = waypoint_data["waypoints"][0]["frame_id"]
-        j = 0
-
-        # Account for whether the state is sim because map is rotated to face East instead of North
-        for i in range(len(waypoint_data["waypoints"]) + 3):
-            if i == 0:
-                self.waypoints[i] = {
-                    'id': i, 
-                    'longitude': -79.3905355 if is_sim else gps_info.longitude, 
-                    'latitude': gps_info.latitude + 0.00001 if is_sim else waypoint_data["waypoints"][0]["latitude"], 
-                    'description': "First Corner", 
-                    'frame_id': frame
-                }
-            elif i == 5:
-                self.waypoints[i] = {
-                    'id': i, 
-                    'longitude': -79.38998072 if is_sim else waypoint_data["waypoints"][3]["longitude"], 
-                    'latitude': 43.65714925 if is_sim else waypoint_data["waypoints"][3]["latitude"] - 0.000036, 
-                    'description': "Third Corner", 
-                    'frame_id': frame
-                }
-            elif i == 6:
-                self.waypoints[i] = {
-                    'id': i, 
-                    'longitude': waypoint_data["waypoints"][3]["longitude"] if is_sim else gps_info.longitude, 
-                    'latitude':  gps_info.latitude - 0.00001 if is_sim else waypoint_data["waypoints"][3]["latitude"], 
-                    'description': "Fourth Corner", 
-                    'frame_id': frame
-                }
+        # Convert all UTM coordinates to map-frame poses
+        for i, wp_utm in enumerate(waypoint_utms):
+            pose = self.utm_to_map_pose(wp_utm['easting'], wp_utm['northing'], frame)
+            if pose:
+                self.pose_queue.append((pose, wp_utm['description']))
+                self.get_logger().info(f'Waypoint {i}: {wp_utm["description"]} -> ({pose.pose.position.x:.2f}, {pose.pose.position.y:.2f})')
             else:
-                self.waypoints[i] = waypoint_data["waypoints"][j]
-                self.waypoints[i]["id"] = i
-                j += 1
+                self.get_logger().warn(f'Failed to convert waypoint {i} to map frame')
 
-    def wait_for_utm_transform(self):
-        '''
-        Description: 
-            Used to wait for a transform from the /map frame to /utm frame (which indicates that the GPS is ready). This accounts/simulates for gps start-up time. 
-            Once the transform is detected, this function will exit. 
-        '''
+        self.get_logger().info(f'Loaded {len(self.pose_queue)} waypoints into queue')
 
-        # Initialize transform listener
-        buffer = Buffer()
-        listener = TransformListener(buffer, self)
+    def add_corners_utm(self, midpoints):
+        """
+        Add corner waypoints between midpoints using UTM coordinates.
+        Expects 4 midpoints: East, South, West, North (in order)
+        Robot starts facing east, so we go clockwise starting with SE corner.
+        Returns: 8 waypoints (4 corners + 4 midpoints)
+        """
+        if len(midpoints) != 4:
+            self.get_logger().warn(f'Expected 4 midpoints, got {len(midpoints)}. Skipping corners.')
+            return midpoints
 
-        rate = node.create_rate(10.0)
+        result = []
 
-        start_time = self.get_clock().now()
+        # lop to compute the midpoints:
+        for i in range(4):
+            curr = midpoints[i]
+            next = midpoints[(i + 1) % 4]
+
+            # Compute corner as a combination of current and next midpoints based on the direction of the turn
+            corner_easting = curr['easting'] if self.start_direction == 1 else next['easting']
+            corner_northing = next['northing'] if self.start_direction == 1 else curr['northing']
+            result.append(curr)
+            result.append({
+                'easting': corner_easting,
+                'northing': corner_northing,
+                'description': f'Corner between {curr["description"]} and {next["description"]}'
+            })
+        
+        # move the last point to the start
+        result.insert(0, result.pop())
+        return result
+
+    def utm_to_map_pose(self, easting, northing, frame):
+        """Convert UTM coordinates to a pose in the specified frame."""
+        utm_pose = PoseStamped()
+        utm_pose.header.frame_id = 'utm'
+        utm_pose.header.stamp = self.get_clock().now().to_msg()
+        utm_pose.pose.position.x = easting
+        utm_pose.pose.position.y = northing
+        utm_pose.pose.orientation.w = 1.0
 
         try:
-            while rclpy.ok():
-                time_waited = self.get_clock().now() - start_time
-                if (time_waited) >= self.max_time_for_transform:
-                    node.get_logger().info("Waiting for transform timed out. Time waited for transform: %s s"%(time_waited))
-                    waited_for_transform = False
-                    break
-                else:
-                    try:
-                        now = self.get_clock().now()
-
-                        # Wait for transform from /map to /utm
-                        buffer.lookup_transform("/map", "/utm", now, 5.0)
-                        node.get_logger().info("Transform found. Time waited for transform: %s s"%(self.get_clock().now() - start_time))
-                        waited_for_transform = True
-                        break
-                    except:
-                        pass
-                
-                rate.sleep()
-        except:
-            pass
+            return self.tf_buffer.transform(utm_pose, frame, timeout=Duration(seconds=2))
+        except Exception as e:
+            self.get_logger().error(f'UTM to {frame} transform failed: {e}')
+            return None
         
-        return waited_for_transform
-    
+    def wait_for_gps_fix(self, timeout=10.0):
+        """Wait for a GPS fix message."""
+        gps_msg = None
+
+        def callback(msg):
+            nonlocal gps_msg
+            gps_msg = msg
+
+        sub = self.create_subscription(NavSatFix, '/gps/fix', callback, 10)
+
+        start = time.time()
+        while gps_msg is None and (time.time() - start) < timeout:
+            rclpy.spin_once(self, timeout_sec=0.1)
+
+        self.destroy_subscription(sub)
+        return gps_msg
+
+    def wait_for_utm_transform(self):
+        """Wait for map->utm transform to become available (GPS ready)."""
+        self.get_logger().info('Waiting for map->utm transform...')
+
+        start_time = time.time()
+        while (time.time() - start_time) < self.max_time_for_transform:
+            try:
+                self.tf_buffer.lookup_transform('map', 'utm', Time())
+                self.get_logger().info(f'Transform found after {time.time() - start_time:.1f}s')
+                return True
+            except Exception:
+                rclpy.spin_once(self, timeout_sec=0.1)
+
+        return False
+
     def get_next_waypoint(self):
-        waypoint = self.waypoints[self.curr_waypoint_idx]
-        node.get_logger().info("Next Goal: %s"%(waypoint["description"]))
-        if self.curr_waypoint_idx == 3 and self.start_direction == 1: # curr_waypoint_idx = 2 means heading towards id 2
-            self.ignore_lidar = True 
+        """Get the next waypoint pose and description, update index."""
+        pose, description = self.pose_queue[self.curr_waypoint_idx]
+        self.get_logger().info(f'Next Goal: {description} (idx {self.curr_waypoint_idx})')
+
+        # Determine if we should ignore lidar (e.g., in certain segments)
+        if self.curr_waypoint_idx == 3 and self.start_direction == 1:
+            self.ignore_lidar = True
         elif self.curr_waypoint_idx == 2 and self.start_direction == -1:
-            self.ignore_lidar = True 
+            self.ignore_lidar = True
         else:
             self.ignore_lidar = False
 
-        for i in range(10):
-            publisher.publish(self.ignore_lidar)
+        # Publish ignore lidar state
+        msg = Bool()
+        msg.data = self.ignore_lidar
+        for _ in range(10):
+            self.waypoint_pub.publish(msg)
 
+        # Update index
         self.curr_waypoint_idx += self.start_direction
         if self.curr_waypoint_idx < 0 and self.current_lap < self.laps:
             self.current_lap += 1
-            self.curr_waypoint_idx = len(self.waypoints) - 1
-        elif self.curr_waypoint_idx >= len(self.waypoints) and self.current_lap < self.laps:
+            self.curr_waypoint_idx = len(self.pose_queue) - 1
+        elif self.curr_waypoint_idx >= len(self.pose_queue) and self.current_lap < self.laps:
             self.current_lap += 1
             self.curr_waypoint_idx = 0
-        
-        return waypoint
-    
-    def get_pose_from_gps(self, longitude, latitude, frame, pose_test_var = None):
-        '''converts gps coordinates to frame (odom,map,etc)'''
-        
-        # create PoseStamped message to set up for do_transform_pose
-        utm_coords = utm.from_latlon(latitude, longitude)#latitude and longitude transformed into UTM
+
+        return pose, description
+
+    def get_pose_from_gps(self, longitude, latitude, frame):
+        """Convert GPS coordinates to pose in specified frame."""
+        utm_coords = utm.from_latlon(latitude, longitude)
+
         utm_pose = PoseStamped()
         utm_pose.header.frame_id = 'utm'
+        utm_pose.header.stamp = self.get_clock().now().to_msg()
         utm_pose.pose.position.x = utm_coords[0]
         utm_pose.pose.position.y = utm_coords[1]
-        utm_pose.pose.orientation.w = 1.0 # to make sure its right side up
+        utm_pose.pose.orientation.w = 1.0
 
-        p_in_frame = self.buffer.transform(utm_pose ,"/"+frame, 1.0)
+        try:
+            p_in_frame = self.tf_buffer.transform(utm_pose, frame, timeout=Duration(seconds=1))
+            return p_in_frame
+        except Exception as e:
+            self.get_logger().error(f'Transform failed: {e}')
+            return None
 
-        return p_in_frame
+    def send_goal_to_nav2(self, pose, description):
+        """Send a pre-converted pose to Nav2 and wait for result."""
+        action_client = ActionClient(
+            self, NavigateToPose, '/navigate_to_pose',
+            callback_group=self.action_cb_group
+        )
 
-    def send_and_wait_goal_to_move_base(self, curr_waypoint):
-        # Create an action client called "move_base" with action definition file "MoveBaseAction"
-        action_client = ActionClient(self, MoveBaseAction, '/move_base')
+        if not action_client.wait_for_server(timeout_sec=10.0):
+            self.get_logger().error('Nav2 action server not available!')
+            return False
 
-        # Waits until the action server has started up and started listening for goals.
-        action_client.wait_for_server()
+        # Update timestamp on pose
+        pose.header.stamp = self.get_clock().now().to_msg()
 
-        # Creates a new goal with the NavigateToPose constructor
-        goal = NavigateToPose()
-        goal.pose.header.frame_id = curr_waypoint["frame_id"]
-        goal.pose.header.stamp = self.get_clock().now()
+        goal = NavigateToPose.Goal()
+        goal.pose = pose
 
-        #while not reached Goal, resend the goal. 
-        #if finished goal, send the next goal and start again. 
-        finished_within_time = 0
+        self.get_logger().info(f'Sending goal: {description} ({pose.pose.position.x:.2f}, {pose.pose.position.y:.2f})')
 
-        times = 0
+        self.goal_done_event.clear()
+        self.goal_result = None
+        self._current_goal_handle = None
 
-        # Send goals repeatedly  
-        while 1:
-            # Set goal position and orientation
-            pose = self.get_pose_from_gps(curr_waypoint["longitude"], curr_waypoint["latitude"], curr_waypoint["frame_id"])
-            goal.pose = pose.pose
+        future = action_client.send_goal_async(goal)
+        future.add_done_callback(self._goal_response_callback)
 
-            # Sends goal and waits until the action is completed (or aborted if it is impossible)
-            goal_handle = action_client.send_goal_async(goal)
-            action_client.async_get_result(goal_handle, self.recieve_result)
+        # Wait for goal acceptance
+        start_time = time.time()
+        while self._current_goal_handle is None and (time.time() - start_time) < 10.0:
+            if not rclpy.ok():
+                self.get_logger().info('ROS shutting down, aborting goal acceptance wait.')
+                return False
+            time.sleep(0.1)
 
-            elapsed_time = 0
-            while (time.sleep(0.01)):
-                if result_received == 1:
-                    result_received = 0
-                    break
-                elapsed_time += 0.01
+        if self._current_goal_handle is None or not self._current_goal_handle.accepted:
+            self.get_logger().error('Goal rejected or timed out')
+            return False
 
-                if elapsed_time >= 5:
-                    break
-            
+        self.get_logger().info('Goal accepted, waiting for result...')
+
+        # Wait for result or ramp interrupt using event-based waiting
+        while not self.goal_done_event.is_set():
+            if not rclpy.ok():
+                self.get_logger().info('ROS shutting down, aborting goal execution wait.')
+                return False
+                
+            # Check periodically with short timeout
+            if self.goal_done_event.wait(timeout=0.5):
+                break
+
+           # Handle ramp interrupt
             with self.cv_ramp_naving:
                 if self.ramp_naving:
-                    node.get_logger().info("Normal nav INTERRUPTED") # ramp_navigate.cpp takes over
-                    self.cv_ramp_naving.wait_for(lambda : not self.ramp_naving) # Stalls here (thread blocked) until ramp nav completed 
-                    node.get_logger().info("Returning to waypoint navigation")
-                    break
-                elif finished_within_time:
-                    node.get_logger().info("Reached nav goal")
-                    break
-                else:
-                    times += 1
-    
-    def recieve_result():
-        self.result_received = 1
-        return 1
+                    self.get_logger().info('Navigation interrupted for ramp crossing')
+                    if self._current_goal_handle:
+                        self._current_goal_handle.cancel_goal_async()
+                    self.cv_ramp_naving.wait_for(lambda: not self.ramp_naving)
+                    self.get_logger().info('Ramp crossed. Resuming navigation to the current waypoint.')
+                    
+                    # Return False so the retry loop sends the SAME waypoint again
+                    return False
+
+        # We only reach this point if the goal has finished (success or failure)
+        if self.goal_result and self.goal_result.status == GoalStatus.STATUS_SUCCEEDED:
+            self.get_logger().info(f"Successfully reached: {description}")
+        else:
+            self.get_logger().warn(f"Goal aborted or failed during execution: {description}. Moving to next waypoint.")
+            
+        # Return True so the retry loop breaks and we fetch the next waypoint
+        return True
+
+    def _goal_response_callback(self, future):
+        """Callback when goal response is received."""
+        self._current_goal_handle = future.result()
+        if self._current_goal_handle.accepted:
+            result_future = self._current_goal_handle.get_result_async()
+            result_future.add_done_callback(self._goal_result_callback)
+
+    def _goal_result_callback(self, future):
+        """Callback when goal result is received."""
+        self.goal_result = future.result()
+        self.goal_done_event.set()
 
     def navigate_waypoints(self):
-        while True:
-            curr_waypoint = self.get_next_waypoint()
-            self.send_and_wait_goal_to_move_base(curr_waypoint)
-            if self.ramp_naving:
+        """Main navigation loop - iterates through all waypoints in pose_queue."""
+        if not self.pose_queue:
+            self.get_logger().error('No waypoints loaded!')
+            return
+
+        self.clear_costmaps()
+        while rclpy.ok():
+            if self.current_lap >= self.laps:
+                self.get_logger().info('All laps completed!')
                 break
 
-            if (self.current_lap >= self.laps):
+            if self.curr_waypoint_idx < 0 or self.curr_waypoint_idx >= len(self.pose_queue):
+                self.get_logger().info('All waypoints visited!')
                 break
-    
-    # Constanting updating the threading conditions
-    def ramp_naving_callback(self, ramp_naving):
-        with self.cv_ramp_naving:
-            self.ramp_naving = ramp_naving.data
-            if not self.ramp_naving:
-                self.cv_ramp_naving.notify_all() # Notifies blocked threads to recheck their condition
-    
-    if __name__ == "__main__":
-        # Pick json file with desired GPS coordinates
-        launch_state = node.declare_parameter('/load_waypoints_server/launch_state', """default value""")
-        launch_state = "IGVC"
-        if launch_state == "sim":
-            static_waypoint_file = 'static_waypoints_pavement.json'
-        else:
-            static_waypoint_file = 'IGVC_practice.json'
 
-        rclpy.create_node('navigate_waypoints')
-        waypoints = NavigateWaypoints(static_waypoint_file, max_time_for_transform=60.0)
-    
-        # waypoints.navigate_waypoints()
-        t = th.Thread(target=waypoints.navigate_waypoints)
-        t.start()
-        rclpy.spin(waypoints)
-        t.join()
-        rospy.create_node('Finished Navigating!!')
-
+            # Fetch the target pose once
+            pose, description = self.get_next_waypoint()
             
+            # Keep trying this specific pose until Nav2 accepts and completes it
+            success = False
+            while rclpy.ok() and not success:
+                success = self.send_goal_to_nav2(pose, description)
+                
+                if not success:
+                    self.get_logger().warn(f"Goal '{description}' was rejected or failed. Retrying in 3 seconds...")
+                    time.sleep(3.0)  # Safe to use time.sleep here because it's in a daemon thread!
+
+    def ramp_naving_callback(self, msg):
+        """Handle ramp navigation state changes."""
+        with self.cv_ramp_naving:
+            self.ramp_naving = msg.data
+            if not self.ramp_naving:
+                self.cv_ramp_naving.notify_all()
 
 
+def main(args=None):
+    rclpy.init(args=args)
 
+    node = NavigateWaypoints()
+
+    # Use MultiThreadedExecutor to handle callbacks from background thread
+    executor = MultiThreadedExecutor()
+    executor.add_node(node)
+
+    # Run navigation in separate thread (Add daemon=True)
+    nav_thread = th.Thread(target=node.navigate_waypoints, name='navigate_waypoints', daemon=True)
+    nav_thread.start()
+
+    try:
+        executor.spin()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        nav_thread.join(timeout=5.0)
+        node.destroy_node()
+        executor.shutdown()
+        if rclpy.ok():
+            rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()
