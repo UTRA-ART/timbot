@@ -137,11 +137,11 @@ class RoverNavigator(Node):
         self.get_logger().info("Goal accepted")
 
         # Start timer for timeout (600 seconds)
-        self.timeout_timer = self.create_timer(600.0, self.timeout_cb)
+        self.timeout_timer = self.create_timer(600.0, self.timeout_callback)
 
         # Start waiting for result
         self.result_future = self.goal_handle.get_result_async()
-        self.result_future.add_done_callback(self.result_cb)
+        self.result_future.add_done_callback(self.result_callback)
 
     def timeout_callback(self):
         self.get_logger().info("Time out!")
