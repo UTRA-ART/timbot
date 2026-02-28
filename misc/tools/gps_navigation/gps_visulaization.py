@@ -31,6 +31,14 @@ np.random.seed(19680801)
 
 # plt.show()
 
+fpab = pd.read_csv('gps_testAtoB.csv')
+fpca = pd.read_csv('gps_testCtoA.csv')
+fpbc = pd.read_csv('gps_testBtoC.csv')
+
+def convarr(fp):
+    return fp[['timestamp', 'latitude', 'longitude','altitude']].to_numpy()
+
+
 def lat_lon_to_cartesian(lat, lon, altitude):
     # Convert latitude and longitude to Cartesian coordinates (x, y, z)
 
