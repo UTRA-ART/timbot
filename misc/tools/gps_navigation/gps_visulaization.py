@@ -5,49 +5,63 @@
 # It converts latitude, longitude, and altitude data into Cartesian coordinates.
 #
 # Uses matplotlib for 3D visualization.
+#
+# 1) Read data from specified csv file (or convert bag file to csv first)
+# 2) Extract latitude, longitude, altitude and timestamp data
+# 3) Convert lat, lon, alt to UTM coordinates using pyproj
+# 4) Visualize the Cartesian coordinates in 3D space using matplotlib
+# 
+#
 ###################################################################################################
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from pyproj import Transformer
+
 # Fixing random state for reproducibility
 np.random.seed(19680801)
-
-
-# def randrange(n, vmin, vmax):
-#     """
-#     Helper function to make an array of random numbers having shape (n, )
-#     with each number distributed Uniform(vmin, vmax).
-#     """
-#     return (vmax - vmin)*np.random.rand(n) + vmin
-
-# fig = plt.figure()
-# ax = fig.add_subplot(projection='3d')
-
-# n = 100
-
-# # For each set of style and range settings, plot n random points in the box
-# # defined by x in [23, 32], y in [0, 100], z in [zlow, zhigh].
-# for m, zlow, zhigh in [('o', -50, -25), ('^', -30, -5)]:
-#     xs = randrange(n, 23, 32)
-#     ys = randrange(n, 0, 100)
-#     zs = randrange(n, zlow, zhigh)
-#     ax.scatter(xs, ys, zs, marker=m)
-
-# ax.set_xlabel('X Label')
-# ax.set_ylabel('Y Label')
-# ax.set_zlabel('Z Label')
-
-# plt.show()
 
 fpab = pd.read_csv('data/gps_testAtoB.csv')
 fpca = pd.read_csv('data/gps_testCtoA.csv')
 fpbc = pd.read_csv('data/gps_testBtoC.csv')
 
+# WGS84 lat/lon → ECEF
+lla_to_ecef = Transformer.from_crs(
+    "EPSG:4326",
+    "EPSG:4978",
+    always_xy=True
+)
+
 def convarr(fp):
     return fp[['timestamp', 'latitude', 'longitude','altitude']].to_numpy()
 
+def get_ref_latlonalt(fp):
+    # Get the reference latitude, longitude, and altitude from the first row of the DataFrame
+    ref_lat = fp['latitude'][0]
+    ref_lon = fp['longitude'][0]
+    ref_alt = fp['altitude'][0]
+    return ref_lat, ref_lon, ref_alt
+
+def enu_rotation_matrix(lat, lon):
+    lat = np.radians(lat)
+    lon = np.radians(lon)
+
+    return np.array([
+        [-np.sin(lon),              np.cos(lon),               0],
+        [-np.sin(lat)*np.cos(lon), -np.sin(lat)*np.sin(lon),  np.cos(lat)],
+        [ np.cos(lat)*np.cos(lon),  np.cos(lat)*np.sin(lon),  np.sin(lat)]
+    ])
+
+def lla_to_ecef_xyz(latlonalt):
+    x, y, z = lla_to_ecef.transform(latlonalt[1], latlonalt[0], latlonalt[2])
+    return np.array([x, y, z])
+
+def lla_to_enu(latlonalt):
+    ecef = lla_to_ecef_xyz(latlonalt)
+    delta = ecef - ref_ecef
+    return delta 
 
 def lat_lon_to_cartesian(lat, lon, altitude):
     # Convert latitude and longitude to Cartesian coordinates (x, y, z)
@@ -89,11 +103,14 @@ def visualize_gps_data(cartesian_coords):
 
 # ADD: Use arguments to specify the csv or bag file to visualize
 if __name__ == "__main__":
-    # Example usage
-    latitudes = [43.66093241666667, 43.6611142, 43.66181253333333]
-    longitudes = [-79.39500986666667, -79.39477455, -79.39416395]
-    altitudes = [73, 67, 69] 
+    # Setup reference point for ENU conversion (using the first point in the dataset as reference)
+    fp = fpca  # Example: using the A to B dataset for reference
 
-    cartesian_coordinates = convert_to_cartesian(latitudes, longitudes, altitudes)
-    print(cartesian_coordinates)
-    
+    ref_lat, ref_lon, ref_alt = get_ref_latlonalt(fp)
+    ref_ecef = lla_to_ecef_xyz(np.array([ref_lat, ref_lon, ref_alt]))
+    R = enu_rotation_matrix(ref_lat, ref_lon)
+
+    for i in range(len(fp)):
+        latlonalt = fp[['latitude', 'longitude', 'altitude']].iloc[i].to_numpy()
+        E, N, U = R @ lla_to_enu(latlonalt)
+        print(f"Point {i}: E={E:.2f} m, N={N:.2f} m, U={U:.2f} m")
