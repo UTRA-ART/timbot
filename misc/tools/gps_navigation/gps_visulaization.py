@@ -8,7 +8,7 @@
 #
 # 1) Read data from specified csv file (or convert bag file to csv first)
 # 2) Extract latitude, longitude, altitude and timestamp data
-# 3) Convert lat, lon, alt to UTM coordinates using pyproj
+# 3) Convert lat, lon, alt to ENU coordinates using pyproj
 # 4) Visualize the Cartesian coordinates in 3D space using matplotlib
 # 
 #
@@ -85,32 +85,37 @@ def convert_to_cartesian(latitudes, longitudes, altitudes):
     return cartesian_coords
 
 # Coords are in the form of a list of tuples: [(x1, y1, z1), (x2, y2, z2), ...]
-def visualize_gps_data(cartesian_coords):
+def visualize_gps_data(rover_data):
+    E_vals, N_vals, U_vals = rover_data[:, 0], rover_data[:, 1], rover_data[:, 2]
+
     fig = plt.figure()
-    ax = fig.add_subplot(projection='3d')
+    ax = fig.add_subplot(111, projection="3d")
 
-    # Adds points to the 3D scatter plot using the Cartesian coordinates
-    for coord in cartesian_coords:
-        # ADD: color based on timestamp later
-        ax.scatter(coord[0], coord[1], coord[2], marker='o')
+    ax.plot(E_vals, N_vals, U_vals, marker='o')
+    ax.set_xlabel("East (m)")
+    ax.set_ylabel("North (m)")
+    ax.set_zlabel("Up (m)")
+    ax.set_title("Rover Path (ENU Frame)")
 
-    ax.set_xlabel('X (km)')
-    ax.set_ylabel('Y (km)')
-    ax.set_zlabel('Z (km)')
-
-    ax.set_title('3D Visualization of GPS Data')
     plt.show()
 
 # ADD: Use arguments to specify the csv or bag file to visualize
 if __name__ == "__main__":
-    # Setup reference point for ENU conversion (using the first point in the dataset as reference)
     fp = fpca  # Example: using the A to B dataset for reference
 
+    # Setup reference point for ENU conversion (using the first point in the dataset as reference)
     ref_lat, ref_lon, ref_alt = get_ref_latlonalt(fp)
     ref_ecef = lla_to_ecef_xyz(np.array([ref_lat, ref_lon, ref_alt]))
+
     R = enu_rotation_matrix(ref_lat, ref_lon)
+
+    rover_data = np.empty((0, 3))
 
     for i in range(len(fp)):
         latlonalt = fp[['latitude', 'longitude', 'altitude']].iloc[i].to_numpy()
         E, N, U = R @ lla_to_enu(latlonalt)
-        print(f"Point {i}: E={E:.2f} m, N={N:.2f} m, U={U:.2f} m")
+        print(f"Data Point {i}: Lat={latlonalt[0]}, Lon={latlonalt[1]}, Alt={latlonalt[2]} -> E={E}, N={N}, U={U}")
+        rover_data = np.append(rover_data, [[E, N, U]], axis=0)
+    
+    print(rover_data)
+    visualize_gps_data(rover_data)
