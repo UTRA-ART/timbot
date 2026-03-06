@@ -85,13 +85,33 @@ def convert_to_cartesian(latitudes, longitudes, altitudes):
     return cartesian_coords
 
 # Coords are in the form of a list of tuples: [(x1, y1, z1), (x2, y2, z2), ...]
-def visualize_gps_data(rover_data):
+def visualize_gps_data(rover_data, timestamps):
     E_vals, N_vals, U_vals = rover_data[:, 0], rover_data[:, 1], rover_data[:, 2]
+
+    # Adjust timestamps 0.3<t<1 to ensure non-white color
+    t = timestamps - timestamps.min()
+    if t.max() > 0:
+        t = t / t.max()
+    t = 0.3 + t * 0.7
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection="3d")
 
-    ax.plot(E_vals, N_vals, U_vals, marker='o')
+    # Plot line segments with gradient color
+    for i in range(len(E_vals) - 1):
+        ax.plot(
+            E_vals[i:i+2], N_vals[i:i+2], U_vals[i:i+2],
+            color=plt.cm.Blues(t[i]), linewidth=2
+        )
+
+    # Scatter plot for the color gradient points
+    sc = ax.scatter(E_vals, N_vals, U_vals, c=t, cmap='Blues', vmin=0.3, vmax=1.0, s=10, edgecolors='black', linewidths=0.5)
+
+    cbar = fig.colorbar(sc, ax=ax, shrink=0.6, pad=0.1)
+    cbar.set_ticks([0.3, 1.0])
+    cbar.set_ticklabels(["Start", "End"])
+    cbar.set_label("Time")
+
     ax.set_xlabel("East (m)")
     ax.set_ylabel("North (m)")
     ax.set_zlabel("Up (m)")
@@ -101,7 +121,7 @@ def visualize_gps_data(rover_data):
 
 # ADD: Use arguments to specify the csv or bag file to visualize
 if __name__ == "__main__":
-    fp = fpca  # Example: using the A to B dataset for reference
+    fp = fpab  # Example: using the A to C dataset for reference
 
     # Setup reference point for ENU conversion (using the first point in the dataset as reference)
     ref_lat, ref_lon, ref_alt = get_ref_latlonalt(fp)
@@ -110,6 +130,7 @@ if __name__ == "__main__":
     R = enu_rotation_matrix(ref_lat, ref_lon)
 
     rover_data = np.empty((0, 3))
+    timestamps = fp['timestamp'].to_numpy().astype(float)
 
     for i in range(len(fp)):
         latlonalt = fp[['latitude', 'longitude', 'altitude']].iloc[i].to_numpy()
@@ -118,4 +139,4 @@ if __name__ == "__main__":
         rover_data = np.append(rover_data, [[E, N, U]], axis=0)
     
     print(rover_data)
-    visualize_gps_data(rover_data)
+    visualize_gps_data(rover_data, timestamps)
