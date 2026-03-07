@@ -158,7 +158,7 @@ ekf_global:
                    false, false, false,
                    false, false, false]
     pose0_queue_size: 10
-    pose0_differential: true
+    pose0_differential: false
     pose0_relative: false
 
     ## Odometry Sensor(s) ##
@@ -168,19 +168,19 @@ ekf_global:
     # GPS is the only global reference — it must be absolute here.
     # Cartographer is set to differential to provide smooth incremental corrections
     # on top of the GPS global anchor, avoiding the 2-absolute-inputs conflict.
-    odom0: /odometry/gps
-    odom0_config: [true , true , false,
-                   false, false, false,
-                   false, false, false,
-                   false, false, false,
-                   false, false, false]
-    odom0_queue_size: 10
-    odom0_differential: false
-    odom0_relative: false
+    # odom0: /odometry/gps
+    # odom0_config: [true , true , false,
+    #                false, false, false,
+    #                false, false, false,
+    #                false, false, false,
+    #                false, false, false]
+    # odom0_queue_size: 10
+    # odom0_differential: false
+    # odom0_relative: false
 
-    # Reject GPS outliers: innovations > 2 Mahalanobis std devs are discarded.
-    # Aggressive threshold since GPS is noisy and cartographer provides stable pose.
-    odom0_rejection_threshold: 2.0
+    # # Reject GPS outliers: innovations > 2 Mahalanobis std devs are discarded.
+    # # Aggressive threshold since GPS is noisy and cartographer provides stable pose.
+    # odom0_rejection_threshold: 2.0
 
     # odom2: zed_node/odom
     # odom2_config: [true, true, false,

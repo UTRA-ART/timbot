@@ -156,7 +156,7 @@ def launch_cartographer(config: dict, sim: bool, context: LaunchContext) -> list
         remappings=[
             ('scan', '/scan_modified'),
             ('imu', '/imu/data'),
-            # ('fix', '/gps/fix_cov'),
+            ('fix', '/gps/fix_cov'),
         ]
     )
 
