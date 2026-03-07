@@ -84,8 +84,16 @@ def convert_to_cartesian(latitudes, longitudes, altitudes):
         cartesian_coords.append((x, y, z))
     return cartesian_coords
 
+# Actual GPS positions of waypoints A, B, C (lat, lon)
+# Altitude set to sensor output
+ACTUAL_WAYPOINTS = {
+    'A': (43.6610182, -79.3948450, 73.0),
+    'B': (43.661900,  -79.394179, 70),
+    'C': (43.661505,  -79.396064, 70),
+}
+
 # Coords are in the form of a list of tuples: [(x1, y1, z1), (x2, y2, z2), ...]
-def visualize_gps_data(rover_data, timestamps):
+def visualize_gps_data(rover_data, timestamps, actual_enu=None):
     E_vals, N_vals, U_vals = rover_data[:, 0], rover_data[:, 1], rover_data[:, 2]
 
     # Adjust timestamps 0.3<t<1 to ensure non-white color
@@ -107,6 +115,12 @@ def visualize_gps_data(rover_data, timestamps):
     # Scatter plot for the dark to light blue gradient
     sc = ax.scatter(E_vals, N_vals, U_vals, c=t, cmap='Blues', vmin=0.3, vmax=1.0, s=10, linewidths=1)
 
+    # Plot actual waypoint positions
+    if actual_enu:
+        for label, (e, n, u) in actual_enu.items():
+            ax.scatter(e, n, u, marker='^', s=120, edgecolors='black', zorder=5, color='red')
+            ax.text(e, n, u, f'  {label}', fontsize=10, fontweight='bold')
+    
     ax.set_zlim(-20,20)
 
     cbar = fig.colorbar(sc, ax=ax, shrink=0.6, pad=0.1)
@@ -122,7 +136,7 @@ def visualize_gps_data(rover_data, timestamps):
     plt.show()
 
 
-def processvis(fp):
+def processvis(fp, waypoint_labels=None):
 
     # Setup reference point for ENU conversion (using the first point in the dataset as reference)
     ref_lat, ref_lon, ref_alt = get_ref_latlonalt(fp)
@@ -138,10 +152,20 @@ def processvis(fp):
         E, N, U = R @ lla_to_enu(latlonalt, ref_ecef)
         print(f"Data Point {i}: Lat={latlonalt[0]}, Lon={latlonalt[1]}, Alt={latlonalt[2]} -> E={E}, N={N}, U={U}")
         rover_data = np.append(rover_data, [[E, N, U]], axis=0)
-    
+
+    # Convert actual waypoints to ENU using the same reference
+    actual_enu = None
+    if waypoint_labels:
+        actual_enu = {}
+        for label in waypoint_labels:
+            wlat, wlon,walt = ACTUAL_WAYPOINTS[label]
+            wlatlonalt = np.array([wlat, wlon, walt])
+            E, N, U = R @ lla_to_enu(wlatlonalt, ref_ecef)
+            actual_enu[label] = (E, N, U)
+
     print(rover_data)
-    visualize_gps_data(rover_data, timestamps)
+    visualize_gps_data(rover_data, timestamps, actual_enu=actual_enu)
 
 
 if __name__ == "__main__":
-    processvis(fpbc)
+    processvis(fpab, waypoint_labels=['A', 'B'])
