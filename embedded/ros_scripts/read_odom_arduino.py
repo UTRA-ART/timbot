@@ -69,5 +69,8 @@ if __name__ == '__main__':
                 node.ticks_pub_r.publish(right_msg)
             except:
                 pass
+    
+    node.destroy_node()
+    rclpy.shutdown()
  
 
