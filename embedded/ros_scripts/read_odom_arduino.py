@@ -1,3 +1,25 @@
+'''
+2024-05-11
+
+read from arduino
+
+Directory: electronics/src/read_odom_arduino.py
+Launch file: motor/motor_control/launch/motor_control_odom.launch
+
+subscribes to:
+- left_wheel/command    (Float64)
+- right_wheel/command
+
+publishes to:
+- left_wheel/ticks      (Int32)
+- right_wheel/ticks
+
+params
+- baud_rate
+- ros_rate
+- arduino_port
+'''
+
 import serial
 
 import rclpy
