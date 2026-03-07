@@ -42,28 +42,17 @@ A comprehensive PyQt5-based GUI application for managing and monitoring ROS2 nod
    <img src="LaunchControl.png" alt="Launch control tab" width="900" />
 </p>
 
-### 4. **Rosbag Recording Tab**
-- **Topic Selection**: Checkboxes for all available topics
-- **Bulk Selection**: "Select All" and "Deselect All" buttons for quick topic selection
-- **Custom Output Directory**: Specify where to save rosbag files
-- **Recording Control**: Start and stop recordings with dedicated buttons
-- **Recording Status**: View all active recordings with process IDs
-- **Automatic Cleanup**: All recordings are properly terminated when closing the GUI
-
-<p align="center">
-   <img src="RosbagRecorder.png" alt="Rosbag recording tab" width="900" />
-</p>
-
-### 5. **BagWriter**
+### 4. **BagWriter**
 - **cmd_vel-focused logging**: Records `/cmd_vel` to a rosbag and writes a `cmd_vel.csv` snapshot (throttled to 1 Hz)
-- **Optional extra topics**: Uses the same topic selection list to include additional topics in the bag
+- **Optional extra topics**: Checkboxes for all available topics with "Select All" and "Deselect All" buttons
+- **Custom Output Directory**: Specify where to save rosbag files
 - **Native rosbag2_py**: Uses the Python writer directly instead of the `ros2 bag` CLI
 
 <p align="center">
    <img src="BagWriter.png" alt="BagWriter controls" width="850" />
 </p>
 
-### 6. **Event Log**
+### 5. **Event Log**
 - **Timestamped activity feed**: Captures GUI actions like refreshes, launches, and recordings
 - **Quick auditing**: Helps confirm what started or stopped without checking the terminal
 - **Clearable**: One-click clear for fresh troubleshooting sessions
@@ -105,7 +94,7 @@ The application will open with a tabbed interface showing:
 2. Available topics with monitoring capabilities
 3. Launch control for common subsystems
 
-BagWriter can be started from the Rosbag Recording tab. It records `/cmd_vel`
+BagWriter can be started from the BagWriter panel. It records `/cmd_vel`
 to a rosbag and writes a `cmd_vel.csv` snapshot in the selected output directory.
 
 # Testing
@@ -122,7 +111,7 @@ ros2 run demo_nodes_cpp talker
 ```
 
 3) BagWriter
-Start BagWriter in the Rosbag Recording tab, then publish a single velocity command:
+Start BagWriter in the BagWriter panel, then publish a single velocity command:
 ```bash
 ros2 topic pub /cmd_vel geometry_msgs/msg/Twist \
   '{linear: {x: 0.5, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.1}}'
@@ -148,18 +137,13 @@ and a `cmd_vel.csv` file.
    - Click "Monitor" to see real-time messages
    - Clear the history or close the window when done
 
-4. **Record Data with Rosbag**
-   - Go to "Rosbag Recording" tab
-   - Use "Select All" or manually check topics of interest
+4. **Record Data with BagWriter**
+   - Go to "BagWriter" panel
+   - Use "Select All" or manually check extra topics of interest
    - Set output directory (default: /tmp/rosbags)
-   - Click "Start Recording" to begin capturing data
-   - Click "Stop Recording" to finish and save the rosbag file
+   - Click "Start BagWriter" to begin capturing `/cmd_vel` data
+   - Click "Stop BagWriter" to finish and save the rosbag + CSV
    - Rosbag files can be played back later for analysis: `ros2 bag play /path/to/rosbag`
-
-5. **Log cmd_vel with BagWriter**
-   - Go to "Rosbag Recording" tab and click "Start BagWriter"
-   - Publish `cmd_vel` messages during your test
-   - Click "Stop BagWriter" to save the rosbag and CSV
 
 ## Architecture
 
@@ -192,7 +176,7 @@ and a `cmd_vel.csv` file.
 | Node Management | Manual ros2 commands | One-click buttons |
 | Topic Echo | Separate terminal windows | Integrated monitoring windows |
 | Process Control | Kill with Ctrl+C | Graceful termination with buttons |
-| Rosbag Recording | Complex CLI arguments | Simple UI with topic selection |
+| Rosbag Recording | Complex CLI arguments | BagWriter UI with topic selection |
 | Overview | Scattered across terminals | Central dashboard |
 | User Friendly | Command-line based | Intuitive GUI |
 

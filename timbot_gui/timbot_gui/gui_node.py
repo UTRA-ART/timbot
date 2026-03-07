@@ -8,6 +8,7 @@ import importlib
 from typing import Dict, List, Any, Optional
 from datetime import datetime
 import rclpy
+import rclpy.executors
 from rclpy.node import Node
 from rclpy.callback_groups import ReentrantCallbackGroup
 from rclpy.serialization import serialize_message
@@ -99,7 +100,7 @@ QToolBar {{
     background-color: {C["bg_secondary"]};
     border-bottom: 1px solid {C["border"]};
     padding: 4px 8px;
-    spacing: 6px;    source install/setup.bash && ros2 node list 2>&1 | head -10
+    spacing: 6px;
 }}
 QToolBar QToolButton {{
     background: transparent;
@@ -446,7 +447,7 @@ class KeyboardShortcutDialog(QDialog):
         shortcuts = [
             ("Ctrl+R", "Refresh nodes & topics"),
             ("Ctrl+E", "Emergency stop – kill all processes"),
-            ("Ctrl+B", "Start rosbag recording"),
+            ("Ctrl+B", "Start BagWriter"),
             ("Ctrl+L", "Focus the event log"),
             ("Ctrl+H", "Show this help dialog"),
             ("Ctrl+Q", "Quit application"),
@@ -535,7 +536,7 @@ class RosNodeManager:
     def launch_file(launch_file: str, args: Dict[str, str] = None) -> subprocess.Popen:
         """Launch a ROS launch file"""
         try:
-            cmd = ['ros2', 'launch', launch_file]
+            cmd = ['ros2', 'launch'] + launch_file.split()
             if args:
                 for key, value in args.items():
                     cmd.append(f'{key}:={value}')
@@ -546,21 +547,7 @@ class RosNodeManager:
             print(f"Error launching file: {e}")
         return None
 
-    @staticmethod
-    def record_rosbag(topics: List[str], output_dir: str = "/tmp/rosbags") -> subprocess.Popen:
-        """Record selected topics to a rosbag"""
-        try:
-            os.makedirs(output_dir, exist_ok=True)
-            
-            cmd = ['ros2', 'bag', 'record', '-o', output_dir]
-            cmd.extend(topics)
-            
-            process = subprocess.Popen(cmd, stdout=subprocess.PIPE, 
-                                     stderr=subprocess.PIPE, text=True)
-            return process
-        except Exception as e:
-            print(f"Error recording rosbag: {e}")
-        return None
+
 
 
 def _import_message_type(type_str: str):
@@ -602,8 +589,8 @@ class BagWriter(Node):
     """
 
     def __init__(self, output_dir: str = '/tmp/rosbags',
-                 topics_to_record: Optional[List[str]] = None):
-        super().__init__('bag_writer')
+                 context: Optional[rclpy.Context] = None):
+        super().__init__('bag_writer', context=context)
         self.output_dir = output_dir
         os.makedirs(self.output_dir, exist_ok=True)
 
@@ -624,16 +611,6 @@ class BagWriter(Node):
             serialization_format='cdr',
         )
         self.writer.create_topic(topic_info)
-
-        # Repeat for each extra topic the user selected
-        self._extra_topics = topics_to_record or []
-        for t in self._extra_topics:
-            if t != 'bagtopic':
-                self.writer.create_topic(rosbag2_py.TopicMetadata(
-                    name=t,
-                    type='std_msgs/msg/String',
-                    serialization_format='cdr',
-                ))
 
         # ── Subscription ──
         self.subscription = self.create_subscription(
@@ -698,31 +675,44 @@ class BagWriter(Node):
 
 
 class BagWriterThread(QThread):
-    """Spin a BagWriter node in a background thread."""
+    """Spin a BagWriter node in a dedicated rclpy context."""
     status_update = pyqtSignal(str)  # messages for the event log
 
-    def __init__(self, output_dir: str, topics: Optional[List[str]] = None):
+    def __init__(self, output_dir: str):
         super().__init__()
         self._output_dir = output_dir
-        self._topics = topics
         self._node: Optional[BagWriter] = None
+        self._context: Optional[rclpy.Context] = None
 
     def run(self):
         try:
-            self._node = BagWriter(self._output_dir, self._topics)
+            self._context = rclpy.Context()
+            self._context.init()
+            self._node = BagWriter(
+                self._output_dir,
+                context=self._context,
+            )
+            self._executor = rclpy.executors.SingleThreadedExecutor(
+                context=self._context,
+            )
+            self._executor.add_node(self._node)
             self.status_update.emit('BagWriter node spinning…')
-            rclpy.spin(self._node)
+            self._executor.spin()
         except Exception as e:
-            self.status_update.emit(f'BagWriter error: {e}')
+            # Ignore shutdown-related exceptions (normal when stopping)
+            if self._context and not self._context.ok():
+                pass
+            else:
+                self.status_update.emit(f'BagWriter error: {e}')
         finally:
             if self._node:
                 self._node.destroy_node()
+            if self._context:
+                self._context.try_shutdown()
 
     def stop(self):
-        if self._node:
-            # Trigger shutdown from the rclpy executor
-            self._node.get_logger().info('BagWriter shutting down')
-            rclpy.try_shutdown()
+        if self._context:
+            self._context.try_shutdown()
 
 
 # ════════════════════════════════════════════════════════════════
@@ -739,8 +729,6 @@ class TimbotControlPanel(QMainWindow):
         self.active_monitors: Dict[str, Any] = {}        # topic -> subscription obj
         self._topic_displays: Dict[str, QListWidget] = {}  # topic -> QListWidget
         self.launched_processes: Dict[str, subprocess.Popen] = {}
-        self.active_rosbag_recording: Dict[str, subprocess.Popen] = {}
-        self.rosbag_topic_checkboxes: Dict[str, QCheckBox] = {}
         self.launch_buttons: Dict[str, QPushButton] = {}
         self.process_status_timer = None
         self.bag_writer_thread: Optional[BagWriterThread] = None
@@ -1001,36 +989,7 @@ class TimbotControlPanel(QMainWindow):
         return panel
 
     def _build_rosbag_panel(self) -> CollapsiblePanel:
-        panel = CollapsiblePanel("Rosbag Recording")
-
-        sl = QLabel("Select topics to record:")
-        sl.setStyleSheet(f"color: {C['text_secondary']}; font-weight: 600;")
-        panel.add_widget(sl)
-
-        # Scrollable checkboxes
-        self.rosbag_scroll = QScrollArea()
-        self.rosbag_scroll.setWidgetResizable(True)
-        self.rosbag_scroll.setMaximumHeight(150)
-        cb_w = QWidget()
-        self.rosbag_cb_layout = QVBoxLayout(cb_w)
-        topics = self.ros_manager.get_topic_list()
-        self.rosbag_topic_checkboxes.clear()
-        for t in topics:
-            cb = QCheckBox(f"{t['name']}  ({t['type']})")
-            self.rosbag_topic_checkboxes[t['name']] = cb
-            self.rosbag_cb_layout.addWidget(cb)
-        self.rosbag_scroll.setWidget(cb_w)
-        panel.add_widget(self.rosbag_scroll)
-
-        # Buttons
-        brow = QHBoxLayout()
-        for txt, slot in [("Refresh", self.refresh_rosbag_topics),
-                          ("Select All", self.select_all_topics),
-                          ("Deselect All", self.deselect_all_topics)]:
-            b = QPushButton(txt)
-            b.clicked.connect(slot)
-            brow.addWidget(b)
-        panel.add_layout(brow)
+        panel = CollapsiblePanel("BagWriter")
 
         # Output dir with inline validation
         drow = QHBoxLayout()
@@ -1045,58 +1004,6 @@ class TimbotControlPanel(QMainWindow):
         drow.addWidget(self.rosbag_output_dir, 1)
         drow.addWidget(self.dir_validation_lbl)
         panel.add_layout(drow)
-
-        # Progress (indeterminate – visible only while recording)
-        self.recording_progress = QProgressBar()
-        self.recording_progress.setRange(0, 0)
-        self.recording_progress.setVisible(False)
-        self.recording_progress.setToolTip("Recording in progress…")
-        panel.add_widget(self.recording_progress)
-
-        # Start / Stop
-        crow = QHBoxLayout()
-        start = QPushButton("●  Start Recording")
-        start.setToolTip("Begin rosbag capture for checked topics  (Ctrl+B)")
-        start.setStyleSheet(f"""
-            QPushButton {{
-                background-color: {C["success"]}; color: white; font-weight: 700;
-                border: none; border-radius: 4px; padding: 7px 14px;
-            }}
-            QPushButton:hover {{ background-color: {C["success_dark"]}; }}
-        """)
-        start.clicked.connect(self.start_rosbag_recording)
-        crow.addWidget(start)
-
-        stop = QPushButton("■  Stop Recording")
-        stop.setToolTip("Stop the selected rosbag recording")
-        stop.setStyleSheet(f"""
-            QPushButton {{
-                background-color: {C["danger"]}; color: white; font-weight: 700;
-                border: none; border-radius: 4px; padding: 7px 14px;
-            }}
-            QPushButton:hover {{ background-color: {C["danger_dark"]}; }}
-        """)
-        stop.clicked.connect(self.stop_rosbag_recording)
-        crow.addWidget(stop)
-        panel.add_layout(crow)
-
-        rl = QLabel("Active Recordings")
-        rl.setStyleSheet(f"color: {C['text_secondary']}; font-weight: 600; padding-top: 4px;")
-        panel.add_widget(rl)
-
-        self.rosbag_list = QListWidget()
-        self.rosbag_list.setMaximumHeight(100)
-        panel.add_widget(self.rosbag_list)
-
-        # ── BagWriter (native rosbag2_py recording of cmd_vel + CSV) ──
-        bw_sep = QFrame()
-        bw_sep.setFrameShape(QFrame.HLine)
-        bw_sep.setStyleSheet(f"color: {C['border']};")
-        panel.add_widget(bw_sep)
-
-        bw_label = QLabel("BagWriter (cmd_vel → ROSBAG + CSV)")
-        bw_label.setStyleSheet(f"color: {C['accent_light']}; font-weight: 700; padding-top: 4px;")
-        panel.add_widget(bw_label)
 
         if not HAS_ROSBAG2:
             no_dep = QLabel("⚠  rosbag2_py not found — install ros-humble-rosbag2-py")
@@ -1188,12 +1095,13 @@ class TimbotControlPanel(QMainWindow):
     # ── Toolbar actions ───────────────────────────────────────
 
     def _emergency_stop(self):
-        if not self.launched_processes and not self.active_rosbag_recording:
+        bw_running = self.bag_writer_thread and self.bag_writer_thread.isRunning()
+        if not self.launched_processes and not bw_running:
             QMessageBox.information(self, "E-Stop", "No active processes to stop.")
             return
         reply = QMessageBox.warning(
             self, "⛔ Emergency Stop",
-            "This will terminate ALL running launch files and rosbag recordings.\n\nContinue?",
+            "This will terminate ALL running launch files and the BagWriter.\n\nContinue?",
             QMessageBox.Yes | QMessageBox.No, QMessageBox.No,
         )
         if reply != QMessageBox.Yes:
@@ -1205,17 +1113,13 @@ class TimbotControlPanel(QMainWindow):
                 count += 1
             except Exception:
                 pass
-        for p in list(self.active_rosbag_recording.values()):
-            try:
-                p.terminate()
-                count += 1
-            except Exception:
-                pass
+        if self.bag_writer_thread and self.bag_writer_thread.isRunning():
+            self.bag_writer_thread.stop()
+            self.bag_writer_thread.wait(3000)
+            self._on_bw_finished()
+            count += 1
         self.launched_processes.clear()
-        self.active_rosbag_recording.clear()
         self.process_list.clear()
-        self.rosbag_list.clear()
-        self.recording_progress.setVisible(False)
         self.status_badge.set_state("idle")
         danger = C["danger"]
         self._log(f"<b style='color:{danger}'>E-STOP</b> — terminated {count} process(es)")
@@ -1241,7 +1145,7 @@ class TimbotControlPanel(QMainWindow):
     def _register_shortcuts(self):
         QShortcut(QKeySequence("Ctrl+R"), self).activated.connect(self._refresh_all)
         QShortcut(QKeySequence("Ctrl+E"), self).activated.connect(self._emergency_stop)
-        QShortcut(QKeySequence("Ctrl+B"), self).activated.connect(self.start_rosbag_recording)
+        QShortcut(QKeySequence("Ctrl+B"), self).activated.connect(self._start_bag_writer)
         QShortcut(QKeySequence("Ctrl+H"), self).activated.connect(self._show_help)
         QShortcut(QKeySequence("Ctrl+L"), self).activated.connect(
             lambda: self.log_output.setFocus()
@@ -1249,78 +1153,6 @@ class TimbotControlPanel(QMainWindow):
         QShortcut(QKeySequence("Ctrl+Q"), self).activated.connect(self.close)
 
     # ── Core data-flow methods (logic preserved) ──────────────
-
-    def refresh_rosbag_topics(self):
-        self.rosbag_topic_checkboxes.clear()
-        cb_w = QWidget()
-        cb_lay = QVBoxLayout(cb_w)
-        topics = self.ros_manager.get_topic_list()
-        for t in topics:
-            cb = QCheckBox(f"{t['name']}  ({t['type']})")
-            self.rosbag_topic_checkboxes[t['name']] = cb
-            cb_lay.addWidget(cb)
-        self.rosbag_scroll.setWidget(cb_w)
-        self._log("Rosbag topic list refreshed")
-
-    def select_all_topics(self):
-        for cb in self.rosbag_topic_checkboxes.values():
-            cb.setChecked(True)
-
-    def deselect_all_topics(self):
-        for cb in self.rosbag_topic_checkboxes.values():
-            cb.setChecked(False)
-
-    def start_rosbag_recording(self):
-        selected = [t for t, cb in self.rosbag_topic_checkboxes.items() if cb.isChecked()]
-        if not selected:
-            QMessageBox.warning(self, "Rosbag", "Select at least one topic to record.")
-            return
-        output_dir = self.rosbag_output_dir.text()
-        if not os.path.isabs(output_dir):
-            QMessageBox.warning(self, "Validation Error",
-                                "Output directory must be an absolute path.")
-            return
-        try:
-            process = self.ros_manager.record_rosbag(selected, output_dir)
-            if process:
-                name = f"Recording {len(self.active_rosbag_recording) + 1} – {len(selected)} topics"
-                self.active_rosbag_recording[name] = process
-                self.rosbag_list.addItem(f"{name}  (PID {process.pid})")
-                self.recording_progress.setVisible(True)
-                self.status_badge.set_state("recording")
-                self._log(f"Rosbag recording started → <b>{output_dir}</b>")
-            else:
-                QMessageBox.warning(self, "Error", "Failed to start rosbag recording.")
-        except Exception as e:
-            QMessageBox.warning(self, "Error", f"Could not start recording: {e}")
-
-    def stop_rosbag_recording(self):
-        current = self.rosbag_list.currentItem()
-        if not current:
-            QMessageBox.warning(self, "Rosbag", "Select a recording to stop.")
-            return
-        reply = QMessageBox.question(
-            self, "Stop Recording",
-            "Stop the selected rosbag recording?",
-            QMessageBox.Yes | QMessageBox.No, QMessageBox.No,
-        )
-        if reply != QMessageBox.Yes:
-            return
-        text = current.text()
-        for name, proc in list(self.active_rosbag_recording.items()):
-            if name in text:
-                try:
-                    proc.terminate()
-                    proc.wait(timeout=5)
-                    self.rosbag_list.takeItem(self.rosbag_list.row(current))
-                    del self.active_rosbag_recording[name]
-                    self._log(f"Rosbag stopped — saved to <b>{self.rosbag_output_dir.text()}</b>")
-                except Exception as e:
-                    QMessageBox.warning(self, "Error", f"Could not stop recording: {e}")
-                break
-        if not self.active_rosbag_recording:
-            self.recording_progress.setVisible(False)
-            self._update_global_status()
 
     # ── BagWriter controls ────────────────────────────────────
 
@@ -1338,10 +1170,7 @@ class TimbotControlPanel(QMainWindow):
             QMessageBox.warning(self, "Validation",
                                 "Output directory must be an absolute path.")
             return
-        # Collect checked topics (in addition to /cmd_vel which is always recorded)
-        extras = [t for t, cb in self.rosbag_topic_checkboxes.items()
-                  if cb.isChecked()]
-        self.bag_writer_thread = BagWriterThread(output_dir, extras)
+        self.bag_writer_thread = BagWriterThread(output_dir)
         self.bag_writer_thread.status_update.connect(self._on_bw_status)
         self.bag_writer_thread.finished.connect(self._on_bw_finished)
         self.bag_writer_thread.start()
@@ -1569,7 +1398,7 @@ class TimbotControlPanel(QMainWindow):
         self._update_global_status()
 
     def _update_global_status(self):
-        if self.active_rosbag_recording:
+        if self.bag_writer_thread and self.bag_writer_thread.isRunning():
             self.status_badge.set_state("recording")
         elif self.launched_processes:
             self.status_badge.set_state("running")
@@ -1591,11 +1420,6 @@ class TimbotControlPanel(QMainWindow):
         if hasattr(self, '_spin_timer'):
             self._spin_timer.stop()
         for proc in self.launched_processes.values():
-            try:
-                proc.terminate()
-            except Exception:
-                pass
-        for proc in self.active_rosbag_recording.values():
             try:
                 proc.terminate()
             except Exception:
