@@ -50,7 +50,7 @@ odom_state:
   delay_sec: 5.0
   position_covariance: 0.05 # cartographer pose
   orientation_covariance: 0.01 # cartographer pose
-  horizontal_stddev: 5e-6 # gps horizontal error
+  horizontal_stddev: 5.0 # gps horizontal error - in meters
   vertical_stddev: 0.0 # gps vertical error
   expected_topics:
     - /odometry/local

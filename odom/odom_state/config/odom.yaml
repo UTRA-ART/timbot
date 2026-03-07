@@ -158,13 +158,16 @@ ekf_global:
                    false, false, false,
                    false, false, false]
     pose0_queue_size: 10
-    pose0_differential: false
+    pose0_differential: true
     pose0_relative: false
 
     ## Odometry Sensor(s) ##
 
-    # GPS odometry from navsat (differential position correction)
-    # Provides global x, y drift correction on top of cartographer's local SLAM
+    # GPS odometry from navsat (absolute global anchor)
+    # Cartographer (pose0) has no GPS so it can drift globally.
+    # GPS is the only global reference — it must be absolute here.
+    # Cartographer is set to differential to provide smooth incremental corrections
+    # on top of the GPS global anchor, avoiding the 2-absolute-inputs conflict.
     odom0: /odometry/gps
     odom0_config: [true , true , false,
                    false, false, false,
@@ -174,13 +177,6 @@ ekf_global:
     odom0_queue_size: 10
     odom0_differential: false
     odom0_relative: false
-
-    odom0_pose_covariance: [1.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-                        0.0, 1.0, 0.0, 0.0, 0.0, 0.0,
-                        0.0, 0.0, 1.0, 0.0, 0.0, 0.0,
-                        0.0, 0.0, 0.0, 1.0, 0.0, 0.0,
-                        0.0, 0.0, 0.0, 0.0, 1.0, 0.0,
-                        0.0, 0.0, 0.0, 0.0, 0.0, 1.0]
 
     # Reject GPS outliers: innovations > 2 Mahalanobis std devs are discarded.
     # Aggressive threshold since GPS is noisy and cartographer provides stable pose.
