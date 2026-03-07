@@ -58,10 +58,10 @@ def lla_to_ecef_xyz(latlonalt):
     x, y, z = lla_to_ecef.transform(latlonalt[1], latlonalt[0], latlonalt[2])
     return np.array([x, y, z])
 
-def lla_to_enu(latlonalt):
+def lla_to_enu(latlonalt, ref_ecef):
     ecef = lla_to_ecef_xyz(latlonalt)
     delta = ecef - ref_ecef
-    return delta 
+    return delta
 
 def lat_lon_to_cartesian(lat, lon, altitude):
     # Convert latitude and longitude to Cartesian coordinates (x, y, z)
@@ -104,8 +104,10 @@ def visualize_gps_data(rover_data, timestamps):
             color=plt.cm.Blues(t[i]), linewidth=2
         )
 
-    # Scatter plot for the color gradient points
-    sc = ax.scatter(E_vals, N_vals, U_vals, c=t, cmap='Blues', vmin=0.3, vmax=1.0, s=10, edgecolors='black', linewidths=0.5)
+    # Scatter plot for the dark to light blue gradient
+    sc = ax.scatter(E_vals, N_vals, U_vals, c=t, cmap='Blues', vmin=0.3, vmax=1.0, s=10, linewidths=1)
+
+    ax.set_zlim(-20,20)
 
     cbar = fig.colorbar(sc, ax=ax, shrink=0.6, pad=0.1)
     cbar.set_ticks([0.3, 1.0])
@@ -119,9 +121,8 @@ def visualize_gps_data(rover_data, timestamps):
 
     plt.show()
 
-# ADD: Use arguments to specify the csv or bag file to visualize
-if __name__ == "__main__":
-    fp = fpab  # Example: using the A to C dataset for reference
+
+def processvis(fp):
 
     # Setup reference point for ENU conversion (using the first point in the dataset as reference)
     ref_lat, ref_lon, ref_alt = get_ref_latlonalt(fp)
@@ -134,9 +135,13 @@ if __name__ == "__main__":
 
     for i in range(len(fp)):
         latlonalt = fp[['latitude', 'longitude', 'altitude']].iloc[i].to_numpy()
-        E, N, U = R @ lla_to_enu(latlonalt)
+        E, N, U = R @ lla_to_enu(latlonalt, ref_ecef)
         print(f"Data Point {i}: Lat={latlonalt[0]}, Lon={latlonalt[1]}, Alt={latlonalt[2]} -> E={E}, N={N}, U={U}")
         rover_data = np.append(rover_data, [[E, N, U]], axis=0)
     
     print(rover_data)
     visualize_gps_data(rover_data, timestamps)
+
+
+if __name__ == "__main__":
+    processvis(fpbc)
