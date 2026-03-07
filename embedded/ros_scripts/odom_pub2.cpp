@@ -1,3 +1,39 @@
+/*
+ * 2023-04-29
+ * gets ticks per second from each wheel and publishes linear and angular velocity
+ * from https://automaticaddison.com/how-to-publish-wheel-odometry-information-over-ros/
+ * note: tutorial is in Melodic
+ * 
+ * subscribed to:
+ *   right_wheel/ticks  (ticks since last, Float64)
+ *   left_wheel/ticks
+ *   right_wheel/direction (bool)
+ *   left_wheel/direction
+ *   rover_pose/set        (geometry_msgs/PoseStamped)
+ *   rover_pose/reset      (bool)
+ * 
+ * publishes to:
+ *   wheel_odom/euler
+ *   wheel_odom/quat
+ * 
+ * resources
+ *   tcp_nodelay: https://answers.ros.org/question/360038/what-are-the-differences-between-the-different-transporthints/
+ *   covariance matrix: https://answers.ros.org/question/64759/covariance-matrix-for-vo-and-odom/
+ *   motion model: https://www.roboticsbook.org/S52_diffdrive_actions.html
+ *   publish geometry_msgs/PoseStamped message: https://answers.ros.org/question/47973/publishing-to-move_base_simplegoal/
+ *      
+ *  
+ * 2024-04-10
+ * fix direction issue - direction retrieved from command messages and
+ * and combined with directionless ticks/s from hall effect sensors
+ * 
+ * 2024-05-20
+ * subscribe to wheel/ticks instead, not necessarily ticks_ps
+ * 
+ * 2024-06-01
+ * subscribe to rover_pose to reset position without relaunching
+*/
+
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2_ros/transform_broadcaster.h>
 #include <time.h>
