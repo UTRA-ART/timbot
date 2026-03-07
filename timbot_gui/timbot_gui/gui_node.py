@@ -28,7 +28,6 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtWidgets import QHeaderView
 from PyQt5.QtCore import QThread, pyqtSignal, Qt, QTimer, QSize
 from PyQt5.QtGui import QColor, QFont, QIcon, QPixmap, QKeySequence
-from std_msgs.msg import String
 from geometry_msgs.msg import Twist
 
 
@@ -582,10 +581,8 @@ class GuiNode(Node):
 class BagWriter(Node):
     """ROS2 node that records cmd_vel to a rosbag + CSV log.
 
-    Matches the original bagwriter.txt format:
-    - Bag topic: 'bagtopic' as std_msgs/msg/String
-    - Message format: "Linear: x, y, z\\nAngular: x, y, z\\n\\n"
-    - CSV: overwritten each callback, throttled to 1 Hz
+    Records the native Twist message on cmd_vel in MCAP format.
+    CSV is appended at 1 Hz with timestamped velocity entries.
     """
 
     def __init__(self, output_dir: str = '/tmp/rosbags',
@@ -599,15 +596,14 @@ class BagWriter(Node):
         bag_uri = os.path.join(self.output_dir, f'bag_{ts}')
         self.writer = rosbag2_py.SequentialWriter()
         storage_options = rosbag2_py.StorageOptions(
-            uri=bag_uri, storage_id='sqlite3'
+            uri=bag_uri, storage_id='mcap'
         )
         converter_options = rosbag2_py.ConverterOptions('', '')
         self.writer.open(storage_options, converter_options)
 
-        # Create 'bagtopic' as String, matching original script
         topic_info = rosbag2_py.TopicMetadata(
-            name='bagtopic',
-            type='std_msgs/msg/String',
+            name='cmd_vel',
+            type='geometry_msgs/msg/Twist',
             serialization_format='cdr',
         )
         self.writer.create_topic(topic_info)
@@ -619,6 +615,7 @@ class BagWriter(Node):
 
         # Log to csv file at most once per second
         self._csv_path = os.path.join(self.output_dir, 'cmd_vel.csv')
+        self._csv_initialized = False
         self.nextSecond = 0
 
         self.get_logger().info(
@@ -635,33 +632,29 @@ class BagWriter(Node):
         angy = data.angular.y
         angz = data.angular.z
 
-        message = String()
-        message.data = (
-            f"Linear: {linx}, {liny}, {linz}\n"
-            f"Angular: {angx}, {angy}, {angz}\n\n"
-        )
-
         now_ns = self.get_clock().now().nanoseconds
         now_s = now_ns // 1_000_000_000
 
         if now_s >= self.nextSecond:
-            # Write to csv file (overwrite, matching original format)
-            with open(self._csv_path, 'w', newline='') as csvfile:
-                velWriter = csv.writer(
-                    csvfile, delimiter='\n', quotechar='|',
-                    quoting=csv.QUOTE_MINIMAL,
-                )
+            # Write header on first CSV write, then append rows
+            write_header = not self._csv_initialized
+            with open(self._csv_path, 'a', newline='') as csvfile:
+                velWriter = csv.writer(csvfile)
+                if write_header:
+                    velWriter.writerow([
+                        'time_s', 'lin_x', 'lin_y', 'lin_z',
+                        'ang_x', 'ang_y', 'ang_z',
+                    ])
+                    self._csv_initialized = True
                 velWriter.writerow([
-                    f"Linear: {linx}, {liny}, {linz}",
-                    f"Angular: {angx}, {angy}, {angz}",
-                    f"Time: {now_s} seconds",
+                    now_s, linx, liny, linz, angx, angy, angz,
                 ])
             self.nextSecond = now_s + 1
 
-        # Write String message to 'bagtopic'
+        # Write native Twist message to 'cmd_vel'
         self.writer.write(
-            'bagtopic',
-            serialize_message(message),
+            'cmd_vel',
+            serialize_message(data),
             now_ns,
         )
 
@@ -1015,7 +1008,7 @@ class TimbotControlPanel(QMainWindow):
             self.bw_start_btn = QPushButton("▶  Start BagWriter")
             self.bw_start_btn.setToolTip(
                 "Spin a BagWriter ROS node that subscribes to /cmd_vel,\n"
-                "writes an MCAP rosbag, and logs a CSV (throttled 1 Hz)."
+                "records native Twist messages in MCAP format, and appends a CSV log (1 Hz)."
             )
             self.bw_start_btn.setStyleSheet(f"""
                 QPushButton {{
