@@ -66,15 +66,15 @@ def generate_launch_description():
         description='Name of the .world file in gazebo_worlds/worlds/'
     )
 
-    only_errors_arg = DeclareLaunchArgument(
-        'only_errors',
-        default_value='false',
-        description='If true, set log level to error instead of info'
+    log_level_arg = DeclareLaunchArgument(
+        'log_level',
+        default_value='info',
+        description='Log level: debug, info, warn, error'
     )
 
     return LaunchDescription([
         gui_arg,
         world_file_arg,
-        only_errors_arg,
+        log_level_arg,
         OpaqueFunction(function=_setup_gazebo),
     ])

@@ -26,16 +26,13 @@ def generate_launch_description():
     )
     use_sim_time = LaunchConfiguration('sim')
 
-    # only_errors argument — suppresses info-level log output
-    only_errors_arg = DeclareLaunchArgument(
-        'only_errors',
-        default_value='false',
-        description='If true, set log level to error instead of info'
+    # log_level argument — controls verbosity (debug, info, warn, error)
+    log_level_arg = DeclareLaunchArgument(
+        'log_level',
+        default_value='info',
+        description='Log level: debug, info, warn, error'
     )
-    only_errors = LaunchConfiguration('only_errors')
-    log_level = PythonExpression([
-        "'error' if '", only_errors, "' == 'true' else 'info'"
-    ])
+    log_level = LaunchConfiguration('log_level')
 
     # --- Parameters based on sim/real ---
     # In sim, use 20 degrees for ramp detection; in real, use 45 degrees
@@ -76,6 +73,6 @@ def generate_launch_description():
 
     return LaunchDescription([
         use_sim_time_arg,
-        only_errors_arg,
+        log_level_arg,
         dual_lidar_filter_node,
     ])
