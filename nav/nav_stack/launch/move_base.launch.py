@@ -35,16 +35,13 @@ def generate_launch_description():
         description='Name of the nav2 config file in nav_stack/config/'
     )
 
-    # only_errors argument — suppresses info-level log output
-    only_errors_arg = DeclareLaunchArgument(
-        'only_errors',
-        default_value='false',
-        description='If true, set log level to error instead of info'
+    # log_level argument — controls verbosity (debug, info, warn, error)
+    log_level_arg = DeclareLaunchArgument(
+        'log_level',
+        default_value='info',
+        description='Log level: debug, info, warn, error'
     )
-    only_errors = LaunchConfiguration('only_errors')
-    log_level = PythonExpression([
-        "'error' if '", only_errors, "' == 'true' else 'info'"
-    ])
+    log_level = LaunchConfiguration('log_level')
 
     # Get package directory
     pkg_dir = get_package_share_directory('nav_stack')
@@ -142,7 +139,7 @@ def generate_launch_description():
     return LaunchDescription([
         use_sim_time_arg,      # Declares launch argument for simulation time
         config_file_arg,       # Declares config file argument
-        only_errors_arg,       # Declares only_errors argument
+        log_level_arg,         # Declares log_level argument
         planner_node,         # Global planner (includes global costmap)
         controller_node,      # Local controller/planner (includes local costmap)
         behavior_server_node, # Behavior server for recovery behaviors

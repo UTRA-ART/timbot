@@ -11,20 +11,22 @@ use_topic_check: true  # Set to false to use blind delay_sec instead
 # --- Launch Stages (order matters) ---
 # Each stage runs sequentially. If use_topic_check is true, the next stage 
 # starts after the expected topics are alive. Otherwise, it waits for delay_sec.
+# 
+# log_level options: debug, info, warn, error (default: info)
 
 # --- Stage 1: Gazebo Simulator ---
 gazebo:
   enabled: true
   gui: false
   world_file: track.world
-  only_errors: false
+  log_level: info
   delay_sec: 5.0
   expected_topics: []
 
 # --- Stage 2: Spawn Robot (RSP, bridge, spawn entity) ---
 spawn:
   enabled: true
-  only_errors: false
+  log_level: info
   x: "-19.5"
   y: "0"
   z: "0.05"
@@ -44,19 +46,19 @@ spawn:
 odom_state:
   enabled: true
   config_file: odom.yaml
-  only_errors: true
+  log_level: error  # Set to 'debug' to see EKF covariance internals
   delay_sec: 5.0
   position_covariance: 0.05 # cartographer pose
   orientation_covariance: 0.01 # cartographer pose
-  horizontal_stddev: 3.0 # gps horizontal error
-  vertical_stddev: 4.0 # gps vertical error
+  horizontal_stddev: 5.0 # gps horizontal error - in meters
+  vertical_stddev: 0.0 # gps vertical error
   expected_topics:
     - /odometry/local
 
 # --- Stage 4: Filter Lidar Data ---
 filter_lidar:
   enabled: true
-  only_errors: false
+  log_level: info
   delay_sec: 2.0
   main_lidar_topic: /scan_lower
   upper_lidar_topic: /scan_upper
@@ -77,7 +79,7 @@ filter_lidar:
 cartographer:
   enabled: true
   config_file: cartographer.lua
-  only_errors: true
+  log_level: error
   delay_sec: 5.0
   expected_topics:
     - /map
@@ -85,7 +87,7 @@ cartographer:
 # --- Stage 6: RViz (Visualization) ---
 rviz:
   enabled: true
-  only_errors: true
+  log_level: error
   delay_sec: 2.0
   rviz_config: timbot.rviz
   expected_topics: []
@@ -94,15 +96,15 @@ rviz:
 nav_stack:
   enabled: true
   config_file: nav2_params.yaml
-  only_errors: true
+  log_level: error
   delay_sec: 10.0
   expected_topics:
     - /local_costmap/costmap
 
 # --- Stage 8: Load Waypoints ---
 load_waypoints:
-  enabled: true
+  enabled: false
   config_file: sim_waypoints.json
-  only_errors: false
+  log_level: info
   delay_sec: 2.0
   expected_topics: []

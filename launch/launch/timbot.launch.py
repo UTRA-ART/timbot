@@ -40,6 +40,7 @@ def launch_gazebo(config: dict, sim: bool, context: LaunchContext) -> list:
     gazebo_cfg = config.get('gazebo', {})
     gui = str(gazebo_cfg.get('gui', True)).lower()
     world_file = str(gazebo_cfg.get('world_file', 'track.world'))
+    log_level = gazebo_cfg.get('log_level', 'info')
 
     gazebo_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([
@@ -49,6 +50,7 @@ def launch_gazebo(config: dict, sim: bool, context: LaunchContext) -> list:
         launch_arguments={
             'gui': gui,
             'world_file': world_file,
+            'log_level': log_level,
         }.items()
     )
     return [gazebo_launch]
@@ -56,11 +58,11 @@ def launch_gazebo(config: dict, sim: bool, context: LaunchContext) -> list:
 
 def launch_spawn(config: dict, sim: bool, context: LaunchContext) -> list:
     spawn_cfg = config.get('spawn', {})
-    only_errors = spawn_cfg.get('only_errors', False)
+    log_level = spawn_cfg.get('log_level', 'info')
 
     launch_args = {
         'sim': str(sim).lower(),
-        'only_errors': str(only_errors).lower(),
+        'log_level': log_level,
         'x': str(spawn_cfg.get('x', '-19.5')),
         'y': str(spawn_cfg.get('y', '0')),
         'z': str(spawn_cfg.get('z', '0.05')),
@@ -81,10 +83,10 @@ def launch_spawn(config: dict, sim: bool, context: LaunchContext) -> list:
 
 def launch_odom_state(config: dict, sim: bool, context: LaunchContext) -> list:
     odom_cfg = config.get('odom_state', {})
-    only_errors = odom_cfg.get('only_errors', False)
+    log_level = odom_cfg.get('log_level', 'info')
     launch_args = {
         'sim': str(sim).lower(),
-        'only_errors': str(only_errors).lower(),
+        'log_level': log_level,
         'position_covariance': str(odom_cfg.get('position_covariance', 0.05)),
         'orientation_covariance': str(odom_cfg.get('orientation_covariance', 0.01)),
         'horizontal_stddev': str(odom_cfg.get('horizontal_stddev', 3.0)),
@@ -104,10 +106,10 @@ def launch_odom_state(config: dict, sim: bool, context: LaunchContext) -> list:
 
 def launch_filter_lidar(config: dict, sim: bool, context: LaunchContext) -> list:
     lidar_cfg = config.get('filter_lidar', {})
-    only_errors = lidar_cfg.get('only_errors', False)
+    log_level = lidar_cfg.get('log_level', 'info')
     filter_args = {
         'sim': str(sim).lower(),
-        'only_errors': str(only_errors).lower(),
+        'log_level': log_level,
         'main_lidar_topic': str(lidar_cfg.get('main_lidar_topic', '/scan_lower')),
         'upper_lidar_topic': str(lidar_cfg.get('upper_lidar_topic', '/scan_upper')),
         'out_topic': str(lidar_cfg.get('out_topic', '/scan_modified')),
@@ -132,8 +134,7 @@ def launch_filter_lidar(config: dict, sim: bool, context: LaunchContext) -> list
 
 def launch_cartographer(config: dict, sim: bool, context: LaunchContext) -> list:
     carto_cfg = config.get('cartographer', {})
-    only_errors = carto_cfg.get('only_errors', False)
-    log_level = 'error' if only_errors else 'info'
+    log_level = carto_cfg.get('log_level', 'info')
     carto_config_file = carto_cfg.get('config_file', 'cartographer.lua')
 
     cartographer_config_dir = PathJoinSubstitution([
@@ -155,6 +156,7 @@ def launch_cartographer(config: dict, sim: bool, context: LaunchContext) -> list
         remappings=[
             ('scan', '/scan_modified'),
             ('imu', '/imu/data'),
+            ('fix', '/gps/fix_cov'),
         ]
     )
 
@@ -182,8 +184,7 @@ def launch_rviz(config: dict, sim: bool, context: LaunchContext) -> list:
         "rviz",
         rviz_config_file
     ])
-    only_errors = rviz_cfg.get('only_errors', False)
-    log_level = 'error' if only_errors else 'info'
+    log_level = rviz_cfg.get('log_level', 'info')
     rviz_node = Node(
         package="rviz2",
         executable="rviz2",
@@ -197,11 +198,11 @@ def launch_rviz(config: dict, sim: bool, context: LaunchContext) -> list:
 
 def launch_nav_stack(config: dict, sim: bool, context: LaunchContext) -> list:
     nav_cfg = config.get('nav_stack', {})
-    only_errors = nav_cfg.get('only_errors', False)
+    log_level = nav_cfg.get('log_level', 'info')
 
     launch_args = {
         'sim': str(sim).lower(),
-        'only_errors': str(only_errors).lower(),
+        'log_level': log_level,
     }
 
     config_file = nav_cfg.get('config_file', '')
@@ -220,11 +221,11 @@ def launch_nav_stack(config: dict, sim: bool, context: LaunchContext) -> list:
 
 def launch_load_waypoints(config: dict, sim: bool, context: LaunchContext) -> list:
     wp_cfg = config.get('load_waypoints', {})
-    only_errors = wp_cfg.get('only_errors', False)
+    log_level = wp_cfg.get('log_level', 'info')
 
     launch_args = {
         'sim': str(sim).lower(),
-        'only_errors': str(only_errors).lower(),
+        'log_level': log_level,
     }
 
     config_file = wp_cfg.get('config_file', '')

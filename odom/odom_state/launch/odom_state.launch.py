@@ -28,16 +28,13 @@ def generate_launch_description():
         description='Name of the odom config file in odom_state/config/'
     )
 
-    # 3. only_errors argument — suppresses info-level log output
-    only_errors_arg = DeclareLaunchArgument(
-        'only_errors',
-        default_value='false',
-        description='If true, set log level to error instead of info'
+    # 3. log_level argument — controls verbosity (debug, info, warn, error)
+    log_level_arg = DeclareLaunchArgument(
+        'log_level',
+        default_value='info',
+        description='Log level: debug, info, warn, error'
     )
-    only_errors = LaunchConfiguration('only_errors')
-    log_level = PythonExpression([
-        "'error' if '", only_errors, "' == 'true' else 'info'"
-    ])
+    log_level = LaunchConfiguration('log_level')
 
     # 3. Derive launch_state automatically
     # If use_sim_time is true, state is 'sim'. Otherwise 'real'.
@@ -60,6 +57,7 @@ def generate_launch_description():
         name='ekf_local',
         output='screen',
         remappings=[('/odometry/filtered', '/odometry/local')],
+        arguments=['--ros-args', '--log-level', log_level],
         parameters=[
             odom_yaml, 
             {'use_sim_time': use_sim_time}, 
@@ -73,6 +71,7 @@ def generate_launch_description():
         name='ekf_global',
         output='screen',
         remappings=[('/odometry/filtered', '/odometry/global')],
+        arguments=['--ros-args', '--log-level', log_level],
         parameters=[
             odom_yaml,
             {'use_sim_time': use_sim_time},
@@ -126,7 +125,7 @@ def generate_launch_description():
     return LaunchDescription([
         use_sim_time_arg,
         config_file_arg,
-        only_errors_arg,
+        log_level_arg,
         ekf_local,
         pose_relay,
         gps_cov_relay,
