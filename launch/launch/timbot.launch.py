@@ -59,6 +59,9 @@ def launch_gazebo(config: dict, sim: bool, context: LaunchContext) -> list:
 def launch_spawn(config: dict, sim: bool, context: LaunchContext) -> list:
     spawn_cfg = config.get('spawn', {})
     log_level = spawn_cfg.get('log_level', 'info')
+    cv_cfg = config.get('cv_pipeline', {})
+    cv_enabled = cv_cfg.get('enabled', False)
+    enable_camera = str(cv_enabled).lower()
 
     launch_args = {
         'sim': str(sim).lower(),
@@ -69,6 +72,10 @@ def launch_spawn(config: dict, sim: bool, context: LaunchContext) -> list:
         'roll': str(spawn_cfg.get('roll', '0')),
         'pitch': str(spawn_cfg.get('pitch', '0')),
         'yaw': str(spawn_cfg.get('yaw', '1.5708')),
+        'enable_camera': enable_camera,
+        'camera_fps': str(cv_cfg.get('camera_fps', 5)),
+        'camera_width': str(cv_cfg.get('camera_width', 320)),
+        'camera_height': str(cv_cfg.get('camera_height', 180)),
     }
 
     spawn_launch = IncludeLaunchDescription(
@@ -131,6 +138,25 @@ def launch_filter_lidar(config: dict, sim: bool, context: LaunchContext) -> list
         launch_arguments=filter_args.items()
     )
     return [filter_launch]
+
+
+def launch_cv(config: dict, sim: bool, context: LaunchContext) -> list:
+    cv_cfg = config.get('cv_pipeline', {})
+    log_level = cv_cfg.get('log_level', 'info')
+    lane_detection_mode = str(cv_cfg.get('lane_detection_mode', 0))
+
+    cv_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([
+            FindPackageShare('lane_detection'),
+            '/launch/launch.py'
+        ]),
+        launch_arguments={
+            'sim': str(sim).lower(),
+            'log_level': log_level,
+            'lane_detection_mode': lane_detection_mode,
+        }.items()
+    )
+    return [cv_launch]
 
 def launch_cartographer(config: dict, sim: bool, context: LaunchContext) -> list:
     carto_cfg = config.get('cartographer', {})
@@ -251,6 +277,7 @@ LAUNCH_STAGES = [
     ('Spawn',          'spawn',          launch_spawn),
     ('Odom State',     'odom_state',     launch_odom_state),
     ('Filter Lidar',   'filter_lidar',   launch_filter_lidar),
+    ('CV Pipeline',    'cv_pipeline',    launch_cv),
     ('Cartographer',   'cartographer',   launch_cartographer),
     ('RViz',           'rviz',           launch_rviz),
     ('Nav Stack',      'nav_stack',      launch_nav_stack),

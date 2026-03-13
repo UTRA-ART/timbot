@@ -1,6 +1,6 @@
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
-from launch.conditions import UnlessCondition
+from launch.conditions import UnlessCondition, IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, Command, PathJoinSubstitution, PythonExpression
 from launch_ros.actions import Node
@@ -41,18 +41,38 @@ def generate_launch_description():
     roll_arg = DeclareLaunchArgument('roll', default_value='0')
     pitch_arg = DeclareLaunchArgument('pitch', default_value='0')
     yaw_arg = DeclareLaunchArgument('yaw', default_value='1.5708')
-    
+
+    # Camera enable argument — when true, the ZED camera sensor is included in the URDF
+    enable_camera_arg = DeclareLaunchArgument(
+        'enable_camera',
+        default_value='false',
+        description='Enable ZED camera sensor in URDF and bridge camera topics'
+    )
+    enable_camera = LaunchConfiguration('enable_camera')
+
+    # Camera settings
+    camera_fps_arg = DeclareLaunchArgument('camera_fps', default_value='5')
+    camera_width_arg = DeclareLaunchArgument('camera_width', default_value='320')
+    camera_height_arg = DeclareLaunchArgument('camera_height', default_value='180')
+    camera_fps = LaunchConfiguration('camera_fps')
+    camera_width = LaunchConfiguration('camera_width')
+    camera_height = LaunchConfiguration('camera_height')
+
     # --- Robot Description ---
     # Note: Ensure 'timbot.urdf.xacro' vs 'espresso.urdf.xacro' matches your actual file
     robot_description_content = ParameterValue(
         Command([
-            'xacro ', 
+            'xacro ',
             PathJoinSubstitution([
                 FindPackageShare('description'),
                 'rover_model',
-                'urdf', 
-                'timbot.urdf.xacro' 
-            ])
+                'urdf',
+                'timbot.urdf.xacro'
+            ]),
+            ' enable_camera:=', enable_camera,
+            ' camera_fps:=', camera_fps,
+            ' camera_width:=', camera_width,
+            ' camera_height:=', camera_height,
         ]),
         value_type=str
     )
@@ -150,13 +170,32 @@ def generate_launch_description():
         }.items()
     )
 
+    # 5. Camera Bridge — only launched when enable_camera is true
+    camera_bridge = Node(
+        package='ros_gz_bridge',
+        executable='parameter_bridge',
+        name='camera_bridge',
+        condition=IfCondition(enable_camera),
+        arguments=[
+            '/zed_node/left/image@sensor_msgs/msg/Image[ignition.msgs.Image',
+            '/zed_node/left/depth_image@sensor_msgs/msg/Image[ignition.msgs.Image',
+            '/zed_node/left/camera_info@sensor_msgs/msg/CameraInfo[ignition.msgs.CameraInfo',
+            '/zed_node/left/points@sensor_msgs/msg/PointCloud2[ignition.msgs.PointCloudPacked',
+            '--ros-args', '--log-level', log_level
+        ],
+        output='screen',
+        parameters=[{'use_sim_time': use_sim_time}]
+    )
+
     return LaunchDescription([
         use_sim_time_arg,
         log_level_arg,
-        # world_type_arg,
         x_arg, y_arg, z_arg, roll_arg, pitch_arg, yaw_arg,
-        
+        enable_camera_arg,
+        camera_fps_arg, camera_width_arg, camera_height_arg,
+
         bridge,
+        camera_bridge,
         spawn_robot,
         joint_state_publisher,
         robot_state_publisher,

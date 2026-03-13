@@ -7,6 +7,14 @@
 	<!-- Argument to select Gazebo version: 'classic' or 'ignition' -->
 	<xacro:arg name="gazebo_version" default="ignition"/>
 
+	<!-- Argument to enable/disable the ZED camera sensor in simulation -->
+	<xacro:arg name="enable_camera" default="false"/>
+
+	<!-- Camera settings (only used when enable_camera is true) -->
+	<xacro:arg name="camera_fps" default="5"/>
+	<xacro:arg name="camera_width" default="320"/>
+	<xacro:arg name="camera_height" default="180"/>
+
 	<link name="base_link" />
 
 	<!-- Includes - Select plugins based on Gazebo version -->
