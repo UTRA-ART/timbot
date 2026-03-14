@@ -18,6 +18,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from matplotlib.collections import LineCollection
+from matplotlib.colors import Normalize
+import matplotlib.cm as cm
+import matplotlib.gridspec as gridspec
+
 from pyproj import Transformer
 
 # Fixing random state for reproducibility
@@ -167,5 +172,96 @@ def processvis(fp, waypoint_labels=None):
     visualize_gps_data(rover_data, timestamps, actual_enu=actual_enu)
 
 
+def plot_entire_path():
+    # Converting all data to ENU coordinates and plotting the entire path
+    ref_lat, ref_lon, ref_alt = get_ref_latlonalt(fpab)
+    ref_ecef = lla_to_ecef_xyz(np.array([ref_lat, ref_lon, ref_alt]))
+
+    R = enu_rotation_matrix(ref_lat, ref_lon)
+
+    rover_data = np.empty((0, 3))
+    # timestamps = fp['timestamp'].to_numpy().astype(float)
+    timestamps = np.concatenate([fpab['timestamp'].astype(float), fpbc['timestamp'].astype(float), fpca['timestamp'].astype(float)])
+
+    for fp in [fpab, fpbc, fpca]:
+        for i in range(len(fp)):
+            latlonalt = fp[['latitude', 'longitude', 'altitude']].iloc[i].to_numpy()
+            E, N, U = R @ lla_to_enu(latlonalt, ref_ecef)
+            #print(f"Data Point {i}: Lat={latlonalt[0]}, Lon={latlonalt[1]}, Alt={latlonalt[2]} -> E={E}, N={N}, U={U}")
+            rover_data = np.append(rover_data, [[E, N, U]], axis=0)
+
+    visualize_gps_data_2d(rover_data, timestamps)
+
+def colored_segments(ax, x, y, values, cmap, norm, lw=2.0):
+        pts  = np.array([x, y]).T.reshape(-1, 1, 2)
+        segs = np.concatenate([pts[:-1], pts[1:]], axis=1)
+        lc   = LineCollection(segs, cmap=cmap, norm=norm, linewidth=lw,
+                              capstyle="round")
+        lc.set_array(values[:-1])
+        ax.add_collection(lc)
+        return lc
+
+def visualize_gps_data_2d(rover_data, timestamps):
+    E_vals, N_vals, U_vals = rover_data[:, 0], rover_data[:, 1], rover_data[:, 2]
+
+    t = timestamps - timestamps.min()
+    
+    ds_horiz = np.sqrt(np.diff(E_vals)**2 + np.diff(N_vals)**2)
+    ds_3d    = np.sqrt(ds_horiz**2 + np.diff(U_vals)**2)
+    cum_dist    = np.concatenate([[0], np.cumsum(ds_3d)]) 
+
+    fig = plt.figure(figsize=(14, 10), facecolor="#0d1117")
+    fig.suptitle("Rover Path Analysis", color="#e6edf3", fontsize=15,
+                 fontweight="bold", y=0.98)
+    
+    gs = gridspec.GridSpec(
+        2, 1,
+        figure=fig,
+        left=0.07, right=0.93,
+        top=0.93,  bottom=0.08,
+        wspace=0.38, hspace=0.42,
+    )
+
+    ax_plan  = fig.add_subplot(gs[0, 0])   # left  – footprint
+    ax_alt   = fig.add_subplot(gs[1, 0])   # right – altitude
+
+    cmap  = cm.plasma
+    norm  = Normalize(vmin=t[0], vmax=t[-1])
+
+    lc_plan = colored_segments(ax_plan, E_vals, N_vals, t, cmap, norm)
+    ax_plan.autoscale()
+    ax_plan.set_aspect("equal")
+    ax_plan.set_xlabel("East (m)")
+    ax_plan.set_ylabel("North (m)")
+    ax_plan.set_title("Top-Down Footprint")
+
+    ax_plan.plot(E_vals[0],  N_vals[0],  marker="D", ms=8,
+                 color="#3fb950", zorder=5, label="Start")
+    ax_plan.plot(E_vals[-1], N_vals[-1], marker="s", ms=8,
+                 color="#f85149", zorder=5, label="End")
+    ax_plan.legend(fontsize=8, facecolor="#161b22", edgecolor="#30363d",
+                   labelcolor="#e6edf3", loc="best")
+
+    cb1 = fig.colorbar(lc_plan, ax=ax_plan, pad=0.02, fraction=0.035)
+    cb1.set_label("Time", color="#8b949e", fontsize=8)
+    cb1.ax.yaxis.set_tick_params(color="#8b949e", labelsize=7)
+    plt.setp(cb1.ax.yaxis.get_ticklabels(), color="#8b949e")
+
+    lc_alt = colored_segments(ax_alt, cum_dist, U_vals, t, cmap, norm)
+    ax_alt.autoscale()
+    ax_alt.set_xlabel("Cumulative Distance (m)")
+    ax_alt.set_ylabel("Up / Altitude (m)")
+    ax_alt.set_title("Altitude Profile")
+    ax_alt.fill_between(cum_dist, U_vals.min() - 0.5, U_vals,
+                        alpha=0.15, color="#58a6ff")
+
+    cb2 = fig.colorbar(lc_alt, ax=ax_alt, pad=0.02, fraction=0.035)
+    cb2.set_label("Time (s)", color="#8b949e", fontsize=8)
+    cb2.ax.yaxis.set_tick_params(color="#8b949e", labelsize=7)
+    plt.setp(cb2.ax.yaxis.get_ticklabels(), color="#8b949e")
+
+    plt.show()
+
+# ADD: Use arguments to specify the csv or bag file to visualize
 if __name__ == "__main__":
-    processvis(fpab, waypoint_labels=['A', 'B'])
+    plot_entire_path()
