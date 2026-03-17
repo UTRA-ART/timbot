@@ -21,7 +21,7 @@ As well, it controls fans through PWM.
 //Sensors
 const int tempsensor = 12; //analog
 const int currentsensor = 14; //analog
-const int volt_sensor = 5; //analog
+const int volt_sensor = 4; //analog
 
 // Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
 OneWire oneWire(tempsensor);
