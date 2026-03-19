@@ -21,6 +21,7 @@ gazebo:
   world_file: track.world
   log_level: info
   delay_sec: 5.0
+  software_rendering: '1'
   expected_topics: []
 
 # --- Stage 2: Spawn Robot (RSP, bridge, spawn entity) ---

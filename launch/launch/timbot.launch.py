@@ -181,7 +181,7 @@ def launch_cartographer(config: dict, sim: bool, context: LaunchContext) -> list
         ],
         remappings=[
             ('scan', '/scan_modified'),
-            ('imu', '/imu/data'),
+            ('odom', '/odometry/local'),
             ('fix', '/gps/fix_cov'),
         ]
     )

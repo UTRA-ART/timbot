@@ -30,7 +30,7 @@ def _setup_gazebo(context: LaunchContext):
 
     env = os.environ.copy()
     env['IGN_GAZEBO_RESOURCE_PATH'] = f"{gazebo_models_path}:{worlds_dir}"
-    env['LIBGL_ALWAYS_SOFTWARE'] = '1'
+    env['LIBGL_ALWAYS_SOFTWARE'] = context.launch_configurations.get('software_rendering', '1')
 
     # Full GUI
     gazebo_gui = ExecuteProcess(
