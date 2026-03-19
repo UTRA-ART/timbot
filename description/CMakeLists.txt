@@ -19,7 +19,6 @@ install(DIRECTORY
 
 # Install Python executables
 install(PROGRAMS
-  src/scheduler.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
