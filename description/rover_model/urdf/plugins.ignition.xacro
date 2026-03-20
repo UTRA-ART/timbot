@@ -10,7 +10,7 @@
     <!-- CRITICAL: Sensors system plugin - required for all sensors to work -->
     <gazebo>
         <plugin filename="ignition-gazebo-sensors-system" name="ignition::gazebo::systems::Sensors">
-            <render_engine>ogre2</render_engine>
+            <render_engine>ogre</render_engine>
         </plugin>
     </gazebo>
 
@@ -221,24 +221,31 @@
         </sensor>
     </gazebo>
 
-    <!-- Stereo Camera (left) -->
+    <!-- Stereo Camera (left) — only included when enable_camera arg is true -->
+    <xacro:if value="$(arg enable_camera)">
     <gazebo reference="left_camera_link">
-        <sensor name="camera_left" type="camera">
+        <sensor name="camera_left" type="rgbd_camera">
             <always_on>true</always_on>
-            <update_rate>${ZED_image_refresh}</update_rate>
+            <update_rate>$(arg camera_fps)</update_rate>
             <visualize>false</visualize>
-            <topic>/zed_node/left/image_raw</topic>
+            <topic>/zed_node/left</topic>
             <camera>
                 <horizontal_fov>${ZED_image_hfov}</horizontal_fov>
                 <image>
-                    <width>${ZED_image_width}</width>
-                    <height>${ZED_image_height}</height>
+                    <width>$(arg camera_width)</width>
+                    <height>$(arg camera_height)</height>
                     <format>R8G8B8</format>
                 </image>
                 <clip>
-                    <near>0.02</near>
+                    <near>0.3</near>
                     <far>300</far>
                 </clip>
+                <depth_camera>
+                    <clip>
+                        <near>0.3</near>
+                        <far>10</far>
+                    </clip>
+                </depth_camera>
                 <noise>
                     <type>gaussian</type>
                     <mean>0.0</mean>
@@ -247,5 +254,6 @@
             </camera>
         </sensor>
     </gazebo>
+    </xacro:if>
 
 </robot>

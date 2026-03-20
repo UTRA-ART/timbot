@@ -97,18 +97,18 @@
     <!-- <xacro:property name="ZED_camera_length" value="0.175"/> -->
 
     <xacro:property name="ZED_stereo_offset" value="0.12"/>
-    <xacro:property name="ZED_camera_pitch" value="${30 * pi/180}"/>
+    <xacro:property name="ZED_camera_pitch" value="${25 * pi/180}"/>
     <!--<xacro:property name="ZED_camera_pitch" value="${50 * pi/180}"/>-->
     <!-- ZED image height/width corresponds to image size for 60Hz refresh-->
-    <xacro:property name="ZED_image_refresh" value="0"/>
-    <xacro:property name="ZED_image_width" value="640"/>
-    <xacro:property name="ZED_image_height" value="360"/>
+    <xacro:property name="ZED_image_refresh" value="5"/>
+    <xacro:property name="ZED_image_width" value="320"/>
+    <xacro:property name="ZED_image_height" value="180"/>
     <xacro:property name="ZED_image_format" value="R8G8B8"/>
-    <xacro:property name="ZED_image_hfov" value="${90 * pi/180}"/>
+    <xacro:property name="ZED_image_hfov" value="${110 * pi/180}"/>
 
     <xacro:property name="ZED_name" value="zed_node"/>
-    <xacro:property name="ZED_always_on" value="false"/>
-    <xacro:property name="ZED_update_rate" value="0"/>
+    <xacro:property name="ZED_always_on" value="true"/>
+    <xacro:property name="ZED_update_rate" value="5"/>
     <xacro:property name="ZED_image_topicName" value="/image_raw_color"/>
     <xacro:property name="ZED_image_info_topicName" value="/camera_info"/>
     <xacro:property name="ZED_depth_topicName" value="/depth/image_raw"/>

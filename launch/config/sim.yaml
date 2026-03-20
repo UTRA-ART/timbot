@@ -21,6 +21,7 @@ gazebo:
   world_file: track.world
   log_level: info
   delay_sec: 5.0
+  software_rendering: '1'
   expected_topics: []
 
 # --- Stage 2: Spawn Robot (RSP, bridge, spawn entity) ---
@@ -75,6 +76,17 @@ filter_lidar:
   expected_topics:
     - /scan_modified
 
+cv_pipeline:
+  enabled: true
+  log_level: error
+  lane_detection_mode: 0  # 0 = deep learning (YOLO), 1 = classical (HSV threshold)
+  camera_fps: 1
+  camera_width: 320
+  camera_height: 180
+  delay_sec: 5.0
+  expected_topics:
+    - /zed_node/left/image
+
 # --- Stage 5: Cartographer (SLAM) ---
 cartographer:
   enabled: true
@@ -100,6 +112,7 @@ nav_stack:
   delay_sec: 10.0
   expected_topics:
     - /local_costmap/costmap
+    - /global_costmap/costmap
 
 # --- Stage 8: Load Waypoints ---
 load_waypoints:
