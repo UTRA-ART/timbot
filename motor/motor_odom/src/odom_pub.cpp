@@ -13,8 +13,8 @@
  *   rover_pose/reset (bool)
  * 
  * publishes to:
- *   wheel_odom/euler
- *   wheel_odom/quat
+ *   odom/euler
+ *   odom/quat
  * 
  * resources
  *   covariance matrix: https://answers.ros.org/question/64759/covariance-matrix-for-vo-and-odom/
@@ -72,9 +72,9 @@ public:
 
         // publishers
         odom_data_pub_ = this->create_publisher<nav_msgs::msg::Odometry>(
-            "wheel_odom/euler", 100);   // simple odom message, orientation.z is an euler angle
+            "odom/euler", 100);   // simple odom message, orientation.z is an euler angle
         odom_data_pub_quat_ = this->create_publisher<nav_msgs::msg::Odometry>(
-            "wheel_odom/quat", 100);    // full odom message, orientation.z is quaternion
+            "odom/quat", 100);    // full odom message, orientation.z is quaternion
         debug_pub_ = this->create_publisher<std_msgs::msg::String>(
             "debug_wheel_odom", 100);
 
