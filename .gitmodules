@@ -6,3 +6,15 @@
 	path = misc/twist_mux
 	url = https://github.com/ros-teleop/twist_mux.git
 	branch = humble
+[submodule "sensor_drivers/zed_camera"]
+	path = sensor_drivers/zed_camera
+	url = https://github.com/stereolabs/zed-ros2-wrapper.git
+[submodule "sensor_drivers/rplidar"]
+	path = sensor_drivers/rplidar
+	url = https://github.com/Slamtec/rplidar_ros.git
+[submodule "sensor_drivers/navsat"]
+	path = sensor_drivers/navsat
+	url = https://github.com/ros-drivers/nmea_navsat_driver.git
+[submodule "sensor_drivers/imu"]
+	path = sensor_drivers/imu
+	url = https://github.com/ros-drivers/phidgets_drivers.git
