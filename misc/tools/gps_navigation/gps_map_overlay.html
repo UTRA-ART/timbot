@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rover GPS Trajectory Overlay</title>
+  <link rel="stylesheet" href="gps_map_overlay.css">
+
+  <!-- Leaflet.js for free map tiles (no API key needed) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Papa Parse for CSV -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+</head>
+
+<body>
+
+  <header>
+    <div class="header-stats">
+      <div class="stat">
+        <span class="stat-label">Total Points</span>
+        <span class="stat-value" id="hdr-pts">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Loaded Files</span>
+        <span class="stat-value" id="hdr-files">0</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="main">
+    <!-- Map area -->
+    <div id="map">
+      <div id="gmap" class="google-map-container"></div>
+      <div class="map-overlay-info" id="map-info" style="display:none">
+        <span id="map-info-text"></span>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+
+      <div class="sidebar-section">
+        <h3>Load CSV Files</h3>
+        <div class="upload-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+          <div class="upload-icon">⬆</div>
+          <p>Drop CSVs or click to browse</p>
+          <p style="font-size:10px; margin-top:4px; color:#2a5a7a">Expects: timestamp, latitude, longitude, altitude</p>
+        </div>
+        <input type="file" id="file-input" accept=".csv" multiple>
+        <div class="file-list" id="file-list"></div>
+        <button class="btn" id="btn-plot" disabled>Plot Trajectories</button>
+        <button class="btn" id="btn-clear" style="border-color:var(--border);color:var(--muted); margin-top:4px">Clear
+          All</button>
+        <div class="apikey-row">
+          <input type="password" id="apikey-input" placeholder="Paste your Stadia API key…">
+          <button class="small-btn" onclick="applyAPI()">Apply</button>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <h3>Trajectory Colors</h3>
+        <div class="gradient-bar"></div>
+        <div class="gradient-labels">
+          <span>Start</span><span>End</span>
+        </div>
+        <div style="margin-top:10px" class="legend" id="file-legend"></div>
+      </div>
+
+      <div class="info-log" id="log">
+        <div class="log-line"><span class="ts">[INIT]</span><span class="info">GPS overlay ready</span></div>
+      </div>
+
+    </div>
+  </div>
+  <script src="main.js"></script>
+</body>
+
+</html>
