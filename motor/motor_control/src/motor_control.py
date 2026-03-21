@@ -14,10 +14,10 @@ Subscribes to:
 * pause_navigation
 
 Publishes to:
-* right_wheel/direction
-* left_wheel/direction
-* right_wheel/ticks
-* left_wheel/ticks
+* /right_wheel/direction
+* /left_wheel/direction
+* /right_wheel/ticks (directionless count)
+* /left_wheel/ticks (directionless count)
 * debug
 '''
 
@@ -146,8 +146,8 @@ class MotorControl(Node):
         # publishers
         self.ticks_pub_r = self.create_publisher(Int32, '/right_wheel/ticks', 10)
         self.ticks_pub_l = self.create_publisher(Int32, '/left_wheel/ticks', 10)
-        self.right_dir_pub = self.create_publisher(Bool, 'right_wheel/direction', 1)
-        self.left_dir_pub = self.create_publisher(Bool, 'left_wheel/direction', 1)
+        self.right_dir_pub = self.create_publisher(Bool, '/right_wheel/direction', 1)
+        self.left_dir_pub = self.create_publisher(Bool, '/left_wheel/direction', 1)
         self.debug_pub = self.create_publisher(String, 'debug', 10)
 
         # timer (runs at ROS_RATE Hz)
@@ -184,12 +184,14 @@ class MotorControl(Node):
                 else:
                     self.direction_l = -1
 
+                # Publish directionless tick counts; odom node applies direction using
+                # /left_wheel/direction and /right_wheel/direction topics.
                 l_msg = Int32()
-                l_msg.data = self.direction_l * int(l_val)
+                l_msg.data = int(l_val)
                 self.ticks_pub_l.publish(l_msg)
 
                 r_msg = Int32()
-                r_msg.data = self.direction_r * int(r_val)
+                r_msg.data = int(r_val)
                 self.ticks_pub_r.publish(r_msg)
             except Exception:
                 pass
