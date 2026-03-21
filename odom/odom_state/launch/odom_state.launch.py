@@ -11,6 +11,10 @@ def generate_launch_description():
     orientation_covariance = LaunchConfiguration('orientation_covariance')
     horizontal_stddev = LaunchConfiguration('horizontal_stddev')
     vertical_stddev = LaunchConfiguration('vertical_stddev')
+    wait_for_datum = LaunchConfiguration('wait_for_datum')
+    # datum = f"[{LaunchConfiguration('datum_lat')}, {LaunchConfiguration('datum_lon')}, {LaunchConfiguration('datum_alt')}]"
+    datum = LaunchConfiguration('datum')
+    magnetic_declination_radians = LaunchConfiguration('magnetic_declination_radians')
     
     # 1. Declare the use_sim_time argument (Default to true for safety in this context)
     use_sim_time_arg = DeclareLaunchArgument(
@@ -93,6 +97,9 @@ def generate_launch_description():
             odom_yaml,
             {'use_sim_time': use_sim_time},
             {'launch_state': launch_state},
+            {'wait_for_datum': wait_for_datum},
+            {'datum': datum},
+            {'magnetic_declination_radians': magnetic_declination_radians}
         ]
     )
 
