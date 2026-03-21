@@ -39,10 +39,15 @@
             </material>
         </visual>
 
-        <collision>
+        <!-- <collision>
             <origin xyz="0 0 0" rpy="0 0 0" />
             <geometry>
                 <mesh filename="package://description/rover_model/meshes/leftwheel_link.STL" />
+            </geometry>
+        </collision> -->
+        <collision>
+            <origin xyz="0 0 0" rpy="1.5707 0 0" /> <geometry>
+                <cylinder length="0.1" radius="0.125"/>
             </geometry>
         </collision>
     </link>
@@ -52,12 +57,14 @@
         <parent link="chassis_link" />
         <child link="left_wheel_link" />
         <axis xyz="0 1 0" />
+
+        <limit effort="100.0" velocity="20.0"/>
     </joint>
 
     <gazebo reference="left_wheel_link">
         <material>Gazebo/Black</material>
-        <mu1 value="1.0"/>
-        <mu2 value="1.0"/>
+        <mu1 value="100.0"/>
+        <mu2 value="100.0"/>
         <kp value="10000000.0" />
         <kd value="1.0" />
     </gazebo>
@@ -88,10 +95,15 @@
             </material>
         </visual>
 
-        <collision>
+        <!-- <collision>
             <origin xyz="0 0 0" rpy="0 0 0" />
             <geometry>
                 <mesh filename="package://description/rover_model/meshes/rightwheel_link.STL" />
+            </geometry>
+        </collision> -->
+        <collision>
+            <origin xyz="0 0 0" rpy="1.5707 0 0" /> <geometry>
+                <cylinder length="0.1" radius="0.125"/>
             </geometry>
         </collision>
     </link>
@@ -101,12 +113,14 @@
         <parent link="chassis_link" />
         <child link="right_wheel_link" />
         <axis xyz="0 1 0" />
+
+        <limit effort="100.0" velocity="20.0"/>
     </joint>
 
     <gazebo reference="right_wheel_link">
         <material>Gazebo/Black</material>
-        <mu1 value="1.0"/>
-        <mu2 value="1.0"/>
+        <mu1 value="100.0"/>
+        <mu2 value="100.0"/>
         <kp value="10000000.0" />
         <kd value="1.0" />
     </gazebo>
@@ -154,8 +168,8 @@
 
     <gazebo reference="caster_link">
         <material>Gazebo/Black</material>
-        <mu1 value="0.1"/>
-        <mu2 value="0.1"/>
+        <mu1 value="100.0"/>
+        <mu2 value="100.0"/>
         <kp value="10000000.0" />
         <kd value="1.0" />
     </gazebo>

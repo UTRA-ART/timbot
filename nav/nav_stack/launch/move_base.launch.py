@@ -4,31 +4,63 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 
 #gives value of the launch argument in any part of launch description
-from launch.substitutions import LaunchConfiguration
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, PythonExpression
 
 #node class to launch ROS2 nodes
 from launch_ros.actions import Node
+from launch_ros.substitutions import FindPackageShare
 
 #returns the share directory of the given package 
 from ament_index_python.packages import get_package_share_directory
 import os
+from launch_ros.descriptions import ParameterFile
+from nav2_common.launch import RewrittenYaml
 
 
 def generate_launch_description():
     #creates launch argument named use_sim_time
     #default value is true, meaning nodes will use simulation time from Gazebo
-    declare_sim_arg = DeclareLaunchArgument(
-        'use_sim_time',
+    use_sim_time_arg = DeclareLaunchArgument(
+        'sim',
         default_value='true',
         description='Use simulation (Gazebo) clock if true'
     )
+    use_sim_time = LaunchConfiguration('sim')
+
+    # Optional config_file argument — allows the main launch orchestrator
+    # to specify which nav2 params file to use (default: nav2_params.yaml)
+    config_file_arg = DeclareLaunchArgument(
+        'config_file',
+        default_value='nav2_params.yaml',
+        description='Name of the nav2 config file in nav_stack/config/'
+    )
+
+    # log_level argument — controls verbosity (debug, info, warn, error)
+    log_level_arg = DeclareLaunchArgument(
+        'log_level',
+        default_value='info',
+        description='Log level: debug, info, warn, error'
+    )
+    log_level = LaunchConfiguration('log_level')
 
     # Get package directory
     pkg_dir = get_package_share_directory('nav_stack')
     config_dir = os.path.join(pkg_dir, 'config')
 
-    # Nav2 parameter file (contains costmap params, planner, controller, bt_navigator)
-    nav2_params = os.path.join(config_dir, 'nav2_params.yaml')
+    # Nav2 parameter file — use PathJoinSubstitution so config_file arg is resolved at launch time
+    nav2_params_configured = PathJoinSubstitution([
+        FindPackageShare('nav_stack'), 'config', LaunchConfiguration('config_file')
+    ])
+
+    #allow type conversion
+    # nav2_params_configured = ParameterFile(
+    #     RewrittenYaml(
+    #         source_file=nav2_params,
+    #         root_key='',
+    #         param_rewrites={'use_sim_time': use_sim_time},
+    #         convert_types=True),
+    #     allow_substs=True
+    # )
 
     # In Nav2, costmaps are integrated into planner_server and controller_server
     # There is no standalone 'costmap_server' executable
@@ -44,7 +76,8 @@ def generate_launch_description():
         executable='planner_server',
         name='planner_server',
         output='screen',
-        parameters=[nav2_params, {'use_sim_time': LaunchConfiguration('use_sim_time')}],
+        parameters=[nav2_params_configured, {'use_sim_time': use_sim_time}],
+        arguments=['--ros-args', '--log-level', log_level],
     )
 
     # Controller Server (local planner + local costmap)
@@ -55,8 +88,17 @@ def generate_launch_description():
         executable="controller_server",
         name="controller_server",
         output="screen",
-        parameters=[nav2_params, {'use_sim_time': LaunchConfiguration('use_sim_time')}],
-        remappings=[("cmd_vel", "nav_vel")]
+        parameters=[nav2_params_configured, {'use_sim_time': use_sim_time}],
+        arguments=['--ros-args', '--log-level', log_level],
+    )
+
+    behavior_server_node = Node(
+        package='nav2_behaviors',
+        executable='behavior_server',
+        name='behavior_server',
+        output='screen',
+        parameters=[nav2_params_configured, {'use_sim_time': use_sim_time}],
+        arguments=['--ros-args', '--log-level', log_level]
     )
 
     # Behavior Tree Navigator (replaces move_base)
@@ -67,7 +109,8 @@ def generate_launch_description():
         executable='bt_navigator',
         name='bt_navigator',
         output='screen',
-        parameters=[nav2_params, {'use_sim_time': LaunchConfiguration('use_sim_time'), "default_bt_xml_filename": bt_xml}],
+        parameters=[nav2_params_configured, {'use_sim_time': use_sim_time, "default_bt_xml_filename": bt_xml}],
+        arguments=['--ros-args', '--log-level', log_level]
     )
 
     # Lifecycle manager (brings all Nav2 nodes up)
@@ -78,23 +121,28 @@ def generate_launch_description():
         name='lifecycle_manager_navigation',
         output='screen',
         parameters=[{
-            'use_sim_time': LaunchConfiguration('use_sim_time'),
+            'use_sim_time': use_sim_time,
             'autostart': True,
             'node_names': [
                 'planner_server',
                 'controller_server',
-                'bt_navigator'
+                'bt_navigator',
+                'behavior_server'
             ]
-        }]
+        }],
+        arguments=['--ros-args', '--log-level', log_level]
     )
 
 
     # LaunchDescription is a container for actions, collects nodes, launch arguments, etc.
     # Executes all actions in order
     return LaunchDescription([
-        declare_sim_arg,      # Declares launch argument for simulation time
+        use_sim_time_arg,      # Declares launch argument for simulation time
+        config_file_arg,       # Declares config file argument
+        log_level_arg,         # Declares log_level argument
         planner_node,         # Global planner (includes global costmap)
         controller_node,      # Local controller/planner (includes local costmap)
+        behavior_server_node, # Behavior server for recovery behaviors
         bt_navigator_node,    # Behavior tree navigator
         lifecycle_manager_node  # Lifecycle manager
     ])

@@ -1,0 +1,35 @@
+{
+    "start_direction": "north",
+    "laps": 1,
+    "add_corners": true,
+    "waypoints" : [
+        {
+            "id" : 0,
+            "longitude" : 0,
+            "latitude" : 0.0001707,
+            "description"  : "North middle",
+            "frame_id" : "map"
+        },
+        {    
+            "id" : 1,
+            "longitude" : 0.0001707,
+            "latitude" : 0,
+            "description"  : "East middle",
+            "frame_id" : "map"
+        },
+        {
+            "id" : 2,
+            "longitude" : 0,
+            "latitude" : -0.0001707,
+            "description"  : "South middle",
+            "frame_id" : "map"
+        },
+        {
+            "id" : 3,
+            "longitude" : -0.0001707,
+            "latitude" : 0,
+            "description"  : "West middle (start)",
+            "frame_id" : "map"
+        }
+    ]
+}
