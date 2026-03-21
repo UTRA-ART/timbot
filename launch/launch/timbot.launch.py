@@ -91,6 +91,9 @@ def launch_spawn(config: dict, sim: bool, context: LaunchContext) -> list:
 def launch_odom_state(config: dict, sim: bool, context: LaunchContext) -> list:
     odom_cfg = config.get('odom_state', {})
     log_level = odom_cfg.get('log_level', 'info')
+    datum_lat = odom_cfg.get('datum', [0.0, 0.0, 0.0])[0]
+    datum_lon = odom_cfg.get('datum', [0.0, 0.0, 0.0])[1]
+    datum_alt = odom_cfg.get('datum', [0.0, 0.0, 0.0])[2]   
     launch_args = {
         'sim': str(sim).lower(),
         'log_level': log_level,
@@ -98,6 +101,9 @@ def launch_odom_state(config: dict, sim: bool, context: LaunchContext) -> list:
         'orientation_covariance': str(odom_cfg.get('orientation_covariance', 0.01)),
         'horizontal_stddev': str(odom_cfg.get('horizontal_stddev', 3.0)),
         'vertical_stddev': str(odom_cfg.get('vertical_stddev', 4.0)),
+        'wait_for_datum': str(odom_cfg.get('wait_for_datum', False)).lower(),
+        'datum': f'[{datum_lat}, {datum_lon}, {datum_alt}]',
+        'magnetic_declination_radians': str(odom_cfg.get('magnetic_declination_radians', 0.0))
     }
     config_file = odom_cfg.get('config_file', '')
     if config_file:
