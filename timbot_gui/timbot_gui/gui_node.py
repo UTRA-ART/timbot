@@ -844,16 +844,10 @@ class TimbotControlPanel(QMainWindow):
         rel.clicked.connect(self._reload_params)
         tb.addWidget(rel)
 
-        # Spacer → right-align help
+        # Spacer keeps controls aligned on the left
         spacer = QWidget()
         spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         tb.addWidget(spacer)
-
-        hlp = QToolButton()
-        hlp.setText("?  Help")
-        hlp.setToolTip("Keyboard shortcuts  (Ctrl+H)")
-        hlp.clicked.connect(self._show_help)
-        tb.addWidget(hlp)
 
     # ── Left-column panels ────────────────────────────────────
 
