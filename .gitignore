@@ -48,3 +48,5 @@
 **/__pycache__/
 
 .vscode/
+
+**/COLCON_IGNORE
