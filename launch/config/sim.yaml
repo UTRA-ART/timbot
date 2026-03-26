@@ -21,7 +21,7 @@ gazebo:
   world_file: track.world
   log_level: info
   delay_sec: 5.0
-  software_rendering: '1'
+  software_rendering: '0'
   expected_topics: []
 
 # --- Stage 2: Spawn Robot (RSP, bridge, spawn entity) ---
@@ -80,7 +80,7 @@ filter_lidar:
     - /scan_modified
 
 cv_pipeline:
-  enabled: false
+  enabled: true
   log_level: error
   lane_detection_mode: 0  # 0 = deep learning (YOLO), 1 = classical (HSV threshold)
   camera_fps: 1
