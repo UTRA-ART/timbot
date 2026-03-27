@@ -17,11 +17,11 @@ use_topic_check: true  # Set to false to use blind delay_sec instead
 # --- Stage 1: Gazebo Simulator ---
 gazebo:
   enabled: true
-  gui: false
+  gui: true
   world_file: track.world
   log_level: info
   delay_sec: 5.0
-  software_rendering: '1'
+  software_rendering: '0'
   expected_topics: []
 
 # --- Stage 2: Spawn Robot (RSP, bridge, spawn entity) ---
@@ -107,7 +107,7 @@ rviz:
 # --- Stage 7: Nav2 Stack ---
 nav_stack:
   enabled: true
-  config_file: nav2_params.yaml
+  config_file: nav2_rpp.yaml
   log_level: error
   delay_sec: 10.0
   expected_topics:

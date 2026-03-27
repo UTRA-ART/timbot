@@ -12,8 +12,10 @@ subscribes to:
 - right_wheel/command
 
 publishes to:
-- left_wheel/ticks      (Int32)
-- right_wheel/ticks
+- /left_wheel/ticks      (Int32, directionless count)
+- /right_wheel/ticks
+- /left_wheel/direction  (Bool)
+- /right_wheel/direction (Bool)
 
 params
 - baud_rate
@@ -27,6 +29,7 @@ import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Int32
 from std_msgs.msg import Float64
+from std_msgs.msg import Bool
 
 
 class ReadOdomArduino(Node):
@@ -36,6 +39,8 @@ class ReadOdomArduino(Node):
         # publishers
         self.ticks_pub_r = self.create_publisher(Int32, "/right_wheel/ticks", 10)
         self.ticks_pub_l = self.create_publisher(Int32, "/left_wheel/ticks", 10)
+        self.right_dir_pub = self.create_publisher(Bool, '/right_wheel/direction', 10)
+        self.left_dir_pub = self.create_publisher(Bool, '/left_wheel/direction', 10)
 
         # subscribers
         self.create_subscription(Float64, '/right_wheel/command', self.r_command_cb, 10)
@@ -66,9 +71,15 @@ class ReadOdomArduino(Node):
 
     def r_command_cb(self, control_msg):
         self.direction_r = 1 if control_msg.data >= 0 else -1
+        right_dir = Bool()
+        right_dir.data = self.direction_r > 0
+        self.right_dir_pub.publish(right_dir)
 
     def l_command_cb(self, control_msg):
         self.direction_l = -1 if control_msg.data >= 0 else 1
+        left_dir = Bool()
+        left_dir.data = self.direction_l > 0
+        self.left_dir_pub.publish(left_dir)
 
     def timer_callback(self):
         if self.conn.in_waiting > 0:
@@ -77,11 +88,11 @@ class ReadOdomArduino(Node):
                 l_val, r_val = line[1:-1].split(',')  # data in format <{left_count},{right_count}>
 
                 left_msg = Int32()
-                left_msg.data = self.direction_l * int(l_val)
+                left_msg.data = int(l_val)
                 self.ticks_pub_l.publish(left_msg)
 
                 right_msg = Int32()
-                right_msg.data = self.direction_r * int(r_val)
+                right_msg.data = int(r_val)
                 self.ticks_pub_r.publish(right_msg)
             except Exception:
                 pass

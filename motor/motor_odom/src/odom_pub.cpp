@@ -13,8 +13,7 @@
  *   rover_pose/reset (bool)
  * 
  * publishes to:
- *   odom/euler
- *   odom/quat
+ *   odom (quaternion)
  * 
  * resources
  *   covariance matrix: https://answers.ros.org/question/64759/covariance-matrix-for-vo-and-odom/
@@ -72,9 +71,7 @@ public:
 
         // publishers
         odom_data_pub_ = this->create_publisher<nav_msgs::msg::Odometry>(
-            "odom/euler", 100);   // simple odom message, orientation.z is an euler angle
-        odom_data_pub_quat_ = this->create_publisher<nav_msgs::msg::Odometry>(
-            "odom/quat", 100);    // full odom message, orientation.z is quaternion
+            "odom", 100);    // full odom message, orientation as quaternion
         debug_pub_ = this->create_publisher<std_msgs::msg::String>(
             "debug_wheel_odom", 100);
 
@@ -141,7 +138,6 @@ private:
 
     // publishers
     rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_data_pub_;
-    rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_data_pub_quat_;
     rclcpp::Publisher<std_msgs::msg::String>::SharedPtr debug_pub_;
 
     // subscribers
@@ -256,8 +252,7 @@ private:
         odom_old_.pose.pose.orientation.z = odom_new_.pose.pose.orientation.z;
         odom_old_.header.stamp = odom_new_.header.stamp;
 
-        // publish odometry message
-        odom_data_pub_->publish(odom_new_);
+        // publish is handled in publish_quat()
     }
 
     // --- publish quaternion odometry ---
@@ -296,7 +291,7 @@ private:
             }
         }
 
-        odom_data_pub_quat_->publish(quat_odom);
+        odom_data_pub_->publish(quat_odom);
     }
 };
 
