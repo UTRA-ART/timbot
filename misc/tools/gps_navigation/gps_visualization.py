@@ -17,6 +17,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import math
 
 from matplotlib.collections import LineCollection
 from matplotlib.colors import Normalize
@@ -88,6 +89,142 @@ def convert_to_cartesian(latitudes, longitudes, altitudes):
         x, y, z = lat_lon_to_cartesian(lat, lon, alt)
         cartesian_coords.append((x, y, z))
     return cartesian_coords
+
+
+
+
+def lla_to_ecef_jacobian(latlonalt):
+    lat_deg, lon_deg, alt_m = latlonalt
+
+    a  = 6378137.0
+    f  = 1.0 / 298.257223563
+    e2 = f * (2.0 - f)
+
+    lat = np.radians(lat_deg)
+    lon = np.radians(lon_deg)
+
+    s_lat = np.sin(lat)
+    c_lat = np.cos(lat)
+    s_lon = np.sin(lon)
+    c_lon = np.cos(lon)
+
+    N = a / np.sqrt(1.0 - e2 * s_lat**2)
+
+    dN_dlat = a * e2 * s_lat * c_lat / (1.0 - e2 * s_lat**2)**1.5
+
+    # Jacobian  [lat(rad), lon(rad), alt] -> [x, y, z]
+    return np.array([
+        [dN_dlat*c_lat*c_lon - (N+alt_m)*s_lat*c_lon,  -(N+alt_m)*c_lat*s_lon,  c_lat*c_lon],
+        [dN_dlat*c_lat*s_lon - (N+alt_m)*s_lat*s_lon,   (N+alt_m)*c_lat*c_lon,  c_lat*s_lon],
+        [dN_dlat*(1-e2)*s_lat + (N*(1-e2)+alt_m)*c_lat, 0.0,                    s_lat]
+    ])
+
+
+def lla_cov_to_ecef_cov(latlonalt, cov_lla):
+    cov_lla = np.asarray(cov_lla, dtype=float).reshape(3,3)
+
+    # convert deg to rad for covariance units
+    deg_to_rad = np.pi / 180.0
+    unit_scale = np.diag([deg_to_rad, deg_to_rad, 1.0])
+
+    cov_lla_rad = unit_scale @ cov_lla @ unit_scale.T
+
+    J = lla_to_ecef_jacobian(latlonalt)
+
+    return J @ cov_lla_rad @ J.T
+
+
+def lla_to_enu(latlonalt, ref_ecef):
+    ecef  = lla_to_ecef_xyz(latlonalt)
+    delta = ecef - ref_ecef
+    return delta
+
+
+def ecef_cov_to_enu_cov(cov_ecef, ref_lat, ref_lon):
+    cov_ecef = np.asarray(cov_ecef, dtype=float).reshape(3,3)
+
+    R = enu_rotation_matrix(ref_lat, ref_lon)
+
+    return R @ cov_ecef @ R.T
+
+
+def lla_cov_to_enu_cov(latlonalt, cov_lla, ref_lat, ref_lon):
+    cov_ecef = lla_cov_to_ecef_cov(latlonalt, cov_lla)
+
+    return ecef_cov_to_enu_cov(cov_ecef, ref_lat, ref_lon)
+
+
+def csv_row_covariance_enu(row):
+    cov_cols = [f"position_covariance_{k}" for k in range(9)]
+
+    return row[cov_cols].to_numpy(dtype=float).reshape(3,3)
+
+def add_covariance_band(ax, east_vals, north_vals, covariances_enu, n_std=1.0):
+    if covariances_enu is None or len(covariances_enu) == 0:
+        return
+
+    n = len(east_vals)
+    if n == 0:
+        return
+
+    upper_x = []
+    upper_y = []
+    lower_x = []
+    lower_y = []
+
+    for i in range(n):
+        # Finding tangent direction
+        if n == 1:
+            dx = 1.0
+            dy = 0.0
+        elif i == 0:
+            dx = east_vals[1] - east_vals[0]
+            dy = north_vals[1] - north_vals[0]
+        elif i == n - 1:
+            dx = east_vals[n-1] - east_vals[n-2]
+            dy = north_vals[n-1] - north_vals[n-2]
+        else:
+            dx = east_vals[i+1] - east_vals[i-1]
+            dy = north_vals[i+1] - north_vals[i-1]
+
+        # Normalize tangent
+        length = math.sqrt(dx * dx + dy * dy)
+        if length == 0.0:
+            tx = 1.0
+            ty = 0.0
+        else:
+            tx = dx / length
+            ty = dy / length
+
+        nx = -ty
+        ny = tx
+
+        cov2 = covariances_enu[i][:2,:2]
+        c00 = cov2[0,0]
+        c01 = cov2[0,1]
+        c10 = cov2[1,0]
+        c11 = cov2[1,1]
+
+        var_normal = nx * (c00 * nx + c01 * ny) + ny * (c10 * nx + c11 * ny)
+        if var_normal < 0.0:
+            var_normal = 0.0
+
+        sigma = math.sqrt(var_normal)
+        offset = n_std * sigma
+
+        ex = east_vals[i]
+        nyy = north_vals[i]
+
+        upper_x.append(ex + offset * nx)
+        upper_y.append(nyy + offset * ny)
+
+        lower_x.append(ex - offset * nx)
+        lower_y.append(nyy - offset * ny)
+
+    band_x = upper_x + lower_x[::-1]
+    band_y = upper_y + lower_y[::-1]
+
+    ax.fill(band_x, band_y, alpha=0.3, linewidth=0.0, zorder=1)
 
 # Actual GPS positions of waypoints A, B, C (lat, lon)
 # Altitude set to sensor output
@@ -180,6 +317,7 @@ def plot_entire_path():
     R = enu_rotation_matrix(ref_lat, ref_lon)
 
     rover_data = np.empty((0, 3))
+    covariances_enu = []
     # timestamps = fp['timestamp'].to_numpy().astype(float)
     timestamps = np.concatenate([fpab['timestamp'].astype(float), fpbc['timestamp'].astype(float), fpca['timestamp'].astype(float)])
 
@@ -189,8 +327,9 @@ def plot_entire_path():
             E, N, U = R @ lla_to_enu(latlonalt, ref_ecef)
             #print(f"Data Point {i}: Lat={latlonalt[0]}, Lon={latlonalt[1]}, Alt={latlonalt[2]} -> E={E}, N={N}, U={U}")
             rover_data = np.append(rover_data, [[E, N, U]], axis=0)
+            covariances_enu.append(csv_row_covariance_enu(fp.iloc[i]))
 
-    visualize_gps_data_2d(rover_data, timestamps)
+    visualize_gps_data_2d(rover_data, timestamps, covariances_enu=np.asarray(covariances_enu))
 
 def colored_segments(ax, x, y, values, cmap, norm, lw=2.0):
         pts  = np.array([x, y]).T.reshape(-1, 1, 2)
@@ -201,7 +340,7 @@ def colored_segments(ax, x, y, values, cmap, norm, lw=2.0):
         ax.add_collection(lc)
         return lc
 
-def visualize_gps_data_2d(rover_data, timestamps):
+def visualize_gps_data_2d(rover_data, timestamps, covariances_enu=None):
     E_vals, N_vals, U_vals = rover_data[:, 0], rover_data[:, 1], rover_data[:, 2]
 
     t = timestamps - timestamps.min()
@@ -234,6 +373,7 @@ def visualize_gps_data_2d(rover_data, timestamps):
     ax_plan.set_xlabel("East (m)")
     ax_plan.set_ylabel("North (m)")
     ax_plan.set_title("Top-Down Footprint")
+    add_covariance_band(ax_plan, E_vals, N_vals, covariances_enu)
 
     ax_plan.plot(E_vals[0],  N_vals[0],  marker="D", ms=8,
                  color="#3fb950", zorder=5, label="Start")
@@ -252,8 +392,23 @@ def visualize_gps_data_2d(rover_data, timestamps):
     ax_alt.set_xlabel("Cumulative Distance (m)")
     ax_alt.set_ylabel("Up / Altitude (m)")
     ax_alt.set_title("Altitude Profile")
+
+    if covariances_enu is not None and len(covariances_enu) == len(U_vals):
+        sigma_u = np.sqrt(np.clip(covariances_enu[:, 2, 2], 0.0, None))
+        ax_alt.fill_between(
+            cum_dist,
+            U_vals - sigma_u,
+            U_vals + sigma_u,
+            alpha=0.3,
+            color="#ff7b72",
+            label="Altitude 1-sigma",
+        )
+
     ax_alt.fill_between(cum_dist, U_vals.min() - 0.5, U_vals,
                         alpha=0.15, color="#58a6ff")
+    if covariances_enu is not None and len(covariances_enu) == len(U_vals):
+        ax_alt.legend(fontsize=8, facecolor="#161b22", edgecolor="#30363d",
+                      labelcolor="#e6edf3", loc="best")
 
     cb2 = fig.colorbar(lc_alt, ax=ax_alt, pad=0.02, fraction=0.035)
     cb2.set_label("Time (s)", color="#8b949e", fontsize=8)

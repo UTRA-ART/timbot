@@ -99,7 +99,7 @@ QToolBar {{
     background-color: {C["bg_secondary"]};
     border-bottom: 1px solid {C["border"]};
     padding: 4px 8px;
-    spacing: 6px;    source install/setup.bash && ros2 node list 2>&1 | head -10
+    spacing: 6px;
 }}
 QToolBar QToolButton {{
     background: transparent;
