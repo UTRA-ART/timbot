@@ -18,6 +18,7 @@ let currentLayer = 'stadia';
 let stadiaKey = '';
 let baseTileLayer = null;
 let labelLayer = null;
+const SIGMA_STD = 1.0;
 
 function applyLayer() {
   if (!mapInstance) return;
@@ -191,9 +192,22 @@ function plotAll() {
 
     totalPts += pts.length;
 
-    const latLngs = pts.map(p => [p.latitude, p.longitude]);
-    allLats.push(...pts.map(p => p.latitude));
-    allLons.push(...pts.map(p => p.longitude));
+    const latLngs = pts.map(p => [Number(p.latitude), Number(p.longitude)]);
+    allLats.push(...pts.map(p => Number(p.latitude)));
+    allLons.push(...pts.map(p => Number(p.longitude)));
+
+    const covarianceBand = buildCovarianceBandLatLngs(pts, SIGMA_STD);
+    if (covarianceBand) {
+      const band = L.polygon(covarianceBand, {
+        color: '#ffffff',
+        weight: 2,
+        opacity: 0.85,
+        fillColor: color,
+        fillOpacity: 0.4,
+        interactive: false,
+      }).addTo(mapInstance);
+      drawnLayers.push(band);
+    }
 
     // Compute timestamps for gradient
     const times = pts.map(p => parseFloat(p.timestamp ?? 0));
@@ -244,6 +258,101 @@ function plotAll() {
   log('ok', `Plotted ${loadedFiles.length} track(s), ${totalPts} pts`);
 }
 
+function buildCovarianceBandLatLngs(points, nStd = 1.0) {
+  if (!Array.isArray(points) || points.length === 0) return null;
+
+  const upper = [];
+  const lower = [];
+  let usableCount = 0;
+
+  for (let i = 0; i < points.length; i++) {
+    const point = points[i];
+    const covariance = getHorizontalCovariance(point);
+    if (!covariance) continue;
+
+    const tangent = tangentMetersAt(points, i);
+    const tangentLength = Math.hypot(tangent.east, tangent.north);
+    const tx = tangentLength > 0 ? tangent.east / tangentLength : 1.0;
+    const ty = tangentLength > 0 ? tangent.north / tangentLength : 0.0;
+
+    const nx = -ty;
+    const ny = tx;
+    const varianceNormal =
+      nx * (covariance[0][0] * nx + covariance[0][1] * ny) +
+      ny * (covariance[1][0] * nx + covariance[1][1] * ny);
+
+    const sigma = Math.sqrt(Math.max(varianceNormal, 0));
+    const offsetMeters = nStd * sigma;
+
+    upper.push(offsetLatLng(point.latitude, point.longitude, nx * offsetMeters, ny * offsetMeters));
+    lower.push(offsetLatLng(point.latitude, point.longitude, -nx * offsetMeters, -ny * offsetMeters));
+    usableCount += 1;
+  }
+
+  if (usableCount < 2) return null;
+  return upper.concat(lower.reverse());
+}
+
+function getHorizontalCovariance(point) {
+  const keys = Array.from({ length: 9 }, (_, i) => `position_covariance_${i}`);
+  if (!keys.every(key => Number.isFinite(Number(point[key])))) return null;
+
+  return [
+    [Number(point.position_covariance_0), Number(point.position_covariance_1)],
+    [Number(point.position_covariance_3), Number(point.position_covariance_4)],
+  ];
+}
+
+function tangentMetersAt(points, index) {
+  if (points.length === 1) return { east: 1, north: 0 };
+
+  if (index === 0) {
+    return latLonDeltaToMeters(points[0], points[1]);
+  }
+
+  if (index === points.length - 1) {
+    return latLonDeltaToMeters(points[points.length - 2], points[points.length - 1]);
+  }
+
+  return latLonDeltaToMeters(points[index - 1], points[index + 1]);
+}
+
+function latLonDeltaToMeters(from, to) {
+  const meanLatRad = ((Number(from.latitude) + Number(to.latitude)) * 0.5) * Math.PI / 180;
+  const dLat = Number(to.latitude) - Number(from.latitude);
+  const dLon = Number(to.longitude) - Number(from.longitude);
+
+  const north = dLat * metersPerDegreeLat(Number(from.latitude));
+  const east = dLon * metersPerDegreeLon(meanLatRad);
+  return { east, north };
+}
+
+function offsetLatLng(lat, lon, eastMeters, northMeters) {
+  const baseLat = Number(lat);
+  const baseLon = Number(lon);
+  const latOffset = northMeters / metersPerDegreeLat(baseLat);
+  const lonOffset = eastMeters / metersPerDegreeLon(baseLat * Math.PI / 180);
+  return [baseLat + latOffset, baseLon + lonOffset];
+}
+
+function metersPerDegreeLat(latDeg) {
+  const latRad = latDeg * Math.PI / 180;
+  return (
+    111132.92 -
+    559.82 * Math.cos(2 * latRad) +
+    1.175 * Math.cos(4 * latRad) -
+    0.0023 * Math.cos(6 * latRad)
+  );
+}
+
+function metersPerDegreeLon(latRad) {
+  return (
+    111412.84 * Math.cos(latRad) -
+    93.5 * Math.cos(3 * latRad) +
+    0.118 * Math.cos(5 * latRad)
+  );
+}
+
 // Colormap function 
 function plasmaColor(t) {
   t = Math.max(0, Math.min(1, t));
@@ -270,7 +379,7 @@ function plasmaColor(t) {
 // Logging (Helps to communcate erros with file inputs or etc)
 const logEl = document.getElementById('log');
 function log(type, msg) {
-  const cls = type === 'ok' ? 'ok' : type === 'warn' ? '25' : 'info';
+  const cls = type === 'ok' ? 'ok' : type === 'warn' ? 'warn' : 'info';
   const ts = new Date().toISOString().slice(11,19);
   const line = document.createElement('div');
   line.className = 'log-line';

@@ -260,6 +260,25 @@
     color: var(--muted);
   }
 
+  .covariance-key {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  .covariance-key-swatch {
+    width: 28px;
+    height: 10px;
+    border-radius: 999px;
+    border: 1px solid #ffffff33;
+    background: linear-gradient(to right, #00d4ff22, #00d4ff66);
+    box-shadow: 0 0 10px #00d4ff22;
+  }
+
   .waypoint-row {
     display: flex;
     align-items: center;

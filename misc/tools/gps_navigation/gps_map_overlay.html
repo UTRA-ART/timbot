@@ -47,6 +47,7 @@
           <div class="upload-icon">⬆</div>
           <p>Drop CSVs or click to browse</p>
           <p style="font-size:10px; margin-top:4px; color:#2a5a7a">Expects: timestamp, latitude, longitude, altitude</p>
+          <p style="font-size:10px; margin-top:4px; color:#2a5a7a">Optional: <code>position_covariance_0..8</code> for 1-sigma shading</p>
         </div>
         <input type="file" id="file-input" accept=".csv" multiple>
         <div class="file-list" id="file-list"></div>
@@ -64,6 +65,10 @@
         <div class="gradient-bar"></div>
         <div class="gradient-labels">
           <span>Start</span><span>End</span>
+        </div>
+        <div class="covariance-key">
+          <span class="covariance-key-swatch"></span>
+          <span>Covariance 1-sigma region</span>
         </div>
         <div style="margin-top:10px" class="legend" id="file-legend"></div>
       </div>
