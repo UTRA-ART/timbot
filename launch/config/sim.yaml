@@ -80,7 +80,7 @@ filter_lidar:
     - /scan_modified
 
 cv_pipeline:
-  enabled: true
+  enabled: false
   log_level: error
   lane_detection_mode: 0  # 0 = deep learning (YOLO), 1 = classical (HSV threshold)
   camera_fps: 1
