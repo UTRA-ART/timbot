@@ -30,6 +30,18 @@ def parse_args() -> argparse.Namespace:
         default=default_csv,
         help="Path to the IMU CSV file.",
     )
+    parser.add_argument(
+        "--cov-start",
+        type=float,
+        default=5.0,
+        help="Start time in seconds for the covariance estimation window.",
+    )
+    parser.add_argument(
+        "--cov-end",
+        type=float,
+        default=15.0,
+        help="End time in seconds for the covariance estimation window.",
+    )
     return parser.parse_args()
 
 
@@ -50,7 +62,7 @@ def quaternion_to_euler_xyz(x: np.ndarray, y: np.ndarray, z: np.ndarray, w: np.n
     return roll, pitch, yaw
 
 
-def load_imu_csv(csv_path: Path) -> tuple[np.ndarray, dict[str, np.ndarray], dict[str, np.ndarray]]:
+def load_imu_csv(csv_path: Path) -> tuple[np.ndarray, dict[str, np.ndarray]]:
     df = pd.read_csv(csv_path)
 
     time = df["Time"].to_numpy(dtype=float)
@@ -69,6 +81,7 @@ def load_imu_csv(csv_path: Path) -> tuple[np.ndarray, dict[str, np.ndarray], dic
 
     signals = {
         "quaternion": quaternion,
+        "orientation_rpy_rad": np.column_stack([roll, pitch, yaw]),
         "orientation": np.rad2deg(np.column_stack([roll, pitch, yaw])),
         "angular_velocity": df[
             ["angular_velocity.x", "angular_velocity.y", "angular_velocity.z"]
@@ -78,30 +91,73 @@ def load_imu_csv(csv_path: Path) -> tuple[np.ndarray, dict[str, np.ndarray], dic
         ].to_numpy(dtype=float),
     }
 
-    covariances = {
-        "orientation": df[
-            ["orientation_covariance_0", "orientation_covariance_4", "orientation_covariance_8"]
-        ].to_numpy(dtype=float),
-        "angular_velocity": df[
-            [
-                "angular_velocity_covariance_0",
-                "angular_velocity_covariance_4",
-                "angular_velocity_covariance_8",
-            ]
-        ].to_numpy(dtype=float),
-        "linear_acceleration": df[
-            [
-                "linear_acceleration_covariance_0",
-                "linear_acceleration_covariance_4",
-                "linear_acceleration_covariance_8",
-            ]
-        ].to_numpy(dtype=float),
+    return time, signals
+
+
+
+def compute_cov(data):
+    x = np.asarray(data, dtype=float)
+    return np.cov(x, rowvar=False, ddof=1)
+
+def select_covariance_window(
+    time: np.ndarray,
+    cov_start: float,
+    cov_end: float,
+) -> tuple[slice, str]:
+    if cov_end <= cov_start:
+        raise ValueError("cov-end must be greater than cov-start")
+
+    start_idx = int(np.searchsorted(time, cov_start, side="left"))
+    end_idx = int(np.searchsorted(time, cov_end, side="right"))
+
+    if end_idx - start_idx < 2:
+        raise ValueError(
+            f"Covariance window {cov_start:.2f}s to {cov_end:.2f}s does not contain enough samples"
+        )
+
+    return slice(start_idx, end_idx), f"{cov_start:.2f}s to {cov_end:.2f}s ({end_idx - start_idx} samples)"
+
+
+def compute_window_covariances(
+    signals: dict[str, np.ndarray],
+    window: slice,
+) -> dict[str, np.ndarray]:
+    # Remove 2*pi discontinuities before covariance calculation.
+    orientation_window = np.unwrap(signals["orientation_rpy_rad"][window], axis=0)
+
+    covariance_samples = {
+        "orientation": orientation_window,
+        "angular_velocity": signals["angular_velocity"][window],
+        "linear_acceleration": signals["linear_acceleration"][window],
     }
 
-    # Orientation covariance is stored in rad^2 in ROS Imu messages.
-    covariances["orientation"] = np.rad2deg(np.sqrt(np.clip(covariances["orientation"], 0.0, None))) ** 2
+    return {name: compute_cov(data) for name, data in covariance_samples.items()}
 
-    return time, signals, covariances
+
+def print_covariances(covariances: dict[str, np.ndarray], window_desc: str):
+    print(f"\nEstimated covariances from CSV data window ({window_desc}):")
+    np.set_printoptions(precision=8, suppress=False)
+
+    print("\nOrientation covariance (roll, pitch, yaw) [rad^2]:")
+    print(covariances["orientation"])
+
+    print("\nAngular velocity covariance (x, y, z) [rad^2/s^2]:")
+    print(covariances["angular_velocity"])
+
+    print("\nLinear acceleration covariance (x, y, z) [(m/s^2)^2]:")
+    print(covariances["linear_acceleration"])
+
+
+def covariance_diagonals_for_plot(
+    time: np.ndarray, covariances: dict[str, np.ndarray]
+) -> dict[str, np.ndarray]:
+    orientation_diag_deg2 = np.rad2deg(np.sqrt(np.clip(np.diag(covariances["orientation"]), 0.0, None))) ** 2
+
+    return {
+        "orientation": np.tile(orientation_diag_deg2, (len(time), 1)),
+        "angular_velocity": np.tile(np.diag(covariances["angular_velocity"]), (len(time), 1)),
+        "linear_acceleration": np.tile(np.diag(covariances["linear_acceleration"]), (len(time), 1)),
+    }
 
 
 def plot_series_with_covariance(
@@ -204,8 +260,17 @@ def visualize_imu_data(time: np.ndarray, signals: dict[str, np.ndarray], covaria
 def main():
     args = parse_args()
     csv_path = Path(args.csv_path).expanduser().resolve()
-    time, signals, covariances = load_imu_csv(csv_path)
-    visualize_imu_data(time, signals, covariances)
+    time, signals = load_imu_csv(csv_path)
+
+    covariance_window, window_desc = select_covariance_window(
+        time,
+        args.cov_start,
+        args.cov_end,
+    )
+    covariances = compute_window_covariances(signals, covariance_window)
+    print_covariances(covariances, window_desc)
+
+    visualize_imu_data(time, signals, covariance_diagonals_for_plot(time, covariances))
 
 
 if __name__ == "__main__":
