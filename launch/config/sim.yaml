@@ -82,13 +82,14 @@ filter_lidar:
 cv_pipeline:
   enabled: true
   log_level: error
-  lane_detection_mode: 0  # 0 = deep learning (YOLO), 1 = classical (HSV threshold)
-  camera_fps: 1
+  lane_detection_mode: 1  # 0 = deep learning (YOLO), 1 = classical (HSV threshold)
+  camera_fps: 10
   camera_width: 640
   camera_height: 320
   delay_sec: 5.0
   expected_topics:
     - /zed_node/left/image
+  roi_mask_points: [0.4, 1.0, 0.5, 0.6, 0.6, 0.6, 0.7, 1.0]
 
 # --- Stage 5: Cartographer (SLAM) ---
 cartographer:

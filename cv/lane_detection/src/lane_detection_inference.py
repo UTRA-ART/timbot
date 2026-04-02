@@ -65,6 +65,23 @@ class CVModelInferencer(Node):
         self.cx = None
         self.cy = None
 
+        # Mask representing the area occupied by the front of the rover, which should be ignored for lane detection
+        default_pts = [0.4, 1.0, 0.5, 0.6, 0.6, 0.6, 0.7, 1.0]
+        self.declare_parameter('roi_mask_points', default_pts)
+        raw_pts = self.get_parameter('roi_mask_points').value
+
+        pixel_pts = []
+        for i in range(0, len(raw_pts), 2):
+            px = int(raw_pts[i] * self.camera_width)
+            py = int(raw_pts[i+1] * self.camera_height)
+            pixel_pts.append([px, py])
+
+        self.mask_pts = np.array(pixel_pts, np.int32).reshape((-1, 1, 2))
+
+        self.static_roi_mask = np.ones((self.camera_height, self.camera_width), dtype=np.uint8)
+        cv2.fillPoly(self.static_roi_mask, [self.mask_pts], 0)
+        self.roi_mask = self.static_roi_mask.copy()
+
     def run(self):
         # Subscribe to camera info once to get intrinsics
         self.create_subscription(
@@ -118,10 +135,13 @@ class CVModelInferencer(Node):
 
         # Run inference
         output = None
+        lanes_found = 0
         if self.classical_mode:
             output = self.lane_detection(input_img)
             mask = np.where(output > 0.5, 1., 0.)
             output = (mask * 255).astype(np.uint8)
+            if np.any(output > 0):
+                lanes_found = 1
         else:
             result = self.Inference(input_img, verbose=False)
             confidence_threshold = 0.5
@@ -135,14 +155,28 @@ class CVModelInferencer(Node):
 
                     if float(result[0].boxes[k].conf) > confidence_threshold:
                         if label == 'lane':
+                            lanes_found += 1
                             img = np.where(mask > 0.5, 255, 0).astype(np.uint8)
                             img = cv2.resize(img.squeeze(), (output_image.shape[1], output_image.shape[0]))
                             output_image = np.maximum(output_image, img)
 
             output = output_image
+        
+        # Ensure ROI mask is applied (roi_mask is single-channel uint8)
+        output = cv2.bitwise_and(output, output, mask=self.roi_mask)
 
-        # Publish debug mask image
-        img_msg = self.bridge.cv2_to_imgmsg(output, encoding='passthrough')
+        # Convert single-channel mask to BGR for debug overlay and draw ROI outline
+        color_output = cv2.cvtColor(output, cv2.COLOR_GRAY2BGR)
+        # mask_pts shaped (-1,1,2) -> reshape to Nx2 for polylines
+        try:
+            pts = self.mask_pts.reshape(-1, 2).astype(np.int32)
+            cv2.polylines(color_output, [pts], isClosed=True, color=(0, 0, 255), thickness=2)
+        except Exception:
+            # If something unexpected with mask pts, skip drawing outline
+            pass
+
+        # Publish debug image as BGR8
+        img_msg = self.bridge.cv2_to_imgmsg(color_output, encoding='bgr8')
         img_msg.header.stamp = rgb_data.header.stamp
         self.pub_raw.publish(img_msg)
 
