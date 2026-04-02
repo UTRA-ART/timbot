@@ -84,8 +84,8 @@ cv_pipeline:
   log_level: error
   lane_detection_mode: 0  # 0 = deep learning (YOLO), 1 = classical (HSV threshold)
   camera_fps: 1
-  camera_width: 320
-  camera_height: 180
+  camera_width: 640
+  camera_height: 320
   delay_sec: 5.0
   expected_topics:
     - /zed_node/left/image

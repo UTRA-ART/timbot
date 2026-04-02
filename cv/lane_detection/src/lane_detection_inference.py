@@ -52,6 +52,13 @@ class CVModelInferencer(Node):
                 f"CUDA status: {torch.cuda.is_available()}"
             )
 
+        # Parameters for model input resolution — can be set from sim.yaml / launch
+        # Default to the previous hard-coded values so behavior is unchanged if not provided
+        self.declare_parameter('camera_width', 330.0)
+        self.declare_parameter('camera_height', 180.0)
+        self.camera_width = int(self.get_parameter('camera_width').value)
+        self.camera_height = int(self.get_parameter('camera_height').value)
+
         # Camera intrinsics — populated from CameraInfo
         self.fx = None
         self.fy = None
@@ -104,9 +111,9 @@ class CVModelInferencer(Node):
         # Convert depth to numpy array (float32, meters)
         depth_img = self.bridge.imgmsg_to_cv2(depth_data, desired_encoding='passthrough')
 
-        # Resize input image to model input size
+        # Resize input image to model input size (width, height)
         input_img = raw.copy()
-        input_img = cv2.resize(input_img, (330, 180))
+        input_img = cv2.resize(input_img, (self.camera_width, self.camera_height))
         input_img = input_img[:, :, :3]
 
         # Run inference
@@ -139,13 +146,13 @@ class CVModelInferencer(Node):
         img_msg.header.stamp = rgb_data.header.stamp
         self.pub_raw.publish(img_msg)
 
-        # Resize depth to match the model output size (330x180)
-        depth_resized = cv2.resize(depth_img, (330, 180), interpolation=cv2.INTER_NEAREST)
+        # Resize depth to match the model output size (width x height)
+        depth_resized = cv2.resize(depth_img, (self.camera_width, self.camera_height), interpolation=cv2.INTER_NEAREST)
 
         # Scale intrinsics to the resized resolution
         h_orig, w_orig = depth_img.shape[:2]
-        sx = 330.0 / w_orig
-        sy = 180.0 / h_orig
+        sx = self.camera_width / w_orig
+        sy = self.camera_height / h_orig
         fx = self.fx * sx
         fy = self.fy * sy
         cx = self.cx * sx
