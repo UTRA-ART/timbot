@@ -12,7 +12,7 @@ class ClassicalLaneDetector:
     Classical lane detection using HSV color thresholding and barrel exclusion.
     """
 
-    def __init__(self, width=330, height=180, white_sensitivity=40, downscale_factor=1):
+    def __init__(self, width=330, height=180, white_sensitivity=40, downscale_factor=1, horizon_crop=0.5):
         self.width = width
         self.height = height
         
@@ -25,6 +25,7 @@ class ClassicalLaneDetector:
         self.upper_orange = np.array([50, 255, 255])
 
         self.downscale_factor = downscale_factor
+        self.horizon_crop = horizon_crop
 
     def _create_white_mask(self, img_hsv):
         """Create mask for white pixels (lane lines) in HSV."""
@@ -37,20 +38,24 @@ class ClassicalLaneDetector:
     def _get_mask(self, img_hsv, mask_method):
         """Downscale, apply mask method, upscale back."""
         h, w = img_hsv.shape[:2]
-        # Using 1/4 scale for processing speed as per original logic
-        small = cv2.resize(img_hsv, (w // self.downscale_factor, h // self.downscale_factor), interpolation=cv2.INTER_AREA)
-        mask = mask_method(small)
         
-        # Ensure binary 0 or 255
+        small = cv2.resize(img_hsv, (w // self.downscale_factor, h // self.downscale_factor), interpolation=cv2.INTER_AREA)
+        
+        mask = mask_method(small)
+
         binary = np.where(mask > 0, 255, 0).astype(np.uint8)
-        return cv2.resize(binary, (w, h), interpolation=cv2.INTER_AREA)
+
+        large = cv2.resize(binary, (w, h), interpolation=cv2.INTER_AREA)
+        return large
 
     def _expand_barrels(self, mask):
         """Expand barrel detections vertically by +/-30px to create exclusion zones."""
+        # If no barrels detected, return original mask to avoid unnecessary processing
         if mask.max() == 0:
             return mask
             
         h, w = mask.shape[:2]
+
         # Transformation matrices for vertical shifting
         m_up = np.float64([[1, 0, 0], [0, 1, 30]])
         m_down = np.float64([[1, 0, 0], [0, 1, -30]])
@@ -89,6 +94,8 @@ class ClassicalLaneDetector:
         output = cv2.bitwise_and(lanes, cv2.bitwise_not(barrels_expanded))
         
         # Crop the top (sky/horizon) to remove distant false positives
-        output[:50, :] = 0 
+        if self.horizon_crop > 0:
+            crop_line = int(self.horizon_crop * self.height)
+            output[:crop_line, :] = 0
 
         return output

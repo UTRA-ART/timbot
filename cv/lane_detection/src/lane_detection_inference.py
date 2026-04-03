@@ -26,9 +26,8 @@ class CVModelInferencer(Node):
     def __init__(self):
         super().__init__('lane_detection_model_inference')
 
-        # Publishers — only PointCloud2 for nav and debug image
-        self.pub_pt = self.create_publisher(PointCloud2, 'cv/lane_detections_cloud', 10)
-        self.pub_raw = self.create_publisher(Image, 'cv/model_output', 10)
+        self.pub_pt = self.create_publisher(PointCloud2, 'cv/lane_detections_cloud', 10) # Export PointCould2 for Nav
+        self.pub_raw = self.create_publisher(Image, 'cv/model_output', 10) # Export lane detection debug image
 
         self.bridge = CvBridge()
 
