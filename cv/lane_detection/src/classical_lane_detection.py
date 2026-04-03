@@ -12,12 +12,12 @@ class ClassicalLaneDetector:
     Classical lane detection using HSV color thresholding and barrel exclusion.
     """
 
-    def __init__(self, width=330, height=180, white_sensitivity=40, downscale_factor=1, horizon_crop=0.5):
+    def __init__(self, width=330, height=180, white_sensitivity=20, downscale_factor=1, horizon_crop=0.15):
         self.width = width
         self.height = height
         
         # HSV Threshold constants
-        self.white_sensitivity = white_sensitivity
+        self.white_sensitivity = white_sensitivity # Low for narrow range, high for wide range of whites
         self.lower_white = np.array([0, 0, 255 - self.white_sensitivity])
         self.upper_white = np.array([255, self.white_sensitivity, 255])
         
