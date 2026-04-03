@@ -3,9 +3,6 @@ Classical lane detection using HSV color thresholding.
 
 Detects white lane markings by thresholding in HSV color space, then removes
 orange barrel/pylon regions to avoid false positives. No ML model required.
-
-Usage: this module is lazily imported by lane_detection_inference.py when
-lane_detection_mode is set to 1 (classical).
 """
 import cv2
 import numpy as np
@@ -15,17 +12,19 @@ class ClassicalLaneDetector:
     Classical lane detection using HSV color thresholding and barrel exclusion.
     """
 
-    def __init__(self, width=330, height=180):
+    def __init__(self, width=330, height=180, white_sensitivity=40, downscale_factor=1):
         self.width = width
         self.height = height
         
         # HSV Threshold constants
-        self.white_sensitivity = 40
+        self.white_sensitivity = white_sensitivity
         self.lower_white = np.array([0, 0, 255 - self.white_sensitivity])
         self.upper_white = np.array([255, self.white_sensitivity, 255])
         
         self.lower_orange = np.array([10, 100, 100])
         self.upper_orange = np.array([50, 255, 255])
+
+        self.downscale_factor = downscale_factor
 
     def _create_white_mask(self, img_hsv):
         """Create mask for white pixels (lane lines) in HSV."""
@@ -39,7 +38,7 @@ class ClassicalLaneDetector:
         """Downscale, apply mask method, upscale back."""
         h, w = img_hsv.shape[:2]
         # Using 1/4 scale for processing speed as per original logic
-        small = cv2.resize(img_hsv, (w // 4, h // 4), interpolation=cv2.INTER_AREA)
+        small = cv2.resize(img_hsv, (w // self.downscale_factor, h // self.downscale_factor), interpolation=cv2.INTER_AREA)
         mask = mask_method(small)
         
         # Ensure binary 0 or 255

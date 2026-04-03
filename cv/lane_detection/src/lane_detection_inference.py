@@ -75,11 +75,14 @@ class CVModelInferencer(Node):
             py = int(raw_pts[i+1] * self.camera_height)
             pixel_pts.append([px, py])
 
-        self.mask_pts = np.array(pixel_pts, np.int32).reshape((-1, 1, 2))
+        mask_pts = np.array(pixel_pts, np.int32).reshape((-1, 1, 2))
 
-        self.static_roi_mask = np.ones((self.camera_height, self.camera_width), dtype=np.uint8)
-        cv2.fillPoly(self.static_roi_mask, [self.mask_pts], 0)
-        self.roi_mask = self.static_roi_mask.copy()
+        self.roi_mask = np.ones((self.camera_height, self.camera_width), dtype=np.uint8)
+        cv2.fillPoly(self.roi_mask, [mask_pts], 0)
+
+        self.debug_overlay = np.zeros((self.camera_height, self.camera_width, 3), dtype=np.uint8)
+        pts = mask_pts.reshape(-1, 2).astype(np.int32)
+        cv2.polylines(self.debug_overlay, [pts], isClosed=True, color=(0, 0, 255), thickness=2)
 
     def run(self):
         # Subscribe to camera info once to get intrinsics
@@ -162,15 +165,11 @@ class CVModelInferencer(Node):
         # Ensure ROI mask is applied (roi_mask is single-channel uint8)
         output = cv2.bitwise_and(output, output, mask=self.roi_mask)
 
-        # Convert single-channel mask to BGR for debug overlay and draw ROI outline
+        # Convert mask to BGR so we can add the red lines
         color_output = cv2.cvtColor(output, cv2.COLOR_GRAY2BGR)
-        # mask_pts shaped (-1,1,2) -> reshape to Nx2 for polylines
-        try:
-            pts = self.mask_pts.reshape(-1, 2).astype(np.int32)
-            cv2.polylines(color_output, [pts], isClosed=True, color=(0, 0, 255), thickness=2)
-        except Exception:
-            # If something unexpected with mask pts, skip drawing outline
-            pass
+
+        # Stamp the pre-drawn red lines onto the image
+        color_output = cv2.bitwise_or(color_output, self.debug_overlay)
 
         # Publish debug image as BGR8
         img_msg = self.bridge.cv2_to_imgmsg(color_output, encoding='bgr8')
