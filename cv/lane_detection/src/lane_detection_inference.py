@@ -11,6 +11,7 @@ from sensor_msgs.msg import Image, CameraInfo, PointCloud2
 from std_msgs.msg import Header
 
 from ultralytics import YOLO
+from classical_lane_detection import ClassicalLaneDetector
 
 import rclpy
 from rclpy.node import Node
@@ -38,12 +39,17 @@ class CVModelInferencer(Node):
         self.declare_parameter('lane_detection_mode', 0)
         self.classical_mode = int(self.get_parameter('lane_detection_mode').value)
 
-        self.Inference = None
-        self.lane_detection = None
+        # Parameters for model input resolution — can be set from sim.yaml / launch
+        self.declare_parameter('camera_width', 330.0)
+        self.declare_parameter('camera_height', 180.0)
+        self.camera_width = int(self.get_parameter('camera_width').value)
+        self.camera_height = int(self.get_parameter('camera_height').value)
+
+        self.Inference = None # YOLO model instance (if using deep learning)
+        self.Classical = None # ClassicalLaneDetector instance (if using classical)
 
         if self.classical_mode == 1:
-            from classical_lane_detection import lane_detection
-            self.lane_detection = lane_detection
+            self.Classical = ClassicalLaneDetector(width=self.camera_width, height=self.camera_height)
             self.get_logger().info("Lane Detection node initialized with CLASSICAL...")
         else:
             self.Inference = YOLO(self.model_path)
@@ -51,13 +57,6 @@ class CVModelInferencer(Node):
                 f"Lane Detection node initialized with DEEP LEARNING...\n"
                 f"CUDA status: {torch.cuda.is_available()}"
             )
-
-        # Parameters for model input resolution — can be set from sim.yaml / launch
-        # Default to the previous hard-coded values so behavior is unchanged if not provided
-        self.declare_parameter('camera_width', 330.0)
-        self.declare_parameter('camera_height', 180.0)
-        self.camera_width = int(self.get_parameter('camera_width').value)
-        self.camera_height = int(self.get_parameter('camera_height').value)
 
         # Camera intrinsics — populated from CameraInfo
         self.fx = None
@@ -137,9 +136,7 @@ class CVModelInferencer(Node):
         output = None
         lanes_found = 0
         if self.classical_mode:
-            output = self.lane_detection(input_img)
-            mask = np.where(output > 0.5, 1., 0.)
-            output = (mask * 255).astype(np.uint8)
+            output = self.Classical.detect(input_img)
             if np.any(output > 0):
                 lanes_found = 1
         else:
