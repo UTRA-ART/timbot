@@ -1,10 +1,10 @@
+#!/usr/bin/env python3
 """
 ROS2 node that performs lane detection using either a classical CV approach or a deep learning model, based on a parameter.
 It subscribes to synchronized RGB and depth images, applies the chosen lane detection method,
 and publishes both a debug image with detected lanes overlaid and a PointCloud2 of the lane points for navigation.
 """
 
-#!/usr/bin/env python3
 import os
 import math
 
