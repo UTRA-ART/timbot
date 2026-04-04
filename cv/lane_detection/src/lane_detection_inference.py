@@ -10,8 +10,8 @@ from cv_bridge import CvBridge
 from sensor_msgs.msg import Image, CameraInfo, PointCloud2
 from std_msgs.msg import Header
 
-from ultralytics import YOLO
 from classical_lane_detection import ClassicalLaneDetector
+from ml_lane_detection import MachineLearningLaneDetector
 
 import rclpy
 from rclpy.node import Node
@@ -70,7 +70,12 @@ class CVModelInferencer(Node):
                 f"Parameters: {vars(self.Classical)}\n"
             )
         else:
-            self.Inference = YOLO(self.model_path)
+            self.Inference = MachineLearningLaneDetector(
+                model_path=self.model_path,
+                width=self.camera_width,
+                height=self.camera_height,
+                confidence_threshold=0.25
+            )
             self.get_logger().info(
                 f"Lane Detection node initialized with DEEP LEARNING...\n"
                 f"CUDA status: {torch.cuda.is_available()}"
@@ -155,30 +160,10 @@ class CVModelInferencer(Node):
 
         # Run inference
         output = None
-        lanes_found = 0
         if self.classical_mode:
             output = self.Classical.detect(input_img)
-            if np.any(output > 0):
-                lanes_found = 1
         else:
-            result = self.Inference(input_img, verbose=False)
-            confidence_threshold = 0.5
-            output_image = np.zeros_like(input_img[:, :, 0], dtype=np.uint8)
-
-            if result and result[0].masks:
-                for k in range(len(result[0].masks)):
-                    mask_data = result[0].masks[k].data
-                    mask = np.array(mask_data.cpu() if torch.cuda.is_available() else mask_data)
-                    label = result[0].names[int(result[0].boxes[k].cls)]
-
-                    if float(result[0].boxes[k].conf) > confidence_threshold:
-                        if label == 'lane':
-                            lanes_found += 1
-                            img = np.where(mask > 0.5, 255, 0).astype(np.uint8)
-                            img = cv2.resize(img.squeeze(), (output_image.shape[1], output_image.shape[0]))
-                            output_image = np.maximum(output_image, img)
-
-            output = output_image
+            output = self.Inference.detect(input_img)
         
         # Ensure ROI mask is applied (roi_mask is single-channel uint8)
         output = cv2.bitwise_and(output, output, mask=self.roi_mask)
