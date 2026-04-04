@@ -1,0 +1,35 @@
+
+<!--
+  Local-clear-only variant of Nav2's replanning + recovery behavior tree.
+  Intentionally avoids global costmap clears so persistent obstacles are not forgotten.
+-->
+<root BTCPP_format="4" main_tree_to_execute="MainTree">
+  <BehaviorTree ID="MainTree">
+    <RecoveryNode number_of_retries="6" name="NavigateRecovery">
+      <PipelineSequence name="NavigateWithReplanning">
+        <RateController hz="1.0">
+          <RecoveryNode number_of_retries="1" name="ComputePathToPose">
+            <ComputePathToPose goal="{goal}" path="{path}" planner_id="GridBased" error_code_id="{compute_path_error_code}"/>
+            <ClearCostmapAroundRobot name="ClearGlobalCostmapAroundRobot-ForPlannerContext" service_name="global_costmap/clear_around_global_costmap" reset_distance="2.5"/>
+          </RecoveryNode>
+        </RateController>
+        <RecoveryNode number_of_retries="1" name="FollowPath">
+          <FollowPath path="{path}" controller_id="FollowPath" error_code_id="{follow_path_error_code}"/>
+          <ClearCostmapAroundRobot name="ClearLocalCostmapAroundRobot-Context" service_name="local_costmap/clear_around_local_costmap" reset_distance="1.5"/>
+        </RecoveryNode>
+      </PipelineSequence>
+      <ReactiveFallback name="RecoveryFallback">
+        <GoalUpdated/>
+        <RoundRobin name="RecoveryActions">
+          <Sequence name="ClearingActionsAroundRobot">
+            <ClearCostmapAroundRobot name="ClearLocalCostmapAroundRobot-Subtree" service_name="local_costmap/clear_around_local_costmap" reset_distance="1.5"/>
+            <ClearCostmapAroundRobot name="ClearGlobalCostmapAroundRobot-Subtree" service_name="global_costmap/clear_around_global_costmap" reset_distance="2.5"/>
+          </Sequence>
+          <Spin spin_dist="1.57" error_code_id="{spin_error_code}"/>
+          <Wait wait_duration="5.0" error_code_id="{wait_error_code}"/>
+          <BackUp backup_dist="0.30" backup_speed="0.15" error_code_id="{backup_error_code}"/>
+        </RoundRobin>
+      </ReactiveFallback>
+    </RecoveryNode>
+  </BehaviorTree>
+</root>

@@ -26,6 +26,7 @@ find_package(nav2_msgs REQUIRED)
 ############################################################
 rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/RoverNavigation.srv"
+  "srv/RoverRespawn.srv"
   DEPENDENCIES geometry_msgs
 )
 
