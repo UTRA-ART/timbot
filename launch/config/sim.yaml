@@ -53,6 +53,9 @@ odom_state:
   orientation_covariance: 0.01 # cartographer pose
   horizontal_stddev: 5.0 # gps horizontal error - in meters
   vertical_stddev: 0.0 # gps vertical error
+  wait_for_datum: false # if this is set to true, then set datum, if false, set magnetic declination radians
+  datum: [0.0, 0.0, 0.0]
+  magnetic_declination_radians: 0.0
   expected_topics:
     - /odometry/local
 
@@ -77,7 +80,7 @@ filter_lidar:
     - /scan_modified
 
 cv_pipeline:
-  enabled: true
+  enabled: false
   log_level: error
   lane_detection_mode: 0  # 0 = deep learning (YOLO), 1 = classical (HSV threshold)
   camera_fps: 1
@@ -116,8 +119,8 @@ nav_stack:
 
 # --- Stage 8: Load Waypoints ---
 load_waypoints:
-  enabled: false
-  config_file: sim_waypoints.json
+  enabled: true
+  config_file: competition_points.json
   log_level: info
   delay_sec: 2.0
   expected_topics: []

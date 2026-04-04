@@ -193,8 +193,7 @@ controller_server:
     controller_plugins: ["FollowPath"]
     progress_checker_plugin: "progress_checker"
     goal_checker_plugins: ["goal_checker"]
-
-
+    
     goal_checker:
       stateful: True
       plugin: "nav2_controller::SimpleGoalChecker"
