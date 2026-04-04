@@ -1,3 +1,7 @@
+"""
+Machine Learning-based lane detection using YOLO segmentation.
+"""
+
 import torch
 import numpy as np
 import cv2
@@ -5,7 +9,7 @@ from ultralytics import YOLO
 
 class MachineLearningLaneDetector:
     """
-    YOLO-based lane detection that mirrors the ClassicalLaneDetector interface.
+    YOLO-based lane detection using segmentation masks.
     """
     def __init__(self, model_path, width=330, height=180, confidence_threshold=0.5):
         self.width = width

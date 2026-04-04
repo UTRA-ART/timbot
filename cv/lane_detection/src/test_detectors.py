@@ -1,10 +1,15 @@
+"""
+Test script to compare our CV models using the same program as ran on the rover.
+Runs both models on the same video feed and displays their masks.
+"""
+
 import cv2
 import numpy as np
 from classical_lane_detection import ClassicalLaneDetector
 from ml_lane_detection import MachineLearningLaneDetector
 
 # --- CONFIGURATION ---
-VIDEO_PATH = 'igvc.mp4'
+VIDEO_PATH = 'sim_capture.mp4'
 MODEL_PATH = '../models/best_model_int8.pt'
 TARGET_W, TARGET_H = 640, 320  # The dimensions your model expects
 
