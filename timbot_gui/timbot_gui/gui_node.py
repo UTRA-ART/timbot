@@ -22,7 +22,7 @@ from PyQt5.QtWidgets import (
     QTabWidget, QLabel, QPushButton, QListWidget, QListWidgetItem,
     QTableWidget, QTableWidgetItem, QMessageBox, QGroupBox, QScrollArea,
     QCheckBox, QLineEdit, QFormLayout, QSpinBox, QSplitter, QFrame,
-    QToolBar, QSizePolicy, QToolButton, QTextEdit, QDialog,
+    QToolBar, QSizePolicy, QToolButton, QTextEdit, QDialog, QComboBox,
     QGridLayout, QProgressBar, QShortcut
 )
 from PyQt5.QtWidgets import QHeaderView
@@ -539,8 +539,10 @@ class RosNodeManager:
             if args:
                 for key, value in args.items():
                     cmd.append(f'{key}:={value}')
-            process = subprocess.Popen(cmd, stdout=subprocess.PIPE, 
-                                     stderr=subprocess.PIPE, text=True)
+            env = os.environ.copy()
+            env.setdefault('ROS_LOG_DIR', '/tmp/ros_logs')
+            os.makedirs(env['ROS_LOG_DIR'], exist_ok=True)
+            process = subprocess.Popen(cmd, env=env)
             return process
         except Exception as e:
             print(f"Error launching file: {e}")
@@ -723,13 +725,46 @@ class BagWriterThread(QThread):
 class TimbotControlPanel(QMainWindow):
     """Main GUI — modern control-room layout with two-column split."""
 
+    LAUNCH_SPECS = [
+        {
+            "id": "motor_control",
+            "label": "Motor Control",
+            "command": "motor_control motor_control.launch.py",
+            "tooltip": "Start the motor control pipeline",
+            "mode_args": {
+                "simulation": {"launch_state": "sim"},
+                "competition": {"launch_state": "real"},
+            },
+        },
+        {
+            "id": "odometry",
+            "label": "Odometry",
+            "command": "odom_state odom_state.launch.py",
+            "tooltip": "Start odometry state estimation",
+            "mode_args": {
+                "simulation": {"sim": "true"},
+                "competition": {"sim": "false"},
+            },
+        },
+        {
+            "id": "lane_detection",
+            "label": "Lane Detection",
+            "command": "lane_detection launch.py",
+            "tooltip": "Launch the CV lane-detection stack",
+            "mode_args": {
+                "simulation": {"sim": "true"},
+                "competition": {"sim": "false"},
+            },
+        },
+    ]
+
     def __init__(self, ros_node: GuiNode):
         super().__init__()
         self.ros_node = ros_node
         self.ros_manager = RosNodeManager()
         self.active_monitors: Dict[str, Any] = {}        # topic -> subscription obj
         self._topic_displays: Dict[str, QListWidget] = {}  # topic -> QListWidget
-        self.launched_processes: Dict[str, subprocess.Popen] = {}
+        self.launched_processes: Dict[str, Dict[str, Any]] = {}
         self.launch_buttons: Dict[str, QPushButton] = {}
         self.process_status_timer = None
         self.bag_writer_thread: Optional[BagWriterThread] = None
@@ -882,24 +917,38 @@ class TimbotControlPanel(QMainWindow):
     def _build_launch_panel(self) -> CollapsiblePanel:
         panel = CollapsiblePanel("Launch Control")
 
-        launch_files = [
-            ("Motor Control",  "motor_control motor_control.launch.py",
-             "Start the motor control pipeline"),
-            ("State Publisher", "description state_publisher.launch.py",
-             "Publish robot URDF joint states & TF"),
-            ("Odometry",       "odom_state odom_state.launch.py",
-             "Start odometry state estimation"),
-            ("Lane Detection", "lane_detection launch.py",
-             "Launch the CV lane-detection stack"),
-        ]
+        mode_row = QHBoxLayout()
+        mode_lbl = QLabel("Launch Mode")
+        mode_lbl.setStyleSheet(f"color: {C['text_secondary']}; font-weight: 600;")
+        mode_row.addWidget(mode_lbl)
 
-        for label, lf, tip in launch_files:
+        self.launch_mode_combo = QComboBox()
+        self.launch_mode_combo.addItem("Simulation", "simulation")
+        self.launch_mode_combo.addItem("Competition", "competition")
+        self.launch_mode_combo.setToolTip(
+            "Choose whether launch buttons start simulation nodes or the real rover stack."
+        )
+        self.launch_mode_combo.currentIndexChanged.connect(self._on_launch_mode_changed)
+        mode_row.addWidget(self.launch_mode_combo, 1)
+        panel.add_layout(mode_row)
+
+        mode_help = QLabel(
+            "Simulation launches sim-friendly nodes. Competition launches the real rover stack."
+        )
+        mode_help.setWordWrap(True)
+        mode_help.setStyleSheet(f"color: {C['text_muted']}; padding-bottom: 4px;")
+        panel.add_widget(mode_help)
+
+        for spec in self.LAUNCH_SPECS:
+            label = spec["label"]
             btn = QPushButton(f"  ▶  {label}")
-            btn.setToolTip(tip)
+            btn.setToolTip(spec["tooltip"])
             btn.setMinimumHeight(36)
             btn.setCursor(Qt.PointingHandCursor)
-            btn.clicked.connect(lambda checked, _lf=lf: self.launch_file_dialog(_lf))
-            self.launch_buttons[lf] = btn
+            btn.clicked.connect(
+                lambda checked, _spec=spec: self.launch_file_dialog(_spec)
+            )
+            self.launch_buttons[spec["id"]] = btn
             panel.add_widget(btn)
 
         sep = QFrame()
@@ -1310,27 +1359,55 @@ class TimbotControlPanel(QMainWindow):
             else:
                 QMessageBox.warning(self, "Error", "Could not retrieve node information.")
 
-    def launch_file_dialog(self, launch_file: str):
-        if launch_file in self.launched_processes:
+    def _current_launch_mode(self) -> str:
+        if not hasattr(self, 'launch_mode_combo'):
+            return "simulation"
+        return self.launch_mode_combo.currentData() or "simulation"
+
+    def _on_launch_mode_changed(self):
+        mode = self._current_launch_mode()
+        mode_label = "Competition" if mode == "competition" else "Simulation"
+        self._log(f"Launch mode set to <b>{mode_label}</b>")
+
+    def launch_file_dialog(self, launch_spec: Dict[str, Any]):
+        launch_id = launch_spec["id"]
+        if launch_id in self.launched_processes:
             QMessageBox.information(
-                self, "Launch", f"{launch_file} is already running."
+                self, "Launch", f"{launch_spec['label']} is already running."
             )
             return
+        mode = self._current_launch_mode()
+        mode_args = launch_spec["mode_args"][mode]
+        mode_label = "Competition" if mode == "competition" else "Simulation"
+        arg_text = ', '.join(f'{k}:={v}' for k, v in mode_args.items())
         reply = QMessageBox.question(
             self, "Confirm Launch",
-            f"Launch  {launch_file} ?",
+            f"Launch {launch_spec['label']} in {mode_label} mode?\n\n"
+            f"ros2 launch {launch_spec['command']} {arg_text}",
             QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes,
         )
         if reply != QMessageBox.Yes:
             return
-        process = self.ros_manager.launch_file(launch_file)
+        process = self.ros_manager.launch_file(launch_spec["command"], mode_args)
         if process:
-            self.launched_processes[launch_file] = process
-            self.process_list.addItem(f"{launch_file}  (PID {process.pid})")
+            self.launched_processes[launch_id] = {
+                "process": process,
+                "label": launch_spec["label"],
+                "command": launch_spec["command"],
+                "mode": mode,
+            }
+            self.process_list.addItem(
+                f"{launch_spec['label']} [{mode_label}]  (PID {process.pid})"
+            )
             self.status_badge.set_state("running")
-            self._log(f"Launched <b>{launch_file}</b>  (PID {process.pid})")
+            self._log(
+                f"Launched <b>{launch_spec['label']}</b> in {mode_label.lower()} mode "
+                f"(PID {process.pid})"
+            )
         else:
-            QMessageBox.warning(self, "Error", f"Failed to launch: {launch_file}")
+            QMessageBox.warning(
+                self, "Error", f"Failed to launch: {launch_spec['label']}"
+            )
 
     def kill_selected_process(self):
         current = self.process_list.currentItem()
@@ -1344,14 +1421,15 @@ class TimbotControlPanel(QMainWindow):
         if reply != QMessageBox.Yes:
             return
         text = current.text()
-        for lf, proc in list(self.launched_processes.items()):
-            if lf in text:
+        for launch_id, info in list(self.launched_processes.items()):
+            if info["label"] in text:
                 try:
+                    proc = info["process"]
                     proc.terminate()
                     proc.wait(timeout=5)
                     self.process_list.takeItem(self.process_list.row(current))
-                    del self.launched_processes[lf]
-                    self._log(f"Terminated <b>{lf}</b>")
+                    del self.launched_processes[launch_id]
+                    self._log(f"Terminated <b>{info['label']}</b>")
                 except Exception as e:
                     QMessageBox.warning(self, "Error", f"Could not terminate: {e}")
                 break
@@ -1370,17 +1448,21 @@ class TimbotControlPanel(QMainWindow):
         self.process_status_timer.start(1000)
 
     def _update_process_status(self):
-        dead = [lf for lf, p in self.launched_processes.items() if p.poll() is not None]
-        for lf in dead:
-            del self.launched_processes[lf]
+        dead = [
+            launch_id for launch_id, info in self.launched_processes.items()
+            if info["process"].poll() is not None
+        ]
+        for launch_id in dead:
+            info = self.launched_processes[launch_id]
+            del self.launched_processes[launch_id]
             for i in range(self.process_list.count()):
-                if lf in self.process_list.item(i).text():
+                if info["label"] in self.process_list.item(i).text():
                     self.process_list.takeItem(i)
                     break
-            self._log(f"Process exited: <b>{lf}</b>")
+            self._log(f"Process exited: <b>{info['label']}</b>")
 
-        for lf, btn in self.launch_buttons.items():
-            if lf in self.launched_processes:
+        for launch_id, btn in self.launch_buttons.items():
+            if launch_id in self.launched_processes:
                 btn.setStyleSheet(f"""
                     QPushButton {{
                         background-color: {C["success"]}; color: white; font-weight: 700;
@@ -1415,9 +1497,9 @@ class TimbotControlPanel(QMainWindow):
         # Stop the rclpy spin timer
         if hasattr(self, '_spin_timer'):
             self._spin_timer.stop()
-        for proc in self.launched_processes.values():
+        for info in self.launched_processes.values():
             try:
-                proc.terminate()
+                info["process"].terminate()
             except Exception:
                 pass
         # Stop BagWriter thread

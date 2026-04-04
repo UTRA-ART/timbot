@@ -36,6 +36,27 @@ def generate_launch_description():
     )
     log_level = LaunchConfiguration('log_level')
 
+    position_covariance_arg = DeclareLaunchArgument(
+        'position_covariance',
+        default_value='0.05',
+        description='Pose relay position covariance value'
+    )
+    orientation_covariance_arg = DeclareLaunchArgument(
+        'orientation_covariance',
+        default_value='0.01',
+        description='Pose relay orientation covariance value'
+    )
+    horizontal_stddev_arg = DeclareLaunchArgument(
+        'horizontal_stddev',
+        default_value='2.0',
+        description='GPS relay horizontal standard deviation in meters'
+    )
+    vertical_stddev_arg = DeclareLaunchArgument(
+        'vertical_stddev',
+        default_value='3.0',
+        description='GPS relay vertical standard deviation in meters'
+    )
+
     # 3. Derive launch_state automatically
     # If use_sim_time is true, state is 'sim'. Otherwise 'real'.
     launch_state = PythonExpression([
@@ -126,6 +147,10 @@ def generate_launch_description():
         use_sim_time_arg,
         config_file_arg,
         log_level_arg,
+        position_covariance_arg,
+        orientation_covariance_arg,
+        horizontal_stddev_arg,
+        vertical_stddev_arg,
         ekf_local,
         pose_relay,
         gps_cov_relay,

@@ -32,9 +32,9 @@ A comprehensive PyQt5-based GUI application for managing and monitoring ROS2 nod
 ### 3. **Launch Control Tab**
 - **One-Click Launch**: Quick buttons to launch common rover subsystems:
   - Motor Control
-  - State Publisher
   - Odometry
   - Lane Detection
+- **Launch Mode Selector**: Choose `Simulation` or `Competition` before starting a subsystem
 - **Process Management**: View all currently launched processes with their PIDs
 - **Kill Processes**: Terminate any launched process with a single click
 
@@ -95,6 +95,8 @@ The application will open with a tabbed interface showing:
 
 BagWriter can be started from the BagWriter panel. It records `/cmd_vel`
 to a rosbag and writes a `cmd_vel.csv` snapshot in the selected output directory.
+Use the Launch Control mode selector to choose whether subsystem buttons start
+simulation nodes or the real rover competition stack.
 
 # Testing
 1) Launch the GUI
@@ -126,6 +128,7 @@ and a `cmd_vel.csv` file.
    - Use the "Topics" tab to monitor key sensor data in real-time
 
 2. **Launch Subsystems**
+   - Choose `Simulation` or `Competition` in the Launch Control panel
    - Click the appropriate button in the "Launch Control" tab
    - Monitor the process in the "Launched Processes" section
    - Terminate processes as needed with the "Kill Selected Process" button
