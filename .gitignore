@@ -50,3 +50,6 @@
 .vscode/
 
 **/COLCON_IGNORE
+
+# Videos
+*.mp4
