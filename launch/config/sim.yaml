@@ -86,6 +86,12 @@ cv_pipeline:
   camera_fps: 10
   camera_width: 640
   camera_height: 320
+  white_sensitivity: 40
+  downscale_factor: 1
+  horizon_crop: 0
+  morph_size: 3
+  morph_open_iters: 0
+  morph_close_iters: 0
   delay_sec: 5.0
   expected_topics:
     - /zed_node/left/image

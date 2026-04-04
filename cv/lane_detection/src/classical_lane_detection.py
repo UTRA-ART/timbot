@@ -12,7 +12,7 @@ class ClassicalLaneDetector:
     Classical lane detection using HSV color thresholding and barrel exclusion.
     """
 
-    def __init__(self, width=330, height=180, white_sensitivity=20, downscale_factor=1, horizon_crop=0.15):
+    def __init__(self, width=330, height=180, white_sensitivity=20, downscale_factor=1, horizon_crop=0.15, morph_size=3, morph_open_iters=1, morph_close_iters=1):
         self.width = width
         self.height = height
         
@@ -25,6 +25,15 @@ class ClassicalLaneDetector:
         self.upper_orange = np.array([50, 255, 255])
 
         self.downscale_factor = downscale_factor
+
+        # Morphological filtering parameters
+        self.morph_size = morph_size
+        self.morph_open_iters = morph_open_iters
+        self.morph_close_iters = morph_close_iters
+
+        # Larger for more aggressive noise removal and gap filling, but risks eroding thin lane lines if too large
+        self.morph_kernel = np.ones((self.morph_size, self.morph_size), np.uint8)
+
         self.horizon_crop = horizon_crop
 
     def _create_white_mask(self, img_hsv):
@@ -66,6 +75,23 @@ class ClassicalLaneDetector:
         # Combine original with shifted versions
         return cv2.bitwise_or(mask, cv2.bitwise_or(up, down))
 
+    def _apply_morphology(self, mask):
+        """Removes small noise and fills gaps in lane lines."""
+        # https://docs.opencv.org/4.x/d9/d61/tutorial_py_morphological_ops.html
+
+        # 1. OPENING: Erase small white 'dust' (False Positives)
+        # This removes any white blobs smaller than the kernel
+        # Increase iterations if you still see small blobs on the ground
+        if self.morph_open_iters > 0:
+            mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, self.morph_kernel, iterations=self.morph_open_iters)
+
+        # 2. CLOSING: Fill small black gaps in white lines (Dashed lines)
+        # This helps 'stitch' a dashed lane into a solid shape
+        # Increase iterations if you see gaps in the lane lines
+        if self.morph_close_iters > 0:
+            mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, self.morph_kernel, iterations=self.morph_close_iters)
+        return mask
+
     def detect(self, frame):
         """
         Detect lane markings using HSV color thresholding.
@@ -85,15 +111,17 @@ class ClassicalLaneDetector:
         # Generate Lane Mask
         lanes = self._get_mask(img_hsv, self._create_white_mask)
 
+        # Apply morphological filtering to clean up outliers
+        lanes = self._apply_morphology(lanes)
+
         # Generate Barrel Mask and Expand it
         barrels = self._get_mask(img_hsv, self._create_orange_mask)
         barrels_expanded = self._expand_barrels(barrels)
 
-        # Subtract barrels from lanes to remove false positives
-        # Using bitwise_and with 'not' is cleaner for binary masks
+        # Subtract barrels
         output = cv2.bitwise_and(lanes, cv2.bitwise_not(barrels_expanded))
         
-        # Crop the top (sky/horizon) to remove distant false positives
+        # Crop horizon
         if self.horizon_crop > 0:
             crop_line = int(self.horizon_crop * self.height)
             output[:crop_line, :] = 0

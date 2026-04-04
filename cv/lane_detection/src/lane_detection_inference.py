@@ -51,13 +51,24 @@ class CVModelInferencer(Node):
             self.declare_parameter('white_sensitivity', 20)
             self.declare_parameter('downscale_factor', 1)
             self.declare_parameter('horizon_crop', 0.15)
+            
+            self.declare_parameter('morph_size', 3)
+            self.declare_parameter('morph_open_iters', 1)
+            self.declare_parameter('morph_close_iters', 1)
 
             self.Classical = ClassicalLaneDetector(
                 width=self.camera_width, height=self.camera_height,
                 white_sensitivity=int(self.get_parameter('white_sensitivity').value),
                 downscale_factor=int(self.get_parameter('downscale_factor').value),
-                horizon_crop=float(self.get_parameter('horizon_crop').value))
-            self.get_logger().info("Lane Detection node initialized with CLASSICAL...")
+                horizon_crop=float(self.get_parameter('horizon_crop').value),
+                morph_size=int(self.get_parameter('morph_size').value),
+                morph_open_iters=int(self.get_parameter('morph_open_iters').value),
+                morph_close_iters=int(self.get_parameter('morph_close_iters').value)
+            )
+            self.get_logger().info(
+                f"Lane Detection node initialized with CLASSICAL...\n"
+                f"Parameters: {vars(self.Classical)}\n"
+            )
         else:
             self.Inference = YOLO(self.model_path)
             self.get_logger().info(
