@@ -19,7 +19,7 @@ gazebo:
   enabled: true
   gui: true
   world_file: track.world
-  log_level: info
+  log_level: error
   delay_sec: 5.0
   software_rendering: '0'
   expected_topics: []
@@ -27,7 +27,7 @@ gazebo:
 # --- Stage 2: Spawn Robot (RSP, bridge, spawn entity) ---
 spawn:
   enabled: true
-  log_level: info
+  log_level: error
   x: "-19.5"
   y: "0"
   z: "0.05"
@@ -62,7 +62,7 @@ odom_state:
 # --- Stage 4: Filter Lidar Data ---
 filter_lidar:
   enabled: true
-  log_level: info
+  log_level: error
   delay_sec: 2.0
   main_lidar_topic: /scan_lower
   upper_lidar_topic: /scan_upper
@@ -81,15 +81,16 @@ filter_lidar:
 
 cv_pipeline:
   enabled: true
-  log_level: error
+  log_level: info
   lane_detection_mode: 1  # 0 = deep learning (YOLO), 1 = classical (HSV threshold)
   camera_fps: 10
-  camera_width: 640
-  camera_height: 320
-  white_sensitivity: 40
+
+  camera_width: 330
+  camera_height: 180
+  white_sensitivity: 20
   downscale_factor: 1
-  horizon_crop: 0
-  morph_size: 3
+  horizon_crop: 0.15
+  morph_size: 0
   morph_open_iters: 0
   morph_close_iters: 0
   delay_sec: 5.0
@@ -128,6 +129,6 @@ nav_stack:
 load_waypoints:
   enabled: true
   config_file: sim_waypoints.json
-  log_level: info
+  log_level: error
   delay_sec: 2.0
   expected_topics: []
