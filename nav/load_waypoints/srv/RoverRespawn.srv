@@ -1,0 +1,5 @@
+# RoverRespawn.srv
+int8 spawn_waypoint_id
+---
+bool success
+string message
