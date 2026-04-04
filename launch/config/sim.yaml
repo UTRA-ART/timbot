@@ -131,7 +131,7 @@ nav_stack:
 # --- Stage 8: Load Waypoints ---
 load_waypoints:
   enabled: true
-  config_file: sim_waypoints.json
+  config_file: sim_waypoints_fixed.json
   log_level: error
   delay_sec: 2.0
   expected_topics: []
