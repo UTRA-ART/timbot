@@ -60,7 +60,11 @@ def generate_launch_description():
         executable='ekf_node',
         name='ekf_local',
         output='screen',
-        remappings=[('/odometry/filtered', '/odometry/local')],
+        remappings=[
+            ('/odometry/filtered', '/odometry/local'),
+            ('set_pose', '/ekf_local/set_pose'),
+            ('/set_pose', '/ekf_local/set_pose')
+        ],
         arguments=['--ros-args', '--log-level', log_level],
         parameters=[
             odom_yaml, 
@@ -74,7 +78,11 @@ def generate_launch_description():
         executable='ekf_node',
         name='ekf_global',
         output='screen',
-        remappings=[('/odometry/filtered', '/odometry/global')],
+        remappings=[
+            ('/odometry/filtered', '/odometry/global'),
+            ('set_pose', '/ekf_global/set_pose'),
+            ('/set_pose', '/ekf_global/set_pose')
+        ],
         arguments=['--ros-args', '--log-level', log_level],
         parameters=[
             odom_yaml,
@@ -88,7 +96,7 @@ def generate_launch_description():
         executable='navsat_transform_node',
         name='navsat_transform_node',
         output='screen',
-        respawn=False,
+        respawn=True,
         arguments=['--ros-args', '--log-level', log_level],
         remappings=[('/odometry/filtered', '/odometry/global'), 
                     ('/gps/fix', '/gps/fix_cov'), 
