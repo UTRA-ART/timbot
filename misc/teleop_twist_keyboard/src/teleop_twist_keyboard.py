@@ -41,9 +41,9 @@ speedBindings = {
 
 
 class PublishThread(threading.Thread):
-    def __init__(self, node, rate):
+    def __init__(self, node, rate, cmd_vel_topic):
         super(PublishThread, self).__init__()
-        self.publisher = node.create_publisher(Twist, 'key_vel', 1)
+        self.publisher = node.create_publisher(Twist, cmd_vel_topic, 1)
         self.node = node
         self.x = 0.0
         self.y = 0.0
@@ -160,15 +160,17 @@ def main(args=None):
     node.declare_parameter('turn', 0.0)
     node.declare_parameter('repeat_rate', 0.001)
     node.declare_parameter('key_timeout', 0.0)
+    node.declare_parameter('cmd_vel_topic', '/cmd_vel')
 
     speed = node.get_parameter('speed').value
     turn = node.get_parameter('turn').value
     repeat = node.get_parameter('repeat_rate').value
     key_timeout = node.get_parameter('key_timeout').value
+    cmd_vel_topic = node.get_parameter('cmd_vel_topic').value
     if key_timeout == 0.0:
         key_timeout = None
 
-    pub_thread = PublishThread(node, repeat)
+    pub_thread = PublishThread(node, repeat, cmd_vel_topic)
     autonomous_mode = False
     mode_pub = node.create_publisher(Bool, '/pause_navigation', 1)
 
