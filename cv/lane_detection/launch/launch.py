@@ -11,6 +11,8 @@ def generate_launch_description():
         'lane_detection_mode', default_value='0',
         description='0 = deep learning (YOLO), 1 = classical (HSV threshold)'
     )
+    width_arg = DeclareLaunchArgument('camera_width', default_value='640')
+    height_arg = DeclareLaunchArgument('camera_height', default_value='320')
     white_sensitivity_arg = DeclareLaunchArgument('white_sensitivity', default_value='20')
     downscale_factor_arg = DeclareLaunchArgument('downscale_factor', default_value='1')
     horizon_crop_arg = DeclareLaunchArgument('horizon_crop', default_value='0.15')
@@ -30,6 +32,8 @@ def generate_launch_description():
         parameters=[{
             'use_sim_time': use_sim_time,
             'lane_detection_mode': lane_detection_mode,
+            'camera_width': LaunchConfiguration('camera_width'),
+            'camera_height': LaunchConfiguration('camera_height'),
             'white_sensitivity': LaunchConfiguration('white_sensitivity'),
             'downscale_factor': LaunchConfiguration('downscale_factor'),
             'horizon_crop': LaunchConfiguration('horizon_crop'),
@@ -46,6 +50,8 @@ def generate_launch_description():
         log_level_arg,
         lane_detection_mode_arg,
         lane_detection_inference,
+        width_arg,
+        height_arg,
         white_sensitivity_arg,
         downscale_factor_arg,
         horizon_crop_arg,

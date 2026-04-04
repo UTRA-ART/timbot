@@ -39,8 +39,8 @@ class CVModelInferencer(Node):
         self.classical_mode = int(self.get_parameter('lane_detection_mode').value)
 
         # Parameters for model input resolution — can be set from sim.yaml / launch
-        self.declare_parameter('camera_width', 640)
-        self.declare_parameter('camera_height', 320)
+        self.declare_parameter('camera_width', 330)
+        self.declare_parameter('camera_height', 180)
         self.camera_width = int(self.get_parameter('camera_width').value)
         self.camera_height = int(self.get_parameter('camera_height').value)
 
