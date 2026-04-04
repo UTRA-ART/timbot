@@ -83,7 +83,7 @@
 
     <model name='ramp_up_1'>
       <static>1</static>
-      <pose>-20 3 0.15 0.1265364 0 0</pose>
+      <pose>-20 2.83 0.15 0.1265364 0 0</pose>
       <link name='link'>
         <collision name='collision'>
           <geometry>
