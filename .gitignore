@@ -48,3 +48,9 @@
 **/__pycache__/
 
 .vscode/
+
+**/COLCON_IGNORE
+
+# Videos
+*.mp4
+*.mov

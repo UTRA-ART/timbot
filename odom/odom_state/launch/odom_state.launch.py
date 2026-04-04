@@ -11,6 +11,10 @@ def generate_launch_description():
     orientation_covariance = LaunchConfiguration('orientation_covariance')
     horizontal_stddev = LaunchConfiguration('horizontal_stddev')
     vertical_stddev = LaunchConfiguration('vertical_stddev')
+    wait_for_datum = LaunchConfiguration('wait_for_datum')
+    # datum = f"[{LaunchConfiguration('datum_lat')}, {LaunchConfiguration('datum_lon')}, {LaunchConfiguration('datum_alt')}]"
+    datum = LaunchConfiguration('datum')
+    magnetic_declination_radians = LaunchConfiguration('magnetic_declination_radians')
     
     # 1. Declare the use_sim_time argument (Default to true for safety in this context)
     use_sim_time_arg = DeclareLaunchArgument(
@@ -77,7 +81,11 @@ def generate_launch_description():
         executable='ekf_node',
         name='ekf_local',
         output='screen',
-        remappings=[('/odometry/filtered', '/odometry/local')],
+        remappings=[
+            ('/odometry/filtered', '/odometry/local'),
+            ('set_pose', '/ekf_local/set_pose'),
+            ('/set_pose', '/ekf_local/set_pose')
+        ],
         arguments=['--ros-args', '--log-level', log_level],
         parameters=[
             odom_yaml, 
@@ -91,7 +99,11 @@ def generate_launch_description():
         executable='ekf_node',
         name='ekf_global',
         output='screen',
-        remappings=[('/odometry/filtered', '/odometry/global')],
+        remappings=[
+            ('/odometry/filtered', '/odometry/global'),
+            ('set_pose', '/ekf_global/set_pose'),
+            ('/set_pose', '/ekf_global/set_pose')
+        ],
         arguments=['--ros-args', '--log-level', log_level],
         parameters=[
             odom_yaml,
@@ -105,7 +117,7 @@ def generate_launch_description():
         executable='navsat_transform_node',
         name='navsat_transform_node',
         output='screen',
-        respawn=False,
+        respawn=True,
         arguments=['--ros-args', '--log-level', log_level],
         remappings=[('/odometry/filtered', '/odometry/global'), 
                     ('/gps/fix', '/gps/fix_cov'), 
@@ -114,6 +126,9 @@ def generate_launch_description():
             odom_yaml,
             {'use_sim_time': use_sim_time},
             {'launch_state': launch_state},
+            {'wait_for_datum': wait_for_datum},
+            {'datum': datum},
+            {'magnetic_declination_radians': magnetic_declination_radians}
         ]
     )
 
