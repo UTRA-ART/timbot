@@ -19,7 +19,7 @@ gazebo:
   enabled: true
   gui: true
   world_file: track.world
-  log_level: info
+  log_level: error
   delay_sec: 5.0
   software_rendering: '0'
   expected_topics: []
@@ -27,7 +27,7 @@ gazebo:
 # --- Stage 2: Spawn Robot (RSP, bridge, spawn entity) ---
 spawn:
   enabled: true
-  log_level: info
+  log_level: error
   x: "-19.5"
   y: "0"
   z: "0.05"
@@ -62,7 +62,7 @@ odom_state:
 # --- Stage 4: Filter Lidar Data ---
 filter_lidar:
   enabled: true
-  log_level: info
+  log_level: error
   delay_sec: 2.0
   main_lidar_topic: /scan_lower
   upper_lidar_topic: /scan_upper
@@ -81,14 +81,25 @@ filter_lidar:
 
 cv_pipeline:
   enabled: false
-  log_level: error
-  lane_detection_mode: 0  # 0 = deep learning (YOLO), 1 = classical (HSV threshold)
-  camera_fps: 1
-  camera_width: 320
-  camera_height: 180
+  log_level: info
+  lane_detection_mode: 1  # 0 = deep learning (YOLO), 1 = classical (HSV threshold)
+  camera_fps: 10
+
+  camera_width: 640
+  camera_height: 320
+  white_sensitivity: 20 # Lower is stricter, higher accepts more shades of grey
+  downscale_factor: 1 # 1 = full res, 2 = half res (faster processing)
+  horizon_crop: 0.15 # Percentage of the top of the image to ignore (0.0 to 1.0)
+
+  morph_size: 0 # Size of the square kernel (e.g., 3 for 3x3, 5 for 5x5)
+  morph_open_iters: 0 # Number of 'Opening' passes (removes small noise)
+  morph_close_iters: 0 # Number of 'Closing' passes (joins dashed lines)
+  
   delay_sec: 5.0
   expected_topics:
     - /zed_node/left/image
+  # Normalized coordinates [x1, y1, x2, y2, ...] defining the rover's footprint
+  roi_mask_points: [0.4, 1.0, 0.5, 0.6, 0.6, 0.6, 0.7, 1.0]
 
 # --- Stage 5: Cartographer (SLAM) ---
 cartographer:
@@ -120,7 +131,7 @@ nav_stack:
 # --- Stage 8: Load Waypoints ---
 load_waypoints:
   enabled: true
-  config_file: competition_points.json
-  log_level: info
+  config_file: sim_waypoints.json
+  log_level: error
   delay_sec: 2.0
   expected_topics: []

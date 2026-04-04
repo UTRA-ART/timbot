@@ -160,6 +160,14 @@ def launch_cv(config: dict, sim: bool, context: LaunchContext) -> list:
             'sim': str(sim).lower(),
             'log_level': log_level,
             'lane_detection_mode': lane_detection_mode,
+            'camera_width': str(cv_cfg.get('camera_width', 640)),
+            'camera_height': str(cv_cfg.get('camera_height', 320)),
+            'white_sensitivity': str(cv_cfg.get('white_sensitivity', 20)),
+            'downscale_factor':  str(cv_cfg.get('downscale_factor', 1)),
+            'horizon_crop':      str(cv_cfg.get('horizon_crop', 0.15)),
+            'morph_size':        str(cv_cfg.get('morph_size', 3)),
+            'morph_open_iters':  str(cv_cfg.get('morph_open_iters', 1)),
+            'morph_close_iters': str(cv_cfg.get('morph_close_iters', 1)),
         }.items()
     )
     return [cv_launch]

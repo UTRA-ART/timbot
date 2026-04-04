@@ -28,6 +28,7 @@ install(PROGRAMS
 # Install Python modules used by the inference node
 install(FILES
   src/classical_lane_detection.py
+  src/ml_lane_detection.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
