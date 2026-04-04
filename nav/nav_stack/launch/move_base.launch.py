@@ -66,7 +66,7 @@ def generate_launch_description():
     # There is no standalone 'costmap_server' executable
     
     # Behavior Tree XML file for navigation logic
-    bt_xml = os.path.join(get_package_share_directory('nav2_bt_navigator'), 'behavior_trees', 'navigate_w_replanning_and_recovery.xml')
+    bt_xml = os.path.join(config_dir, 'navigate_to_pose_w_replanning_and_recovery_local_clear_only.xml')
 
     # Planner Server (global planner + global costmap)
     # Computes global paths from robot pose to goal pose

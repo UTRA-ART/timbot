@@ -1,0 +1,43 @@
+{
+    "start_direction": "north",
+    "laps": 1,
+    "clockwise": false,
+    "add_corners": false,
+    "waypoints" : [
+        {
+            "id" : 0,
+            "longitude" : 0.0001608882673858063,
+            "latitude" : 0.00015091696773207963,
+            "description"  : "Top Right",
+            "frame_id" : "map"
+        },
+        {    
+            "id" : 1,
+            "longitude" : 0.00016511034922116804,
+            "latitude" : 6.333122753042627e-05,
+            "description"  : "Just before ramp",
+            "frame_id" : "map"
+        },
+        {
+            "id" : 2,
+            "longitude" : 0.000163313718652929,
+            "latitude" :-4.033435625696652e-05,
+            "description"  : "Just after ramp",
+            "frame_id" : "map"
+        },
+        {
+            "id" : 3,
+            "longitude": 0.00017121889315318078,
+            "latitude" : -0.00014669488589671786,
+            "description" : "Bottom Right",
+            "frame_id" : "map"
+        },
+        {
+            "id" : 4,
+            "longitude" : -0.0001707,
+            "latitude" : 0,
+            "description"  : "West (Start Point)",
+            "frame_id" : "map"
+        }
+    ]
+}
