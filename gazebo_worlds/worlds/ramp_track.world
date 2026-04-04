@@ -143,6 +143,32 @@
       </link>
     </model>
 
+    <model name='ramp_1_wall_left'>
+      <static>1</static>
+      <pose>-18.743 5.86 0.15 0.1265364 0 1.5708</pose>
+      <link name='link'>
+        <collision name='collision'>
+          <geometry><box><size>9 0.1 1</size></box></geometry>
+        </collision>
+        <visual name='visual'>
+          <geometry><box><size>9 0.1 1</size></box></geometry>
+        </visual>
+      </link>
+    </model>
+
+    <model name='ramp_1_wall_right'>
+      <static>1</static>
+      <pose>-21.257 5.86 0.15 0.1265364 0 1.5708</pose>
+      <link name='link'>
+        <collision name='collision'>
+          <geometry><box><size>9 0.1 1</size></box></geometry>
+        </collision>
+        <visual name='visual'>
+          <geometry><box><size>9 0.1 1</size></box></geometry>
+        </visual>
+      </link>
+    </model>
+
     <model name='ramp_up_1_lane_line_left'>
       <static>1</static>
       <pose>-18.843 2.83 0.15 0.1265364 0 0</pose>
@@ -1155,6 +1181,32 @@
             <ambient>0.4 0.7 0.6 1</ambient>
             <diffuse>0.4 0.4 0.4 1</diffuse>
           </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name='ramp_wall_left'>
+      <static>1</static>
+      <pose>18.257 0.96 0.15 0.1265364 -0 1.5708</pose>
+      <link name='link'>
+        <collision name='collision'>
+          <geometry><box><size>9 0.1 1</size></box></geometry>
+        </collision>
+        <visual name='visual'>
+          <geometry><box><size>9 0.1 1</size></box></geometry>
+        </visual>
+      </link>
+    </model>
+
+    <model name='ramp_wall_right'>
+      <static>1</static>
+      <pose>15.743 0.96 0.15 0.1265364 -0 1.5708</pose>
+      <link name='link'>
+        <collision name='collision'>
+          <geometry><box><size>9 0.1 1</size></box></geometry>
+        </collision>
+        <visual name='visual'>
+          <geometry><box><size>9 0.1 1</size></box></geometry>
         </visual>
       </link>
     </model>
