@@ -85,8 +85,8 @@ cv_pipeline:
   lane_detection_mode: 1  # 0 = deep learning (YOLO), 1 = classical (HSV threshold)
   camera_fps: 10
 
-  camera_width: 330
-  camera_height: 180
+  camera_width: 640
+  camera_height: 320
   white_sensitivity: 20
   downscale_factor: 1
   horizon_crop: 0.15
