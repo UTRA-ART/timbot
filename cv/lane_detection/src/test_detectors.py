@@ -56,6 +56,7 @@ def main():
     classical = ClassicalLaneDetector(width=TARGET_W, height=TARGET_H, horizon_crop=0, morph_size=0, morph_open_iters=0, morph_close_iters=0)
     ml_model = MachineLearningLaneDetector(model_path=MODEL_PATH, width=TARGET_W, height=TARGET_H)
 
+    current_delay = 1
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret: break
@@ -87,7 +88,16 @@ def main():
         
         cv2.imshow('Clipped Lane Detection Comparison', display_output)
 
-        if cv2.waitKey(1) & 0xFF == ord('q'): break
+        key = cv2.waitKey(current_delay) & 0xFF
+        if key == ord('s'):
+            current_delay = 100  # Switch to Slow Motion
+        elif key == ord('w'):
+            current_delay = 1    # Resume Fast
+        elif key == ord(' '):
+            print("Paused. Press any key to resume...")
+            cv2.waitKey(0)       # Wait for any key to unpause
+        elif key == ord('q'):
+            break
 
     cap.release()
     cv2.destroyAllWindows()
