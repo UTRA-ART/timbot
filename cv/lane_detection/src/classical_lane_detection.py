@@ -92,6 +92,47 @@ class ClassicalLaneDetector:
             mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, self.morph_kernel, iterations=self.morph_close_iters)
         return mask
 
+    def _apply_hough_filter(self, binary_mask):
+        """Alternative filter using Hough Transform"""
+        # 1. Detect edges
+        edges = cv2.Canny(binary_mask, 50, 150)
+        
+        # 2. Find lines
+        # rho=1, theta=pi/180, threshold=50, minLineLength=50, maxLineGap=20
+        lines = cv2.HoughLinesP(edges, 1, np.pi/180, 50, minLineLength=50, maxLineGap=20)
+        
+        hough_mask = np.zeros_like(binary_mask)
+        if lines is not None:
+            for line in lines:
+                x1, y1, x2, y2 = line[0]
+                if abs(y2 - y1) > abs(x2 - x1) * 0.5: # Only keep 'mostly vertical' lines
+                    cv2.line(hough_mask, (x1, y1), (x2, y2), 255, thickness=2)
+                    
+        return hough_mask
+
+    def _filter_by_area(self, binary_mask, min_area=150):
+        """
+        Removes small noise blobs while preserving thin, long lines.
+        """
+        # 1. Label every disconnected 'blob' of white pixels
+        # connectivity=8 looks at diagonals; 4 only looks up/down/left/right
+        num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(
+            binary_mask, connectivity=8
+        )
+
+        # 2. Create a blank canvas
+        clean_mask = np.zeros_like(binary_mask)
+
+        # 3. Loop through found blobs (label 0 is the background, so skip it)
+        for i in range(1, num_labels):
+            area = stats[i, cv2.CC_STAT_AREA]
+            
+            # Only keep blobs that have enough pixels to be a lane segment
+            if area > min_area:
+                clean_mask[labels == i] = 255
+                
+        return clean_mask
+
     def detect(self, frame):
         """
         Detect lane markings using HSV color thresholding.
@@ -112,7 +153,13 @@ class ClassicalLaneDetector:
         lanes = self._get_mask(img_hsv, self._create_white_mask)
 
         # Apply morphological filtering to clean up outliers
-        lanes = self._apply_morphology(lanes)
+        # lanes = self._apply_morphology(lanes)
+
+        # Generate Hough Mask (alternative approach)
+        # lanes = self._apply_hough_filter(lanes)
+
+        # Filter by area
+        lanes = self._filter_by_area(lanes, min_area=150)
 
         # Generate Barrel Mask and Expand it
         barrels = self._get_mask(img_hsv, self._create_orange_mask)
