@@ -1,7 +1,3 @@
-[submodule "external/twist_mux"]
-	path = external/twist_mux
-	url = https://github.com/EshanSankar/twist_mux.git
-	branch = humble
 [submodule "sensor_drivers/zed_camera"]
 	path = sensor_drivers/zed_camera
 	url = https://github.com/stereolabs/zed-ros2-wrapper.git
@@ -17,3 +13,11 @@
 	path = sensor_drivers/navsat
 	url = https://github.com/ros-drivers/nmea_navsat_driver.git
 	branch = ros2
+[submodule "misc/twist_mux"]
+	path = misc/twist_mux
+	url = https://github.com/EshanSankar/twist_mux.git
+	branch = humble
+[submodule "misc/ds4_driver"]
+	path = misc/ds4_driver
+	url = https://github.com/naoki-mizuno/ds4_driver.git
+	branch = humble-devel
