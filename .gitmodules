@@ -1,6 +1,6 @@
 [submodule "external/twist_mux"]
 	path = external/twist_mux
-	url = https://github.com/ros-teleop/twist_mux.git
+	url = https://github.com/EshanSankar/twist_mux.git
 	branch = humble
 [submodule "sensor_drivers/zed_camera"]
 	path = sensor_drivers/zed_camera
