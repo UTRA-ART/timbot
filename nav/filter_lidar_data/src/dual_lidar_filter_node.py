@@ -149,9 +149,6 @@ class DualLidarFilterNode(Node):
             self.out_pub.publish(msg)
 
     def ramp_filter(self, main_ranges: list) -> list:
-        """Filter out ramp points by comparing with upper lidar."""
-        import math # ensure math is imported at the top of your file
-        
         out = main_ranges.copy()
         size = len(out)
         all_inf = True
@@ -252,9 +249,9 @@ class DualLidarFilterNode(Node):
             for idx in largest_segment:
                 if idx < len(points):
                     pose = Pose()
-                    pose.position.x = points[idx][0]
-                    pose.position.y = points[idx][1]
-                    pose.position.z = points[idx][2]
+                    pose.position.x = float(points[idx][0])
+                    pose.position.y = float(points[idx][1])
+                    pose.position.z = float(points[idx][2])
                     pose.orientation.w = 1.0
                     ramp_msg.poses.append(pose)
 

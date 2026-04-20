@@ -102,10 +102,13 @@ def generate_launch_description():
 
             # Allow ROS to send drive commands TO Gazebo (Note the ']')
             '/cmd_vel@geometry_msgs/msg/Twist]ignition.msgs.Twist',
-            
+            # Gazebo set pose, delete and creation of eentitiy to 
+            '/world/default/set_pose@ros_gz_interfaces/srv/SetEntityPose',
+            '/world/default/delete@ros_gz_interfaces/srv/DeleteEntity',
+            '/world/default/create@ros_gz_interfaces/srv/SpawnEntity',
             # Receive raw odometry FROM Gazebo (Optional, but good for debugging)
             '/odom@nav_msgs/msg/Odometry[ignition.msgs.Odometry',
-            '--ros-args', '--log-level', log_level
+            '--ros-args', '--log-level', log_level,
         ],
         output='screen',
         parameters=[{'use_sim_time': use_sim_time}]
