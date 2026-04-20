@@ -5,7 +5,7 @@
 # =============================================================================
 
 # --- Global Settings ---
-sim: true
+sim: false
 use_topic_check: true  # Set to false to use blind delay_sec instead
 
 # --- Launch Stages (order matters) ---
@@ -16,7 +16,7 @@ use_topic_check: true  # Set to false to use blind delay_sec instead
 
 # --- Stage 1: Gazebo Simulator ---
 gazebo:
-  enabled: true
+  enabled: false
   gui: true
   world_file: track.world
   log_level: error
@@ -32,9 +32,9 @@ robot_bringup:
   expected_topics:
     - /robot_description
 
-# --- Stage 2: Spawn Robot (Gazebo bridge + entity spawn) ---
+# --- Stage 2: Spawn Robot (Gazebo bridge + entity spawn — sim only) ---
 spawn:
-  enabled: true
+  enabled: false
   log_level: error
   x: "-19.5"
   y: "0"
