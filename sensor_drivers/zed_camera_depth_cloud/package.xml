@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>zed_camera_depth_cloud</name>
+  <version>0.0.1</version>
+  <description>Standalone depth-image to PointCloud2 converter for the simulated ZED camera.</description>
+  <maintainer email="robotswithai@example.com">robotswithai</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclpy</depend>
+  <depend>sensor_msgs</depend>
+  <depend>sensor_msgs_py</depend>
+  <depend>std_msgs</depend>
+  <depend>cv_bridge</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
