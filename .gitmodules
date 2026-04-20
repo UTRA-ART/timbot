@@ -1,3 +1,11 @@
+[submodule "misc/ds4_driver"]
+	path = misc/ds4_driver
+	url = https://github.com/naoki-mizuno/ds4_driver.git
+	branch = humble-devel
+[submodule "misc/twist_mux"]
+	path = misc/twist_mux
+	url = https://github.com/EshanSankar/twist_mux.git
+	branch = humble
 [submodule "sensor_drivers/zed_camera"]
 	path = sensor_drivers/zed_camera
 	url = https://github.com/stereolabs/zed-ros2-wrapper.git
