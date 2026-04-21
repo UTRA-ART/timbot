@@ -1,6 +1,6 @@
 # Timbot
 
-A ROS2-based autonomous robot project developed by UTRA-ART.
+A ROS2-based autonomous robot developed by UTRA-ART.
 
 ## Overview
 
