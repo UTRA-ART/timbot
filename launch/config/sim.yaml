@@ -2,11 +2,21 @@
 # Timbot Launch Configuration — Simulation
 # =============================================================================
 # Usage: ros2 launch timbot_launch timbot.launch.py config:=sim.yaml
+# on team laptop: 
 # =============================================================================
+# if team laptop: __NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia 
+# do this if rviz starts crashing
+# # 1. Ensure Wayland is bypassed for UI tools
+# export QT_QPA_PLATFORM=xcb
+
+# # 2. Make sure the software rendering trap is dead
+# unset LIBGL_ALWAYS_SOFTWARE
+
 
 # --- Global Settings ---
 sim: true
 use_topic_check: true  # Set to false to use blind delay_sec instead
+team_laptop: true
 
 # --- Launch Stages (order matters) ---
 # Each stage runs sequentially. If use_topic_check is true, the next stage 

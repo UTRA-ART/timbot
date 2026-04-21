@@ -10,7 +10,7 @@ Usage:
 
 import os
 import yaml
-
+from launch.actions import SetEnvironmentVariable
 from launch import LaunchDescription, LaunchContext
 from launch.actions import (
     DeclareLaunchArgument,
@@ -573,6 +573,14 @@ def orchestrate_launch(context: LaunchContext) -> list:
 
     sim = config.get('sim', True)
     use_topic_check = config.get('use_topic_check', True)
+    team_laptop = config.get('team_laptop', False)
+
+    laptop_env_vars = [
+        SetEnvironmentVariable(name='QT_QPA_PLATFORM', value='xcb'),
+        SetEnvironmentVariable(name='__NV_PRIME_RENDER_OFFLOAD', value='1'),
+        SetEnvironmentVariable(name='__GLX_VENDOR_LIBRARY_NAME', value='nvidia')
+    ] if team_laptop else []
+
 
     print(f"\n[timbot_launch] Using config: {config_file}", flush=True)
     print(f"[timbot_launch] Simulation mode: {sim}", flush=True)
@@ -592,15 +600,19 @@ def orchestrate_launch(context: LaunchContext) -> list:
 
     if sim:
         # Simulation mode: skip hardware drivers entirely.
-        return pipeline_actions
+        return laptop_env_vars + pipeline_actions
 
     # Real rover mode (sim=False): launch hardware drivers sequentially, then
     # hand off to the normal pipeline once all drivers are confirmed ready.
     print("[timbot_launch] Starting hardware driver sequence...", flush=True)
     hardware_driver_stages = build_hardware_driver_stages(config)
-    return build_driver_chain(
+    
+    driver_chain = build_driver_chain(
         hardware_driver_stages, 0, use_topic_check, pipeline_actions
     )
+    
+    # Prepend the env vars to the driver chain
+    return laptop_env_vars + driver_chain
 
 
 # =============================================================================
