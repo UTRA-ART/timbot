@@ -36,6 +36,8 @@ class DepthToPointCloud(Node):
         self.declare_parameter('camera_offset_x', 0.222173)
         self.declare_parameter('camera_offset_y', 0.061524)
         self.declare_parameter('camera_offset_z', 0.71)
+        self.declare_parameter('voxel_downsample_obstacles', True)
+        self.declare_parameter('voxel_size', 0.1)
 
         self.depth_topic = self.get_parameter('depth_topic').value
         self.camera_info_topic = self.get_parameter('camera_info_topic').value
@@ -59,6 +61,15 @@ class DepthToPointCloud(Node):
         self.camera_offset_z = float(self.get_parameter('camera_offset_z').value)
         self.cos_pitch = math.cos(self.camera_pitch_rad)
         self.sin_pitch = math.sin(self.camera_pitch_rad)
+        self.voxel_downsample_obstacles = bool(
+            self.get_parameter('voxel_downsample_obstacles').value
+        )
+        self.voxel_size = float(self.get_parameter('voxel_size').value)
+        if self.voxel_size <= 0.0:
+            self.get_logger().warn(
+                f'Invalid voxel_size={self.voxel_size:.3f}; disabling obstacle downsampling'
+            )
+            self.voxel_downsample_obstacles = False
 
         self.bridge = CvBridge()
         self.fx = None
@@ -94,8 +105,27 @@ class DepthToPointCloud(Node):
             f'forward_range=[{self.min_forward:.2f}, {self.max_forward:.2f}] m, '
             f'lateral_range=[{self.min_lateral:.2f}, {self.max_lateral:.2f}] m, '
             f'height_filter={self.filter_by_height}, '
-            f'height_range=[{self.min_height:.2f}, {self.max_height:.2f}] m)'
+            f'height_range=[{self.min_height:.2f}, {self.max_height:.2f}] m, '
+            f'obstacle_voxel_downsample={self.voxel_downsample_obstacles}, '
+            f'voxel_size={self.voxel_size:.2f} m)'
         )
+
+    def voxel_downsample(self, points: list) -> list:
+        if not self.voxel_downsample_obstacles or not points:
+            return points
+
+        voxels = {}
+        voxel_size = self.voxel_size
+        for x, y, z in points:
+            key = (
+                math.floor(x / voxel_size),
+                math.floor(y / voxel_size),
+                math.floor(z / voxel_size),
+            )
+            if key not in voxels:
+                voxels[key] = (x, y, z)
+
+        return list(voxels.values())
 
     def optical_to_base(self, x_opt: float, y_opt: float, z_opt: float) -> tuple:
         # Optical frame uses x right, y down, z forward.
@@ -159,8 +189,10 @@ class DepthToPointCloud(Node):
         header.stamp = msg.header.stamp
         header.frame_id = self.frame_id_override or self.camera_frame or msg.header.frame_id
         cloud = point_cloud2.create_cloud_xyz32(header, points)
+        obstacle_points = self.voxel_downsample(points)
+        obstacle_cloud = point_cloud2.create_cloud_xyz32(header, obstacle_points)
         self.publisher.publish(cloud)
-        self.obstacle_publisher.publish(cloud)
+        self.obstacle_publisher.publish(obstacle_cloud)
 
 
 def main(args=None):
