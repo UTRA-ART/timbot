@@ -20,6 +20,7 @@ class DepthToPointCloud(Node):
         self.declare_parameter('camera_info_topic', '/zed_node/left/camera_info')
         self.declare_parameter('pointcloud_topic', '/zed_node/left/depth_points')
         self.declare_parameter('obstacle_pointcloud_topic', '/zed_node/left/obstacle_points')
+        self.declare_parameter('ramp_pointcloud_topic', '/zed_node/left/ramp_points')
         self.declare_parameter('frame_id', 'left_camera_link_optical')
         self.declare_parameter('min_depth', 0.1)
         self.declare_parameter('max_depth', 20.0)
@@ -44,11 +45,23 @@ class DepthToPointCloud(Node):
         self.declare_parameter('max_cluster_points', 0)
         self.declare_parameter('log_cluster_metadata', False)
         self.declare_parameter('cluster_metadata_log_period', 30)
+        self.declare_parameter('classify_ramps', True)
+        self.declare_parameter('ramp_hypotenuse', 6.0)
+        self.declare_parameter('ramp_hypotenuse_tolerance', 1.5)
+        self.declare_parameter('ramp_length', 5.9)
+        self.declare_parameter('ramp_length_tolerance', 1.5)
+        self.declare_parameter('ramp_width', 2.41)
+        self.declare_parameter('ramp_width_tolerance', 0.8)
+        self.declare_parameter('ramp_height', 0.67)
+        self.declare_parameter('ramp_height_tolerance', 0.35)
+        self.declare_parameter('ramp_incline_deg', 6.43)
+        self.declare_parameter('ramp_incline_tolerance_deg', 5.0)
 
         self.depth_topic = self.get_parameter('depth_topic').value
         self.camera_info_topic = self.get_parameter('camera_info_topic').value
         self.pointcloud_topic = self.get_parameter('pointcloud_topic').value
         self.obstacle_pointcloud_topic = self.get_parameter('obstacle_pointcloud_topic').value
+        self.ramp_pointcloud_topic = self.get_parameter('ramp_pointcloud_topic').value
         self.frame_id_override = self.get_parameter('frame_id').value
         self.min_depth = float(self.get_parameter('min_depth').value)
         self.max_depth = float(self.get_parameter('max_depth').value)
@@ -90,6 +103,32 @@ class DepthToPointCloud(Node):
             1,
             int(self.get_parameter('cluster_metadata_log_period').value),
         )
+        self.classify_ramps = bool(self.get_parameter('classify_ramps').value)
+        self.ramp_hypotenuse = float(self.get_parameter('ramp_hypotenuse').value)
+        self.ramp_hypotenuse_tolerance = max(
+            0.0,
+            float(self.get_parameter('ramp_hypotenuse_tolerance').value),
+        )
+        self.ramp_length = float(self.get_parameter('ramp_length').value)
+        self.ramp_length_tolerance = max(
+            0.0,
+            float(self.get_parameter('ramp_length_tolerance').value),
+        )
+        self.ramp_width = float(self.get_parameter('ramp_width').value)
+        self.ramp_width_tolerance = max(
+            0.0,
+            float(self.get_parameter('ramp_width_tolerance').value),
+        )
+        self.ramp_height = float(self.get_parameter('ramp_height').value)
+        self.ramp_height_tolerance = max(
+            0.0,
+            float(self.get_parameter('ramp_height_tolerance').value),
+        )
+        self.ramp_incline_deg = float(self.get_parameter('ramp_incline_deg').value)
+        self.ramp_incline_tolerance_deg = max(
+            0.0,
+            float(self.get_parameter('ramp_incline_tolerance_deg').value),
+        )
 
         self.bridge = CvBridge()
         self.fx = None
@@ -99,11 +138,18 @@ class DepthToPointCloud(Node):
         self.camera_frame = None
         self.frame_count = 0
         self.cluster_metadata = []
+        self.ramp_metadata = []
+        self.ramp_points = []
 
         self.publisher = self.create_publisher(PointCloud2, self.pointcloud_topic, 10)
         self.obstacle_publisher = self.create_publisher(
             PointCloud2,
             self.obstacle_pointcloud_topic,
+            10,
+        )
+        self.ramp_publisher = self.create_publisher(
+            PointCloud2,
+            self.ramp_pointcloud_topic,
             10,
         )
         self.create_subscription(
@@ -122,6 +168,7 @@ class DepthToPointCloud(Node):
         self.get_logger().info(
             f'Publishing depth-derived point cloud on {self.pointcloud_topic} '
             f'and obstacle point cloud on {self.obstacle_pointcloud_topic} '
+            f'and ramp point cloud on {self.ramp_pointcloud_topic} '
             f'from {self.depth_topic} using {self.camera_info_topic} '
             f'(roi_filter={self.filter_by_roi}, '
             f'forward_range=[{self.min_forward:.2f}, {self.max_forward:.2f}] m, '
@@ -134,7 +181,11 @@ class DepthToPointCloud(Node):
             f'cluster_tolerance={self.cluster_tolerance:.2f} m, '
             f'min_cluster_points={self.min_cluster_points}, '
             f'max_cluster_points={self.max_cluster_points}, '
-            f'log_cluster_metadata={self.log_cluster_metadata})'
+            f'log_cluster_metadata={self.log_cluster_metadata}, '
+            f'classify_ramps={self.classify_ramps}, '
+            f'ramp_hypotenuse={self.ramp_hypotenuse:.2f} m, '
+            f'ramp_size=({self.ramp_length:.2f}, {self.ramp_width:.2f}, {self.ramp_height:.2f}) m, '
+            f'ramp_incline={self.ramp_incline_deg:.2f} deg)'
         )
 
     def voxel_downsample(self, points: list) -> list:
@@ -157,6 +208,8 @@ class DepthToPointCloud(Node):
     def cluster_points(self, points: list) -> list:
         if not self.cluster_obstacles or not points:
             self.cluster_metadata = []
+            self.ramp_metadata = []
+            self.ramp_points = []
             return points
 
         tolerance = self.cluster_tolerance
@@ -175,6 +228,8 @@ class DepthToPointCloud(Node):
         visited = [False] * len(points)
         clustered_points = []
         cluster_metadata = []
+        ramp_points = []
+        ramp_metadata = []
         neighbor_offsets = [
             (dx, dy, dz)
             for dx in (-1, 0, 1)
@@ -226,11 +281,20 @@ class DepthToPointCloud(Node):
                 continue
 
             cluster_points = [points[index] for index in cluster_indices]
-            cluster_id = len(cluster_metadata) + 1
-            cluster_metadata.append(self.compute_cluster_metadata(cluster_id, cluster_points))
-            clustered_points.extend(cluster_points)
+            cluster_id = len(cluster_metadata) + len(ramp_metadata) + 1
+            metadata = self.compute_cluster_metadata(cluster_id, cluster_points)
+            if self.is_ramp_cluster(metadata):
+                metadata['classification'] = 'ramp'
+                ramp_metadata.append(metadata)
+                ramp_points.extend(cluster_points)
+            else:
+                metadata['classification'] = 'obstacle'
+                cluster_metadata.append(metadata)
+                clustered_points.extend(cluster_points)
 
         self.cluster_metadata = cluster_metadata
+        self.ramp_metadata = ramp_metadata
+        self.ramp_points = ramp_points
         return clustered_points
 
     def compute_cluster_metadata(self, cluster_id: int, cluster_points: list) -> dict:
@@ -252,6 +316,7 @@ class DepthToPointCloud(Node):
         length = max_forward - min_forward
         width = max_lateral - min_lateral
         height = max_height - min_height
+        hypotenuse = math.hypot(length, height)
         distances = [math.hypot(point[0], point[1]) for point in base_points]
         slope = self.estimate_cluster_slope(forward_values, height_values)
 
@@ -260,6 +325,7 @@ class DepthToPointCloud(Node):
             'point_count': len(cluster_points),
             'center': (center_forward, center_lateral, center_height),
             'size': (length, width, height),
+            'hypotenuse': hypotenuse,
             'forward_range': (min_forward, max_forward),
             'lateral_range': (min_lateral, max_lateral),
             'height_range': (min_height, max_height),
@@ -288,13 +354,40 @@ class DepthToPointCloud(Node):
         )
         return covariance / variance_forward
 
+    def is_ramp_cluster(self, metadata: dict) -> bool:
+        if not self.classify_ramps:
+            return False
+
+        length, width, height = metadata['size']
+        incline_deg = abs(metadata['slope_deg'])
+
+        hypotenuse = metadata['hypotenuse']
+
+        hypotenuse_matches = (
+            abs(hypotenuse - self.ramp_hypotenuse) <= self.ramp_hypotenuse_tolerance
+        )
+        length_matches = abs(length - self.ramp_length) <= self.ramp_length_tolerance
+        width_matches = abs(width - self.ramp_width) <= self.ramp_width_tolerance
+        height_matches = abs(height - self.ramp_height) <= self.ramp_height_tolerance
+        incline_matches = (
+            abs(incline_deg - self.ramp_incline_deg) <= self.ramp_incline_tolerance_deg
+        )
+
+        return (
+            hypotenuse_matches
+            and length_matches
+            and width_matches
+            and height_matches
+            and incline_matches
+        )
+
     def maybe_log_cluster_metadata(self) -> None:
         if not self.log_cluster_metadata:
             return
         if self.frame_count % self.cluster_metadata_log_period != 0:
             return
-        if not self.cluster_metadata:
-            self.get_logger().info('Cluster metadata: no accepted clusters')
+        if not self.cluster_metadata and not self.ramp_metadata:
+            self.get_logger().info('Cluster metadata: no accepted obstacle or ramp clusters')
             return
 
         summaries = []
@@ -304,19 +397,36 @@ class DepthToPointCloud(Node):
             forward_range = metadata['forward_range']
             height_range = metadata['height_range']
             summaries.append(
-                f"id={metadata['id']} points={metadata['point_count']} "
+                f"obstacle id={metadata['id']} points={metadata['point_count']} "
                 f"center=({center[0]:.2f}, {center[1]:.2f}, {center[2]:.2f}) "
                 f"size=({size[0]:.2f}, {size[1]:.2f}, {size[2]:.2f}) "
+                f"hyp={metadata['hypotenuse']:.2f} "
+                f"forward=({forward_range[0]:.2f}, {forward_range[1]:.2f}) "
+                f"height=({height_range[0]:.2f}, {height_range[1]:.2f}) "
+                f"slope={metadata['slope_deg']:.1f}deg"
+            )
+        for metadata in self.ramp_metadata[:5]:
+            center = metadata['center']
+            size = metadata['size']
+            forward_range = metadata['forward_range']
+            height_range = metadata['height_range']
+            summaries.append(
+                f"ramp id={metadata['id']} points={metadata['point_count']} "
+                f"center=({center[0]:.2f}, {center[1]:.2f}, {center[2]:.2f}) "
+                f"size=({size[0]:.2f}, {size[1]:.2f}, {size[2]:.2f}) "
+                f"hyp={metadata['hypotenuse']:.2f} "
                 f"forward=({forward_range[0]:.2f}, {forward_range[1]:.2f}) "
                 f"height=({height_range[0]:.2f}, {height_range[1]:.2f}) "
                 f"slope={metadata['slope_deg']:.1f}deg"
             )
 
         extra = ''
-        if len(self.cluster_metadata) > len(summaries):
-            extra = f"; +{len(self.cluster_metadata) - len(summaries)} more"
+        total_metadata = len(self.cluster_metadata) + len(self.ramp_metadata)
+        if total_metadata > len(summaries):
+            extra = f"; +{total_metadata - len(summaries)} more"
         self.get_logger().info(
-            f"Cluster metadata ({len(self.cluster_metadata)} clusters): "
+            f"Cluster metadata ({len(self.cluster_metadata)} obstacles, "
+            f"{len(self.ramp_metadata)} ramps): "
             + '; '.join(summaries)
             + extra
         )
@@ -386,8 +496,10 @@ class DepthToPointCloud(Node):
         obstacle_points = self.voxel_downsample(points)
         obstacle_points = self.cluster_points(obstacle_points)
         obstacle_cloud = point_cloud2.create_cloud_xyz32(header, obstacle_points)
+        ramp_cloud = point_cloud2.create_cloud_xyz32(header, self.ramp_points)
         self.publisher.publish(cloud)
         self.obstacle_publisher.publish(obstacle_cloud)
+        self.ramp_publisher.publish(ramp_cloud)
         self.frame_count += 1
         self.maybe_log_cluster_metadata()
 
