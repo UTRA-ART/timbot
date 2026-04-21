@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+"""
+ROS2 node that performs lane detection using either a classical CV approach or a deep learning model, based on a parameter.
+It subscribes to synchronized RGB and depth images, applies the chosen lane detection method,
+and publishes both a debug image with detected lanes overlaid and a PointCloud2 of the lane points for navigation.
+"""
+
 import os
 import math
 
@@ -10,7 +16,8 @@ from cv_bridge import CvBridge
 from sensor_msgs.msg import Image, CameraInfo, PointCloud2
 from std_msgs.msg import Header
 
-from ultralytics import YOLO
+from classical_lane_detection import ClassicalLaneDetector
+from ml_lane_detection import MachineLearningLaneDetector
 
 import rclpy
 from rclpy.node import Node
@@ -25,9 +32,8 @@ class CVModelInferencer(Node):
     def __init__(self):
         super().__init__('lane_detection_model_inference')
 
-        # Publishers — only PointCloud2 for nav and debug image
-        self.pub_pt = self.create_publisher(PointCloud2, 'cv/lane_detections_cloud', 10)
-        self.pub_raw = self.create_publisher(Image, 'cv/model_output', 10)
+        self.pub_pt = self.create_publisher(PointCloud2, 'cv/lane_detections_cloud', 10) # Export PointCould2 for Nav
+        self.pub_raw = self.create_publisher(Image, 'cv/model_output', 10) # Export lane detection debug image
 
         self.bridge = CvBridge()
 
@@ -38,15 +44,44 @@ class CVModelInferencer(Node):
         self.declare_parameter('lane_detection_mode', 0)
         self.classical_mode = int(self.get_parameter('lane_detection_mode').value)
 
-        self.Inference = None
-        self.lane_detection = None
+        # Parameters for model input resolution — can be set from sim.yaml / launch
+        self.declare_parameter('camera_width', 330)
+        self.declare_parameter('camera_height', 180)
+        self.camera_width = int(self.get_parameter('camera_width').value)
+        self.camera_height = int(self.get_parameter('camera_height').value)
+
+        self.Inference = None # YOLO model instance (if using deep learning)
+        self.Classical = None # ClassicalLaneDetector instance (if using classical)
 
         if self.classical_mode == 1:
-            from classical_lane_detection import lane_detection
-            self.lane_detection = lane_detection
-            self.get_logger().info("Lane Detection node initialized with CLASSICAL...")
+            self.declare_parameter('white_sensitivity', 20)
+            self.declare_parameter('downscale_factor', 1)
+            self.declare_parameter('horizon_crop', 0.15)
+            
+            self.declare_parameter('morph_size', 3)
+            self.declare_parameter('morph_open_iters', 1)
+            self.declare_parameter('morph_close_iters', 1)
+
+            self.Classical = ClassicalLaneDetector(
+                width=self.camera_width, height=self.camera_height,
+                white_sensitivity=int(self.get_parameter('white_sensitivity').value),
+                downscale_factor=int(self.get_parameter('downscale_factor').value),
+                horizon_crop=float(self.get_parameter('horizon_crop').value),
+                morph_size=int(self.get_parameter('morph_size').value),
+                morph_open_iters=int(self.get_parameter('morph_open_iters').value),
+                morph_close_iters=int(self.get_parameter('morph_close_iters').value)
+            )
+            self.get_logger().info(
+                f"Lane Detection node initialized with CLASSICAL...\n"
+                f"Parameters: {vars(self.Classical)}\n"
+            )
         else:
-            self.Inference = YOLO(self.model_path)
+            self.Inference = MachineLearningLaneDetector(
+                model_path=self.model_path,
+                width=self.camera_width,
+                height=self.camera_height,
+                confidence_threshold=0.25
+            )
             self.get_logger().info(
                 f"Lane Detection node initialized with DEEP LEARNING...\n"
                 f"CUDA status: {torch.cuda.is_available()}"
@@ -57,6 +92,26 @@ class CVModelInferencer(Node):
         self.fy = None
         self.cx = None
         self.cy = None
+
+        # Mask representing the area occupied by the front of the rover, which should be ignored for lane detection
+        default_pts = [0.4, 1.0, 0.5, 0.6, 0.6, 0.6, 0.7, 1.0]
+        self.declare_parameter('roi_mask_points', default_pts)
+        raw_pts = self.get_parameter('roi_mask_points').value
+
+        pixel_pts = []
+        for i in range(0, len(raw_pts), 2):
+            px = int(raw_pts[i] * self.camera_width)
+            py = int(raw_pts[i+1] * self.camera_height)
+            pixel_pts.append([px, py])
+
+        mask_pts = np.array(pixel_pts, np.int32).reshape((-1, 1, 2))
+
+        self.roi_mask = np.ones((self.camera_height, self.camera_width), dtype=np.uint8)
+        cv2.fillPoly(self.roi_mask, [mask_pts], 0)
+
+        self.debug_overlay = np.zeros((self.camera_height, self.camera_width, 3), dtype=np.uint8)
+        pts = mask_pts.reshape(-1, 2).astype(np.int32)
+        cv2.polylines(self.debug_overlay, [pts], isClosed=True, color=(0, 0, 255), thickness=2)
 
     def run(self):
         # Subscribe to camera info once to get intrinsics
@@ -104,48 +159,39 @@ class CVModelInferencer(Node):
         # Convert depth to numpy array (float32, meters)
         depth_img = self.bridge.imgmsg_to_cv2(depth_data, desired_encoding='passthrough')
 
-        # Resize input image to model input size
+        # Resize input image to model input size (width, height)
         input_img = raw.copy()
-        input_img = cv2.resize(input_img, (330, 180))
+        input_img = cv2.resize(input_img, (self.camera_width, self.camera_height))
         input_img = input_img[:, :, :3]
 
         # Run inference
         output = None
         if self.classical_mode:
-            output = self.lane_detection(input_img)
-            mask = np.where(output > 0.5, 1., 0.)
-            output = (mask * 255).astype(np.uint8)
+            output = self.Classical.detect(input_img)
         else:
-            result = self.Inference(input_img, verbose=False)
-            confidence_threshold = 0.5
-            output_image = np.zeros_like(input_img[:, :, 0], dtype=np.uint8)
+            output = self.Inference.detect(input_img)
+        
+        # Ensure ROI mask is applied (roi_mask is single-channel uint8)
+        output = cv2.bitwise_and(output, output, mask=self.roi_mask)
 
-            if result and result[0].masks:
-                for k in range(len(result[0].masks)):
-                    mask_data = result[0].masks[k].data
-                    mask = np.array(mask_data.cpu() if torch.cuda.is_available() else mask_data)
-                    label = result[0].names[int(result[0].boxes[k].cls)]
+        # Convert mask to BGR so we can add the red lines
+        color_output = cv2.cvtColor(output, cv2.COLOR_GRAY2BGR)
 
-                    if float(result[0].boxes[k].conf) > confidence_threshold:
-                        if label == 'lane':
-                            img = np.where(mask > 0.5, 255, 0).astype(np.uint8)
-                            img = cv2.resize(img.squeeze(), (output_image.shape[1], output_image.shape[0]))
-                            output_image = np.maximum(output_image, img)
+        # Stamp the pre-drawn red lines onto the image
+        color_output = cv2.bitwise_or(color_output, self.debug_overlay)
 
-            output = output_image
-
-        # Publish debug mask image
-        img_msg = self.bridge.cv2_to_imgmsg(output, encoding='passthrough')
+        # Publish debug image as BGR8
+        img_msg = self.bridge.cv2_to_imgmsg(color_output, encoding='bgr8')
         img_msg.header.stamp = rgb_data.header.stamp
         self.pub_raw.publish(img_msg)
 
-        # Resize depth to match the model output size (330x180)
-        depth_resized = cv2.resize(depth_img, (330, 180), interpolation=cv2.INTER_NEAREST)
+        # Resize depth to match the model output size (width x height)
+        depth_resized = cv2.resize(depth_img, (self.camera_width, self.camera_height), interpolation=cv2.INTER_NEAREST)
 
         # Scale intrinsics to the resized resolution
         h_orig, w_orig = depth_img.shape[:2]
-        sx = 330.0 / w_orig
-        sy = 180.0 / h_orig
+        sx = self.camera_width / w_orig
+        sy = self.camera_height / h_orig
         fx = self.fx * sx
         fy = self.fy * sy
         cx = self.cx * sx

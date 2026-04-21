@@ -129,6 +129,8 @@
 
     
 
+    
+
     <model name='Construction Barrel_4'>
       <pose>-9.25 -20.25 0 0 -0 0</pose>
       <link name='link'>
@@ -926,6 +928,16 @@
           <geometry>
             <box><size>2.41 2.41 0.1</size></box>
           </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>100</mu>
+                <mu2>50</mu2>
+                <slip1>0.0</slip1>
+                <slip2>0.0</slip2>
+              </ode>
+            </friction>
+          </surface>
           <surface>
             <friction>
               <ode>
