@@ -23,6 +23,11 @@ class DepthToPointCloud(Node):
         self.declare_parameter('min_depth', 0.1)
         self.declare_parameter('max_depth', 20.0)
         self.declare_parameter('pixel_stride', 2)
+        self.declare_parameter('filter_by_roi', True)
+        self.declare_parameter('min_forward', 0.3)
+        self.declare_parameter('max_forward', 6.0)
+        self.declare_parameter('min_lateral', -2.0)
+        self.declare_parameter('max_lateral', 2.0)
         self.declare_parameter('filter_by_height', True)
         self.declare_parameter('min_height', 0.05)
         self.declare_parameter('max_height', 2.0)
@@ -38,6 +43,11 @@ class DepthToPointCloud(Node):
         self.min_depth = float(self.get_parameter('min_depth').value)
         self.max_depth = float(self.get_parameter('max_depth').value)
         self.pixel_stride = max(1, int(self.get_parameter('pixel_stride').value))
+        self.filter_by_roi = bool(self.get_parameter('filter_by_roi').value)
+        self.min_forward = float(self.get_parameter('min_forward').value)
+        self.max_forward = float(self.get_parameter('max_forward').value)
+        self.min_lateral = float(self.get_parameter('min_lateral').value)
+        self.max_lateral = float(self.get_parameter('max_lateral').value)
         self.filter_by_height = bool(self.get_parameter('filter_by_height').value)
         self.min_height = float(self.get_parameter('min_height').value)
         self.max_height = float(self.get_parameter('max_height').value)
@@ -72,11 +82,14 @@ class DepthToPointCloud(Node):
         self.get_logger().info(
             f'Publishing depth-derived point cloud on {self.pointcloud_topic} '
             f'from {self.depth_topic} using {self.camera_info_topic} '
-            f'(height_filter={self.filter_by_height}, '
+            f'(roi_filter={self.filter_by_roi}, '
+            f'forward_range=[{self.min_forward:.2f}, {self.max_forward:.2f}] m, '
+            f'lateral_range=[{self.min_lateral:.2f}, {self.max_lateral:.2f}] m, '
+            f'height_filter={self.filter_by_height}, '
             f'height_range=[{self.min_height:.2f}, {self.max_height:.2f}] m)'
         )
 
-    def optical_to_base_height(self, x_opt: float, y_opt: float, z_opt: float) -> float:
+    def optical_to_base(self, x_opt: float, y_opt: float, z_opt: float) -> tuple:
         # Optical frame uses x right, y down, z forward.
         # Convert to the camera frame expected by the URDF mount:
         # x forward, y left, z up.
@@ -84,10 +97,10 @@ class DepthToPointCloud(Node):
         y_cam = -x_opt
         z_cam = -y_opt
 
-        _x_base = self.cos_pitch * x_cam + self.sin_pitch * z_cam + self.camera_offset_x
-        _y_base = y_cam + self.camera_offset_y
+        x_base = self.cos_pitch * x_cam + self.sin_pitch * z_cam + self.camera_offset_x
+        y_base = y_cam + self.camera_offset_y
         z_base = -self.sin_pitch * x_cam + self.cos_pitch * z_cam + self.camera_offset_z
-        return z_base
+        return x_base, y_base, z_base
 
     def camera_info_callback(self, msg: CameraInfo) -> None:
         self.fx = float(msg.k[0])
@@ -122,8 +135,14 @@ class DepthToPointCloud(Node):
                 x = (u - self.cx) * d / self.fx
                 y = (v - self.cy) * d / self.fy
                 z = d
+                if self.filter_by_roi or self.filter_by_height:
+                    x_base, y_base, z_base = self.optical_to_base(x, y, z)
+                if self.filter_by_roi:
+                    if x_base < self.min_forward or x_base > self.max_forward:
+                        continue
+                    if y_base < self.min_lateral or y_base > self.max_lateral:
+                        continue
                 if self.filter_by_height:
-                    z_base = self.optical_to_base_height(x, y, z)
                     if z_base < self.min_height or z_base > self.max_height:
                         continue
                 points.append((x, y, z))
