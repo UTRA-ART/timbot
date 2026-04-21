@@ -38,6 +38,10 @@ class DepthToPointCloud(Node):
         self.declare_parameter('camera_offset_z', 0.71)
         self.declare_parameter('voxel_downsample_obstacles', True)
         self.declare_parameter('voxel_size', 0.1)
+        self.declare_parameter('cluster_obstacles', True)
+        self.declare_parameter('cluster_tolerance', 0.35)
+        self.declare_parameter('min_cluster_points', 5)
+        self.declare_parameter('max_cluster_points', 0)
 
         self.depth_topic = self.get_parameter('depth_topic').value
         self.camera_info_topic = self.get_parameter('camera_info_topic').value
@@ -70,6 +74,15 @@ class DepthToPointCloud(Node):
                 f'Invalid voxel_size={self.voxel_size:.3f}; disabling obstacle downsampling'
             )
             self.voxel_downsample_obstacles = False
+        self.cluster_obstacles = bool(self.get_parameter('cluster_obstacles').value)
+        self.cluster_tolerance = float(self.get_parameter('cluster_tolerance').value)
+        self.min_cluster_points = max(1, int(self.get_parameter('min_cluster_points').value))
+        self.max_cluster_points = max(0, int(self.get_parameter('max_cluster_points').value))
+        if self.cluster_tolerance <= 0.0:
+            self.get_logger().warn(
+                f'Invalid cluster_tolerance={self.cluster_tolerance:.3f}; disabling clustering'
+            )
+            self.cluster_obstacles = False
 
         self.bridge = CvBridge()
         self.fx = None
@@ -107,7 +120,11 @@ class DepthToPointCloud(Node):
             f'height_filter={self.filter_by_height}, '
             f'height_range=[{self.min_height:.2f}, {self.max_height:.2f}] m, '
             f'obstacle_voxel_downsample={self.voxel_downsample_obstacles}, '
-            f'voxel_size={self.voxel_size:.2f} m)'
+            f'voxel_size={self.voxel_size:.2f} m, '
+            f'cluster_obstacles={self.cluster_obstacles}, '
+            f'cluster_tolerance={self.cluster_tolerance:.2f} m, '
+            f'min_cluster_points={self.min_cluster_points}, '
+            f'max_cluster_points={self.max_cluster_points})'
         )
 
     def voxel_downsample(self, points: list) -> list:
@@ -126,6 +143,78 @@ class DepthToPointCloud(Node):
                 voxels[key] = (x, y, z)
 
         return list(voxels.values())
+
+    def cluster_points(self, points: list) -> list:
+        if not self.cluster_obstacles or not points:
+            return points
+
+        tolerance = self.cluster_tolerance
+        tolerance_sq = tolerance * tolerance
+        cell_size = tolerance
+        spatial_grid = {}
+
+        for index, (x, y, z) in enumerate(points):
+            key = (
+                math.floor(x / cell_size),
+                math.floor(y / cell_size),
+                math.floor(z / cell_size),
+            )
+            spatial_grid.setdefault(key, []).append(index)
+
+        visited = [False] * len(points)
+        clustered_points = []
+        neighbor_offsets = [
+            (dx, dy, dz)
+            for dx in (-1, 0, 1)
+            for dy in (-1, 0, 1)
+            for dz in (-1, 0, 1)
+        ]
+
+        for start_index in range(len(points)):
+            if visited[start_index]:
+                continue
+
+            visited[start_index] = True
+            queue = [start_index]
+            cluster_indices = []
+
+            while queue:
+                current_index = queue.pop()
+                cluster_indices.append(current_index)
+                x, y, z = points[current_index]
+                current_key = (
+                    math.floor(x / cell_size),
+                    math.floor(y / cell_size),
+                    math.floor(z / cell_size),
+                )
+
+                for dx, dy, dz in neighbor_offsets:
+                    neighbor_key = (
+                        current_key[0] + dx,
+                        current_key[1] + dy,
+                        current_key[2] + dz,
+                    )
+                    for neighbor_index in spatial_grid.get(neighbor_key, []):
+                        if visited[neighbor_index]:
+                            continue
+                        nx, ny, nz = points[neighbor_index]
+                        distance_sq = (
+                            (x - nx) * (x - nx)
+                            + (y - ny) * (y - ny)
+                            + (z - nz) * (z - nz)
+                        )
+                        if distance_sq <= tolerance_sq:
+                            visited[neighbor_index] = True
+                            queue.append(neighbor_index)
+
+            cluster_size = len(cluster_indices)
+            if cluster_size < self.min_cluster_points:
+                continue
+            if self.max_cluster_points and cluster_size > self.max_cluster_points:
+                continue
+            clustered_points.extend(points[index] for index in cluster_indices)
+
+        return clustered_points
 
     def optical_to_base(self, x_opt: float, y_opt: float, z_opt: float) -> tuple:
         # Optical frame uses x right, y down, z forward.
@@ -190,6 +279,7 @@ class DepthToPointCloud(Node):
         header.frame_id = self.frame_id_override or self.camera_frame or msg.header.frame_id
         cloud = point_cloud2.create_cloud_xyz32(header, points)
         obstacle_points = self.voxel_downsample(points)
+        obstacle_points = self.cluster_points(obstacle_points)
         obstacle_cloud = point_cloud2.create_cloud_xyz32(header, obstacle_points)
         self.publisher.publish(cloud)
         self.obstacle_publisher.publish(obstacle_cloud)
