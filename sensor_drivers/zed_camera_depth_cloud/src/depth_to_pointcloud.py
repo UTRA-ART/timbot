@@ -19,6 +19,7 @@ class DepthToPointCloud(Node):
         self.declare_parameter('depth_topic', '/zed_node/left/depth_image')
         self.declare_parameter('camera_info_topic', '/zed_node/left/camera_info')
         self.declare_parameter('pointcloud_topic', '/zed_node/left/depth_points')
+        self.declare_parameter('obstacle_pointcloud_topic', '/zed_node/left/obstacle_points')
         self.declare_parameter('frame_id', 'left_camera_link_optical')
         self.declare_parameter('min_depth', 0.1)
         self.declare_parameter('max_depth', 20.0)
@@ -39,6 +40,7 @@ class DepthToPointCloud(Node):
         self.depth_topic = self.get_parameter('depth_topic').value
         self.camera_info_topic = self.get_parameter('camera_info_topic').value
         self.pointcloud_topic = self.get_parameter('pointcloud_topic').value
+        self.obstacle_pointcloud_topic = self.get_parameter('obstacle_pointcloud_topic').value
         self.frame_id_override = self.get_parameter('frame_id').value
         self.min_depth = float(self.get_parameter('min_depth').value)
         self.max_depth = float(self.get_parameter('max_depth').value)
@@ -66,6 +68,11 @@ class DepthToPointCloud(Node):
         self.camera_frame = None
 
         self.publisher = self.create_publisher(PointCloud2, self.pointcloud_topic, 10)
+        self.obstacle_publisher = self.create_publisher(
+            PointCloud2,
+            self.obstacle_pointcloud_topic,
+            10,
+        )
         self.create_subscription(
             CameraInfo,
             self.camera_info_topic,
@@ -81,6 +88,7 @@ class DepthToPointCloud(Node):
 
         self.get_logger().info(
             f'Publishing depth-derived point cloud on {self.pointcloud_topic} '
+            f'and obstacle point cloud on {self.obstacle_pointcloud_topic} '
             f'from {self.depth_topic} using {self.camera_info_topic} '
             f'(roi_filter={self.filter_by_roi}, '
             f'forward_range=[{self.min_forward:.2f}, {self.max_forward:.2f}] m, '
@@ -152,6 +160,7 @@ class DepthToPointCloud(Node):
         header.frame_id = self.frame_id_override or self.camera_frame or msg.header.frame_id
         cloud = point_cloud2.create_cloud_xyz32(header, points)
         self.publisher.publish(cloud)
+        self.obstacle_publisher.publish(cloud)
 
 
 def main(args=None):
