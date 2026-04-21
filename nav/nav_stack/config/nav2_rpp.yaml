@@ -56,7 +56,7 @@ local_costmap:
           data_type: PointCloud2
           topic: /cv/lane_detections_cloud
           marking: true
-          clearing: false
+          clearing: true
           inf_is_valid: true
           expected_update_rate: 0.0 # Set to 0 to disable automatic timeout
           min_obstacle_height: -0.05
@@ -117,9 +117,9 @@ global_costmap:
         laser_scan_sensor:
           min_obstacle_height: 0.05
           max_obstacle_height: 10.0
-          sensor_frame: left_camera_link_optical
-          data_type: PointCloud2
-          topic: /cv/lane_detections_cloud
+          sensor_frame: bottom_lidar_link
+          data_type: LaserScan
+          topic: /scan_modified
           marking: true
           clearing: true
           # obstacle_range: 7.7
@@ -139,7 +139,7 @@ global_costmap:
           data_type: PointCloud2
           topic: /cv/lane_detections_cloud
           marking: true
-          clearing: false
+          clearing: true
           # obstacle_range: 3.7
           # raytrace_range: 4.0
           inf_is_valid: true

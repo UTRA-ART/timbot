@@ -114,7 +114,7 @@ def generate_launch_description():
         log_level_arg,
         enable_camera_arg,
         camera_fps_arg, camera_width_arg, camera_height_arg,
-        robot_state_publisher,
         joint_state_publisher,
+        robot_state_publisher,
         twist_mux,
     ])

@@ -1,12 +1,25 @@
 # =============================================================================
-# Timbot Launch Configuration — Simulation
+# Timbot Launch Configuration — Competition
 # =============================================================================
-# Usage: ros2 launch timbot_launch timbot.launch.py config:=sim.yaml
+# Usage: ros2 launch timbot_launch timbot.launch.py config:=comp.yaml
 # =============================================================================
 
 # --- Global Settings ---
 sim: false
 use_topic_check: true  # Set to false to use blind delay_sec instead
+
+# --- Hardware Ports ---
+gps_port: "/dev/ttyUSB0"       # Serial port for GPS (e.g. /dev/ttyUSB0, /dev/ttyACM0)
+lidar_lower_port: "/dev/ttyUSB2"
+lidar_upper_port: "/dev/ttyUSB3"
+
+## RUM THIS TO FIX THE PORTS IF THEY ARE MESSED UP
+# for p in /dev/ttyUSB*; do 
+#     echo -n "$p: "
+#     udevadm info -q property $p 2>/dev/null | grep -E "ID_MODEL=|ID_SERIAL_SHORT=" | tr '\n' ' '
+#     echo ""
+# done
+
 
 # --- Launch Stages (order matters) ---
 # Each stage runs sequentially. If use_topic_check is true, the next stage 
@@ -136,7 +149,7 @@ nav_stack:
 
 # --- Stage 8: Load Waypoints ---
 load_waypoints:
-  enabled: true
+  enabled: false
   config_file: sim_waypoints_fixed.json
   log_level: error
   delay_sec: 2.0

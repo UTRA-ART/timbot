@@ -351,64 +351,73 @@ def _hw_driver(pkg: str, launch_file: str, extra_args: dict | None = None,
 # Driver definitions
 # (name, launcher_fn, expected_topics, delay_sec)
 # ---------------------------------------------------------------------------
-HARDWARE_DRIVER_STAGES = [
-    (
-        'Driver: GPS',
-        _hw_driver('nmea_navsat_driver', 'nmea_serial_driver.launch.py',
-                   remappings=[('/fix', '/gps/fix')]),
-        ['/gps/fix'],          # topic(s) that signal this driver is ready
-        5.0,
-    ),
-    (
-        'Driver: IMU',
-        _hw_driver('phidgets_spatial', 'spatial-launch.py',
-                   remappings=[('/imu/data_raw', '/imu/data')]),
-        ['/imu/data'],
-        5.0,
-    ),
-    (
-        'Driver: LiDAR Lower',
-        _hw_driver('rplidar_ros', 'rplidar_a1_launch.py', {
-            'serial_port': '/dev/ttyUSB3',                      
-            'frame_id': 'bottom_lidar_link',
-        }, remappings=[('/scan', '/scan_lower')]),
-        ['/scan_lower'],
-        5.0,
-    ),
-    (
-        'Driver: LiDAR Upper',
-        _hw_driver('rplidar_ros', 'rplidar_a1_launch.py', {
-            'serial_port': '/dev/ttyUSB4',                      
-            'frame_id': 'top_lidar_link',
-        }, remappings=[('/scan', '/scan_upper')]),
-        ['/scan_upper'],
-        5.0,
-    ),
-    (
-        'Driver: ZED Camera',
-        _hw_driver('zed_wrapper', 'zed_camera.launch.py', {
-            'camera_model': 'zed2',        
-            'publish_tf': 'false',           
-            'publish_map_tf': 'false',
-            'publish_urdf': 'false',         
-        }, remappings=[
-            # Remap ZED's default namespaced topics to flat /zed_node/...
-            # so the CV pipeline and sim bridge don't need changes.
-            ('/zed/zed_node/left/image_rect_color', '/zed_node/left/image'),
-            ('/zed/zed_node/left/camera_info',      '/zed_node/left/camera_info'),
-            ('/zed/zed_node/left/depth/depth_registered', '/zed_node/left/depth_image'),
-            ('/zed/zed_node/left/point_cloud/cloud_registered', '/zed_node/left/points'),
-        ]),
-        ['/zed_node/left/image'],
-        8.0,
-    ),
-    (
-        'Driver: RPi Sync',
-        _hw_driver('motor_odom', 'odom_pub.launch.py'),
-        ['/odom'],
-        3.0,
-    ),
-]
+def build_hardware_driver_stages(config: dict) -> list:
+    """Build the hardware driver stage list from the loaded config.
+
+    Ports and other per-environment settings are read from the config dict
+    so they can be set in the YAML (e.g. comp.yaml) without touching this file.
+    """
+    gps_port        = config.get('gps_port',        '/dev/ttyUSB0')
+    lidar_lower_port = config.get('lidar_lower_port', '/dev/ttyUSB3')
+    lidar_upper_port = config.get('lidar_upper_port', '/dev/ttyUSB4')
+
+    return [
+        (
+            'Driver: GPS',
+            _hw_driver('nmea_navsat_driver', 'nmea_serial_driver.launch.py', {
+                'serial_port': gps_port,
+            }, remappings=[('/fix', '/gps/fix')]),
+            ['/gps/fix'],
+            5.0,
+        ),
+        (
+            'Driver: IMU',
+            _hw_driver('phidgets_spatial', 'spatial-launch.py',
+                       remappings=[('/imu/data_raw', '/imu/data')]),
+            ['/imu/data'],
+            5.0,
+        ),
+        (
+            'Driver: LiDAR Lower',
+            _hw_driver('rplidar_ros', 'rplidar_a1_launch.py', {
+                'serial_port': lidar_lower_port,
+                'frame_id': 'bottom_lidar_link',
+            }, remappings=[('/scan', '/scan_lower')]),
+            ['/scan_lower'],
+            5.0,
+        ),
+        (
+            'Driver: LiDAR Upper',
+            _hw_driver('rplidar_ros', 'rplidar_a1_launch.py', {
+                'serial_port': lidar_upper_port,
+                'frame_id': 'top_lidar_link',
+            }, remappings=[('/scan', '/scan_upper')]),
+            ['/scan_upper'],
+            5.0,
+        ),
+        # (
+        #     'Driver: ZED Camera',
+        #     _hw_driver('zed_wrapper', 'zed_camera.launch.py', {
+        #         'camera_model': 'zed2',
+        #         'publish_tf': 'false',
+        #         'publish_map_tf': 'false',
+        #         'publish_urdf': 'false',
+        #     }, remappings=[
+        #         ('/zed/zed_node/left/image_rect_color', '/zed_node/left/image'),
+        #         ('/zed/zed_node/left/camera_info',      '/zed_node/left/camera_info'),
+        #         ('/zed/zed_node/left/depth/depth_registered', '/zed_node/left/depth_image'),
+        #         ('/zed/zed_node/left/point_cloud/cloud_registered', '/zed_node/left/points'),
+        #     ]),
+        #     ['/zed_node/left/image'],
+        #     8.0,
+        # ),
+        (
+            'Driver: RPi Sync',
+            _hw_driver('motor_odom', 'odom_pub.launch.py'),
+            ['/odom'],
+            3.0,
+        ),
+    ]
 
 
 # =============================================================================
@@ -417,8 +426,8 @@ HARDWARE_DRIVER_STAGES = [
 
 LAUNCH_STAGES = [
     ('Gazebo',         'gazebo',         launch_gazebo),
-    ('Robot Bringup',  'robot_bringup',  launch_robot_bringup),
     ('Spawn',          'spawn',          launch_spawn),
+    ('Robot Bringup',  'robot_bringup',  launch_robot_bringup),
     ('Odom State',     'odom_state',     launch_odom_state),
     ('Filter Lidar',   'filter_lidar',   launch_filter_lidar),
     ('CV Pipeline',    'cv_pipeline',    launch_cv),
@@ -588,8 +597,9 @@ def orchestrate_launch(context: LaunchContext) -> list:
     # Real rover mode (sim=False): launch hardware drivers sequentially, then
     # hand off to the normal pipeline once all drivers are confirmed ready.
     print("[timbot_launch] Starting hardware driver sequence...", flush=True)
+    hardware_driver_stages = build_hardware_driver_stages(config)
     return build_driver_chain(
-        HARDWARE_DRIVER_STAGES, 0, use_topic_check, pipeline_actions
+        hardware_driver_stages, 0, use_topic_check, pipeline_actions
     )
 
 
