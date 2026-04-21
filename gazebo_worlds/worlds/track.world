@@ -889,11 +889,11 @@
 
     <model name='ramp_up'>
       <static>1</static>
-      <pose>17 -2 0.15 0.1265364 -0 0</pose>
+      <pose>17 -0.855 0.135 0.1122247 -0 0</pose>
       <link name='link'>
         <collision name='collision'>
           <geometry>
-            <box><size>2.214 6 0.1</size></box>
+            <box><size>2.41 2.41 0.1</size></box>
           </geometry>
           <surface>
             <friction>
@@ -908,7 +908,7 @@
         </collision>
         <visual name='visual'>
           <geometry>
-            <box><size>2.214 6 0.1</size></box>
+            <box><size>2.41 2.41 0.1</size></box>
           </geometry>
           <material>
             <ambient>0.4 0.7 0.6 1</ambient>
@@ -920,11 +920,11 @@
 
     <model name='ramp_down'>
       <static>1</static>
-      <pose>17 3.92 0.15 0.1265364 0 3.14</pose>
+      <pose>17 1.53 0.135 0.1122247 0 3.14</pose>
       <link name='link'>
         <collision name='collision'>
           <geometry>
-            <box><size>2.214 6 0.1</size></box>
+            <box><size>2.41 2.41 0.1</size></box>
           </geometry>
           <surface>
             <friction>
@@ -939,7 +939,7 @@
         </collision>
         <visual name='visual'>
           <geometry>
-            <box><size>2.214 6 0.1</size></box>
+            <box><size>2.41 2.41 0.1</size></box>
           </geometry>
           <material>
             <ambient>0.4 0.7 0.6 1</ambient>
@@ -951,33 +951,33 @@
 
     <model name='ramp_wall_left'>
       <static>1</static>
-      <pose>18.257 0.96 0.15 0.1265364 -0 1.5708</pose>
+      <pose>18.355 0.41 0 0 -0 1.5708</pose>
       <link name='link'>
         <collision name='collision'>
-          <geometry><box><size>9 0.1 2</size></box></geometry>
+          <geometry><box><size>4.78 0.1 1</size></box></geometry>
         </collision>
         <visual name='visual'>
-          <geometry><box><size>9 0.1 2</size></box></geometry>
+          <geometry><box><size>4.78 0.1 1</size></box></geometry>
         </visual>
       </link>
     </model>
 
     <model name='ramp_wall_right'>
       <static>1</static>
-      <pose>15.743 0.96 0.15 0.1265364 -0 1.5708</pose>
+      <pose>15.64 0.4 0 0 -0 1.5708</pose>
       <link name='link'>
         <collision name='collision'>
-          <geometry><box><size>9 0.1 2</size></box></geometry>
+          <geometry><box><size>4.78 0.1 1</size></box></geometry>
         </collision>
         <visual name='visual'>
-          <geometry><box><size>9 0.1 2</size></box></geometry>
+          <geometry><box><size>4.78 0.1 1</size></box></geometry>
         </visual>
       </link>
     </model>
 
     <model name='ramp_up_lane_line_left'>
       <static>1</static>
-      <pose>18.157 -2 0.15 0.1265364 -0 0</pose>
+      <pose>18.255 -0.855 0.135 0.1122247 -0 0</pose>
       <link name='link'>
         <inertial>
           <mass>0.1</mass>
@@ -989,7 +989,7 @@
         </inertial>
         <collision name='collision'>
           <geometry>
-            <box><size>0.1 6 0.1</size></box>
+            <box><size>0.1 2.41 0.1</size></box>
           </geometry>
           <surface>
             <friction>
@@ -1002,7 +1002,7 @@
         </collision>
         <visual name='visual'>
           <geometry>
-            <box><size>0.1 6 0.1</size></box>
+            <box><size>0.1 2.41 0.1</size></box>
           </geometry>
           <material>
             <ambient>1 1 1 1</ambient>
@@ -1014,7 +1014,7 @@
     
     <model name='ramp_up_lane_line_right'>
       <static>1</static>
-      <pose>15.843 -2 0.15 0.1265364 -0 0</pose>
+      <pose>15.745 -0.855 0.135 0.1122247 -0 0</pose>
       <link name='link'>
         <inertial>
           <mass>0.1</mass>
@@ -1026,7 +1026,7 @@
         </inertial>
         <collision name='collision'>
           <geometry>
-            <box><size>0.1 6 0.1</size></box>
+            <box><size>0.1 2.41 0.1</size></box>
           </geometry>
           <surface>
             <friction>
@@ -1039,7 +1039,7 @@
         </collision>
         <visual name='visual'>
           <geometry>
-            <box><size>0.1 6 0.1</size></box>
+            <box><size>0.1 2.41 0.1</size></box>
           </geometry>
           <material>
             <ambient>1 1 1 1</ambient>
@@ -1051,7 +1051,7 @@
 
     <model name='ramp_down_lane_line_left'>
       <static>1</static>
-      <pose>18.157 3.92 0.15 0.1265364 0 3.14</pose>
+      <pose>18.255 1.53 0.135 0.1122247 0 3.14</pose>
       <link name='link'>
         <inertial>
           <mass>0.1</mass>
@@ -1063,7 +1063,7 @@
         </inertial>
         <collision name='collision'>
           <geometry>
-            <box><size>0.1 6 0.1</size></box>
+            <box><size>0.1 2.41 0.1</size></box>
           </geometry>
           <surface>
             <friction>
@@ -1076,7 +1076,7 @@
         </collision>
         <visual name='visual'>
           <geometry>
-            <box><size>0.1 6 0.1</size></box>
+            <box><size>0.1 2.41 0.1</size></box>
           </geometry>
           <material>
             <ambient>1 1 1 1</ambient>
@@ -1088,7 +1088,7 @@
 
     <model name='ramp_down_lane_line_right'>
       <static>1</static>
-      <pose>15.843 3.92 0.15 0.1265364 0 3.14</pose>
+      <pose>15.745 1.53 0.135 0.1122247 0 3.14</pose>
       <link name='link'>
         <inertial>
           <mass>0.1</mass>
@@ -1100,7 +1100,7 @@
         </inertial>
         <collision name='collision'>
           <geometry>
-            <box><size>0.1 6 0.1</size></box>
+            <box><size>0.1 2.41 0.1</size></box>
           </geometry>
           <surface>
             <friction>
@@ -1113,7 +1113,7 @@
         </collision>
         <visual name='visual'>
           <geometry>
-            <box><size>0.1 6 0.1</size></box>
+            <box><size>0.1 2.41 0.1</size></box>
           </geometry>
           <material>
             <ambient>1 1 1 1</ambient>
