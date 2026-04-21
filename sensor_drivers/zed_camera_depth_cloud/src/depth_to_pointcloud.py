@@ -42,6 +42,8 @@ class DepthToPointCloud(Node):
         self.declare_parameter('cluster_tolerance', 0.35)
         self.declare_parameter('min_cluster_points', 5)
         self.declare_parameter('max_cluster_points', 0)
+        self.declare_parameter('log_cluster_metadata', False)
+        self.declare_parameter('cluster_metadata_log_period', 30)
 
         self.depth_topic = self.get_parameter('depth_topic').value
         self.camera_info_topic = self.get_parameter('camera_info_topic').value
@@ -83,6 +85,11 @@ class DepthToPointCloud(Node):
                 f'Invalid cluster_tolerance={self.cluster_tolerance:.3f}; disabling clustering'
             )
             self.cluster_obstacles = False
+        self.log_cluster_metadata = bool(self.get_parameter('log_cluster_metadata').value)
+        self.cluster_metadata_log_period = max(
+            1,
+            int(self.get_parameter('cluster_metadata_log_period').value),
+        )
 
         self.bridge = CvBridge()
         self.fx = None
@@ -90,6 +97,8 @@ class DepthToPointCloud(Node):
         self.cx = None
         self.cy = None
         self.camera_frame = None
+        self.frame_count = 0
+        self.cluster_metadata = []
 
         self.publisher = self.create_publisher(PointCloud2, self.pointcloud_topic, 10)
         self.obstacle_publisher = self.create_publisher(
@@ -124,7 +133,8 @@ class DepthToPointCloud(Node):
             f'cluster_obstacles={self.cluster_obstacles}, '
             f'cluster_tolerance={self.cluster_tolerance:.2f} m, '
             f'min_cluster_points={self.min_cluster_points}, '
-            f'max_cluster_points={self.max_cluster_points})'
+            f'max_cluster_points={self.max_cluster_points}, '
+            f'log_cluster_metadata={self.log_cluster_metadata})'
         )
 
     def voxel_downsample(self, points: list) -> list:
@@ -146,6 +156,7 @@ class DepthToPointCloud(Node):
 
     def cluster_points(self, points: list) -> list:
         if not self.cluster_obstacles or not points:
+            self.cluster_metadata = []
             return points
 
         tolerance = self.cluster_tolerance
@@ -163,6 +174,7 @@ class DepthToPointCloud(Node):
 
         visited = [False] * len(points)
         clustered_points = []
+        cluster_metadata = []
         neighbor_offsets = [
             (dx, dy, dz)
             for dx in (-1, 0, 1)
@@ -212,9 +224,102 @@ class DepthToPointCloud(Node):
                 continue
             if self.max_cluster_points and cluster_size > self.max_cluster_points:
                 continue
-            clustered_points.extend(points[index] for index in cluster_indices)
 
+            cluster_points = [points[index] for index in cluster_indices]
+            cluster_id = len(cluster_metadata) + 1
+            cluster_metadata.append(self.compute_cluster_metadata(cluster_id, cluster_points))
+            clustered_points.extend(cluster_points)
+
+        self.cluster_metadata = cluster_metadata
         return clustered_points
+
+    def compute_cluster_metadata(self, cluster_id: int, cluster_points: list) -> dict:
+        base_points = [self.optical_to_base(x, y, z) for x, y, z in cluster_points]
+        forward_values = [point[0] for point in base_points]
+        lateral_values = [point[1] for point in base_points]
+        height_values = [point[2] for point in base_points]
+
+        min_forward = min(forward_values)
+        max_forward = max(forward_values)
+        min_lateral = min(lateral_values)
+        max_lateral = max(lateral_values)
+        min_height = min(height_values)
+        max_height = max(height_values)
+
+        center_forward = 0.5 * (min_forward + max_forward)
+        center_lateral = 0.5 * (min_lateral + max_lateral)
+        center_height = 0.5 * (min_height + max_height)
+        length = max_forward - min_forward
+        width = max_lateral - min_lateral
+        height = max_height - min_height
+        distances = [math.hypot(point[0], point[1]) for point in base_points]
+        slope = self.estimate_cluster_slope(forward_values, height_values)
+
+        return {
+            'id': cluster_id,
+            'point_count': len(cluster_points),
+            'center': (center_forward, center_lateral, center_height),
+            'size': (length, width, height),
+            'forward_range': (min_forward, max_forward),
+            'lateral_range': (min_lateral, max_lateral),
+            'height_range': (min_height, max_height),
+            'closest_distance': min(distances),
+            'farthest_distance': max(distances),
+            'slope': slope,
+            'slope_deg': math.degrees(math.atan(slope)),
+        }
+
+    def estimate_cluster_slope(self, forward_values: list, height_values: list) -> float:
+        if len(forward_values) < 2:
+            return 0.0
+
+        mean_forward = sum(forward_values) / len(forward_values)
+        mean_height = sum(height_values) / len(height_values)
+        variance_forward = sum(
+            (forward - mean_forward) * (forward - mean_forward)
+            for forward in forward_values
+        )
+        if variance_forward <= 1e-6:
+            return 0.0
+
+        covariance = sum(
+            (forward - mean_forward) * (height - mean_height)
+            for forward, height in zip(forward_values, height_values)
+        )
+        return covariance / variance_forward
+
+    def maybe_log_cluster_metadata(self) -> None:
+        if not self.log_cluster_metadata:
+            return
+        if self.frame_count % self.cluster_metadata_log_period != 0:
+            return
+        if not self.cluster_metadata:
+            self.get_logger().info('Cluster metadata: no accepted clusters')
+            return
+
+        summaries = []
+        for metadata in self.cluster_metadata[:5]:
+            center = metadata['center']
+            size = metadata['size']
+            forward_range = metadata['forward_range']
+            height_range = metadata['height_range']
+            summaries.append(
+                f"id={metadata['id']} points={metadata['point_count']} "
+                f"center=({center[0]:.2f}, {center[1]:.2f}, {center[2]:.2f}) "
+                f"size=({size[0]:.2f}, {size[1]:.2f}, {size[2]:.2f}) "
+                f"forward=({forward_range[0]:.2f}, {forward_range[1]:.2f}) "
+                f"height=({height_range[0]:.2f}, {height_range[1]:.2f}) "
+                f"slope={metadata['slope_deg']:.1f}deg"
+            )
+
+        extra = ''
+        if len(self.cluster_metadata) > len(summaries):
+            extra = f"; +{len(self.cluster_metadata) - len(summaries)} more"
+        self.get_logger().info(
+            f"Cluster metadata ({len(self.cluster_metadata)} clusters): "
+            + '; '.join(summaries)
+            + extra
+        )
 
     def optical_to_base(self, x_opt: float, y_opt: float, z_opt: float) -> tuple:
         # Optical frame uses x right, y down, z forward.
@@ -283,6 +388,8 @@ class DepthToPointCloud(Node):
         obstacle_cloud = point_cloud2.create_cloud_xyz32(header, obstacle_points)
         self.publisher.publish(cloud)
         self.obstacle_publisher.publish(obstacle_cloud)
+        self.frame_count += 1
+        self.maybe_log_cluster_metadata()
 
 
 def main(args=None):
