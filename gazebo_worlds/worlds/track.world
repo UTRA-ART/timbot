@@ -889,7 +889,7 @@
 
     <model name='ramp_up'>
       <static>1</static>
-      <pose>17 -0.855 0.135 0.1122247 -0 0</pose>
+      <pose>17 -0.855 0.1 0.1122247 -0 0</pose>
       <link name='link'>
         <collision name='collision'>
           <geometry>
@@ -920,7 +920,7 @@
 
     <model name='ramp_down'>
       <static>1</static>
-      <pose>17 1.53 0.135 0.1122247 0 3.14</pose>
+      <pose>17 1.53 0.1 0.1122247 0 3.14</pose>
       <link name='link'>
         <collision name='collision'>
           <geometry>
@@ -977,7 +977,7 @@
 
     <model name='ramp_up_lane_line_left'>
       <static>1</static>
-      <pose>18.255 -0.855 0.135 0.1122247 -0 0</pose>
+      <pose>18.255 -0.855 0.1 0.1122247 -0 0</pose>
       <link name='link'>
         <inertial>
           <mass>0.1</mass>
@@ -1014,7 +1014,7 @@
     
     <model name='ramp_up_lane_line_right'>
       <static>1</static>
-      <pose>15.745 -0.855 0.135 0.1122247 -0 0</pose>
+      <pose>15.745 -0.855 0.1 0.1122247 -0 0</pose>
       <link name='link'>
         <inertial>
           <mass>0.1</mass>
@@ -1320,7 +1320,7 @@
 
     <model name='outer_wall_16'>
       <static>1</static>
-      <pose>19 6 0 0 -0 0.9</pose>
+      <pose>18.34 4.69 0 0 -0 0.9</pose>
       <link name='link'>
         <collision name='collision'>
           <geometry><box><size>2 0.1 1</size></box></geometry>
@@ -1333,7 +1333,7 @@
 
     <model name='outer_wall_17'>
       <static>1</static>
-      <pose>19 -4 0 0 -0 -0.8</pose>
+      <pose>18.57 -3.56 0 0 -0 -0.8</pose>
       <link name='link'>
         <collision name='collision'>
           <geometry><box><size>2 0.1 1</size></box></geometry>
@@ -1398,7 +1398,7 @@
 
     <model name='inner_wall_1'>
       <static>1</static>
-      <pose>16 6 0 0 -0 0.9</pose>
+      <pose>15.89 5.12 0 0 -0 0.9</pose>
       <link name='link'>
         <collision name='collision'>
           <geometry><box><size>2 0.1 1</size></box></geometry>
@@ -1411,7 +1411,7 @@
 
     <model name='inner_wall_2'>
       <static>1</static>
-      <pose>16 -4 0 0 -0 -0.8</pose>
+      <pose>16.08 -3.45 0 0 -0 -0.8</pose>
       <link name='link'>
         <collision name='collision'>
           <geometry><box><size>2 0.1 1</size></box></geometry>
