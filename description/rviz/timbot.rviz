@@ -193,6 +193,31 @@ Visualization Manager:
       Use rainbow: false
       Value: true
     - Alpha: 1
+      Class: rviz_default_plugins/PointCloud2
+      Color: 255; 80; 40
+      Color Transformer: FlatColor
+      Decay Time: 0
+      Enabled: true
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Min Color: 0; 0; 0
+      Name: Obstacle Point Cloud
+      Position Transformer: XYZ
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.019999999552965164
+      Style: Points
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /zed_node/left/obstacle_points
+      Use Fixed Frame: true
+      Use rainbow: false
+      Value: true
+    - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
         Max Value: 10
