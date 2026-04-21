@@ -369,7 +369,7 @@ HARDWARE_DRIVER_STAGES = [
     (
         'Driver: LiDAR Lower',
         _hw_driver('rplidar_ros', 'rplidar_a1_launch.py', {
-            'serial_port': '/dev/ttyUSB0',                      # TODO: set correct port
+            'serial_port': '/dev/ttyUSB3',                      
             'frame_id': 'bottom_lidar_link',
         }, remappings=[('/scan', '/scan_lower')]),
         ['/scan_lower'],
@@ -378,7 +378,7 @@ HARDWARE_DRIVER_STAGES = [
     (
         'Driver: LiDAR Upper',
         _hw_driver('rplidar_ros', 'rplidar_a1_launch.py', {
-            'serial_port': '/dev/ttyUSB1',                      # TODO: set correct port
+            'serial_port': '/dev/ttyUSB4',                      
             'frame_id': 'top_lidar_link',
         }, remappings=[('/scan', '/scan_upper')]),
         ['/scan_upper'],
