@@ -168,13 +168,13 @@ class MotorControl(Node):
         
         
         self.current_time = time.time()
-        self.get_logger().info(self.current_time)
         # Arduino read code, runs at 30 Hz
         if self.conn.in_waiting > 0:
+            self.get_logger().info("Arduino read code ran")
             try:
                 line = self.conn.readline().decode('utf-8').rstrip()
                 l_val, r_val = line[1:-1].split(',')  # data in format <{left_count},{right_count}>
-
+                self.get_logger().info("Processing directions")
                 # Update direction multipliers
                 if self.right_dir:
                     self.direction_r = 1
@@ -196,10 +196,12 @@ class MotorControl(Node):
                 r_msg.data = int(r_val)
                 self.ticks_pub_r.publish(r_msg)
             except Exception:
+                self.get_logger().info("Error reading from Arduino")
                 pass
 
         # Motor control code, runs at 15 Hz (every other cycle)
         if self.run_motor_control:
+            self.get_logger().info("Motor control code ran")
             if self.current_time - self.rostime_last >= TIMEOUT and not self.mode:
                 # command has not been received in some time
                 # something may be wrong -> stop the motors
@@ -208,6 +210,7 @@ class MotorControl(Node):
                 self.r_speed_pin.ChangeDutyCycle(0)
                 self.l_speed_pin.ChangeDutyCycle(0)
             else:
+                self.get_logger().info("No motor control")
                 # calculate speeds for each wheel
                 # right speed
                 vr = self.g_vx - (WHEEL_BASE * self.g_wz) / 2
