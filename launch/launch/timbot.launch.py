@@ -358,6 +358,7 @@ def build_hardware_driver_stages(config: dict) -> list:
     so they can be set in the YAML (e.g. comp.yaml) without touching this file.
     """
     gps_port        = config.get('gps_port',        '/dev/ttyUSB0')
+    gps_baud = str(config.get('gps_baud', '9600'))
     lidar_lower_port = config.get('lidar_lower_port', '/dev/ttyUSB3')
     lidar_upper_port = config.get('lidar_upper_port', '/dev/ttyUSB4')
 
@@ -366,6 +367,7 @@ def build_hardware_driver_stages(config: dict) -> list:
             'Driver: GPS',
             _hw_driver('nmea_navsat_driver', 'nmea_serial_driver.launch.py', {
                 'serial_port': gps_port,
+                'baud': gps_baud,
             }, remappings=[('/fix', '/gps/fix')]),
             ['/gps/fix'],
             5.0,

@@ -33,6 +33,11 @@ def generate_launch_description():
         default_value='/dev/ttyUSB0',
         description='Serial port for the GPS device (e.g. /dev/ttyUSB0)',
     )
+    baud_rate_arg = DeclareLaunchArgument(
+        'gps_baud',
+        default_value='9600',
+        description='baud_rate',
+    )
 
     driver_node = actions.Node(
         package='nmea_navsat_driver',
@@ -40,10 +45,11 @@ def generate_launch_description():
         output='screen',
         parameters=[
             config_file,
-            {'port': LaunchConfiguration('serial_port')},
+            {'port': LaunchConfiguration('serial_port'), 
+             'baud': LaunchConfiguration('gps_baud')},
         ])
 
-    return LaunchDescription([serial_port_arg, driver_node])
+    return LaunchDescription([serial_port_arg, baud_rate_arg, driver_node])
 
 
 def main(argv):

@@ -165,8 +165,10 @@ class MotorControl(Node):
         self.mode = mode_msg.data
 
     def timer_callback(self):
+        
+        
         self.current_time = time.time()
-
+        self.get_logger().info(self.current_time)
         # Arduino read code, runs at 30 Hz
         if self.conn.in_waiting > 0:
             try:

@@ -10,11 +10,12 @@ use_topic_check: true  # Set to false to use blind delay_sec instead
 team_laptop: true
 
 # --- Hardware Ports ---
-gps_port: "/dev/ttyUSB0"       # Serial port for GPS (e.g. /dev/ttyUSB0, /dev/ttyACM0)
-lidar_lower_port: "/dev/ttyUSB2"
-lidar_upper_port: "/dev/ttyUSB3"
+gps_port: "/dev/ttyUSB1"       # Serial port for GPS (e.g. /dev/ttyUSB0, /dev/ttyACM0)
+gps_baud: 4800
+lidar_lower_port: "/dev/ttyUSB4"
+lidar_upper_port: "/dev/ttyUSB5"
 
-## RUM THIS TO FIX THE PORTS IF THEY ARE MESSED UP
+# RUM THIS TO FIX THE PORTS IF THEY ARE MESSED UP
 # for p in /dev/ttyUSB*; do 
 #     echo -n "$p: "
 #     udevadm info -q property $p 2>/dev/null | grep -E "ID_MODEL=|ID_SERIAL_SHORT=" | tr '\n' ' '
@@ -100,7 +101,7 @@ filter_lidar:
     - /scan_modified
 
 cv_pipeline:
-  enabled: false
+  enabled: true
   log_level: info
   lane_detection_mode: 1  # 0 = deep learning (YOLO), 1 = classical (HSV threshold)
   camera_fps: 10
