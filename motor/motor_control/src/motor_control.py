@@ -172,29 +172,38 @@ class MotorControl(Node):
         if self.conn.in_waiting > 0:
             self.get_logger().info("Arduino read code ran")
             try:
-                line = self.conn.readline().decode('utf-8').rstrip()
-                l_val, r_val = line[1:-1].split(',')  # data in format <{left_count},{right_count}>
-                self.get_logger().info("Processing directions")
-                # Update direction multipliers
-                if self.right_dir:
-                    self.direction_r = 1
-                else:
-                    self.direction_r = -1
+                raw_bytes = self.conn.read(self.conn.in_waiting)
+                raw_data = raw_bytes.decode('utf-8', errors='ignore')
+                
+                packets = []
+                for p in raw_data.split('<'):
+                    if '>' in p:
+                        packets.append(p.split('>')[0])
+                        
+                if packets:
+                    latest_packet = packets[-1]
+                    l_val, r_val = latest_packet.split(',')  # data in format <{left_count},{right_count}>
+                    self.get_logger().info("Processing directions")
+                    # Update direction multipliers
+                    if self.right_dir:
+                        self.direction_r = 1
+                    else:
+                        self.direction_r = -1
 
-                if not self.left_dir:
-                    self.direction_l = 1
-                else:
-                    self.direction_l = -1
+                    if not self.left_dir:
+                        self.direction_l = 1
+                    else:
+                        self.direction_l = -1
 
-                # Publish directionless tick counts; odom node applies direction using
-                # /left_wheel/direction and /right_wheel/direction topics.
-                l_msg = Int32()
-                l_msg.data = int(l_val)
-                self.ticks_pub_l.publish(l_msg)
+                    # Publish directionless tick counts; odom node applies direction using
+                    # /left_wheel/direction and /right_wheel/direction topics.
+                    l_msg = Int32()
+                    l_msg.data = int(l_val)
+                    self.ticks_pub_l.publish(l_msg)
 
-                r_msg = Int32()
-                r_msg.data = int(r_val)
-                self.ticks_pub_r.publish(r_msg)
+                    r_msg = Int32()
+                    r_msg.data = int(r_val)
+                    self.ticks_pub_r.publish(r_msg)
             except Exception:
                 self.get_logger().info("Error reading from Arduino")
                 pass
