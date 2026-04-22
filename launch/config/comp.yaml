@@ -2,6 +2,7 @@
 # Timbot Launch Configuration — Competition
 # =============================================================================
 # Usage: ros2 launch timbot_launch timbot.launch.py config:=comp.yaml
+# on team laptop: __NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia ros2 launch timbot_launch timbot.launch.py config:=comp.yaml
 # =============================================================================
 
 # --- Global Settings ---

@@ -173,7 +173,7 @@ class MotorControl(Node):
             try:
                 raw_bytes = self.conn.read(self.conn.in_waiting)
                 raw_data = raw_bytes.decode('utf-8', errors='ignore')
-                self.get_logger().info(f"Raw bytes: {raw_bytes}")
+                # self.get_logger().info(f"Raw bytes: {raw_bytes}")
                 
                 packets = []
                 for p in raw_data.split('<'):
@@ -199,7 +199,7 @@ class MotorControl(Node):
                     l_msg = Int32()
                     l_msg.data = int(l_val)
                     self.ticks_pub_l.publish(l_msg)
-                    self.get_logger().info(f"Left Ticks: {l_msg.data}")
+                    # self.get_logger().info(f"Left Ticks: {l_msg.data}")
 
                     r_msg = Int32()
                     r_msg.data = int(r_val)

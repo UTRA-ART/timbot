@@ -2,7 +2,7 @@
 # Timbot Launch Configuration — Simulation
 # =============================================================================
 # Usage: ros2 launch timbot_launch timbot.launch.py config:=sim.yaml
-# on team laptop: 
+# on team laptop: __NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia ros2 launch timbot_launch timbot.launch.py config:=sim.yaml
 # =============================================================================
 # if team laptop: __NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia 
 # do this if rviz starts crashing

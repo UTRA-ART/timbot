@@ -174,10 +174,10 @@ def main(args=None):
     autonomous_mode = False
     mode_pub = node.create_publisher(Bool, '/pause_navigation', 1)
 
-    x = 1
+    x = -1
     y = 0
     z = 0
-    th = 1
+    th = -1
     status = 0
     top_vel = 2.2352  # m/s
     factor = 1 / .447 * 5280 * 12 / 10 / 3.1415 / 60 * 16
@@ -238,6 +238,9 @@ def main(args=None):
                                 (-2 * top_vel + turn * 0.89) / 2),
                             (2 * top_vel - turn * 0.89) / 2)
 
+                speed = round(speed, 4)
+                turn = round(turn, 4)
+
                 print(vels(speed, turn))
                 if (status == 14):
                     print(msg)
@@ -248,10 +251,10 @@ def main(args=None):
                 if key == '' and autonomous_mode:
                     continue
                 elif key != '':
-                    x = 1
+                    x = -1
                     y = 0
                     z = 0
-                    th = 1
+                    th = -1
                     speed = 0
                     turn = 0
                 if (key == '\x03'):
