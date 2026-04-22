@@ -170,10 +170,10 @@ class MotorControl(Node):
         self.current_time = time.time()
         # Arduino read code, runs at 30 Hz
         if self.conn.in_waiting > 0:
-            self.get_logger().info("Arduino read code ran")
             try:
                 raw_bytes = self.conn.read(self.conn.in_waiting)
                 raw_data = raw_bytes.decode('utf-8', errors='ignore')
+                self.get_logger().info(f"Raw data: {raw_data}")
                 
                 packets = []
                 for p in raw_data.split('<'):
@@ -183,7 +183,6 @@ class MotorControl(Node):
                 if packets:
                     latest_packet = packets[-1]
                     l_val, r_val = latest_packet.split(',')  # data in format <{left_count},{right_count}>
-                    self.get_logger().info("Processing directions")
                     # Update direction multipliers
                     if self.right_dir:
                         self.direction_r = 1
@@ -200,17 +199,16 @@ class MotorControl(Node):
                     l_msg = Int32()
                     l_msg.data = int(l_val)
                     self.ticks_pub_l.publish(l_msg)
+                    self.get_logger().info(f"Left Ticks: {l_msg.data}")
 
                     r_msg = Int32()
                     r_msg.data = int(r_val)
                     self.ticks_pub_r.publish(r_msg)
             except Exception:
-                self.get_logger().info("Error reading from Arduino")
                 pass
 
         # Motor control code, runs at 15 Hz (every other cycle)
         if self.run_motor_control:
-            self.get_logger().info("Motor control code ran")
             if self.current_time - self.rostime_last >= TIMEOUT and not self.mode:
                 # command has not been received in some time
                 # something may be wrong -> stop the motors
@@ -219,7 +217,6 @@ class MotorControl(Node):
                 self.r_speed_pin.ChangeDutyCycle(0)
                 self.l_speed_pin.ChangeDutyCycle(0)
             else:
-                self.get_logger().info("No motor control")
                 # calculate speeds for each wheel
                 # right speed
                 vr = self.g_vx - (WHEEL_BASE * self.g_wz) / 2
