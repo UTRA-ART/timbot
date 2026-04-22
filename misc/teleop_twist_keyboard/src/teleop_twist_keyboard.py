@@ -121,6 +121,10 @@ class PublishThread(threading.Thread):
         twist.angular.z = 0.0
         self.publisher.publish(twist)
 
+        # Allow time for DDS to transmit the stop message before shutdown
+        import time
+        time.sleep(0.5)
+
 
 def getKey(key_timeout):
     settings = termios.tcgetattr(sys.stdin)
@@ -177,7 +181,7 @@ def main(args=None):
     x = -1
     y = 0
     z = 0
-    th = -1
+    th = 1
     status = 0
     top_vel = 2.2352  # m/s
     factor = 1 / .447 * 5280 * 12 / 10 / 3.1415 / 60 * 16
@@ -254,7 +258,7 @@ def main(args=None):
                     x = -1
                     y = 0
                     z = 0
-                    th = -1
+                    th = 1
                     speed = 0
                     turn = 0
                 if (key == '\x03'):
