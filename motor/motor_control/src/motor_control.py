@@ -140,7 +140,7 @@ class MotorControl(Node):
 
         # subscribers
         self.get_logger().info("Subscribing to topics...")
-        self.create_subscription(Twist, '/twist_mux/cmd_vel', self.target_cb, 10)
+        self.create_subscription(Twist, '/cmd_vel', self.target_cb, 10)
         self.create_subscription(Bool, 'pause_navigation', self.mode_cb, 10)
 
         # publishers
