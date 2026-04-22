@@ -55,8 +55,7 @@ class DepthToPointCloud(Node):
         self.declare_parameter('min_ramp_forward_length', 1.0)
         self.declare_parameter('min_ramp_width', 0.8)
         self.declare_parameter('max_ramp_width', 3.2)
-        self.declare_parameter('max_ramp_cluster_height', 1.2)
-        self.declare_parameter('use_elevation_grid_for_ramps', True)
+        self.declare_parameter('max_ramp_height', 1.2)
         self.declare_parameter('ramp_grid_resolution', 0.15)
         self.declare_parameter('ramp_grid_min_points_per_cell', 3)
         self.declare_parameter('ramp_grid_min_connected_cells', 8)
@@ -127,20 +126,17 @@ class DepthToPointCloud(Node):
         )
         self.min_ramp_width = max(0.0, float(self.get_parameter('min_ramp_width').value))
         self.max_ramp_width = max(0.0, float(self.get_parameter('max_ramp_width').value))
-        self.max_ramp_cluster_height = max(
+        self.max_ramp_height = max(
             0.0,
-            float(self.get_parameter('max_ramp_cluster_height').value),
-        )
-        self.use_elevation_grid_for_ramps = bool(
-            self.get_parameter('use_elevation_grid_for_ramps').value
+            float(self.get_parameter('max_ramp_height').value),
         )
         self.ramp_grid_resolution = float(self.get_parameter('ramp_grid_resolution').value)
         if self.ramp_grid_resolution <= 0.0:
             self.get_logger().warn(
                 f'Invalid ramp_grid_resolution={self.ramp_grid_resolution:.3f}; '
-                'disabling elevation-grid ramp detection'
+                'disabling ramp classification'
             )
-            self.use_elevation_grid_for_ramps = False
+            self.classify_ramps = False
         self.ramp_grid_min_points_per_cell = max(
             1,
             int(self.get_parameter('ramp_grid_min_points_per_cell').value),
@@ -212,7 +208,6 @@ class DepthToPointCloud(Node):
             f'ramp_distance_limit={self.max_ramp_detection_distance:.2f} m, '
             f'ramp_width_range=[{self.min_ramp_width:.2f}, {self.max_ramp_width:.2f}] m, '
             f'ramp_slope_range=[{self.min_ramp_slope_deg:.2f}, {self.max_ramp_slope_deg:.2f}] deg, '
-            f'elevation_grid_ramps={self.use_elevation_grid_for_ramps}, '
             f'ramp_grid_resolution={self.ramp_grid_resolution:.2f} m)'
         )
 
@@ -236,8 +231,6 @@ class DepthToPointCloud(Node):
     def cluster_points(self, points: list) -> list:
         if not self.cluster_obstacles or not points:
             self.cluster_metadata = []
-            self.ramp_metadata = []
-            self.ramp_points = []
             return points
 
         tolerance = self.cluster_tolerance
@@ -256,8 +249,6 @@ class DepthToPointCloud(Node):
         visited = [False] * len(points)
         clustered_points = []
         cluster_metadata = []
-        ramp_points = []
-        ramp_metadata = []
         neighbor_offsets = [
             (dx, dy, dz)
             for dx in (-1, 0, 1)
@@ -309,20 +300,13 @@ class DepthToPointCloud(Node):
                 continue
 
             cluster_points = [points[index] for index in cluster_indices]
-            cluster_id = len(cluster_metadata) + len(ramp_metadata) + 1
+            cluster_id = len(cluster_metadata) + 1
             metadata = self.compute_cluster_metadata(cluster_id, cluster_points)
-            if self.is_ramp_cluster(metadata):
-                metadata['classification'] = 'ramp'
-                ramp_metadata.append(metadata)
-                ramp_points.extend(cluster_points)
-            else:
-                metadata['classification'] = 'obstacle'
-                cluster_metadata.append(metadata)
-                clustered_points.extend(cluster_points)
+            metadata['classification'] = 'obstacle'
+            cluster_metadata.append(metadata)
+            clustered_points.extend(cluster_points)
 
         self.cluster_metadata = cluster_metadata
-        self.ramp_metadata = ramp_metadata
-        self.ramp_points = ramp_points
         return clustered_points
 
     def compute_cluster_metadata(self, cluster_id: int, cluster_points: list) -> dict:
@@ -382,35 +366,8 @@ class DepthToPointCloud(Node):
         )
         return covariance / variance_forward
 
-    def is_ramp_cluster(self, metadata: dict) -> bool:
-        if not self.classify_ramps:
-            return False
-
-        length, width, height = metadata['size']
-        incline_deg = abs(metadata['slope_deg'])
-        center = metadata['center']
-
-        if metadata['point_count'] < self.min_ramp_points:
-            return False
-        if metadata['closest_distance'] > self.max_ramp_detection_distance:
-            return False
-        if abs(center[1]) > self.ramp_center_lateral_limit:
-            return False
-        if length < self.min_ramp_forward_length:
-            return False
-        if width < self.min_ramp_width:
-            return False
-        if self.max_ramp_width and width > self.max_ramp_width:
-            return False
-        if height > self.max_ramp_cluster_height:
-            return False
-        if incline_deg < self.min_ramp_slope_deg or incline_deg > self.max_ramp_slope_deg:
-            return False
-
-        return True
-
     def detect_ramp_points_from_elevation_grid(self, points: list) -> list:
-        if not self.classify_ramps or not self.use_elevation_grid_for_ramps or not points:
+        if not self.classify_ramps or not points:
             self.ramp_metadata = []
             return []
 
@@ -573,7 +530,7 @@ class DepthToPointCloud(Node):
                 continue
             if self.max_ramp_width and width > self.max_ramp_width:
                 continue
-            if height > self.max_ramp_cluster_height:
+            if height > self.max_ramp_height:
                 continue
 
             ramp_id = len(ramp_metadata) + 1
@@ -700,7 +657,7 @@ class DepthToPointCloud(Node):
                 x = (u - self.cx) * d / self.fx
                 y = (v - self.cy) * d / self.fy
                 z = d
-                if self.filter_by_roi or self.filter_by_height or self.use_elevation_grid_for_ramps:
+                if self.filter_by_roi or self.filter_by_height or self.classify_ramps:
                     x_base, y_base, z_base = self.optical_to_base(x, y, z)
                 if self.filter_by_roi:
                     if x_base < self.min_forward or x_base > self.max_forward:
@@ -719,8 +676,7 @@ class DepthToPointCloud(Node):
         cloud = point_cloud2.create_cloud_xyz32(header, points)
         obstacle_points = self.voxel_downsample(points)
         obstacle_points = self.cluster_points(obstacle_points)
-        if self.use_elevation_grid_for_ramps:
-            self.ramp_points = self.detect_ramp_points_from_elevation_grid(terrain_points)
+        self.ramp_points = self.detect_ramp_points_from_elevation_grid(terrain_points)
         obstacle_cloud = point_cloud2.create_cloud_xyz32(header, obstacle_points)
         ramp_cloud = point_cloud2.create_cloud_xyz32(header, self.ramp_points)
         self.publisher.publish(cloud)
