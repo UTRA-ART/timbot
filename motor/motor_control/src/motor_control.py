@@ -173,7 +173,7 @@ class MotorControl(Node):
             try:
                 raw_bytes = self.conn.read(self.conn.in_waiting)
                 raw_data = raw_bytes.decode('utf-8', errors='ignore')
-                self.get_logger().info(f"Raw data: {raw_data}")
+                self.get_logger().info(f"Raw bytes: {raw_bytes}")
                 
                 packets = []
                 for p in raw_data.split('<'):
