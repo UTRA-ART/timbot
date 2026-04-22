@@ -5,6 +5,7 @@ import math
 import numpy as np
 import rclpy
 from cv_bridge import CvBridge
+from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
 from sensor_msgs.msg import CameraInfo, Image, PointCloud2
@@ -46,16 +47,22 @@ class DepthToPointCloud(Node):
         self.declare_parameter('log_cluster_metadata', False)
         self.declare_parameter('cluster_metadata_log_period', 30)
         self.declare_parameter('classify_ramps', True)
-        self.declare_parameter('ramp_hypotenuse', 6.0)
-        self.declare_parameter('ramp_hypotenuse_tolerance', 1.5)
-        self.declare_parameter('ramp_length', 5.9)
-        self.declare_parameter('ramp_length_tolerance', 1.5)
-        self.declare_parameter('ramp_width', 2.41)
-        self.declare_parameter('ramp_width_tolerance', 0.8)
-        self.declare_parameter('ramp_height', 0.67)
-        self.declare_parameter('ramp_height_tolerance', 0.35)
-        self.declare_parameter('ramp_incline_deg', 6.43)
-        self.declare_parameter('ramp_incline_tolerance_deg', 5.0)
+        self.declare_parameter('max_ramp_detection_distance', 4.5)
+        self.declare_parameter('ramp_center_lateral_limit', 1.2)
+        self.declare_parameter('min_ramp_points', 20)
+        self.declare_parameter('min_ramp_slope_deg', 2.0)
+        self.declare_parameter('max_ramp_slope_deg', 12.0)
+        self.declare_parameter('min_ramp_forward_length', 1.0)
+        self.declare_parameter('min_ramp_width', 0.8)
+        self.declare_parameter('max_ramp_width', 3.2)
+        self.declare_parameter('max_ramp_cluster_height', 1.2)
+        self.declare_parameter('use_elevation_grid_for_ramps', True)
+        self.declare_parameter('ramp_grid_resolution', 0.15)
+        self.declare_parameter('ramp_grid_min_points_per_cell', 3)
+        self.declare_parameter('ramp_grid_min_connected_cells', 8)
+        self.declare_parameter('ramp_grid_spike_height', 0.25)
+        self.declare_parameter('ramp_grid_min_height', -0.05)
+        self.declare_parameter('ramp_grid_max_height', 1.2)
 
         self.depth_topic = self.get_parameter('depth_topic').value
         self.camera_info_topic = self.get_parameter('camera_info_topic').value
@@ -104,31 +111,50 @@ class DepthToPointCloud(Node):
             int(self.get_parameter('cluster_metadata_log_period').value),
         )
         self.classify_ramps = bool(self.get_parameter('classify_ramps').value)
-        self.ramp_hypotenuse = float(self.get_parameter('ramp_hypotenuse').value)
-        self.ramp_hypotenuse_tolerance = max(
-            0.0,
-            float(self.get_parameter('ramp_hypotenuse_tolerance').value),
+        self.max_ramp_detection_distance = float(
+            self.get_parameter('max_ramp_detection_distance').value
         )
-        self.ramp_length = float(self.get_parameter('ramp_length').value)
-        self.ramp_length_tolerance = max(
+        self.ramp_center_lateral_limit = max(
             0.0,
-            float(self.get_parameter('ramp_length_tolerance').value),
+            float(self.get_parameter('ramp_center_lateral_limit').value),
         )
-        self.ramp_width = float(self.get_parameter('ramp_width').value)
-        self.ramp_width_tolerance = max(
+        self.min_ramp_points = max(1, int(self.get_parameter('min_ramp_points').value))
+        self.min_ramp_slope_deg = float(self.get_parameter('min_ramp_slope_deg').value)
+        self.max_ramp_slope_deg = float(self.get_parameter('max_ramp_slope_deg').value)
+        self.min_ramp_forward_length = max(
             0.0,
-            float(self.get_parameter('ramp_width_tolerance').value),
+            float(self.get_parameter('min_ramp_forward_length').value),
         )
-        self.ramp_height = float(self.get_parameter('ramp_height').value)
-        self.ramp_height_tolerance = max(
+        self.min_ramp_width = max(0.0, float(self.get_parameter('min_ramp_width').value))
+        self.max_ramp_width = max(0.0, float(self.get_parameter('max_ramp_width').value))
+        self.max_ramp_cluster_height = max(
             0.0,
-            float(self.get_parameter('ramp_height_tolerance').value),
+            float(self.get_parameter('max_ramp_cluster_height').value),
         )
-        self.ramp_incline_deg = float(self.get_parameter('ramp_incline_deg').value)
-        self.ramp_incline_tolerance_deg = max(
+        self.use_elevation_grid_for_ramps = bool(
+            self.get_parameter('use_elevation_grid_for_ramps').value
+        )
+        self.ramp_grid_resolution = float(self.get_parameter('ramp_grid_resolution').value)
+        if self.ramp_grid_resolution <= 0.0:
+            self.get_logger().warn(
+                f'Invalid ramp_grid_resolution={self.ramp_grid_resolution:.3f}; '
+                'disabling elevation-grid ramp detection'
+            )
+            self.use_elevation_grid_for_ramps = False
+        self.ramp_grid_min_points_per_cell = max(
+            1,
+            int(self.get_parameter('ramp_grid_min_points_per_cell').value),
+        )
+        self.ramp_grid_min_connected_cells = max(
+            1,
+            int(self.get_parameter('ramp_grid_min_connected_cells').value),
+        )
+        self.ramp_grid_spike_height = max(
             0.0,
-            float(self.get_parameter('ramp_incline_tolerance_deg').value),
+            float(self.get_parameter('ramp_grid_spike_height').value),
         )
+        self.ramp_grid_min_height = float(self.get_parameter('ramp_grid_min_height').value)
+        self.ramp_grid_max_height = float(self.get_parameter('ramp_grid_max_height').value)
 
         self.bridge = CvBridge()
         self.fx = None
@@ -183,9 +209,11 @@ class DepthToPointCloud(Node):
             f'max_cluster_points={self.max_cluster_points}, '
             f'log_cluster_metadata={self.log_cluster_metadata}, '
             f'classify_ramps={self.classify_ramps}, '
-            f'ramp_hypotenuse={self.ramp_hypotenuse:.2f} m, '
-            f'ramp_size=({self.ramp_length:.2f}, {self.ramp_width:.2f}, {self.ramp_height:.2f}) m, '
-            f'ramp_incline={self.ramp_incline_deg:.2f} deg)'
+            f'ramp_distance_limit={self.max_ramp_detection_distance:.2f} m, '
+            f'ramp_width_range=[{self.min_ramp_width:.2f}, {self.max_ramp_width:.2f}] m, '
+            f'ramp_slope_range=[{self.min_ramp_slope_deg:.2f}, {self.max_ramp_slope_deg:.2f}] deg, '
+            f'elevation_grid_ramps={self.use_elevation_grid_for_ramps}, '
+            f'ramp_grid_resolution={self.ramp_grid_resolution:.2f} m)'
         )
 
     def voxel_downsample(self, points: list) -> list:
@@ -360,26 +388,220 @@ class DepthToPointCloud(Node):
 
         length, width, height = metadata['size']
         incline_deg = abs(metadata['slope_deg'])
+        center = metadata['center']
 
-        hypotenuse = metadata['hypotenuse']
+        if metadata['point_count'] < self.min_ramp_points:
+            return False
+        if metadata['closest_distance'] > self.max_ramp_detection_distance:
+            return False
+        if abs(center[1]) > self.ramp_center_lateral_limit:
+            return False
+        if length < self.min_ramp_forward_length:
+            return False
+        if width < self.min_ramp_width:
+            return False
+        if self.max_ramp_width and width > self.max_ramp_width:
+            return False
+        if height > self.max_ramp_cluster_height:
+            return False
+        if incline_deg < self.min_ramp_slope_deg or incline_deg > self.max_ramp_slope_deg:
+            return False
 
-        hypotenuse_matches = (
-            abs(hypotenuse - self.ramp_hypotenuse) <= self.ramp_hypotenuse_tolerance
-        )
-        length_matches = abs(length - self.ramp_length) <= self.ramp_length_tolerance
-        width_matches = abs(width - self.ramp_width) <= self.ramp_width_tolerance
-        height_matches = abs(height - self.ramp_height) <= self.ramp_height_tolerance
-        incline_matches = (
-            abs(incline_deg - self.ramp_incline_deg) <= self.ramp_incline_tolerance_deg
-        )
+        return True
 
-        return (
-            hypotenuse_matches
-            and length_matches
-            and width_matches
-            and height_matches
-            and incline_matches
-        )
+    def detect_ramp_points_from_elevation_grid(self, points: list) -> list:
+        if not self.classify_ramps or not self.use_elevation_grid_for_ramps or not points:
+            self.ramp_metadata = []
+            return []
+
+        resolution = self.ramp_grid_resolution
+        grid = {}
+        for point in points:
+            x_base, y_base, z_base = self.optical_to_base(*point)
+            if x_base < self.min_forward or x_base > self.max_ramp_detection_distance:
+                continue
+            if abs(y_base) > self.ramp_center_lateral_limit:
+                continue
+            if z_base < self.ramp_grid_min_height or z_base > self.ramp_grid_max_height:
+                continue
+
+            key = (math.floor(x_base / resolution), math.floor(y_base / resolution))
+            cell = grid.setdefault(
+                key,
+                {
+                    'base_points': [],
+                    'optical_points': [],
+                    'heights': [],
+                },
+            )
+            cell['base_points'].append((x_base, y_base, z_base))
+            cell['optical_points'].append(point)
+            cell['heights'].append(z_base)
+
+        valid_cells = {}
+        for key, cell in grid.items():
+            if len(cell['heights']) < self.ramp_grid_min_points_per_cell:
+                continue
+            base_array = np.asarray(cell['base_points'], dtype=np.float32)
+            height = float(np.median(np.asarray(cell['heights'], dtype=np.float32)))
+            valid_cells[key] = {
+                'height': height,
+                'center': (
+                    float(np.mean(base_array[:, 0])),
+                    float(np.mean(base_array[:, 1])),
+                    height,
+                ),
+                'optical_points': cell['optical_points'],
+                'point_count': len(cell['optical_points']),
+            }
+
+        if not valid_cells:
+            self.ramp_metadata = []
+            return []
+
+        filtered_cells = {}
+        for key, cell in valid_cells.items():
+            neighbor_heights = []
+            for dx in (-1, 0, 1):
+                for dy in (-1, 0, 1):
+                    if dx == 0 and dy == 0:
+                        continue
+                    neighbor = valid_cells.get((key[0] + dx, key[1] + dy))
+                    if neighbor is not None:
+                        neighbor_heights.append(neighbor['height'])
+
+            if not neighbor_heights:
+                continue
+            neighbor_median = float(np.median(np.asarray(neighbor_heights, dtype=np.float32)))
+            if cell['height'] - neighbor_median > self.ramp_grid_spike_height:
+                continue
+            filtered_cells[key] = cell
+
+        slope_cells = {}
+        for key, cell in filtered_cells.items():
+            best_slope_deg = None
+            for forward_step in (1, 2):
+                for dy in (-1, 0, 1):
+                    forward_neighbor = filtered_cells.get(
+                        (key[0] + forward_step, key[1] + dy)
+                    )
+                    if forward_neighbor is None:
+                        continue
+                    dx = forward_neighbor['center'][0] - cell['center'][0]
+                    if dx <= 1e-6:
+                        continue
+                    dz = forward_neighbor['height'] - cell['height']
+                    slope_deg = math.degrees(math.atan2(dz, dx))
+                    if self.min_ramp_slope_deg <= slope_deg <= self.max_ramp_slope_deg:
+                        if best_slope_deg is None or slope_deg > best_slope_deg:
+                            best_slope_deg = slope_deg
+
+            if best_slope_deg is not None:
+                slope_cells[key] = {
+                    **cell,
+                    'slope_deg': best_slope_deg,
+                }
+
+        if not slope_cells:
+            self.ramp_metadata = []
+            return []
+
+        visited = set()
+        ramp_points = []
+        ramp_metadata = []
+        for start_key in slope_cells:
+            if start_key in visited:
+                continue
+
+            queue = [start_key]
+            visited.add(start_key)
+            component_keys = []
+            while queue:
+                current_key = queue.pop()
+                component_keys.append(current_key)
+                for dx in (-1, 0, 1):
+                    for dy in (-1, 0, 1):
+                        if dx == 0 and dy == 0:
+                            continue
+                        neighbor_key = (current_key[0] + dx, current_key[1] + dy)
+                        if neighbor_key in visited or neighbor_key not in slope_cells:
+                            continue
+                        visited.add(neighbor_key)
+                        queue.append(neighbor_key)
+
+            if len(component_keys) < self.ramp_grid_min_connected_cells:
+                continue
+
+            component_points = []
+            forward_values = []
+            lateral_values = []
+            height_values = []
+            slopes = []
+            point_count = 0
+            for key in component_keys:
+                cell = slope_cells[key]
+                component_points.extend(cell['optical_points'])
+                point_count += cell['point_count']
+                center = cell['center']
+                forward_values.append(center[0])
+                lateral_values.append(center[1])
+                height_values.append(center[2])
+                slopes.append(cell['slope_deg'])
+
+            if point_count < self.min_ramp_points:
+                continue
+
+            min_forward = min(forward_values)
+            max_forward = max(forward_values)
+            min_lateral = min(lateral_values)
+            max_lateral = max(lateral_values)
+            min_height = min(height_values)
+            max_height = max(height_values)
+            length = max_forward - min_forward
+            width = max_lateral - min_lateral + resolution
+            height = max_height - min_height
+            hypotenuse = math.hypot(length, height)
+            center_lateral = 0.5 * (min_lateral + max_lateral)
+
+            if min_forward > self.max_ramp_detection_distance:
+                continue
+            if abs(center_lateral) > self.ramp_center_lateral_limit:
+                continue
+            if length < self.min_ramp_forward_length:
+                continue
+            if width < self.min_ramp_width:
+                continue
+            if self.max_ramp_width and width > self.max_ramp_width:
+                continue
+            if height > self.max_ramp_cluster_height:
+                continue
+
+            ramp_id = len(ramp_metadata) + 1
+            ramp_metadata.append(
+                {
+                    'id': ramp_id,
+                    'classification': 'ramp',
+                    'point_count': point_count,
+                    'cell_count': len(component_keys),
+                    'center': (
+                        0.5 * (min_forward + max_forward),
+                        center_lateral,
+                        0.5 * (min_height + max_height),
+                    ),
+                    'size': (length, width, height),
+                    'hypotenuse': hypotenuse,
+                    'forward_range': (min_forward, max_forward),
+                    'lateral_range': (min_lateral, max_lateral),
+                    'height_range': (min_height, max_height),
+                    'closest_distance': min_forward,
+                    'farthest_distance': max_forward,
+                    'slope_deg': sum(slopes) / len(slopes),
+                }
+            )
+            ramp_points.extend(component_points)
+
+        self.ramp_metadata = ramp_metadata
+        return ramp_points
 
     def maybe_log_cluster_metadata(self) -> None:
         if not self.log_cluster_metadata:
@@ -467,6 +689,7 @@ class DepthToPointCloud(Node):
         height, width = depth.shape[:2]
         stride = self.pixel_stride
         points = []
+        terrain_points = []
 
         for v in range(0, height, stride):
             row = depth[v]
@@ -477,13 +700,14 @@ class DepthToPointCloud(Node):
                 x = (u - self.cx) * d / self.fx
                 y = (v - self.cy) * d / self.fy
                 z = d
-                if self.filter_by_roi or self.filter_by_height:
+                if self.filter_by_roi or self.filter_by_height or self.use_elevation_grid_for_ramps:
                     x_base, y_base, z_base = self.optical_to_base(x, y, z)
                 if self.filter_by_roi:
                     if x_base < self.min_forward or x_base > self.max_forward:
                         continue
                     if y_base < self.min_lateral or y_base > self.max_lateral:
                         continue
+                terrain_points.append((x, y, z))
                 if self.filter_by_height:
                     if z_base < self.min_height or z_base > self.max_height:
                         continue
@@ -495,6 +719,8 @@ class DepthToPointCloud(Node):
         cloud = point_cloud2.create_cloud_xyz32(header, points)
         obstacle_points = self.voxel_downsample(points)
         obstacle_points = self.cluster_points(obstacle_points)
+        if self.use_elevation_grid_for_ramps:
+            self.ramp_points = self.detect_ramp_points_from_elevation_grid(terrain_points)
         obstacle_cloud = point_cloud2.create_cloud_xyz32(header, obstacle_points)
         ramp_cloud = point_cloud2.create_cloud_xyz32(header, self.ramp_points)
         self.publisher.publish(cloud)
@@ -509,7 +735,7 @@ def main(args=None):
     node = DepthToPointCloud()
     try:
         rclpy.spin(node)
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, ExternalShutdownException):
         pass
     finally:
         node.destroy_node()
