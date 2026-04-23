@@ -172,84 +172,87 @@ class RampNavigateNode(Node):
     def ramp_front_callback(self, ramp_seg: PoseArray):
         """Process ramp segment detections."""
         # Skip if already on ramp or no more ramps to cross
-        if self.state == State.ON_RAMP or self.ramps_to_cross <= 0:
-            return
+        # if self.state == State.ON_RAMP or self.ramps_to_cross <= 0:
+        #     self.get_logger().info('EARLY OUT BC ON RAMP ALREADY')
+        #     return
 
-        # Validate ramp segment length
-        if not self.pass_length(ramp_seg.poses):
-            if self.pre_ramp_detections > 0:
-                self.no_ramp_period += 1
-                if self.no_ramp_period > 3:
-                    self.pre_ramp_detections = 0
-                    self.no_ramp_period = 0
-            return
+        # # Validate ramp segment length
+        # if not self.pass_length(ramp_seg.poses):
+        #     if self.pre_ramp_detections > 0:
+        #         self.no_ramp_period += 1
+        #         if self.no_ramp_period > 3:
+        #             self.pre_ramp_detections = 0
+        #             self.no_ramp_period = 0
+        #     return
 
-        self.pre_ramp_detections += 1
+        # self.pre_ramp_detections += 1
 
-        # Get robot position
-        robot_pos = self.get_robot_position()
-        if robot_pos is None:
-            return
+        # # Get robot position
+        # robot_pos = self.get_robot_position()
+        # if robot_pos is None:
+        #     return
 
-        # Calculate ramp midpoint
-        front = ramp_seg.poses[0].position
-        back = ramp_seg.poses[-1].position
+        # # Calculate ramp midpoint
+        # front = ramp_seg.poses[0].position
+        # back = ramp_seg.poses[-1].position
 
-        x_len = back.x - front.x
-        y_len = back.y - front.y
-        length = math.sqrt(x_len * x_len + y_len * y_len)
+        # x_len = back.x - front.x
+        # y_len = back.y - front.y
+        # length = math.sqrt(x_len * x_len + y_len * y_len)
 
-        if length < 0.01:
-            return
+        # if length < 0.01:
+        #     return
 
-        # Rotation matrix from ramp frame to map frame
-        ramp2map_new = np.array([
-            [y_len, x_len],
-            [-x_len, y_len]
-        ]) / length
+        # # Rotation matrix from ramp frame to map frame
+        # ramp2map_new = np.array([
+        #     [y_len, x_len],
+        #     [-x_len, y_len]
+        # ]) / length
 
-        # Calculate midpoint in front of ramp
-        mid = np.array([-1.0, 0.5 * length])
-        midmap = self.ramp2map @ mid + np.array([front.x, front.y])
+        # # Calculate midpoint in front of ramp
+        # mid = np.array([-1.0, 0.5 * length])
+        # midmap = self.ramp2map @ mid + np.array([front.x, front.y])
 
-        # If goal is too far, use closer point
-        goal_dist2 = (midmap[0] - robot_pos[0])**2 + (midmap[1] - robot_pos[1])**2
-        if goal_dist2 > 9.0:  # 3.0^2
-            midmap = self.ramp2map @ np.array([0.0, 0.5 * length]) + np.array([front.x, front.y])
+        # # If goal is too far, use closer point
+        # goal_dist2 = (midmap[0] - robot_pos[0])**2 + (midmap[1] - robot_pos[1])**2
+        # if goal_dist2 > 9.0:  # 3.0^2
+        #     midmap = self.ramp2map @ np.array([0.0, 0.5 * length]) + np.array([front.x, front.y])
 
-        # Moving average smoothing
-        mvavg = 0.5
-        mvavg_st = 1.0 - mvavg
+        # # Moving average smoothing
+        # mvavg = 0.5
+        # mvavg_st = 1.0 - mvavg
 
-        self.ramp2map = self.ramp2map * mvavg_st + mvavg * ramp2map_new
-        self.xmid = self.xmid * mvavg_st + mvavg * midmap[0]
-        self.ymid = self.ymid * mvavg_st + mvavg * midmap[1]
+        # self.ramp2map = self.ramp2map * mvavg_st + mvavg * ramp2map_new
+        # self.xmid = self.xmid * mvavg_st + mvavg * midmap[0]
+        # self.ymid = self.ymid * mvavg_st + mvavg * midmap[1]
 
-        self.px = self.xmid
-        self.py = self.ymid
+        # self.px = self.xmid
+        # self.py = self.ymid
 
-        # State transitions
-        if self.state == State.NO_RAMP:
-            if self.pre_ramp_detections < 10:
-                return
-            else:
-                self.state = State.TO_RAMP
-                self.pre_ramp_detections = 0
+        # # State transitions
+        # if self.state == State.NO_RAMP:
+        #     if self.pre_ramp_detections < 10:
+        #         return
+        #     else:
+        #         self.state = State.TO_RAMP
+        #         self.get_logger().info('STATE CHANGE: TO RAMP')
+        #         self.pre_ramp_detections = 0
 
-                # Notify waypoint navigation to pause
-                naving_msg = Bool()
-                naving_msg.data = True
-                self.ramp_naving_pub.publish(naving_msg)
-                self.get_logger().info('Ramp detected! Taking over navigation.')
+        #         # Notify waypoint navigation to pause
+        #         naving_msg = Bool()
+        #         naving_msg.data = True
+        #         self.ramp_naving_pub.publish(naving_msg)
+        #         self.get_logger().info('Ramp detected! Taking over navigation.')
 
-        # Send goal to ramp entrance
-        self.send_goal(self.px, self.py)
+        # # Send goal to ramp entrance
+        # self.send_goal(self.px, self.py)
 
-        # Check if close enough to start crossing
-        goal_error2 = (self.px - robot_pos[0])**2 + (self.py - robot_pos[1])**2
-        if goal_error2 < 2.0:
-            self.state = State.ON_RAMP
-            self.cross_ramp()
+        # # Check if close enough to start crossing
+        # goal_error2 = (self.px - robot_pos[0])**2 + (self.py - robot_pos[1])**2
+        # if goal_error2 < 2.0:
+        #     self.get_logger().info('STATE CHANGE: ON RAMP')
+        #     self.state = State.ON_RAMP
+            # self.cross_ramp()
 
 
 def main(args=None):
