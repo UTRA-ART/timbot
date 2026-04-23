@@ -82,7 +82,7 @@
     </spherical_coordinates>
 
     <model name='Construction Barrel_1'>
-      <pose>-17.75 -16.5 0 0 -0 0</pose>
+      <pose>-17.75 -16.5 0.5 0 -0 0</pose>
       <link name='link'>
         <inertial>
           <pose>0 0 0.4 0 -0 0</pose>
@@ -91,10 +91,23 @@
             <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
           </inertia>
         </inertial>
+        <velocity_decay>
+          <linear>0.2</linear>
+          <angular>0.2</angular>
+        </velocity_decay>
         <collision name='collision'>
+          <pose>0 0 0.5 0 -0 0</pose>
           <geometry>
             <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
           </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
         </collision>
         <visual name='visual'>
           <geometry>
@@ -105,7 +118,7 @@
     </model>
 
     <model name='Construction Barrel_3'>
-      <pose>-10 -19.5 0 0 -0 0</pose>
+      <pose>-10 -19.5 0.5 0 -0 0</pose>
       <link name='link'>
         <inertial>
           <pose>0 0 0.4 0 -0 0</pose>
@@ -114,10 +127,23 @@
             <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
           </inertia>
         </inertial>
+        <velocity_decay>
+          <linear>0.2</linear>
+          <angular>0.2</angular>
+        </velocity_decay>
         <collision name='collision'>
+          <pose>0 0 0.5 0 -0 0</pose>
           <geometry>
             <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
           </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
         </collision>
         <visual name='visual'>
           <geometry>
@@ -132,7 +158,7 @@
     
 
     <model name='Construction Barrel_4'>
-      <pose>-9.25 -20.25 0 0 -0 0</pose>
+      <pose>-9.25 -20.25 0.5 0 -0 0</pose>
       <link name='link'>
         <inertial>
           <pose>0 0 0.4 0 -0 0</pose>
@@ -141,10 +167,23 @@
             <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
           </inertia>
         </inertial>
+        <velocity_decay>
+          <linear>0.2</linear>
+          <angular>0.2</angular>
+        </velocity_decay>
         <collision name='collision'>
+          <pose>0 0 0.5 0 -0 0</pose>
           <geometry>
             <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
           </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
         </collision>
         <visual name='visual'>
           <geometry>
@@ -155,7 +194,7 @@
     </model>
 
     <model name='Construction Barrel_5'>
-      <pose>-6 -20 0 0 -0 0</pose>
+      <pose>-6 -20 0.5 0 -0 0</pose>
       <link name='link'>
         <inertial>
           <pose>0 0 0.4 0 -0 0</pose>
@@ -164,10 +203,23 @@
             <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
           </inertia>
         </inertial>
+        <velocity_decay>
+          <linear>0.2</linear>
+          <angular>0.2</angular>
+        </velocity_decay>
         <collision name='collision'>
+          <pose>0 0 0.5 0 -0 0</pose>
           <geometry>
             <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
           </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
         </collision>
         <visual name='visual'>
           <geometry>
@@ -178,7 +230,7 @@
     </model>
 
     <model name='Construction Barrel_6'>
-      <pose>-5.25 -20.75 0 0 -0 0</pose>
+      <pose>-5.25 -20.75 0.5 0 -0 0</pose>
       <link name='link'>
         <inertial>
           <pose>0 0 0.4 0 -0 0</pose>
@@ -187,10 +239,23 @@
             <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
           </inertia>
         </inertial>
+        <velocity_decay>
+          <linear>0.2</linear>
+          <angular>0.2</angular>
+        </velocity_decay>
         <collision name='collision'>
+          <pose>0 0 0.5 0 -0 0</pose>
           <geometry>
             <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
           </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
         </collision>
         <visual name='visual'>
           <geometry>
@@ -201,7 +266,7 @@
     </model>
 
     <model name='Construction Barrel_8'>
-      <pose>-4.25 -18 0 0 -0 0</pose>
+      <pose>-4.25 -18 0.5 0 -0 0</pose>
       <link name='link'>
         <inertial>
           <pose>0 0 0.4 0 -0 0</pose>
@@ -210,10 +275,23 @@
             <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
           </inertia>
         </inertial>
+        <velocity_decay>
+          <linear>0.2</linear>
+          <angular>0.2</angular>
+        </velocity_decay>
         <collision name='collision'>
+          <pose>0 0 0.5 0 -0 0</pose>
           <geometry>
             <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
           </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
         </collision>
         <visual name='visual'>
           <geometry>
@@ -224,7 +302,7 @@
     </model>
 
     <model name='Construction Barrel_9'>
-      <pose>-4 -19 0 0 -0 0</pose>
+      <pose>-4 -19 0.5 0 -0 0</pose>
       <link name='link'>
         <inertial>
           <pose>0 0 0.4 0 -0 0</pose>
@@ -233,10 +311,23 @@
             <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
           </inertia>
         </inertial>
+        <velocity_decay>
+          <linear>0.2</linear>
+          <angular>0.2</angular>
+        </velocity_decay>
         <collision name='collision'>
+          <pose>0 0 0.5 0 -0 0</pose>
           <geometry>
             <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
           </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
         </collision>
         <visual name='visual'>
           <geometry>
@@ -247,7 +338,7 @@
     </model>
 
     <model name='Construction Barrel_11'>
-      <pose>9.75 -20 0 0 -0 0</pose>
+      <pose>9.75 -20 0.5 0 -0 0</pose>
       <link name='link'>
         <inertial>
           <pose>0 0 0.4 0 -0 0</pose>
@@ -256,10 +347,23 @@
             <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
           </inertia>
         </inertial>
+        <velocity_decay>
+          <linear>0.2</linear>
+          <angular>0.2</angular>
+        </velocity_decay>
         <collision name='collision'>
+          <pose>0 0 0.5 0 -0 0</pose>
           <geometry>
             <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
           </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
         </collision>
         <visual name='visual'>
           <geometry>
@@ -270,7 +374,7 @@
     </model>
 
     <model name='Construction Barrel_12'>
-      <pose>15.25 -22 0 0 -0 0</pose>
+      <pose>15.25 -22 0.5 0 -0 0</pose>
       <link name='link'>
         <inertial>
           <pose>0 0 0.4 0 -0 0</pose>
@@ -279,10 +383,23 @@
             <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
           </inertia>
         </inertial>
+        <velocity_decay>
+          <linear>0.2</linear>
+          <angular>0.2</angular>
+        </velocity_decay>
         <collision name='collision'>
+          <pose>0 0 0.5 0 -0 0</pose>
           <geometry>
             <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
           </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
         </collision>
         <visual name='visual'>
           <geometry>
@@ -293,7 +410,7 @@
     </model>
 
     <model name='Construction Barrel_13'>
-      <pose>19.75 -18.75 0 0 -0 0</pose>
+      <pose>19.75 -18.75 0.5 0 -0 0</pose>
       <link name='link'>
         <inertial>
           <pose>0 0 0.4 0 -0 0</pose>
@@ -302,10 +419,23 @@
             <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
           </inertia>
         </inertial>
+        <velocity_decay>
+          <linear>0.2</linear>
+          <angular>0.2</angular>
+        </velocity_decay>
         <collision name='collision'>
+          <pose>0 0 0.5 0 -0 0</pose>
           <geometry>
             <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
           </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
         </collision>
         <visual name='visual'>
           <geometry>
@@ -316,7 +446,7 @@
     </model>
 
     <model name='Construction Barrel_14'>
-      <pose>16.5 -13.5 0 0 -0 0</pose>
+      <pose>16.5 -13.5 0.5 0 -0 0</pose>
       <link name='link'>
         <inertial>
           <pose>0 0 0.4 0 -0 0</pose>
@@ -325,10 +455,23 @@
             <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
           </inertia>
         </inertial>
+        <velocity_decay>
+          <linear>0.2</linear>
+          <angular>0.2</angular>
+        </velocity_decay>
         <collision name='collision'>
+          <pose>0 0 0.5 0 -0 0</pose>
           <geometry>
             <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
           </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
         </collision>
         <visual name='visual'>
           <geometry>
@@ -339,7 +482,7 @@
     </model>
 
     <model name='Construction Barrel_15'>
-      <pose>23 -9.5 0 0 -0 0</pose>
+      <pose>23 -9.5 0.5 0 -0 0</pose>
       <link name='link'>
         <inertial>
           <pose>0 0 0.4 0 -0 0</pose>
@@ -348,10 +491,23 @@
             <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
           </inertia>
         </inertial>
+        <velocity_decay>
+          <linear>0.2</linear>
+          <angular>0.2</angular>
+        </velocity_decay>
         <collision name='collision'>
+          <pose>0 0 0.5 0 -0 0</pose>
           <geometry>
             <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
           </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
         </collision>
         <visual name='visual'>
           <geometry>
@@ -362,7 +518,7 @@
     </model>
 
     <model name='Construction Barrel_16'>
-      <pose>17.25 -6.5 0 0 -0 0</pose>
+      <pose>17.25 -6.5 0.5 0 -0 0</pose>
       <link name='link'>
         <inertial>
           <pose>0 0 0.4 0 -0 0</pose>
@@ -371,10 +527,23 @@
             <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
           </inertia>
         </inertial>
+        <velocity_decay>
+          <linear>0.2</linear>
+          <angular>0.2</angular>
+        </velocity_decay>
         <collision name='collision'>
+          <pose>0 0 0.5 0 -0 0</pose>
           <geometry>
             <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
           </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
         </collision>
         <visual name='visual'>
           <geometry>
@@ -385,7 +554,7 @@
     </model>
 
     <model name='Construction Barrel_17'>
-      <pose>22.5 -7 0 0 -0 0</pose>
+      <pose>22.5 -7 0.5 0 -0 0</pose>
       <link name='link'>
         <inertial>
           <pose>0 0 0.4 0 -0 0</pose>
@@ -394,10 +563,23 @@
             <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
           </inertia>
         </inertial>
+        <velocity_decay>
+          <linear>0.2</linear>
+          <angular>0.2</angular>
+        </velocity_decay>
         <collision name='collision'>
+          <pose>0 0 0.5 0 -0 0</pose>
           <geometry>
             <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
           </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
         </collision>
         <visual name='visual'>
           <geometry>
@@ -408,7 +590,7 @@
     </model>
 
     <model name='Construction Barrel_18'>
-      <pose>22.5 -3 0 0 -0 0</pose>
+      <pose>22.5 -3 0.5 0 -0 0</pose>
       <link name='link'>
         <inertial>
           <pose>0 0 0.4 0 -0 0</pose>
@@ -417,10 +599,23 @@
             <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
           </inertia>
         </inertial>
+        <velocity_decay>
+          <linear>0.2</linear>
+          <angular>0.2</angular>
+        </velocity_decay>
         <collision name='collision'>
+          <pose>0 0 0.5 0 -0 0</pose>
           <geometry>
             <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
           </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
         </collision>
         <visual name='visual'>
           <geometry>
@@ -431,7 +626,7 @@
     </model>
 
     <model name='Construction Barrel_19'>
-      <pose>21.5 1.25 0 0 -0 0</pose>
+      <pose>21.5 1.25 0.5 0 -0 0</pose>
       <link name='link'>
         <inertial>
           <pose>0 0 0.4 0 -0 0</pose>
@@ -440,10 +635,23 @@
             <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
           </inertia>
         </inertial>
+        <velocity_decay>
+          <linear>0.2</linear>
+          <angular>0.2</angular>
+        </velocity_decay>
         <collision name='collision'>
+          <pose>0 0 0.5 0 -0 0</pose>
           <geometry>
             <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
           </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
         </collision>
         <visual name='visual'>
           <geometry>
@@ -454,7 +662,7 @@
     </model>
 
     <model name='Construction Barrel_20'>
-      <pose>19.5 1.5 0 0 -0 0</pose>
+      <pose>19.5 1.5 0.5 0 -0 0</pose>
       <link name='link'>
         <inertial>
           <pose>0 0 0.4 0 -0 0</pose>
@@ -463,10 +671,23 @@
             <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
           </inertia>
         </inertial>
+        <velocity_decay>
+          <linear>0.2</linear>
+          <angular>0.2</angular>
+        </velocity_decay>
         <collision name='collision'>
+          <pose>0 0 0.5 0 -0 0</pose>
           <geometry>
             <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
           </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
         </collision>
         <visual name='visual'>
           <geometry>
@@ -477,7 +698,7 @@
     </model>
 
     <model name='Construction Barrel_21'>
-      <pose>21.75 5 0 0 -0 0</pose>
+      <pose>21.75 5 0.5 0 -0 0</pose>
       <link name='link'>
         <inertial>
           <pose>0 0 0.4 0 -0 0</pose>
@@ -486,10 +707,23 @@
             <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
           </inertia>
         </inertial>
+        <velocity_decay>
+          <linear>0.2</linear>
+          <angular>0.2</angular>
+        </velocity_decay>
         <collision name='collision'>
+          <pose>0 0 0.5 0 -0 0</pose>
           <geometry>
             <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
           </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
         </collision>
         <visual name='visual'>
           <geometry>
@@ -500,7 +734,7 @@
     </model>
 
     <model name='Construction Barrel_22'>
-      <pose>21.25 12.25 0 0 -0 0</pose>
+      <pose>21.25 12.25 0.5 0 -0 0</pose>
       <link name='link'>
         <inertial>
           <pose>0 0 0.4 0 -0 0</pose>
@@ -509,10 +743,23 @@
             <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
           </inertia>
         </inertial>
+        <velocity_decay>
+          <linear>0.2</linear>
+          <angular>0.2</angular>
+        </velocity_decay>
         <collision name='collision'>
+          <pose>0 0 0.5 0 -0 0</pose>
           <geometry>
             <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
           </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
         </collision>
         <visual name='visual'>
           <geometry>
@@ -523,7 +770,7 @@
     </model>
 
     <model name='Construction Barrel_23'>
-      <pose>16.25 7.5 0 0 -0 0</pose>
+      <pose>16.25 7.5 0.5 0 -0 0</pose>
       <link name='link'>
         <inertial>
           <pose>0 0 0.4 0 -0 0</pose>
@@ -532,10 +779,23 @@
             <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
           </inertia>
         </inertial>
+        <velocity_decay>
+          <linear>0.2</linear>
+          <angular>0.2</angular>
+        </velocity_decay>
         <collision name='collision'>
+          <pose>0 0 0.5 0 -0 0</pose>
           <geometry>
             <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
           </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
         </collision>
         <visual name='visual'>
           <geometry>
@@ -546,7 +806,7 @@
     </model>
 
     <model name='Construction Barrel_24'>
-      <pose>20.25 15.25 0 0 -0 0</pose>
+      <pose>20.25 15.25 0.5 0 -0 0</pose>
       <link name='link'>
         <inertial>
           <pose>0 0 0.4 0 -0 0</pose>
@@ -555,10 +815,23 @@
             <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
           </inertia>
         </inertial>
+        <velocity_decay>
+          <linear>0.2</linear>
+          <angular>0.2</angular>
+        </velocity_decay>
         <collision name='collision'>
+          <pose>0 0 0.5 0 -0 0</pose>
           <geometry>
             <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
           </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
         </collision>
         <visual name='visual'>
           <geometry>
@@ -569,7 +842,7 @@
     </model>
 
     <model name='Construction Barrel_25'>
-      <pose>15.75 14.5 0 0 -0 0</pose>
+      <pose>15.75 14.5 0.5 0 -0 0</pose>
       <link name='link'>
         <inertial>
           <pose>0 0 0.4 0 -0 0</pose>
@@ -578,10 +851,23 @@
             <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
           </inertia>
         </inertial>
+        <velocity_decay>
+          <linear>0.2</linear>
+          <angular>0.2</angular>
+        </velocity_decay>
         <collision name='collision'>
+          <pose>0 0 0.5 0 -0 0</pose>
           <geometry>
             <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
           </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
         </collision>
         <visual name='visual'>
           <geometry>
@@ -592,7 +878,7 @@
     </model>
 
     <model name='Construction Barrel_26'>
-      <pose>14.75 21 0 0 -0 0</pose>
+      <pose>14.75 21 0.5 0 -0 0</pose>
       <link name='link'>
         <inertial>
           <pose>0 0 0.4 0 -0 0</pose>
@@ -601,10 +887,23 @@
             <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
           </inertia>
         </inertial>
+        <velocity_decay>
+          <linear>0.2</linear>
+          <angular>0.2</angular>
+        </velocity_decay>
         <collision name='collision'>
+          <pose>0 0 0.5 0 -0 0</pose>
           <geometry>
             <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
           </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
         </collision>
         <visual name='visual'>
           <geometry>
@@ -615,7 +914,7 @@
     </model>
 
     <model name='Construction Barrel_28'>
-      <pose>-18.75 17.75 0 0 -0 0</pose>
+      <pose>-18.75 17.75 0.5 0 -0 0</pose>
       <link name='link'>
         <inertial>
           <pose>0 0 0.4 0 -0 0</pose>
@@ -624,10 +923,23 @@
             <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
           </inertia>
         </inertial>
+        <velocity_decay>
+          <linear>0.2</linear>
+          <angular>0.2</angular>
+        </velocity_decay>
         <collision name='collision'>
+          <pose>0 0 0.5 0 -0 0</pose>
           <geometry>
             <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
           </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
         </collision>
         <visual name='visual'>
           <geometry>
@@ -638,7 +950,7 @@
     </model>
 
     <model name='Construction Barrel_29'>
-      <pose>-11.5 20 0 0 -0 0</pose>
+      <pose>-11.5 20 0.5 0 -0 0</pose>
       <link name='link'>
         <inertial>
           <pose>0 0 0.4 0 -0 0</pose>
@@ -647,10 +959,23 @@
             <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
           </inertia>
         </inertial>
+        <velocity_decay>
+          <linear>0.2</linear>
+          <angular>0.2</angular>
+        </velocity_decay>
         <collision name='collision'>
+          <pose>0 0 0.5 0 -0 0</pose>
           <geometry>
             <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
           </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
         </collision>
         <visual name='visual'>
           <geometry>
@@ -661,7 +986,7 @@
     </model>
 
     <model name='Construction Barrel_30'>
-      <pose>-11 21 0 0 -0 0</pose>
+      <pose>-11 21 0.5 0 -0 0</pose>
       <link name='link'>
         <inertial>
           <pose>0 0 0.4 0 -0 0</pose>
@@ -670,10 +995,23 @@
             <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
           </inertia>
         </inertial>
+        <velocity_decay>
+          <linear>0.2</linear>
+          <angular>0.2</angular>
+        </velocity_decay>
         <collision name='collision'>
+          <pose>0 0 0.5 0 -0 0</pose>
           <geometry>
             <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
           </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
         </collision>
         <visual name='visual'>
           <geometry>
@@ -684,7 +1022,7 @@
     </model>
 
     <model name='Construction Barrel_31'>
-      <pose>-8.25 22 0 0 -0 0</pose>
+      <pose>-8.25 22 0.5 0 -0 0</pose>
       <link name='link'>
         <inertial>
           <pose>0 0 0.4 0 -0 0</pose>
@@ -693,10 +1031,23 @@
             <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
           </inertia>
         </inertial>
+        <velocity_decay>
+          <linear>0.2</linear>
+          <angular>0.2</angular>
+        </velocity_decay>
         <collision name='collision'>
+          <pose>0 0 0.5 0 -0 0</pose>
           <geometry>
             <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
           </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
         </collision>
         <visual name='visual'>
           <geometry>
@@ -707,7 +1058,7 @@
     </model>
 
     <model name='Construction Barrel_32'>
-      <pose>1 20 0 0 -0 0</pose>
+      <pose>1 20 0.5 0 -0 0</pose>
       <link name='link'>
         <inertial>
           <pose>0 0 0.4 0 -0 0</pose>
@@ -716,10 +1067,23 @@
             <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
           </inertia>
         </inertial>
+        <velocity_decay>
+          <linear>0.2</linear>
+          <angular>0.2</angular>
+        </velocity_decay>
         <collision name='collision'>
+          <pose>0 0 0.5 0 -0 0</pose>
           <geometry>
             <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
           </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
         </collision>
         <visual name='visual'>
           <geometry>
@@ -730,7 +1094,7 @@
     </model>
 
     <model name='Construction Barrel_33'>
-      <pose>-6.75 18.25 0 0 -0 0</pose>
+      <pose>-6.75 18.25 0.5 0 -0 0</pose>
       <link name='link'>
         <inertial>
           <pose>0 0 0.4 0 -0 0</pose>
@@ -739,10 +1103,23 @@
             <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
           </inertia>
         </inertial>
+        <velocity_decay>
+          <linear>0.2</linear>
+          <angular>0.2</angular>
+        </velocity_decay>
         <collision name='collision'>
+          <pose>0 0 0.5 0 -0 0</pose>
           <geometry>
             <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
           </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
         </collision>
         <visual name='visual'>
           <geometry>
@@ -753,7 +1130,7 @@
     </model>
 
     <model name='Construction Barrel_34'>
-      <pose>-8.3 21.1 0 0 -0 0</pose>
+      <pose>-8.3 21.1 0.5 0 -0 0</pose>
       <link name='link'>
         <inertial>
           <pose>0 0 0.4 0 -0 0</pose>
@@ -762,10 +1139,23 @@
             <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
           </inertia>
         </inertial>
+        <velocity_decay>
+          <linear>0.2</linear>
+          <angular>0.2</angular>
+        </velocity_decay>
         <collision name='collision'>
+          <pose>0 0 0.5 0 -0 0</pose>
           <geometry>
             <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
           </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
         </collision>
         <visual name='visual'>
           <geometry>
@@ -776,7 +1166,7 @@
     </model>
 
     <model name='Construction Barrel_35'>
-      <pose>-8.75 20.25 0 0 -0 0</pose>
+      <pose>-8.75 20.25 0.5 0 -0 0</pose>
       <link name='link'>
         <inertial>
           <pose>0 0 0.4 0 -0 0</pose>
@@ -785,10 +1175,23 @@
             <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
           </inertia>
         </inertial>
+        <velocity_decay>
+          <linear>0.2</linear>
+          <angular>0.2</angular>
+        </velocity_decay>
         <collision name='collision'>
+          <pose>0 0 0.5 0 -0 0</pose>
           <geometry>
             <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
           </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
         </collision>
         <visual name='visual'>
           <geometry>
@@ -799,7 +1202,7 @@
     </model>
 
     <model name='Construction Barrel_36'>
-      <pose>-6.75 19.25 0 0 -0 0</pose>
+      <pose>-6.75 19.25 0.5 0 -0 0</pose>
       <link name='link'>
         <inertial>
           <pose>0 0 0.4 0 -0 0</pose>
@@ -808,10 +1211,23 @@
             <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
           </inertia>
         </inertial>
+        <velocity_decay>
+          <linear>0.2</linear>
+          <angular>0.2</angular>
+        </velocity_decay>
         <collision name='collision'>
+          <pose>0 0 0.5 0 -0 0</pose>
           <geometry>
             <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
           </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
         </collision>
         <visual name='visual'>
           <geometry>
