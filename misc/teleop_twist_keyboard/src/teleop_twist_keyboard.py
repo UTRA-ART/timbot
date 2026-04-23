@@ -242,8 +242,8 @@ def main(args=None):
                                 (-2 * top_vel + turn * 0.89) / 2),
                             (2 * top_vel - turn * 0.89) / 2)
 
-                speed = round(speed, 4)
-                turn = round(turn, 4)
+                speed = round(speed, 1)
+                turn = round(turn, 1)
 
                 print(vels(speed, turn))
                 if (status == 14):

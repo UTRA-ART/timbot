@@ -110,10 +110,10 @@ class WheelOdomPub(Node):
         self._distance_left = self._ticks_left / self.TICKS_PER_METRE
 
     def _right_dir_cb(self, msg: Bool):
-        self._r_direction = 1 if msg.data else -1
+        self._r_direction = -1 if msg.data else 1
 
     def _left_dir_cb(self, msg: Bool):
-        self._l_direction = 1 if msg.data else -1
+        self._l_direction = -1 if msg.data else 1
 
     def _set_pose_cb(self, msg: PoseStamped):
         self._prev_x = msg.pose.position.x
