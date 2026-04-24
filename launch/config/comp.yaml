@@ -33,6 +33,9 @@ lidar_upper_port: "/dev/ttyUSB3"
 # ssh into the pi
 # systemctl status motor_control.service
 
+# to restart service in the rpi
+# sudo systemctl restart motor_control.service
+
 # --- Launch Stages (order matters) ---
 # Each stage runs sequentially. If use_topic_check is true, the next stage 
 # starts after the expected topics are alive. Otherwise, it waits for delay_sec.
@@ -140,6 +143,19 @@ cartographer:
   delay_sec: 5.0
   expected_topics:
     - /map
+
+# --- Stage 5b: ZED Camera Driver ---
+zed_camera:
+  enabled: true
+  log_level: error
+  delay_sec: 5.0
+  video_device: "/dev/video2"
+  config_file: "zed_params.yaml"
+  expected_topics:
+    - /zed_node/left/image
+
+# check where the zed camera is connected:
+# v4l2-ctl --list-devices
 
 # --- Stage 6: RViz (Visualization) ---
 rviz:

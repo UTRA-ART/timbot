@@ -119,7 +119,7 @@ class CVModelInferencer(Node):
             CameraInfo,
             '/zed_node/left/camera_info',
             self.camera_info_callback,
-            10
+            qos_profile_sensor_data
         )
 
         # Synchronized subscriptions to RGB + depth
@@ -152,7 +152,7 @@ class CVModelInferencer(Node):
             self.get_logger().warn("No camera intrinsics yet, skipping frame", throttle_duration_sec=5.0)
             return
 
-        raw = self.bridge.imgmsg_to_cv2(rgb_data, desired_encoding='passthrough')
+        raw = self.bridge.imgmsg_to_cv2(rgb_data, desired_encoding='bgr8')
         if raw is None:
             return
 
