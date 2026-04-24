@@ -110,7 +110,7 @@ ekf_global:
     # Cartographer does NOT use GPS — it only does local SLAM (lidar + odom + IMU)
 
     # Specify planar environment
-    two_d_mode: false
+    two_d_mode: true
 
     map_frame: map
     odom_frame: odom

@@ -12,7 +12,7 @@ team_laptop: true
 
 # --- Hardware Ports ---
 gps_port: "/dev/ttyUSB0"       # Serial port for GPS (e.g. /dev/ttyUSB0, /dev/ttyACM0)
-gps_baud: 4800
+gps_baud: 57600
 lidar_lower_port: "/dev/ttyUSB2"
 lidar_upper_port: "/dev/ttyUSB3"
 

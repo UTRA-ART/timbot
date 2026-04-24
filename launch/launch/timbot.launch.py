@@ -400,7 +400,7 @@ def build_hardware_driver_stages(config: dict) -> list:
         # (
         #     'Driver: ZED Camera',
         #     _hw_driver('zed_wrapper', 'zed_camera.launch.py', {
-        #         'camera_model': 'zed2',
+        #         'camera_model': 'zed',
         #         'publish_tf': 'false',
         #         'publish_map_tf': 'false',
         #         'publish_urdf': 'false',
