@@ -23,6 +23,8 @@ lidar_upper_port: "/dev/ttyUSB3"
 #     echo ""
 # done
 
+# run to check zed camera connection:
+# guvcview -d /dev/video2
 
 # --- Launch Stages (order matters) ---
 # Each stage runs sequentially. If use_topic_check is true, the next stage 
