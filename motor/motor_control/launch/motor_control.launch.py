@@ -9,7 +9,7 @@ def generate_launch_description():
     # Declare launch arguments
     launch_state_arg = DeclareLaunchArgument(
         'launch_state',
-        default_value='sim',
+        default_value='real',
         description='Launch state (sim or real)'
     )
 

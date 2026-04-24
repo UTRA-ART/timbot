@@ -10,10 +10,11 @@ Usage:
 
 import os
 import yaml
-
+from launch.actions import SetEnvironmentVariable
 from launch import LaunchDescription, LaunchContext
 from launch.actions import (
     DeclareLaunchArgument,
+    GroupAction,
     IncludeLaunchDescription,
     OpaqueFunction,
     Shutdown,
@@ -27,7 +28,7 @@ from launch.events import Shutdown as ShutdownEvent
 from launch.event_handlers import OnProcessExit
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
-from launch_ros.actions import Node
+from launch_ros.actions import Node, SetRemap
 from launch_ros.substitutions import FindPackageShare
 from ament_index_python.packages import get_package_share_directory
 
@@ -56,7 +57,39 @@ def launch_gazebo(config: dict, sim: bool, context: LaunchContext) -> list:
     return [gazebo_launch]
 
 
+def launch_robot_bringup(config: dict, sim: bool, context: LaunchContext) -> list:
+    """Robot State Publisher + Joint State Publisher + Twist Mux.
+
+    Must run before Spawn (sim) or Odom State (real) so that
+    /robot_description and /tf are available.
+    """
+    bringup_cfg = config.get('robot_bringup', {})
+    log_level = bringup_cfg.get('log_level', 'info')
+    cv_cfg = config.get('cv_pipeline', {})
+    cv_enabled = cv_cfg.get('enabled', False)
+    enable_camera = str(cv_enabled).lower()
+
+    launch_args = {
+        'sim': str(sim).lower(),
+        'log_level': log_level,
+        'enable_camera': enable_camera,
+        'camera_fps': str(cv_cfg.get('camera_fps', 5)),
+        'camera_width': str(cv_cfg.get('camera_width', 320)),
+        'camera_height': str(cv_cfg.get('camera_height', 180)),
+    }
+
+    bringup_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([
+            FindPackageShare('description'),
+            '/launch/robot_bringup.launch.py'
+        ]),
+        launch_arguments=launch_args.items()
+    )
+    return [bringup_launch]
+
+
 def launch_spawn(config: dict, sim: bool, context: LaunchContext) -> list:
+    """Gazebo bridge + spawn entity.  Sim-only."""
     spawn_cfg = config.get('spawn', {})
     log_level = spawn_cfg.get('log_level', 'info')
     cv_cfg = config.get('cv_pipeline', {})
@@ -73,9 +106,6 @@ def launch_spawn(config: dict, sim: bool, context: LaunchContext) -> list:
         'pitch': str(spawn_cfg.get('pitch', '0')),
         'yaw': str(spawn_cfg.get('yaw', '1.5708')),
         'enable_camera': enable_camera,
-        'camera_fps': str(cv_cfg.get('camera_fps', 5)),
-        'camera_width': str(cv_cfg.get('camera_width', 320)),
-        'camera_height': str(cv_cfg.get('camera_height', 180)),
     }
 
     spawn_launch = IncludeLaunchDescription(
@@ -283,12 +313,123 @@ def launch_load_waypoints(config: dict, sim: bool, context: LaunchContext) -> li
 
 
 # =============================================================================
+# Hardware Driver Stages (real rover only, sim=False)
+# =============================================================================
+# Each entry: (display_name, launcher_fn, expected_topics, delay_sec)
+# launcher_fn signature: (context: LaunchContext) -> list[Action]
+# expected_topics: list of ROS topic names that must appear before
+#                  the next driver is started (empty → use delay_sec).
+# =============================================================================
+
+def _hw_driver(pkg: str, launch_file: str, extra_args: dict | None = None,
+               remappings: list[tuple[str, str]] | None = None):
+    """Return a launcher function that wraps a ros2 IncludeLaunchDescription.
+
+    Parameters
+    ----------
+    remappings : list of (src, dst) pairs, optional
+        Topic remappings applied via SetRemap inside a GroupAction so
+        they take effect for every node in the included launch file.
+    """
+    def launcher(context: LaunchContext) -> list:
+        args = extra_args or {}
+        include = IncludeLaunchDescription(
+            PythonLaunchDescriptionSource([
+                FindPackageShare(pkg),
+                f'/launch/{launch_file}',
+            ]),
+            launch_arguments=args.items(),
+        )
+        if remappings:
+            remap_actions = [SetRemap(src=src, dst=dst) for src, dst in remappings]
+            return [GroupAction(actions=remap_actions + [include])]
+        return [include]
+    return launcher
+
+
+# ---------------------------------------------------------------------------
+# Driver definitions
+# (name, launcher_fn, expected_topics, delay_sec)
+# ---------------------------------------------------------------------------
+def build_hardware_driver_stages(config: dict) -> list:
+    """Build the hardware driver stage list from the loaded config.
+
+    Ports and other per-environment settings are read from the config dict
+    so they can be set in the YAML (e.g. comp.yaml) without touching this file.
+    """
+    gps_port        = config.get('gps_port',        '/dev/ttyUSB0')
+    gps_baud = str(config.get('gps_baud', '9600'))
+    lidar_lower_port = config.get('lidar_lower_port', '/dev/ttyUSB3')
+    lidar_upper_port = config.get('lidar_upper_port', '/dev/ttyUSB4')
+
+    return [
+        (
+            'Driver: GPS',
+            _hw_driver('nmea_navsat_driver', 'nmea_serial_driver.launch.py', {
+                'serial_port': gps_port,
+                'gps_baud': gps_baud,
+            }, remappings=[('/fix', '/gps/fix')]),
+            ['/gps/fix'],
+            5.0,
+        ),
+        (
+            'Driver: IMU',
+            _hw_driver('phidgets_spatial', 'spatial-launch.py',
+                       remappings=[('/imu/data_raw', '/imu/data')]),
+            ['/imu/data'],
+            5.0,
+        ),
+        (
+            'Driver: LiDAR Lower',
+            _hw_driver('rplidar_ros', 'rplidar_a1_launch.py', {
+                'serial_port': lidar_lower_port,
+                'frame_id': 'bottom_lidar_link',
+            }, remappings=[('/scan', '/scan_lower')]),
+            ['/scan_lower'],
+            5.0,
+        ),
+        (
+            'Driver: LiDAR Upper',
+            _hw_driver('rplidar_ros', 'rplidar_a1_launch.py', {
+                'serial_port': lidar_upper_port,
+                'frame_id': 'top_lidar_link',
+            }, remappings=[('/scan', '/scan_upper')]),
+            ['/scan_upper'],
+            5.0,
+        ),
+        # (
+        #     'Driver: ZED Camera',
+        #     _hw_driver('zed_wrapper', 'zed_camera.launch.py', {
+        #         'camera_model': 'zed',
+        #         'publish_tf': 'false',
+        #         'publish_map_tf': 'false',
+        #         'publish_urdf': 'false',
+        #     }, remappings=[
+        #         ('/zed/zed_node/left/image_rect_color', '/zed_node/left/image'),
+        #         ('/zed/zed_node/left/camera_info',      '/zed_node/left/camera_info'),
+        #         ('/zed/zed_node/left/depth/depth_registered', '/zed_node/left/depth_image'),
+        #         ('/zed/zed_node/left/point_cloud/cloud_registered', '/zed_node/left/points'),
+        #     ]),
+        #     ['/zed_node/left/image'],
+        #     8.0,
+        # ),
+        (
+            'Driver: RPi Sync',
+            _hw_driver('motor_odom', 'odom_pub.launch.py'),
+            ['/odom'],
+            3.0,
+        ),
+    ]
+
+
+# =============================================================================
 # Sequential Event-Driven Orchestrator
 # =============================================================================
 
 LAUNCH_STAGES = [
     ('Gazebo',         'gazebo',         launch_gazebo),
     ('Spawn',          'spawn',          launch_spawn),
+    ('Robot Bringup',  'robot_bringup',  launch_robot_bringup),
     ('Odom State',     'odom_state',     launch_odom_state),
     ('Filter Lidar',   'filter_lidar',   launch_filter_lidar),
     ('CV Pipeline',    'cv_pipeline',    launch_cv),
@@ -297,6 +438,81 @@ LAUNCH_STAGES = [
     ('Nav Stack',      'nav_stack',      launch_nav_stack),
     ('Load Waypoints', 'load_waypoints', launch_load_waypoints),
 ]
+
+def _make_topic_waiter(stage_name: str, topics: list, waiter_id: str) -> ExecuteProcess:
+    """Build a shell process that polls ros2 topic list until all topics appear."""
+    topics_str = " ".join(topics)
+    wait_cmd = (
+        f"echo '[timbot_launch] Waiting for {stage_name} topics: {topics_str}...'; "
+        f"while true; do "
+        f"  LIST=$(ros2 topic list); "
+        f"  ALL_FOUND=true; "
+        f"  for t in {topics_str}; do "
+        f"    if ! echo \"$LIST\" | grep -q \"^$t$\"; then "
+        f"      ALL_FOUND=false; "
+        f"      break; "
+        f"    fi; "
+        f"  done; "
+        f"  if [ \"$ALL_FOUND\" = true ]; then "
+        f"    echo '[timbot_launch] {stage_name} topics confirmed! Proceeding...'; "
+        f"    exit 0; "
+        f"  fi; "
+        f"  sleep 1.0; "
+        f"done"
+    )
+    return ExecuteProcess(
+        cmd=['sh', '-c', wait_cmd],
+        name=f'waiter_{waiter_id}',
+        output='screen',
+    )
+
+
+def build_driver_chain(driver_stages, current_index, use_topic_check, next_pipeline_actions):
+    """Recursively build a sequential chain of hardware-driver launch actions.
+
+    Each driver stage: launch the driver, then either wait for its expected
+    topics (topic-check mode) or wait a fixed delay before starting the next
+    driver.  After all drivers finish the *next_pipeline_actions* are triggered.
+    """
+    if current_index >= len(driver_stages):
+        # All drivers launched — hand off to the main pipeline.
+        return next_pipeline_actions
+
+    stage_name, launcher_fn, expected_topics, delay_sec = driver_stages[current_index]
+
+    # Tail of the chain (everything after this driver).
+    tail_actions = build_driver_chain(
+        driver_stages, current_index + 1, use_topic_check, next_pipeline_actions
+    )
+
+    try:
+        current_actions = launcher_fn(None)   # context not needed for IncludeLaunch
+    except Exception as e:
+        print(f"[timbot_launch] ERROR building {stage_name}: {e}", flush=True)
+        return [EmitEvent(event=ShutdownEvent(reason=f"Failed to build {stage_name}"))]
+
+    current_actions.insert(0, LogInfo(msg=f'[timbot_launch] LAUNCHING: {stage_name}'))
+
+    if not tail_actions:
+        return current_actions
+
+    waiter_id = stage_name.lower().replace(' ', '_').replace(':', '')
+
+    if use_topic_check and expected_topics:
+        waiter_proc = _make_topic_waiter(stage_name, expected_topics, waiter_id)
+        event_handler = RegisterEventHandler(
+            OnProcessExit(
+                target_action=waiter_proc,
+                on_exit=tail_actions,
+            )
+        )
+        current_actions.append(waiter_proc)
+        current_actions.append(event_handler)
+    else:
+        current_actions.append(TimerAction(period=delay_sec, actions=tail_actions))
+
+    return current_actions
+
 
 def build_stage_chain(stages_info, current_index, config, sim, context):
     if current_index >= len(stages_info):
@@ -323,39 +539,15 @@ def build_stage_chain(stages_info, current_index, config, sim, context):
     delay_sec = float(stage_cfg.get('delay_sec', 2.0))
 
     if use_topic_check and expected_topics:
-        topics_str = " ".join(expected_topics)
-        wait_cmd = (
-            f"echo '[timbot_launch] Waiting for {stage_name} topics: {topics_str}...'; "
-            f"while true; do "
-            f"  LIST=$(ros2 topic list); "
-            f"  ALL_FOUND=true; "
-            f"  for t in {topics_str}; do "
-            f"    if ! echo \"$LIST\" | grep -q \"^$t$\"; then "
-            f"      ALL_FOUND=false; "
-            f"      break; "
-            f"    fi; "
-            f"  done; "
-            f"  if [ \"$ALL_FOUND\" = true ]; then "
-            f"    echo '[timbot_launch] {stage_name} topics confirmed! Proceeding...'; "
-            f"    exit 0; "
-            f"  fi; "
-            f"  sleep 1.0; "
-            f"done"
+        waiter_proc = _make_topic_waiter(
+            stage_name, expected_topics, config_key
         )
-
-        waiter_proc = ExecuteProcess(
-            cmd=['sh', '-c', wait_cmd],
-            name=f'waiter_{config_key}',
-            output='screen'
-        )
-
         event_handler = RegisterEventHandler(
             OnProcessExit(
                 target_action=waiter_proc,
-                on_exit=next_actions
+                on_exit=next_actions,
             )
         )
-        
         current_actions.append(waiter_proc)
         current_actions.append(event_handler)
     else:
@@ -383,19 +575,46 @@ def orchestrate_launch(context: LaunchContext) -> list:
 
     sim = config.get('sim', True)
     use_topic_check = config.get('use_topic_check', True)
-    
+    team_laptop = config.get('team_laptop', False)
+
+    laptop_env_vars = [
+        SetEnvironmentVariable(name='QT_QPA_PLATFORM', value='xcb'),
+        SetEnvironmentVariable(name='__NV_PRIME_RENDER_OFFLOAD', value='1'),
+        SetEnvironmentVariable(name='__GLX_VENDOR_LIBRARY_NAME', value='nvidia')
+    ] if team_laptop else []
+
+
     print(f"\n[timbot_launch] Using config: {config_file}", flush=True)
     print(f"[timbot_launch] Simulation mode: {sim}", flush=True)
     print(f"[timbot_launch] Topic Checking: {'Enabled' if use_topic_check else 'Disabled (Timer Mode)'}", flush=True)
+    if not sim:
+        print(f"[timbot_launch] Hardware drivers will be started sequentially before main pipeline.", flush=True)
     print(f"[timbot_launch] {'='*50}\n", flush=True)
 
     active_stages = [stage for stage in LAUNCH_STAGES if config.get(stage[1], {}).get('enabled', False)]
-    
-    if not active_stages:
+
+    if not active_stages and sim:
         print("[timbot_launch] ERROR: No stages enabled in config.", flush=True)
         return []
 
-    return build_stage_chain(active_stages, 0, config, sim, context)
+    # Build the main pipeline chain first (it becomes the "tail" for drivers).
+    pipeline_actions = build_stage_chain(active_stages, 0, config, sim, context)
+
+    if sim:
+        # Simulation mode: skip hardware drivers entirely.
+        return laptop_env_vars + pipeline_actions
+
+    # Real rover mode (sim=False): launch hardware drivers sequentially, then
+    # hand off to the normal pipeline once all drivers are confirmed ready.
+    print("[timbot_launch] Starting hardware driver sequence...", flush=True)
+    hardware_driver_stages = build_hardware_driver_stages(config)
+    
+    driver_chain = build_driver_chain(
+        hardware_driver_stages, 0, use_topic_check, pipeline_actions
+    )
+    
+    # Prepend the env vars to the driver chain
+    return laptop_env_vars + driver_chain
 
 
 # =============================================================================

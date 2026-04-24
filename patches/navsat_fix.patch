@@ -1,0 +1,44 @@
+diff --git a/launch/nmea_serial_driver.launch.py b/launch/nmea_serial_driver.launch.py
+index 77a4e57..f4e0fe0 100644
+--- a/launch/nmea_serial_driver.launch.py
++++ b/launch/nmea_serial_driver.launch.py
+@@ -19,19 +19,37 @@ import sys
+ 
+ from ament_index_python.packages import get_package_share_directory
+ from launch import LaunchDescription, LaunchIntrospector, LaunchService
++from launch.actions import DeclareLaunchArgument
++from launch.substitutions import LaunchConfiguration
+ from launch_ros import actions
+ 
+ 
+ def generate_launch_description():
+     """Generate a launch description for a single serial driver."""
+     config_file = os.path.join(get_package_share_directory("nmea_navsat_driver"), "config", "nmea_serial_driver.yaml")
++
++    serial_port_arg = DeclareLaunchArgument(
++        'serial_port',
++        default_value='/dev/ttyUSB0',
++        description='Serial port for the GPS device (e.g. /dev/ttyUSB0)',
++    )
++    baud_rate_arg = DeclareLaunchArgument(
++        'gps_baud',
++        default_value='9600',
++        description='baud_rate',
++    )
++
+     driver_node = actions.Node(
+         package='nmea_navsat_driver',
+         executable='nmea_serial_driver',
+         output='screen',
+-        parameters=[config_file])
++        parameters=[
++            config_file,
++            {'port': LaunchConfiguration('serial_port'), 
++             'baud': LaunchConfiguration('gps_baud')},
++        ])
+ 
+-    return LaunchDescription([driver_node])
++    return LaunchDescription([serial_port_arg, baud_rate_arg, driver_node])
+ 
+ 
+ def main(argv):

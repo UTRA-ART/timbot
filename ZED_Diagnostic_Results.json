@@ -1,0 +1,194 @@
+{
+    "AI Models": {
+        "info": [
+            "MULTI CLASS DETECTION is not optimized",
+            "MULTI CLASS MEDIUM DETECTION is not optimized",
+            "MULTI CLASS ACCURATE DETECTION is not optimized",
+            "HUMAN BODY FAST DETECTION is not optimized",
+            "HUMAN BODY MEDIUM DETECTION is not optimized",
+            "HUMAN BODY ACCURATE DETECTION is not optimized",
+            "HUMAN BODY 38 FAST DETECTION is not optimized",
+            "HUMAN BODY 38 MEDIUM DETECTION is not optimized",
+            "HUMAN BODY 38 ACCURATE DETECTION is not optimized",
+            "PERSON HEAD DETECTION is not optimized",
+            "PERSON HEAD ACCURATE DETECTION is not optimized",
+            "REID ASSOCIATION is not optimized"
+        ],
+        "valid": [
+            "NEURAL LIGHT DEPTH is optimized",
+            "NEURAL DEPTH is optimized",
+            "NEURAL PLUS DEPTH is optimized"
+        ]
+    },
+    "CUDA Operations": {
+        "cudaDeviceCount": 1,
+        "cudaDriverVersion": 13000,
+        "cudaDriverVersionString": "13.0",
+        "cudaGetDeviceCountResult": 0,
+        "cudaRuntimeLoaded": true,
+        "cudaRuntimeVersion": 13020,
+        "cudaRuntimeVersionString": "13.2",
+        "cudaTestVersion": "1.0",
+        "gpuTests": [
+            {
+                "computeCapability": "8.6",
+                "computeCapabilityMajor": 8,
+                "computeCapabilityMinor": 6,
+                "freeResult": 0,
+                "freeSuccess": true,
+                "gpuId": 0,
+                "gpuName": "NVIDIA GeForce RTX 3070 Laptop GPU",
+                "mallocResult": 0,
+                "mallocSuccess": true,
+                "memcpyD2HResult": 0,
+                "memcpyD2HSuccess": true,
+                "memcpyH2DResult": 0,
+                "memcpyH2DSuccess": true,
+                "memoryBusWidthBits": 256,
+                "memsetResult": 0,
+                "memsetSuccess": true,
+                "multiProcessorCount": 40,
+                "pciBusId": 1,
+                "pciDeviceId": 0,
+                "pciDomainId": 0,
+                "setDeviceResult": 0,
+                "testElements": 1048576,
+                "testPassed": true,
+                "testSizeBytes": 4194304,
+                "totalGlobalMemMB": 7840,
+                "validationPassed": true
+            }
+        ],
+        "testSizeMB": 1,
+        "valid": [
+            "<b>GPU 0 (NVIDIA GeForce RTX 3070 Laptop GPU):</b> CUDA operations working correctly"
+        ]
+    },
+    "Camera Test": {
+        "CorruptedFirmware": [
+        ],
+        "InternalDevicesCount (GMSL)": [
+        ],
+        "InternalDevicesCount (USB)": [
+        ],
+        "USBList": [
+            {
+                "USB_path": "/9",
+                "idProduct": "0x6206",
+                "idVendor": "0x0b05"
+            },
+            {
+                "USB_path": "/7",
+                "idProduct": "0x202c",
+                "idVendor": "0x322e"
+            },
+            {
+                "USBMode": 2,
+                "USB_path": "/2",
+                "bDescriptorType": 1,
+                "bDeviceProtocol": 1,
+                "bLength": 18,
+                "bMaxPacketSize0": 64,
+                "bNumConfigurations": 1,
+                "bcdDevice": "1.0",
+                "bcdUSB": "2.16",
+                "bcdUSBClass": 239,
+                "bcdUSBSubClass": 2,
+                "busNumber": 3,
+                "device": "ZED",
+                "iManufacturer": 1,
+                "iProduct": 2,
+                "iSerial": 0,
+                "idProduct": "0xf582",
+                "idVendor": "0x2b03"
+            },
+            {
+                "USB_path": "/10",
+                "idProduct": "0x0026",
+                "idVendor": "0x8087"
+            }
+        ],
+        "USBMode": [
+        ],
+        "ZED Camera Module Detected": [
+        ],
+        "ZEDCount": [
+        ],
+        "ZEDDetected": [
+        ],
+        "ZEDs": [
+        ],
+        "error": [
+            "<b>No Camera detected</b> <br/> Make sure the camera is plugged in.",
+            "<b>No Camera detected</b> <br/> Make sure the camera is plugged in."
+        ],
+        "notTested": [
+            "Please connect a camera to test the USB connection.",
+            "Please connect a camera to test the USB connection."
+        ]
+    },
+    "Graphics Card": {
+        "deviceCount": 1,
+        "deviceDriverVersion": 13000,
+        "devices": [
+            {
+                "arch": "Ampere",
+                "computeCapability": "8.6",
+                "cores": 5120,
+                "name": "NVIDIA GeForce RTX 3070 Laptop GPU",
+                "totalMemoryBytes": "8220901376",
+                "totalMemoryMB": 7840.0625
+            }
+        ],
+        "glx_info": "OpenGL vendor string: NVIDIA Corporation\nOpenGL renderer string: NVIDIA GeForce RTX 3070 Laptop GPU/PCIe/SSE2\nOpenGL core profile version string: 4.6.0 NVIDIA 580.126.09\nOpenGL core profile shading language version string: 4.60 NVIDIA\nOpenGL core profile context flags: (none)\nOpenGL core profile profile mask: core profile\nOpenGL core profile extensions:\nOpenGL version string: 4.6.0 NVIDIA 580.126.09\nOpenGL shading language version string: 4.60 NVIDIA\nOpenGL context flags: (none)\nOpenGL profile mask: (none)\nOpenGL extensions:\nOpenGL ES profile version string: OpenGL ES 3.2 NVIDIA 580.126.09\nOpenGL ES profile shading language version string: OpenGL ES GLSL ES 3.20\nOpenGL ES profile extensions:\n",
+        "initResult": 0,
+        "valid": [
+            "<b>Graphics card: </b> NVIDIA GeForce RTX 3070 Laptop GPU"
+        ]
+    },
+    "Processor": {
+        "OS": "Ubuntu 22.04.5 LTS ",
+        "avxSupported": true,
+        "coreCount": "16",
+        "cpu": " 12th Gen Intel(R) Core(TM) i7-12650H",
+        "datetime": "2026-04-23 07:16:26 PM",
+        "hyperThreading": "1",
+        "motherboard": "FX517ZR, ASUSTeK COMPUTER INC.",
+        "ramCapacity": "16.371225",
+        "ramUsage": "",
+        "ramUsed": "6.704861",
+        "threadCount": "32",
+        "valid": [
+            "<b>Processor: </b>  12th Gen Intel(R) Core(TM) i7-12650H",
+            "<b>Motherboard: </b> FX517ZR, ASUSTeK COMPUTER INC."
+        ]
+    },
+    "ZED SDK": {
+        "CUDA Toolkit version": "V13.2.51 -->located in /usr/local/cuda-13.2/bin/nvcc",
+        "CUDA loading": false,
+        "GPU Driver Version": "Driver Version                                         : 580.126.09",
+        "GPU Performance": "    Performance State                                  : P8",
+        "ZED SDK Version (Diag)": "5.2.3",
+        "ZED SDK Version (RT)": "5.2.3",
+        "ai": {
+            "checkAI": true,
+            "cudaVersion": 13020,
+            "tensorVersion": 101302
+        },
+        "binFiles": [
+            "libsl_ai.so",
+            "libsl_zed.so"
+        ],
+        "resourcesFiles": [
+            "neural_depth_5.3.model",
+            "neural_depth_light_5.2.model"
+        ],
+        "resourcesFilesExpected": [
+            "objects_performance_3.2"
+        ],
+        "valid": [
+            "<b>ZED SDK version:</b> 5.2.3",
+            "<b>CUDA version:</b> V13.2.51"
+        ]
+    }
+}

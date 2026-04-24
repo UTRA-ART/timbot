@@ -121,6 +121,10 @@ class PublishThread(threading.Thread):
         twist.angular.z = 0.0
         self.publisher.publish(twist)
 
+        # Allow time for DDS to transmit the stop message before shutdown
+        import time
+        time.sleep(0.5)
+
 
 def getKey(key_timeout):
     settings = termios.tcgetattr(sys.stdin)
@@ -174,7 +178,7 @@ def main(args=None):
     autonomous_mode = False
     mode_pub = node.create_publisher(Bool, '/pause_navigation', 1)
 
-    x = 1
+    x = -1
     y = 0
     z = 0
     th = 1
@@ -238,6 +242,9 @@ def main(args=None):
                                 (-2 * top_vel + turn * 0.89) / 2),
                             (2 * top_vel - turn * 0.89) / 2)
 
+                speed = round(speed, 1)
+                turn = round(turn, 1)
+
                 print(vels(speed, turn))
                 if (status == 14):
                     print(msg)
@@ -248,7 +255,7 @@ def main(args=None):
                 if key == '' and autonomous_mode:
                     continue
                 elif key != '':
-                    x = 1
+                    x = -1
                     y = 0
                     z = 0
                     th = 1

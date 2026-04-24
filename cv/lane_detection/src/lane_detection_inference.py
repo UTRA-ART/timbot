@@ -10,14 +10,12 @@ import math
 
 import cv2
 import numpy as np
-import torch
 
 from cv_bridge import CvBridge
 from sensor_msgs.msg import Image, CameraInfo, PointCloud2
 from std_msgs.msg import Header
 
 from classical_lane_detection import ClassicalLaneDetector
-from ml_lane_detection import MachineLearningLaneDetector
 
 import rclpy
 from rclpy.node import Node
@@ -76,6 +74,8 @@ class CVModelInferencer(Node):
                 f"Parameters: {vars(self.Classical)}\n"
             )
         else:
+            import torch
+            from ml_lane_detection import MachineLearningLaneDetector
             self.Inference = MachineLearningLaneDetector(
                 model_path=self.model_path,
                 width=self.camera_width,

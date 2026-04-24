@@ -140,7 +140,7 @@ class MotorControl(Node):
 
         # subscribers
         self.get_logger().info("Subscribing to topics...")
-        self.create_subscription(Twist, '/twist_mux/cmd_vel', self.target_cb, 10)
+        self.create_subscription(Twist, '/cmd_vel', self.target_cb, 10)
         self.create_subscription(Bool, 'pause_navigation', self.mode_cb, 10)
 
         # publishers
@@ -165,34 +165,45 @@ class MotorControl(Node):
         self.mode = mode_msg.data
 
     def timer_callback(self):
+        
+        
         self.current_time = time.time()
-
         # Arduino read code, runs at 30 Hz
         if self.conn.in_waiting > 0:
             try:
-                line = self.conn.readline().decode('utf-8').rstrip()
-                l_val, r_val = line[1:-1].split(',')  # data in format <{left_count},{right_count}>
+                raw_bytes = self.conn.read(self.conn.in_waiting)
+                raw_data = raw_bytes.decode('utf-8', errors='ignore')
+                # self.get_logger().info(f"Raw bytes: {raw_bytes}")
+                
+                packets = []
+                for p in raw_data.split('<'):
+                    if '>' in p:
+                        packets.append(p.split('>')[0])
+                        
+                if packets:
+                    latest_packet = packets[-1]
+                    l_val, r_val = latest_packet.split(',')  # data in format <{left_count},{right_count}>
+                    # Update direction multipliers
+                    if self.right_dir:
+                        self.direction_r = 1
+                    else:
+                        self.direction_r = -1
 
-                # Update direction multipliers
-                if self.right_dir:
-                    self.direction_r = 1
-                else:
-                    self.direction_r = -1
+                    if not self.left_dir:
+                        self.direction_l = 1
+                    else:
+                        self.direction_l = -1
 
-                if not self.left_dir:
-                    self.direction_l = 1
-                else:
-                    self.direction_l = -1
+                    # Publish directionless tick counts; odom node applies direction using
+                    # /left_wheel/direction and /right_wheel/direction topics.
+                    l_msg = Int32()
+                    l_msg.data = int(l_val)
+                    self.ticks_pub_l.publish(l_msg)
+                    # self.get_logger().info(f"Left Ticks: {l_msg.data}")
 
-                # Publish directionless tick counts; odom node applies direction using
-                # /left_wheel/direction and /right_wheel/direction topics.
-                l_msg = Int32()
-                l_msg.data = int(l_val)
-                self.ticks_pub_l.publish(l_msg)
-
-                r_msg = Int32()
-                r_msg.data = int(r_val)
-                self.ticks_pub_r.publish(r_msg)
+                    r_msg = Int32()
+                    r_msg.data = int(r_val)
+                    self.ticks_pub_r.publish(r_msg)
             except Exception:
                 pass
 

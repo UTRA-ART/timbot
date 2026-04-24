@@ -1,22 +1,28 @@
 # =============================================================================
-# Timbot Launch Configuration — Simulation
+# Timbot Launch Configuration — Competition
 # =============================================================================
-# Usage: ros2 launch timbot_launch timbot.launch.py config:=sim.yaml
-# on team laptop: __NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia ros2 launch timbot_launch timbot.launch.py config:=sim.yaml
+# Usage: ros2 launch timbot_launch timbot.launch.py config:=comp.yaml
+# on team laptop: __NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia ros2 launch timbot_launch timbot.launch.py config:=comp.yaml
 # =============================================================================
-# if team laptop: __NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia 
-# do this if rviz starts crashing
-# # 1. Ensure Wayland is bypassed for UI tools
-# export QT_QPA_PLATFORM=xcb
-
-# # 2. Make sure the software rendering trap is dead
-# unset LIBGL_ALWAYS_SOFTWARE
-
 
 # --- Global Settings ---
-sim: true
+sim: false
 use_topic_check: true  # Set to false to use blind delay_sec instead
 team_laptop: true
+
+# --- Hardware Ports ---
+gps_port: "/dev/ttyUSB0"       # Serial port for GPS (e.g. /dev/ttyUSB0, /dev/ttyACM0)
+gps_baud: 57600
+lidar_lower_port: "/dev/ttyUSB2"
+lidar_upper_port: "/dev/ttyUSB3"
+
+# RUM THIS TO FIX THE PORTS IF THEY ARE MESSED UP
+# for p in /dev/ttyUSB*; do 
+#     echo -n "$p: "
+#     udevadm info -q property $p 2>/dev/null | grep -E "ID_MODEL=|ID_SERIAL_SHORT=" | tr '\n' ' '
+#     echo ""
+# done
+
 
 # --- Launch Stages (order matters) ---
 # Each stage runs sequentially. If use_topic_check is true, the next stage 
@@ -26,7 +32,7 @@ team_laptop: true
 
 # --- Stage 1: Gazebo Simulator ---
 gazebo:
-  enabled: true
+  enabled: false
   gui: true
   world_file: track.world
   log_level: error
@@ -42,9 +48,9 @@ robot_bringup:
   expected_topics:
     - /robot_description
 
-# --- Stage 2: Spawn Robot (Gazebo bridge + entity spawn) ---
+# --- Stage 2: Spawn Robot (Gazebo bridge + entity spawn — sim only) ---
 spawn:
-  enabled: true
+  enabled: false
   log_level: error
   x: "-19.5"
   y: "0"
@@ -146,7 +152,7 @@ nav_stack:
 
 # --- Stage 8: Load Waypoints ---
 load_waypoints:
-  enabled: true
+  enabled: false
   config_file: sim_waypoints_fixed.json
   log_level: error
   delay_sec: 2.0
