@@ -29,6 +29,9 @@ lidar_upper_port: "/dev/ttyUSB3"
 # refresh motor connection
 # refresh_motor
 
+# check status in the rpi
+# ssh into the pi
+# systemctl status motor_control.service
 
 # --- Launch Stages (order matters) ---
 # Each stage runs sequentially. If use_topic_check is true, the next stage 
