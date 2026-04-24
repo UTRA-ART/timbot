@@ -397,22 +397,19 @@ def build_hardware_driver_stages(config: dict) -> list:
             ['/scan_upper'],
             5.0,
         ),
-        # (
-        #     'Driver: ZED Camera',
-        #     _hw_driver('zed_wrapper', 'zed_camera.launch.py', {
-        #         'camera_model': 'zed',
-        #         'publish_tf': 'false',
-        #         'publish_map_tf': 'false',
-        #         'publish_urdf': 'false',
-        #     }, remappings=[
-        #         ('/zed/zed_node/left/image_rect_color', '/zed_node/left/image'),
-        #         ('/zed/zed_node/left/camera_info',      '/zed_node/left/camera_info'),
-        #         ('/zed/zed_node/left/depth/depth_registered', '/zed_node/left/depth_image'),
-        #         ('/zed/zed_node/left/point_cloud/cloud_registered', '/zed_node/left/points'),
-        #     ]),
-        #     ['/zed_node/left/image'],
-        #     8.0,
-        # ),
+        (
+            'Driver: ZED Camera',
+            _hw_driver('zed_custom', 'zed_sbs.launch.py', {
+                'video_device': config.get('zed_camera', {}).get('video_device', '/dev/video3'),
+                'config_file': config.get('zed_camera', {}).get('config_file', 'zed_params.yaml'),
+                'left_image_topic': '/zed_node/left/image',
+                'left_camera_info_topic': '/zed_node/left/camera_info',
+                'depth_image_topic': '/zed_node/left/depth_image',
+                'point_cloud_topic': '/zed_node/left/points',
+            }),
+            ['/zed_node/left/image'],
+            8.0,
+        ),
         (
             'Driver: RPi Sync',
             _hw_driver('motor_odom', 'odom_pub.launch.py'),
