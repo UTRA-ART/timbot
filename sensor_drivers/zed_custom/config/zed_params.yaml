@@ -20,9 +20,18 @@
     auto_exposure: 2
     
     # ZED Depth parameters
-    min_depth: 0.5
+    min_depth: 0.1
     max_depth: 20.0
     point_cloud_freq: 15.0
+
+    # Stereo calibration used by zed_camera_info_publisher (affects disparity + point cloud scale)
+    fx: 235.0
+    fy: 269.0
+    cx: 336.0
+    cy: 188.0
+    baseline: 0.12
+    left_frame_id: "left_camera_link_optical"
+    right_frame_id: "left_camera_link_optical"
     
     # ZED General parameters
     camera_model: "zed"

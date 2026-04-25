@@ -65,7 +65,7 @@ def launch_robot_bringup(config: dict, sim: bool, context: LaunchContext) -> lis
     """
     bringup_cfg = config.get('robot_bringup', {})
     log_level = bringup_cfg.get('log_level', 'info')
-    cv_cfg = config.get('cv_pipeline', {})
+    cv_cfg = config.get('lane_detection', {})
     cv_enabled = cv_cfg.get('enabled', False)
     enable_camera = str(cv_enabled).lower()
 
@@ -73,6 +73,7 @@ def launch_robot_bringup(config: dict, sim: bool, context: LaunchContext) -> lis
         'sim': str(sim).lower(),
         'log_level': log_level,
         'enable_camera': enable_camera,
+        'enable_lane_detection': enable_camera,
         'camera_fps': str(cv_cfg.get('camera_fps', 5)),
         'camera_width': str(cv_cfg.get('camera_width', 320)),
         'camera_height': str(cv_cfg.get('camera_height', 180)),
@@ -92,7 +93,7 @@ def launch_spawn(config: dict, sim: bool, context: LaunchContext) -> list:
     """Gazebo bridge + spawn entity.  Sim-only."""
     spawn_cfg = config.get('spawn', {})
     log_level = spawn_cfg.get('log_level', 'info')
-    cv_cfg = config.get('cv_pipeline', {})
+    cv_cfg = config.get('lane_detection', {})
     cv_enabled = cv_cfg.get('enabled', False)
     enable_camera = str(cv_enabled).lower()
 
@@ -176,8 +177,8 @@ def launch_filter_lidar(config: dict, sim: bool, context: LaunchContext) -> list
     return [filter_launch]
 
 
-def launch_cv(config: dict, sim: bool, context: LaunchContext) -> list:
-    cv_cfg = config.get('cv_pipeline', {})
+def launch_lane_detection(config: dict, sim: bool, context: LaunchContext) -> list:
+    cv_cfg = config.get('lane_detection', {})
     log_level = cv_cfg.get('log_level', 'info')
     lane_detection_mode = str(cv_cfg.get('lane_detection_mode', 0))
 
@@ -201,6 +202,25 @@ def launch_cv(config: dict, sim: bool, context: LaunchContext) -> list:
         }.items()
     )
     return [cv_launch]
+
+
+def launch_depth_detection(config: dict, sim: bool, context: LaunchContext) -> list:
+    depth_cfg = config.get('depth_detection', {})
+    log_level = depth_cfg.get('log_level', 'info')
+
+    depth_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([
+            FindPackageShare('depth_detection'),
+            '/launch/depth_detection.launch.py'
+        ]),
+        launch_arguments={
+            'sim': str(sim).lower(),
+            'log_level': log_level,
+            'config_file': depth_cfg.get('config_file', 'depth_detection.yaml'),
+        }.items()
+    )
+
+    return [depth_launch]
 
 def launch_cartographer(config: dict, sim: bool, context: LaunchContext) -> list:
     carto_cfg = config.get('cartographer', {})
@@ -429,7 +449,8 @@ LAUNCH_STAGES = [
     ('Robot Bringup',  'robot_bringup',  launch_robot_bringup),
     ('Odom State',     'odom_state',     launch_odom_state),
     ('Filter Lidar',   'filter_lidar',   launch_filter_lidar),
-    ('CV Pipeline',    'cv_pipeline',    launch_cv),
+    ('Lane Detection', 'lane_detection', launch_lane_detection),
+    ('Depth Detection','depth_detection',launch_depth_detection),
     ('Cartographer',   'cartographer',   launch_cartographer),
     ('RViz',           'rviz',           launch_rviz),
     ('Nav Stack',      'nav_stack',      launch_nav_stack),

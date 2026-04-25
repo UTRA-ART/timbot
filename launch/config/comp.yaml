@@ -11,7 +11,7 @@ use_topic_check: true  # Set to false to use blind delay_sec instead
 team_laptop: true
 
 # --- Hardware Ports ---
-gps_port: "/dev/ttyUSB0"       # Serial port for GPS (e.g. /dev/ttyUSB0, /dev/ttyACM0)
+gps_port: "/dev/ttyUSB1"       # Serial port for GPS (e.g. /dev/ttyUSB0, /dev/ttyACM0)
 gps_baud: 57600
 lidar_lower_port: "/dev/ttyUSB2"
 lidar_upper_port: "/dev/ttyUSB3"
@@ -113,7 +113,7 @@ filter_lidar:
   expected_topics:
     - /scan_modified
 
-cv_pipeline:
+lane_detection:
   enabled: true
   log_level: info
   lane_detection_mode: 1  # 0 = deep learning (YOLO), 1 = classical (HSV threshold)
@@ -134,6 +134,14 @@ cv_pipeline:
     - /zed_node/left/image
   # Normalized coordinates [x1, y1, x2, y2, ...] defining the rover's footprint
   roi_mask_points: [0.4, 1.0, 0.5, 0.6, 0.6, 0.6, 0.7, 1.0]
+
+depth_detection:
+  enabled: true
+  log_level: info
+  config_file: depth_detection.yaml
+  delay_sec: 2.0
+  expected_topics:
+    - /zed_node/left/obstacle_points
 
 # --- Stage 5: Cartographer (SLAM) ---
 cartographer:
