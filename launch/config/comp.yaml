@@ -2,7 +2,6 @@
 # Timbot Launch Configuration — Competition
 # =============================================================================
 # Usage: ros2 launch timbot_launch timbot.launch.py config:=comp.yaml
-# on team laptop: __NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia ros2 launch timbot_launch timbot.launch.py config:=comp.yaml
 # =============================================================================
 
 # --- Global Settings ---
@@ -23,8 +22,23 @@ lidar_upper_port: "/dev/ttyUSB3"
 #     echo ""
 # done
 
+# check where the zed camera is connected:
+# v4l2-ctl --list-devices
+
 # run to check zed camera connection:
 # guvcview -d /dev/video2
+
+# # refresh camera feed:
+# pkill -9 guvcview 2>/dev/null || true
+# pkill -9 usb_cam_node_exe 2>/dev/null || true
+# fuser -k /dev/video2 2>/dev/null || true
+
+# check for empty
+# fuser -v /dev/video2
+
+# if stuck do this:
+# sudo modprobe -r uvcvideo
+# sudo modprobe uvcvideo
 
 # refresh motor connection
 # refresh_motor
@@ -35,6 +49,11 @@ lidar_upper_port: "/dev/ttyUSB3"
 
 # to restart service in the rpi
 # sudo systemctl restart motor_control.service
+
+# # viewing the disparity map:
+# source /opt/ros/humble/setup.bash
+# source ~/timbot/install/setup.bash
+# QT_QPA_PLATFORM=xcb ros2 run image_view disparity_view --ros-args -r /image:=/_zed_internal/disparity
 
 # --- Launch Stages (order matters) ---
 # Each stage runs sequentially. If use_topic_check is true, the next stage 

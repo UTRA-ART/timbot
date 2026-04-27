@@ -595,6 +595,16 @@ def orchestrate_launch(context: LaunchContext) -> list:
     use_topic_check = config.get('use_topic_check', True)
     team_laptop = config.get('team_laptop', False)
 
+    # Ensure ROS Python nodes launched via /usr/bin/env python3 resolve against
+    # the system interpreter expected by ROS Humble, not an active Conda env.
+    python_path = os.environ.get('PATH', '')
+    force_system_python = [
+        SetEnvironmentVariable(
+            name='PATH',
+            value=f"/usr/bin:{python_path}",
+        )
+    ]
+
     laptop_env_vars = [
         SetEnvironmentVariable(name='QT_QPA_PLATFORM', value='xcb'),
         SetEnvironmentVariable(name='__NV_PRIME_RENDER_OFFLOAD', value='1'),
@@ -620,7 +630,7 @@ def orchestrate_launch(context: LaunchContext) -> list:
 
     if sim:
         # Simulation mode: skip hardware drivers entirely.
-        return laptop_env_vars + pipeline_actions
+        return force_system_python + laptop_env_vars + pipeline_actions
 
     # Real rover mode (sim=False): launch hardware drivers sequentially, then
     # hand off to the normal pipeline once all drivers are confirmed ready.
@@ -632,7 +642,7 @@ def orchestrate_launch(context: LaunchContext) -> list:
     )
     
     # Prepend the env vars to the driver chain
-    return laptop_env_vars + driver_chain
+    return force_system_python + laptop_env_vars + driver_chain
 
 
 # =============================================================================
