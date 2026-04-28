@@ -52,7 +52,7 @@ class WheelOdomPub(Node):
     INITIAL_THETA = 1e-11  # tiny offset to avoid division by zero
 
     PI = math.pi
-    WHEEL_RADIUS = 0.125          # metres (~9.8 in / 24.9 cm diameter)
+    WHEEL_RADIUS = 0.1375          # metres (~9.8 in / 24.9 cm diameter)
     CIRCUMFERENCE = 2.0 * PI * WHEEL_RADIUS
     WHEEL_BASE = 0.69             # centre-to-centre of left/right tyres
 
