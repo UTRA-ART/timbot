@@ -18,6 +18,7 @@
 #include <opencv2/opencv.hpp>
 
 #include "videocapture.hpp"
+#include "calibration.hpp" // <-- Added to use driver's auto-calibration
 
 namespace
 {
@@ -25,58 +26,34 @@ sl_oc::video::RESOLUTION parse_resolution(const std::string & value)
 {
   std::string upper = value;
   std::transform(upper.begin(), upper.end(), upper.begin(), ::toupper);
-  if (upper == "HD2K") {
-    return sl_oc::video::RESOLUTION::HD2K;
-  }
-  if (upper == "HD1080") {
-    return sl_oc::video::RESOLUTION::HD1080;
-  }
-  if (upper == "HD720") {
-    return sl_oc::video::RESOLUTION::HD720;
-  }
+  if (upper == "HD2K") return sl_oc::video::RESOLUTION::HD2K;
+  if (upper == "HD1080") return sl_oc::video::RESOLUTION::HD1080;
+  if (upper == "HD720") return sl_oc::video::RESOLUTION::HD720;
   return sl_oc::video::RESOLUTION::VGA;
 }
 
 sl_oc::video::FPS parse_fps(int value)
 {
-  if (value >= 100) {
-    return sl_oc::video::FPS::FPS_100;
-  }
-  if (value >= 60) {
-    return sl_oc::video::FPS::FPS_60;
-  }
-  if (value >= 30) {
-    return sl_oc::video::FPS::FPS_30;
-  }
+  if (value >= 100) return sl_oc::video::FPS::FPS_100;
+  if (value >= 60) return sl_oc::video::FPS::FPS_60;
+  if (value >= 30) return sl_oc::video::FPS::FPS_30;
   return sl_oc::video::FPS::FPS_15;
 }
 
 int parse_device_id(const std::string & value)
 {
   if (value.rfind("/dev/video", 0) == 0) {
-    try {
-      return std::stoi(value.substr(10));
-    } catch (...) {
-      return -1;
-    }
+    try { return std::stoi(value.substr(10)); } catch (...) { return -1; }
   }
-  try {
-    return std::stoi(value);
-  } catch (...) {
-    return -1;
-  }
+  try { return std::stoi(value); } catch (...) { return -1; }
 }
 
 int parse_yuv_code(const std::string & value)
 {
   std::string upper = value;
   std::transform(upper.begin(), upper.end(), upper.begin(), ::toupper);
-  if (upper == "UYVY") {
-    return cv::COLOR_YUV2BGR_UYVY;
-  }
-  if (upper == "YVYU") {
-    return cv::COLOR_YUV2BGR_YVYU;
-  }
+  if (upper == "UYVY") return cv::COLOR_YUV2BGR_UYVY;
+  if (upper == "YVYU") return cv::COLOR_YUV2BGR_YVYU;
   return cv::COLOR_YUV2BGR_YUYV;
 }
 }
@@ -87,80 +64,67 @@ public:
   ZedOpenCaptureNode()
   : Node("zed_open_capture_node")
   {
-    declare_parameter("video_device", std::string("/dev/video2"));
-    declare_parameter("resolution", std::string("VGA"));
-    declare_parameter("fps", 15);
-    declare_parameter("yuv_format", std::string("YUYV"));
-    declare_parameter("fx", 350.0);
-    declare_parameter("fy", 350.0);
-    declare_parameter("cx", 336.0);
-    declare_parameter("cy", 188.0);
-    declare_parameter("baseline", 0.12);
-    declare_parameter("min_depth", 0.5);
-    declare_parameter("max_depth", 20.0);
-    declare_parameter("rectify", true);
-    declare_parameter("k1", 0.0);
-    declare_parameter("k2", 0.0);
-    declare_parameter("p1", 0.0);
-    declare_parameter("p2", 0.0);
-    declare_parameter("k3", 0.0);
-    declare_parameter("left_frame_id", std::string("left_camera_link_optical"));
-    declare_parameter("left_image_topic", std::string("/zed_node/left/image"));
-    declare_parameter("left_camera_info_topic", std::string("/zed_node/left/camera_info"));
-    declare_parameter("depth_image_topic", std::string("/zed_node/left/depth_image"));
-    declare_parameter("point_cloud_topic", std::string("/zed_node/left/points"));
+    // The ONLY ROS parameter: the port. (e.g., /dev/video0, or -1 for auto)
+    declare_parameter("video_device", std::string("/dev/video0"));
+    std::string video_device = get_parameter("video_device").as_string();
 
-    video_device_ = get_parameter("video_device").as_string();
-    resolution_ = get_parameter("resolution").as_string();
-    fps_ = get_parameter("fps").as_int();
-    yuv_format_ = get_parameter("yuv_format").as_string();
-
-    fx_ = static_cast<float>(get_parameter("fx").as_double());
-    fy_ = static_cast<float>(get_parameter("fy").as_double());
-    cx_ = static_cast<float>(get_parameter("cx").as_double());
-    cy_ = static_cast<float>(get_parameter("cy").as_double());
-    baseline_ = static_cast<float>(get_parameter("baseline").as_double());
-    min_depth_ = static_cast<float>(get_parameter("min_depth").as_double());
-    max_depth_ = static_cast<float>(get_parameter("max_depth").as_double());
-    rectify_ = get_parameter("rectify").as_bool();
-    k1_ = get_parameter("k1").as_double();
-    k2_ = get_parameter("k2").as_double();
-    p1_ = get_parameter("p1").as_double();
-    p2_ = get_parameter("p2").as_double();
-    k3_ = get_parameter("k3").as_double();
-
-    depth_fx_ = fx_;
-    depth_fy_ = fy_;
-    depth_cx_ = cx_;
-    depth_cy_ = cy_;
-
-    left_frame_id_ = get_parameter("left_frame_id").as_string();
-
-    left_image_topic_ = get_parameter("left_image_topic").as_string();
-    left_camera_info_topic_ = get_parameter("left_camera_info_topic").as_string();
-    depth_image_topic_ = get_parameter("depth_image_topic").as_string();
-    point_cloud_topic_ = get_parameter("point_cloud_topic").as_string();
-
+    // Setup ROS Publishers
     left_pub_ = create_publisher<sensor_msgs::msg::Image>(left_image_topic_, rclcpp::SensorDataQoS());
-    left_info_pub_ = create_publisher<sensor_msgs::msg::CameraInfo>(left_camera_info_topic_,
-      rclcpp::SensorDataQoS());
+    left_info_pub_ = create_publisher<sensor_msgs::msg::CameraInfo>(left_camera_info_topic_, rclcpp::SensorDataQoS());
     auto depth_qos = rclcpp::QoS(rclcpp::KeepLast(5)).reliable();
     depth_pub_ = create_publisher<sensor_msgs::msg::Image>(depth_image_topic_, depth_qos);
     cloud_pub_ = create_publisher<sensor_msgs::msg::PointCloud2>(point_cloud_topic_, rclcpp::SensorDataQoS());
 
     yuv_code_ = parse_yuv_code(yuv_format_);
 
+    // 1. Initialize Video Capture
     sl_oc::video::VideoParams params;
     params.res = parse_resolution(resolution_);
     params.fps = parse_fps(fps_);
     params.verbose = sl_oc::VERBOSITY::INFO;
 
     cap_ = std::make_unique<sl_oc::video::VideoCapture>(params);
-    int dev_id = parse_device_id(video_device_);
+    int dev_id = parse_device_id(video_device);
+    
     if (!cap_->initializeVideo(dev_id)) {
-      RCLCPP_FATAL(get_logger(), "Failed to open video device: %s", video_device_.c_str());
+      RCLCPP_FATAL(get_logger(), "Failed to open video device: %s", video_device.c_str());
       throw std::runtime_error("Failed to initialize ZED Open Capture");
     }
+
+    // 2. Auto-load calibration from the driver/server
+    int sn = cap_->getSerialNumber();
+    RCLCPP_INFO(get_logger(), "Connected to camera sn: %d", sn);
+
+    std::string calib_file;
+    if (!sl_oc::tools::downloadCalibrationFile(sn, calib_file)) {
+      RCLCPP_FATAL(get_logger(), "Could not load calibration file from Stereolabs servers");
+      throw std::runtime_error("Calibration download failed");
+    }
+    RCLCPP_INFO(get_logger(), "Calibration file found. Loading...");
+
+    // 3. Get exact dimensions and let the driver build the rectification maps
+    int w, h;
+    cap_->getFrameSize(w, h);
+    int half_w = w / 2;
+
+    cv::Mat k_left, k_right;
+    double baseline = 0.0;
+
+    sl_oc::tools::initCalibration(
+      calib_file, cv::Size(half_w, h), 
+      left_map1_, left_map2_, right_map1_, right_map2_,
+      k_left, k_right, &baseline
+    );
+
+    // 4. Save the auto-loaded intrinsics to class variables
+    fx_ = static_cast<float>(k_left.at<double>(0, 0));
+    fy_ = static_cast<float>(k_left.at<double>(1, 1));
+    cx_ = static_cast<float>(k_left.at<double>(0, 2));
+    cy_ = static_cast<float>(k_left.at<double>(1, 2));
+    baseline_ = static_cast<float>(baseline / 1000.0);
+
+    RCLCPP_INFO(get_logger(), "Auto-loaded params: fx=%.2f, fy=%.2f, cx=%.2f, cy=%.2f, baseline=%.4f",
+                fx_, fy_, cx_, cy_, baseline_);
 
     init_sgbm();
 
@@ -175,13 +139,9 @@ private:
     int num_disparities = 96;  // Must be multiple of 16
     int block_size = 3;        // Must be odd
 
-    min_disparity_ = min_disparity;
-    num_disparities_ = num_disparities;
-    block_size_ = block_size;
-
-    sgbm_ = cv::StereoSGBM::create(min_disparity_, num_disparities_, block_size_);
-    int p1 = 8 * block_size_ * block_size_;
-    int p2 = 32 * block_size_ * block_size_;
+    sgbm_ = cv::StereoSGBM::create(min_disparity, num_disparities, block_size);
+    int p1 = 8 * block_size * block_size;
+    int p2 = 32 * block_size * block_size;
     sgbm_->setP1(p1);
     sgbm_->setP2(p2);
     sgbm_->setMode(cv::StereoSGBM::MODE_SGBM_3WAY);
@@ -190,70 +150,6 @@ private:
     sgbm_->setSpeckleWindowSize(255);
     sgbm_->setSpeckleRange(1);
     sgbm_->setDisp12MaxDiff(96);
-  }
-
-  void ensure_rectification(int width, int height)
-  {
-    if (width <= 0 || height <= 0) {
-      rect_ready_ = false;
-      return;
-    }
-    if (rect_ready_ && rect_width_ == width && rect_height_ == height) {
-      return;
-    }
-
-    cv::Mat k_left = (cv::Mat_<double>(3, 3) <<
-      fx_, 0.0, cx_,
-      0.0, fy_, cy_,
-      0.0, 0.0, 1.0
-    );
-    cv::Mat k_right = k_left.clone();
-
-    cv::Mat d_left = (cv::Mat_<double>(1, 5) << k1_, k2_, p1_, p2_, k3_);
-    cv::Mat d_right = d_left.clone();
-
-    cv::Mat r = cv::Mat::eye(3, 3, CV_64F);
-    cv::Mat t = (cv::Mat_<double>(3, 1) << -static_cast<double>(baseline_), 0.0, 0.0);
-
-    cv::Mat r1, r2, p1, p2, q;
-    cv::stereoRectify(
-      k_left, d_left, k_right, d_right,
-      cv::Size(width, height),
-      r, t, r1, r2, p1, p2, q,
-      cv::CALIB_ZERO_DISPARITY, 0.0, cv::Size(width, height)
-    );
-
-    cv::initUndistortRectifyMap(
-      k_left, d_left, r1, p1,
-      cv::Size(width, height),
-      CV_16SC2, left_map1_, left_map2_
-    );
-    cv::initUndistortRectifyMap(
-      k_right, d_right, r2, p2,
-      cv::Size(width, height),
-      CV_16SC2, right_map1_, right_map2_
-    );
-
-    depth_fx_ = static_cast<float>(p1.at<double>(0, 0));
-    depth_fy_ = static_cast<float>(p1.at<double>(1, 1));
-    depth_cx_ = static_cast<float>(p1.at<double>(0, 2));
-    depth_cy_ = static_cast<float>(p1.at<double>(1, 2));
-
-    rect_r_ = {
-      r1.at<double>(0, 0), r1.at<double>(0, 1), r1.at<double>(0, 2),
-      r1.at<double>(1, 0), r1.at<double>(1, 1), r1.at<double>(1, 2),
-      r1.at<double>(2, 0), r1.at<double>(2, 1), r1.at<double>(2, 2)
-    };
-    rect_p_ = {
-      p1.at<double>(0, 0), p1.at<double>(0, 1), p1.at<double>(0, 2), p1.at<double>(0, 3),
-      p1.at<double>(1, 0), p1.at<double>(1, 1), p1.at<double>(1, 2), p1.at<double>(1, 3),
-      p1.at<double>(2, 0), p1.at<double>(2, 1), p1.at<double>(2, 2), p1.at<double>(2, 3)
-    };
-
-    rect_width_ = width;
-    rect_height_ = height;
-    rect_ready_ = true;
-    cam_info_ready_ = false;
   }
 
   void on_timer()
@@ -269,29 +165,20 @@ private:
     cv::cvtColor(frame_yuv, frame_bgr, yuv_code_);
 
     int half_width = frame_bgr.cols / 2;
-    if (half_width <= 0) {
-      return;
-    }
+    if (half_width <= 0) return;
 
     cv::Mat left_bgr = frame_bgr(cv::Rect(0, 0, half_width, frame_bgr.rows));
     cv::Mat right_bgr = frame_bgr(cv::Rect(half_width, 0, half_width, frame_bgr.rows));
 
-    cv::Mat left_gray;
-    cv::Mat right_gray;
+    cv::Mat left_gray, right_gray;
     cv::cvtColor(left_bgr, left_gray, cv::COLOR_BGR2GRAY);
     cv::cvtColor(right_bgr, right_gray, cv::COLOR_BGR2GRAY);
 
-    cv::Mat left_bgr_rect = left_bgr;
-    cv::Mat left_gray_rect = left_gray;
-    cv::Mat right_gray_rect = right_gray;
-    if (rectify_) {
-      ensure_rectification(left_gray.cols, left_gray.rows);
-      if (rect_ready_) {
-        cv::remap(left_bgr, left_bgr_rect, left_map1_, left_map2_, cv::INTER_LINEAR);
-        cv::remap(left_gray, left_gray_rect, left_map1_, left_map2_, cv::INTER_LINEAR);
-        cv::remap(right_gray, right_gray_rect, right_map1_, right_map2_, cv::INTER_LINEAR);
-      }
-    }
+    // Apply the auto-loaded stereo rectification maps directly
+    cv::Mat left_bgr_rect, left_gray_rect, right_gray_rect;
+    cv::remap(left_bgr, left_bgr_rect, left_map1_, left_map2_, cv::INTER_LINEAR);
+    cv::remap(left_gray, left_gray_rect, left_map1_, left_map2_, cv::INTER_LINEAR);
+    cv::remap(right_gray, right_gray_rect, right_map1_, right_map2_, cv::INTER_LINEAR);
 
     cv::Mat disp_16;
     sgbm_->compute(left_gray_rect, right_gray_rect, disp_16);
@@ -341,17 +228,12 @@ private:
       left_info_.width = static_cast<uint32_t>(width);
       left_info_.height = static_cast<uint32_t>(height);
       left_info_.distortion_model = "plumb_bob";
-      left_info_.d = {0.0, 0.0, 0.0, 0.0, 0.0};
+      left_info_.d = {0.0, 0.0, 0.0, 0.0, 0.0}; // Remapped images have 0 distortion
 
-      if (rectify_ && rect_ready_) {
-        left_info_.k = {depth_fx_, 0.0, depth_cx_, 0.0, depth_fy_, depth_cy_, 0.0, 0.0, 1.0};
-        left_info_.r = rect_r_;
-        left_info_.p = rect_p_;
-      } else {
-        left_info_.k = {fx_, 0.0, cx_, 0.0, fy_, cy_, 0.0, 0.0, 1.0};
-        left_info_.r = {1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0};
-        left_info_.p = {fx_, 0.0, cx_, 0.0, 0.0, fy_, cy_, 0.0, 0.0, 0.0, 1.0, 0.0};
-      }
+      // Use the auto-calculated intrinsics!
+      left_info_.k = {fx_, 0.0, cx_, 0.0, fy_, cy_, 0.0, 0.0, 1.0};
+      left_info_.r = {1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0};
+      left_info_.p = {fx_, 0.0, cx_, 0.0, 0.0, fy_, cy_, 0.0, 0.0, 0.0, 1.0, 0.0};
 
       cam_info_ready_ = true;
       info_width_ = width;
@@ -402,8 +284,8 @@ private:
           *iter_y = nan;
           *iter_z = nan;
         } else {
-          *iter_x = (static_cast<float>(c) - depth_cx_) * z / depth_fx_;
-          *iter_y = (static_cast<float>(r) - depth_cy_) * z / depth_fy_;
+          *iter_x = (static_cast<float>(c) - cx_) * z / fx_;
+          *iter_y = (static_cast<float>(r) - cy_) * z / fy_;
           *iter_z = z;
         }
       }
@@ -421,52 +303,26 @@ private:
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr depth_pub_;
   rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr cloud_pub_;
 
-  std::string video_device_;
-  std::string resolution_;
+  // --- Start configuration defaults ---
+  std::string resolution_ = "VGA";
   int fps_ = 15;
-  std::string yuv_format_;
+  std::string yuv_format_ = "YUYV";
   int yuv_code_ = cv::COLOR_YUV2BGR_YUYV;
 
-  std::string left_frame_id_;
-  std::string left_image_topic_;
-  std::string left_camera_info_topic_;
-  std::string depth_image_topic_;
-  std::string point_cloud_topic_;
+  std::string left_frame_id_ = "left_camera_link_optical";
+  std::string left_image_topic_ = "/zed_node/left/image";
+  std::string left_camera_info_topic_ = "/zed_node/left/camera_info";
+  std::string depth_image_topic_ = "/zed_node/left/depth_image";
+  std::string point_cloud_topic_ = "/zed_node/left/points";
 
-  float fx_ = 350.0f;
-  float fy_ = 350.0f;
-  float cx_ = 336.0f;
-  float cy_ = 188.0f;
-  float baseline_ = 0.12f;
   float min_depth_ = 0.5f;
   float max_depth_ = 20.0f;
+  // --- End configuration defaults ---
 
-  bool rectify_ = false;
-  double k1_ = 0.0;
-  double k2_ = 0.0;
-  double p1_ = 0.0;
-  double p2_ = 0.0;
-  double k3_ = 0.0;
+  // These will automatically populate via driver calibration logic
+  float fx_, fy_, cx_, cy_, baseline_;
 
-  float depth_fx_ = 350.0f;
-  float depth_fy_ = 350.0f;
-  float depth_cx_ = 336.0f;
-  float depth_cy_ = 188.0f;
-
-  bool rect_ready_ = false;
-  int rect_width_ = 0;
-  int rect_height_ = 0;
-  cv::Mat left_map1_;
-  cv::Mat left_map2_;
-  cv::Mat right_map1_;
-  cv::Mat right_map2_;
-  std::array<double, 9> rect_r_{};
-  std::array<double, 12> rect_p_{};
-
-  int min_disparity_ = 0;
-  int num_disparities_ = 96;
-  int block_size_ = 3;
-
+  cv::Mat left_map1_, left_map2_, right_map1_, right_map2_;
   sensor_msgs::msg::CameraInfo left_info_;
   bool cam_info_ready_ = false;
   int info_width_ = 0;

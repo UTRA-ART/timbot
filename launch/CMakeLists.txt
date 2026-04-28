@@ -30,7 +30,8 @@ add_executable(zed_open_capture_node
 )
 
 target_include_directories(zed_open_capture_node PRIVATE
-  ../sensor_drivers/zed_open_source/include 
+  ../sensor_drivers/zed_open_source/include
+  ../sensor_drivers/zed_open_source/examples/include 
   ${OpenCV_INCLUDE_DIRS}
   ${LIBUSB_INCLUDE_DIRS}
 )
