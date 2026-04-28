@@ -367,6 +367,22 @@ def _hw_driver(pkg: str, launch_file: str, extra_args: dict | None = None,
     return launcher
 
 
+def _exec_driver(cmd: list[str], cwd: str | None = None, name: str | None = None):
+    """Return a launcher function that wraps an ExecuteProcess command."""
+    def launcher(context: LaunchContext) -> list:
+        return [ExecuteProcess(cmd=cmd, cwd=cwd, name=name, output='screen')]
+    return launcher
+
+
+def _normalize_exec_cmd(cmd_value: object, default_cmd: list[str]) -> list[str]:
+    """Normalize a YAML command entry into ExecuteProcess cmd form."""
+    if isinstance(cmd_value, list) and cmd_value:
+        return cmd_value
+    if isinstance(cmd_value, str) and cmd_value.strip():
+        return ['bash', '-lc', cmd_value]
+    return default_cmd
+
+
 # ---------------------------------------------------------------------------
 # Driver definitions
 # (name, launcher_fn, expected_topics, delay_sec)
@@ -381,6 +397,20 @@ def build_hardware_driver_stages(config: dict) -> list:
     gps_baud = str(config.get('gps_baud', '9600'))
     lidar_lower_port = config.get('lidar_lower_port', '/dev/ttyUSB3')
     lidar_upper_port = config.get('lidar_upper_port', '/dev/ttyUSB4')
+
+    zed_cfg = config.get('zed_camera', {})
+    zed_expected_topics = zed_cfg.get('expected_topics', ['/zed_node/left/image'])
+    zed_delay_sec = float(zed_cfg.get('delay_sec', 8.0))
+    zed_video_device = zed_cfg.get('video_device', '/dev/video3')
+
+    zed_stage = (
+        'Driver: ZED Open Capture',
+        _hw_driver('timbot_launch', 'zed_open_capture.launch.py', {
+            'video_device': zed_video_device,
+        }),
+        zed_expected_topics,
+        zed_delay_sec,
+    )
 
     return [
         (
@@ -417,19 +447,7 @@ def build_hardware_driver_stages(config: dict) -> list:
             ['/scan_upper'],
             5.0,
         ),
-        (
-            'Driver: ZED Camera',
-            _hw_driver('zed_custom', 'zed_sbs.launch.py', {
-                'video_device': config.get('zed_camera', {}).get('video_device', '/dev/video3'),
-                'config_file': config.get('zed_camera', {}).get('config_file', 'zed_params.yaml'),
-                'left_image_topic': '/zed_node/left/image',
-                'left_camera_info_topic': '/zed_node/left/camera_info',
-                'depth_image_topic': '/zed_node/left/depth_image',
-                'point_cloud_topic': '/zed_node/left/points',
-            }),
-            ['/zed_node/left/image'],
-            8.0,
-        ),
+        zed_stage,
         (
             'Driver: RPi Sync',
             _hw_driver('motor_odom', 'odom_pub.launch.py'),

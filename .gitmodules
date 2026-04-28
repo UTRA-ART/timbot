@@ -1,6 +1,3 @@
-[submodule "sensor_drivers/zed_camera"]
-	path = sensor_drivers/zed_camera
-	url = https://github.com/stereolabs/zed-ros2-wrapper.git
 [submodule "sensor_drivers/imu"]
 	path = sensor_drivers/imu
 	url = https://github.com/ros-drivers/phidgets_drivers.git
@@ -21,3 +18,8 @@
 	path = misc/ds4_driver
 	url = https://github.com/naoki-mizuno/ds4_driver.git
 	branch = humble-devel
+# git submodule update --init --recursive
+[submodule "sensor_drivers/zed_open_source"]
+	path = sensor_drivers/zed_open_source
+	url = https://github.com/stereolabs/zed-open-capture
+	branch = master

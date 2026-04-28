@@ -15,6 +15,17 @@ gps_baud: 57600
 lidar_lower_port: "/dev/ttyUSB2"
 lidar_upper_port: "/dev/ttyUSB3"
 
+zed_camera:
+  enabled: true
+  log_level: error
+  delay_sec: 5.0
+  video_device: "/dev/video2"
+  expected_topics:
+    - /zed_node/left/image
+
+# check where the zed camera is connected:
+# v4l2-ctl --list-devices
+
 # RUM THIS TO FIX THE PORTS IF THEY ARE MESSED UP
 # for p in /dev/ttyUSB*; do 
 #     echo -n "$p: "
@@ -170,19 +181,6 @@ cartographer:
   delay_sec: 5.0
   expected_topics:
     - /map
-
-# --- Stage 5b: ZED Camera Driver ---
-zed_camera:
-  enabled: true
-  log_level: error
-  delay_sec: 5.0
-  video_device: "/dev/video2"
-  config_file: "zed_params.yaml"
-  expected_topics:
-    - /zed_node/left/image
-
-# check where the zed camera is connected:
-# v4l2-ctl --list-devices
 
 # --- Stage 6: RViz (Visualization) ---
 rviz:

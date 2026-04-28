@@ -1,13 +1,17 @@
 <?xml version="1.0"?>
-<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypep="xml"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>timbot_launch</name>
   <version>0.0.0</version>
-  <description>Central launch orchestrator for timbot — launches all modules sequentially with health checks</description>
+  <description>Central launch orchestrator and custom driver bypass/splitter for ZED 2.0 fallback</description>
   <maintainer email="your@email.com">Your Name</maintainer>
   <license>TODO: License declaration</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>sensor_msgs</depend>
+  <depend>cv_bridge</depend>
 
   <exec_depend>launch</exec_depend>
   <exec_depend>launch_ros</exec_depend>
