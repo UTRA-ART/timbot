@@ -95,7 +95,7 @@ filter_lidar:
   expected_topics:
     - /scan_modified
 
-cv_pipeline:
+lane_detection:
   enabled: true
   log_level: info
   lane_detection_mode: 1  # 0 = deep learning (YOLO), 1 = classical (HSV threshold)
@@ -116,6 +116,14 @@ cv_pipeline:
     - /zed_node/left/image
   # Normalized coordinates [x1, y1, x2, y2, ...] defining the rover's footprint
   roi_mask_points: [0.4, 1.0, 0.5, 0.6, 0.6, 0.6, 0.7, 1.0]
+
+depth_detection:
+  enabled: true
+  log_level: info
+  config_file: depth_detection.yaml
+  delay_sec: 2.0
+  expected_topics:
+    - /zed_node/left/obstacle_points
 
 # --- Stage 5: Cartographer (SLAM) ---
 cartographer:

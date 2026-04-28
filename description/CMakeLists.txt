@@ -19,6 +19,7 @@ install(DIRECTORY
 
 # Install Python executables
 install(PROGRAMS
+  scripts/pointcloud_frame_relay.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

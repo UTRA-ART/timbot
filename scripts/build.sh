@@ -20,5 +20,18 @@ git apply ../../patches/navsat_fix.patch
 cd ../..
 
 echo "=== Building Workspace ==="
-# 5. Run your standard build command (add any colcon arguments you usually use here)
+
+echo "=== Post-Build: ZED Open Capture Build ==="
+# 10. Build zed_open_source after workspace build
+cd sensor_drivers/zed_open_source
+mkdir -p build
+cd build
+cmake ..
+make -j$(nproc)
+
+# 11. Return to the workspace root
+cd ../../..
+
+# 9. Run your standard build command (add any colcon arguments you usually use here)
 colcon build
+

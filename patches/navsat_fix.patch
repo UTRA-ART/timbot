@@ -33,7 +33,7 @@ index 77a4e57..f4e0fe0 100644
 -        parameters=[config_file])
 +        parameters=[
 +            config_file,
-+            {'port': LaunchConfiguration('serial_port'), 
++            {'port': LaunchConfiguration('serial_port'),
 +             'baud': LaunchConfiguration('gps_baud')},
 +        ])
  

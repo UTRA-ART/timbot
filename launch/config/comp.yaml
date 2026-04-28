@@ -2,7 +2,6 @@
 # Timbot Launch Configuration — Competition
 # =============================================================================
 # Usage: ros2 launch timbot_launch timbot.launch.py config:=comp.yaml
-# on team laptop: __NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia ros2 launch timbot_launch timbot.launch.py config:=comp.yaml
 # =============================================================================
 
 # --- Global Settings ---
@@ -11,10 +10,21 @@ use_topic_check: true  # Set to false to use blind delay_sec instead
 team_laptop: true
 
 # --- Hardware Ports ---
-gps_port: "/dev/ttyUSB0"       # Serial port for GPS (e.g. /dev/ttyUSB0, /dev/ttyACM0)
+gps_port: "/dev/ttyUSB1"       # Serial port for GPS (e.g. /dev/ttyUSB0, /dev/ttyACM0)
 gps_baud: 57600
 lidar_lower_port: "/dev/ttyUSB2"
 lidar_upper_port: "/dev/ttyUSB3"
+
+zed_camera:
+  enabled: true
+  log_level: error
+  delay_sec: 5.0
+  video_device: "/dev/video2"
+  expected_topics:
+    - /zed_node/left/image
+
+# check where the zed camera is connected:
+# v4l2-ctl --list-devices
 
 # RUM THIS TO FIX THE PORTS IF THEY ARE MESSED UP
 # for p in /dev/ttyUSB*; do 
@@ -23,8 +33,23 @@ lidar_upper_port: "/dev/ttyUSB3"
 #     echo ""
 # done
 
+# check where the zed camera is connected:
+# v4l2-ctl --list-devices
+
 # run to check zed camera connection:
 # guvcview -d /dev/video2
+
+# # refresh camera feed:
+# pkill -9 guvcview 2>/dev/null || true
+# pkill -9 usb_cam_node_exe 2>/dev/null || true
+# fuser -k /dev/video2 2>/dev/null || true
+
+# check for empty
+# fuser -v /dev/video2
+
+# if stuck do this:
+# sudo modprobe -r uvcvideo
+# sudo modprobe uvcvideo
 
 # refresh motor connection
 # refresh_motor
@@ -35,6 +60,11 @@ lidar_upper_port: "/dev/ttyUSB3"
 
 # to restart service in the rpi
 # sudo systemctl restart motor_control.service
+
+# # viewing the disparity map:
+# source /opt/ros/humble/setup.bash
+# source ~/timbot/install/setup.bash
+# QT_QPA_PLATFORM=xcb ros2 run image_view disparity_view --ros-args -r /image:=/_zed_internal/disparity
 
 # --- Launch Stages (order matters) ---
 # Each stage runs sequentially. If use_topic_check is true, the next stage 
@@ -113,14 +143,14 @@ filter_lidar:
   expected_topics:
     - /scan_modified
 
-cv_pipeline:
+lane_detection:
   enabled: true
   log_level: info
   lane_detection_mode: 1  # 0 = deep learning (YOLO), 1 = classical (HSV threshold)
   camera_fps: 10
 
-  camera_width: 640
-  camera_height: 320
+  camera_width: 672
+  camera_height: 376
   white_sensitivity: 20 # Lower is stricter, higher accepts more shades of grey
   downscale_factor: 1 # 1 = full res, 2 = half res (faster processing)
   horizon_crop: 0.15 # Percentage of the top of the image to ignore (0.0 to 1.0)
@@ -128,12 +158,21 @@ cv_pipeline:
   morph_size: 0 # Size of the square kernel (e.g., 3 for 3x3, 5 for 5x5)
   morph_open_iters: 0 # Number of 'Opening' passes (removes small noise)
   morph_close_iters: 0 # Number of 'Closing' passes (joins dashed lines)
-  
+  # Normalized coordinates [x1, y1, x2, y2, ...] defining the rover's footprint
+  roi_mask_points: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+
   delay_sec: 5.0
   expected_topics:
     - /zed_node/left/image
-  # Normalized coordinates [x1, y1, x2, y2, ...] defining the rover's footprint
-  roi_mask_points: [0.4, 1.0, 0.5, 0.6, 0.6, 0.6, 0.7, 1.0]
+
+
+depth_detection:
+  enabled: true
+  log_level: info
+  config_file: depth_detection.yaml
+  delay_sec: 2.0
+  expected_topics:
+    - /zed_node/left/obstacle_points
 
 # --- Stage 5: Cartographer (SLAM) ---
 cartographer:
@@ -143,19 +182,6 @@ cartographer:
   delay_sec: 5.0
   expected_topics:
     - /map
-
-# --- Stage 5b: ZED Camera Driver ---
-zed_camera:
-  enabled: true
-  log_level: error
-  delay_sec: 5.0
-  video_device: "/dev/video2"
-  config_file: "zed_params.yaml"
-  expected_topics:
-    - /zed_node/left/image
-
-# check where the zed camera is connected:
-# v4l2-ctl --list-devices
 
 # --- Stage 6: RViz (Visualization) ---
 rviz:

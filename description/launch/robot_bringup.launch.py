@@ -12,9 +12,9 @@ bringup can use it without pulling in the Gazebo bridge or spawn nodes.
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
-from launch.conditions import UnlessCondition
+from launch.conditions import IfCondition, UnlessCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, Command, PathJoinSubstitution
+from launch.substitutions import LaunchConfiguration, Command, PathJoinSubstitution, PythonExpression
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 from launch_ros.parameter_descriptions import ParameterValue
@@ -43,6 +43,13 @@ def generate_launch_description():
         description='Enable ZED camera sensor in URDF'
     )
     enable_camera = LaunchConfiguration('enable_camera')
+
+    enable_lane_detection_arg = DeclareLaunchArgument(
+        'enable_lane_detection',
+        default_value='false',
+        description='Enable lane detection related bringup nodes'
+    )
+    enable_lane_detection = LaunchConfiguration('enable_lane_detection')
 
     camera_fps_arg = DeclareLaunchArgument('camera_fps', default_value='5')
     camera_width_arg = DeclareLaunchArgument('camera_width', default_value='320')
@@ -109,12 +116,34 @@ def generate_launch_description():
         }.items()
     )
 
+    # Point cloud frame relay for RViz in sim. Enabled only when lane detection is enabled.
+    relay_output_frame = PythonExpression([
+        "'left_camera_link' if '", use_sim_time, "' == 'true' else 'left_camera_link_optical'"
+    ])
+
+    pointcloud_relay = Node(
+        package='description',
+        executable='pointcloud_frame_relay.py',
+        name='pointcloud_frame_relay',
+        condition=IfCondition(enable_lane_detection),
+        parameters=[{
+            'use_sim_time': use_sim_time,
+            'input_topic': '/zed_node/left/points',
+            'output_topic': '/zed_node/left/points_rviz',
+            'output_frame_id': relay_output_frame,
+        }],
+        arguments=['--ros-args', '--log-level', log_level],
+        output='screen',
+    )
+
     return LaunchDescription([
         use_sim_time_arg,
         log_level_arg,
         enable_camera_arg,
+        enable_lane_detection_arg,
         camera_fps_arg, camera_width_arg, camera_height_arg,
         joint_state_publisher,
         robot_state_publisher,
         twist_mux,
+        pointcloud_relay,
     ])

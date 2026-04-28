@@ -6,6 +6,8 @@ This directory contains ROS2 packages related to computer vision and image proce
 
 Computer vision packages handle camera interfaces, image processing, object detection, and visual perception tasks.
 
+In timbot orchestrator configs (sim/comp), the lane detection stage key is `lane_detection`.
+
 ## Creating Packages
 
 To create a new computer vision package:
