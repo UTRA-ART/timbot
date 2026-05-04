@@ -29,6 +29,12 @@ def generate_launch_description():
         description='Manual gain value in the range 0-100',
     )
 
+    gamma_arg = DeclareLaunchArgument(
+        'gamma',
+        default_value='5',
+        description='Manual gamma value in the range 1-9',
+    )
+
     left_image_topic_arg = DeclareLaunchArgument(
         'left_image_topic',
         default_value='/zed_node/left/image',
@@ -57,6 +63,7 @@ def generate_launch_description():
                 'auto_exposure': LaunchConfiguration('auto_exposure'),
                 'exposure': LaunchConfiguration('exposure'),
                 'gain': LaunchConfiguration('gain'),
+                'gamma': LaunchConfiguration('gamma'),
                 'left_image_topic': LaunchConfiguration('left_image_topic'),
                 'left_camera_info_topic': LaunchConfiguration('left_camera_info_topic'),
                 'depth_image_topic': LaunchConfiguration('depth_image_topic'),
@@ -70,6 +77,7 @@ def generate_launch_description():
         auto_exposure_arg,
         exposure_arg,
         gain_arg,
+        gamma_arg,
         left_image_topic_arg,
         left_camera_info_topic_arg,
         depth_image_topic_arg,
