@@ -69,10 +69,12 @@ public:
     declare_parameter("auto_exposure", true);
     declare_parameter("exposure", 50);
     declare_parameter("gain", 50);
+    declare_parameter("gamma", 5);
     std::string video_device = get_parameter("video_device").as_string();
     const bool auto_exposure = get_parameter("auto_exposure").as_bool();
     const int exposure = get_parameter("exposure").as_int();
     const int gain = get_parameter("gain").as_int();
+    const int gamma = get_parameter("gamma").as_int();
 
     // Setup ROS Publishers
     left_pub_ = create_publisher<sensor_msgs::msg::Image>(left_image_topic_, rclcpp::SensorDataQoS());
@@ -105,10 +107,12 @@ public:
       cap_->setExposure(sl_oc::video::CAM_SENS_POS::RIGHT, exposure);
       cap_->setGain(sl_oc::video::CAM_SENS_POS::LEFT, gain);
       cap_->setGain(sl_oc::video::CAM_SENS_POS::RIGHT, gain);
+      cap_->setGamma(sl_oc::video::CAM_SENS_POS::LEFT, gamma);
+      cap_->setGamma(sl_oc::video::CAM_SENS_POS::RIGHT, gamma);
       RCLCPP_INFO(
         get_logger(),
-        "Using manual exposure: %d and gain: %d (applied to both sensors)",
-        exposure, gain);
+        "Using manual exposure: %d, gain: %d, and gamma: %d (applied to both sensors)",
+        exposure, gain, gamma);
     }
 
     // 2. Auto-load calibration from the driver/server
