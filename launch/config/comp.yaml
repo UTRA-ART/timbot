@@ -20,9 +20,9 @@ zed_camera:
   log_level: error
   delay_sec: 5.0
   video_device: "/dev/video2"
-  auto_exposure: true # if false, uses the manual exposure value below
-  exposure: 50 # 0-100
-  gain: 50 # 0-100
+  auto_exposure: true
+  exposure: 50 # 0-100, only used if auto_exposure is false
+  gain: 50 # 0-100, only used if auto_exposure is false
   expected_topics:
     - /zed_node/left/image
 
