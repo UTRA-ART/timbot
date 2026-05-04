@@ -22,6 +22,7 @@ zed_camera:
   video_device: "/dev/video2"
   auto_exposure: true # if false, uses the manual exposure value below
   exposure: 50 # 0-100
+  gain: 50 # 0-100
   expected_topics:
     - /zed_node/left/image
 

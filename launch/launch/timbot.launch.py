@@ -404,6 +404,7 @@ def build_hardware_driver_stages(config: dict) -> list:
     zed_video_device = zed_cfg.get('video_device', '/dev/video3')
     zed_auto_exposure = str(zed_cfg.get('auto_exposure', True)).lower()
     zed_exposure = str(zed_cfg.get('exposure', 50))
+    zed_gain = str(zed_cfg.get('gain', 50))
 
     zed_stage = (
         'Driver: ZED Open Capture',
@@ -411,6 +412,7 @@ def build_hardware_driver_stages(config: dict) -> list:
             'video_device': zed_video_device,
             'auto_exposure': zed_auto_exposure,
             'exposure': zed_exposure,
+            'gain': zed_gain,
         }),
         zed_expected_topics,
         zed_delay_sec,
