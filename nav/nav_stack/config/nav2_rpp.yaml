@@ -233,6 +233,9 @@ controller_server:
       # rotate_to_goal_heading: false
 
       plugin: "nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"
+      max_linear_vel: 0.2
+      max_angular_vel: 1.25
+      max_angular_accel: 1.6
     # short_circuit_trajectory_evaluation: false
   
     

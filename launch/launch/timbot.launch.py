@@ -396,7 +396,13 @@ def build_hardware_driver_stages(config: dict) -> list:
     gps_port        = config.get('gps_port',        '/dev/ttyUSB0')
     gps_baud = str(config.get('gps_baud', '9600'))
     lidar_lower_port = config.get('lidar_lower_port', '/dev/ttyUSB3')
-    lidar_upper_port = config.get('lidar_upper_port', '/dev/ttyUSB4')
+    # lidar_upper_port = config.get('lidar_upper_port', '/dev/ttyUSB4')
+    team_laptop = config.get('team_laptop', False)
+    refresh_motors_cmd = (
+        "echo \"Kicking ROS 2 Daemon...\"; "
+        "ros2 daemon stop && ros2 daemon start; "
+        "echo \"Scanning for topics...\" && ros2 topic list"
+    )
 
     zed_cfg = config.get('zed_camera', {})
     zed_expected_topics = zed_cfg.get('expected_topics', ['/zed_node/left/image'])
@@ -411,8 +417,13 @@ def build_hardware_driver_stages(config: dict) -> list:
         zed_expected_topics,
         zed_delay_sec,
     )
-
-    return [
+    driver_stages = [
+        # (
+        #     'Running refresh_motor command',
+        #     _exec_driver(cmd=refresh_motors_cmd, name='refresh_motors'),
+        #     [],
+        #     2.0,
+        # ),
         (
             'Driver: GPS',
             _hw_driver('nmea_navsat_driver', 'nmea_serial_driver.launch.py', {
@@ -438,15 +449,15 @@ def build_hardware_driver_stages(config: dict) -> list:
             ['/scan_lower'],
             5.0,
         ),
-        (
-            'Driver: LiDAR Upper',
-            _hw_driver('rplidar_ros', 'rplidar_a1_launch.py', {
-                'serial_port': lidar_upper_port,
-                'frame_id': 'top_lidar_link',
-            }, remappings=[('/scan', '/scan_upper')]),
-            ['/scan_upper'],
-            5.0,
-        ),
+        # (
+        #     'Driver: LiDAR Upper',
+        #     _hw_driver('rplidar_ros', 'rplidar_a1_launch.py', {
+        #         'serial_port': lidar_upper_port,
+        #         'frame_id': 'top_lidar_link',
+        #     }, remappings=[('/scan', '/scan_upper')]),
+        #     ['/scan_upper'],
+        #     5.0,
+        # ),
         zed_stage,
         (
             'Driver: RPi Sync',
@@ -455,6 +466,9 @@ def build_hardware_driver_stages(config: dict) -> list:
             3.0,
         ),
     ]
+    # if not team_laptop:
+    #     return driver_stages[1:]
+    return driver_stages
 
 
 # =============================================================================
