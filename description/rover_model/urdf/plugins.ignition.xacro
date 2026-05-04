@@ -221,7 +221,7 @@
         </sensor>
     </gazebo>
 
-    <!-- Stereo Camera (left) — only included when enable_camera arg is true -->
+    <!-- Stereo Camera (left) — 0 -->
     <xacro:if value="$(arg enable_camera)">
     <gazebo reference="left_camera_link">
         <sensor name="camera_left" type="rgbd_camera">

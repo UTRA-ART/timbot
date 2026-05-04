@@ -178,7 +178,7 @@ def main(args=None):
     autonomous_mode = False
     mode_pub = node.create_publisher(Bool, '/pause_navigation', 1)
 
-    x = -1
+    x = 1
     y = 0
     z = 0
     th = 1
@@ -255,7 +255,7 @@ def main(args=None):
                 if key == '' and autonomous_mode:
                     continue
                 elif key != '':
-                    x = -1
+                    x = 1
                     y = 0
                     z = 0
                     th = 1

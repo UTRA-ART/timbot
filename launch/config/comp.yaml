@@ -12,8 +12,8 @@ team_laptop: true
 # --- Hardware Ports ---
 gps_port: "/dev/ttyUSB1"       # Serial port for GPS (e.g. /dev/ttyUSB0, /dev/ttyACM0)
 gps_baud: 57600
-lidar_lower_port: "/dev/ttyUSB2"
-lidar_upper_port: "/dev/ttyUSB3"
+lidar_lower_port: "/dev/lidar_port_0"
+lidar_upper_port: "/dev/lidar_port_1"
 
 zed_camera:
   enabled: true
@@ -129,7 +129,7 @@ filter_lidar:
   log_level: error
   delay_sec: 2.0
   main_lidar_topic: /scan_lower
-  upper_lidar_topic: /scan_upper
+  upper_lidar_topic: /scan_lower
   out_topic: /scan_modified
   distance_to_second_lidar: 0.14
   max_theta_degrees: 20.0
@@ -153,7 +153,7 @@ lane_detection:
   camera_height: 376
   white_sensitivity: 20 # Lower is stricter, higher accepts more shades of grey
   downscale_factor: 1 # 1 = full res, 2 = half res (faster processing)
-  horizon_crop: 0.15 # Percentage of the top of the image to ignore (0.0 to 1.0)
+  horizon_crop: 0.0 # Percentage of the top of the image to ignore (0.0 to 1.0)
 
   morph_size: 0 # Size of the square kernel (e.g., 3 for 3x3, 5 for 5x5)
   morph_open_iters: 0 # Number of 'Opening' passes (removes small noise)

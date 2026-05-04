@@ -16,3 +16,5 @@ ros2 launch timbot_launch timbot.launch.py config:=comp.yaml
 
 # if smth doesn't work, then update the hardware ports in the comp.yaml 
 # figure out the ports by running the commands under the ports in the yaml file
+
+colcon build --packages-select motor_control

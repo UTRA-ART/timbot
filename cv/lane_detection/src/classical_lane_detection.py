@@ -99,7 +99,7 @@ class ClassicalLaneDetector:
         
         # 2. Find lines
         # rho=1, theta=pi/180, threshold=50, minLineLength=50, maxLineGap=20
-        lines = cv2.HoughLinesP(edges, 1, np.pi/180, 50, minLineLength=50, maxLineGap=20)
+        lines = cv2.HoughLinesP(binary_mask, 1, np.pi/180, 50, minLineLength=50, maxLineGap=20)
         
         hough_mask = np.zeros_like(binary_mask)
         if lines is not None:
@@ -159,7 +159,7 @@ class ClassicalLaneDetector:
         # lanes = self._apply_hough_filter(lanes)
 
         # Filter by area
-        lanes = self._filter_by_area(lanes, min_area=150)
+        lanes = self._filter_by_area(lanes, min_area=300)
 
         # Generate Barrel Mask and Expand it
         barrels = self._get_mask(img_hsv, self._create_orange_mask)
