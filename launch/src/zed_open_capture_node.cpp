@@ -107,8 +107,7 @@ public:
       cap_->setExposure(sl_oc::video::CAM_SENS_POS::RIGHT, exposure);
       cap_->setGain(sl_oc::video::CAM_SENS_POS::LEFT, gain);
       cap_->setGain(sl_oc::video::CAM_SENS_POS::RIGHT, gain);
-      cap_->setGamma(sl_oc::video::CAM_SENS_POS::LEFT, gamma);
-      cap_->setGamma(sl_oc::video::CAM_SENS_POS::RIGHT, gamma);
+      cap_->setGamma(gamma);
       RCLCPP_INFO(
         get_logger(),
         "Using manual exposure: %d, gain: %d, and gamma: %d (applied to both sensors)",
