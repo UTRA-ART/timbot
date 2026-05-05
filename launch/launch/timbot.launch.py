@@ -398,11 +398,12 @@ def build_hardware_driver_stages(config: dict) -> list:
     lidar_lower_port = config.get('lidar_lower_port', '/dev/ttyUSB3')
     # lidar_upper_port = config.get('lidar_upper_port', '/dev/ttyUSB4')
     team_laptop = config.get('team_laptop', False)
-    refresh_motors_cmd = (
-        "echo \"Kicking ROS 2 Daemon...\"; "
-        "ros2 daemon stop && ros2 daemon start; "
-        "echo \"Scanning for topics...\" && ros2 topic list"
-    )
+    refresh_motors_cmd = [
+    'bash', 
+    '-c', 
+    'echo "Kicking ROS 2 Daemon..."; ros2 daemon stop && ros2 daemon start; echo "Scanning for topics..." && ros2 topic list'
+]
+
 
     zed_cfg = config.get('zed_camera', {})
     zed_expected_topics = zed_cfg.get('expected_topics', ['/zed_node/left/image'])
@@ -426,12 +427,12 @@ def build_hardware_driver_stages(config: dict) -> list:
         zed_delay_sec,
     )
     driver_stages = [
-        # (
-        #     'Running refresh_motor command',
-        #     _exec_driver(cmd=refresh_motors_cmd, name='refresh_motors'),
-        #     [],
-        #     2.0,
-        # ),
+        (
+            'Running refresh_motor command',
+            _exec_driver(cmd=refresh_motors_cmd, name='refresh_motors'),
+            [],
+            2.0,
+        ),
         (
             'Driver: GPS',
             _hw_driver('nmea_navsat_driver', 'nmea_serial_driver.launch.py', {
@@ -474,8 +475,7 @@ def build_hardware_driver_stages(config: dict) -> list:
             3.0,
         ),
     ]
-    # if not team_laptop:
-    #     return driver_stages[1:]
+
     return driver_stages
 
 
