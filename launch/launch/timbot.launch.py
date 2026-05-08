@@ -245,6 +245,9 @@ def launch_cartographer(config: dict, sim: bool, context: LaunchContext) -> list
         ],
         remappings=[
             ('scan', '/scan_modified'),
+            ('points2_1', '/zed_node/left/obstacle_points'),
+            ('points2_2', '/cv/lane_detections_cloud'),
+            ('odom', '/odometry/local'),
             ('imu', '/imu/data'),
             ('fix', '/gps/fix_cov'),
         ]
