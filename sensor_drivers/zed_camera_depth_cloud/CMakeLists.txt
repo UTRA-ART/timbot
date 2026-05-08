@@ -5,7 +5,13 @@ find_package(ament_cmake REQUIRED)
 
 install(PROGRAMS
   src/depth_to_pointcloud.py
+  src/pointcloud_filter.py
   DESTINATION lib/${PROJECT_NAME}
+)
+
+install(DIRECTORY
+  launch
+  DESTINATION share/${PROJECT_NAME}
 )
 
 ament_package()

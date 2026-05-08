@@ -172,6 +172,34 @@ def launch_cv(config: dict, sim: bool, context: LaunchContext) -> list:
     )
     return [cv_launch]
 
+
+def launch_pointcloud_filter(config: dict, sim: bool, context: LaunchContext) -> list:
+    pc_cfg = config.get('pointcloud_filter', {})
+
+    pointcloud_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([
+            FindPackageShare('zed_camera_depth_cloud'),
+            '/launch/pointcloud_filter.launch.py'
+        ]),
+        launch_arguments={
+            'use_sim_time': str(sim).lower(),
+            'input_pointcloud_topic': str(
+                pc_cfg.get('input_pointcloud_topic', '/zed_node/left/points')
+            ),
+            'pointcloud_topic': str(
+                pc_cfg.get('pointcloud_topic', '/zed_node/left/points/filtered')
+            ),
+            'obstacle_pointcloud_topic': str(
+                pc_cfg.get('obstacle_pointcloud_topic', '/zed_node/left/points/obstacles')
+            ),
+            'ramp_pointcloud_topic': str(
+                pc_cfg.get('ramp_pointcloud_topic', '/zed_node/left/points/ramps')
+            ),
+            'frame_id': str(pc_cfg.get('frame_id', 'left_camera_link_optical')),
+        }.items()
+    )
+    return [pointcloud_launch]
+
 def launch_cartographer(config: dict, sim: bool, context: LaunchContext) -> list:
     carto_cfg = config.get('cartographer', {})
     log_level = carto_cfg.get('log_level', 'info')
@@ -292,6 +320,7 @@ LAUNCH_STAGES = [
     ('Odom State',     'odom_state',     launch_odom_state),
     ('Filter Lidar',   'filter_lidar',   launch_filter_lidar),
     ('CV Pipeline',    'cv_pipeline',    launch_cv),
+    ('PointCloud Filter', 'pointcloud_filter', launch_pointcloud_filter),
     ('Cartographer',   'cartographer',   launch_cartographer),
     ('RViz',           'rviz',           launch_rviz),
     ('Nav Stack',      'nav_stack',      launch_nav_stack),
