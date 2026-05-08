@@ -101,22 +101,7 @@ cv_pipeline:
   # Normalized coordinates [x1, y1, x2, y2, ...] defining the rover's footprint
   roi_mask_points: [0.4, 1.0, 0.5, 0.6, 0.6, 0.6, 0.7, 1.0]
 
-# --- Stage 5: ZED PointCloud Filter ---
-pointcloud_filter:
-  enabled: true
-  log_level: info
-  delay_sec: 2.0
-  input_pointcloud_topic: /zed_node/left/points
-  pointcloud_topic: /zed_node/left/points/filtered
-  obstacle_pointcloud_topic: /zed_node/left/points/obstacles
-  ramp_pointcloud_topic: /zed_node/left/points/ramps
-  frame_id: left_camera_link_optical
-  expected_topics:
-    - /zed_node/left/points/filtered
-    - /zed_node/left/points/obstacles
-    - /zed_node/left/points/ramps
-
-# --- Stage 6: Cartographer (SLAM) ---
+# --- Stage 5: Cartographer (SLAM) ---
 cartographer:
   enabled: true
   config_file: cartographer.lua
@@ -125,7 +110,7 @@ cartographer:
   expected_topics:
     - /map
 
-# --- Stage 7: RViz (Visualization) ---
+# --- Stage 6: RViz (Visualization) ---
 rviz:
   enabled: true
   log_level: error
@@ -133,7 +118,7 @@ rviz:
   rviz_config: timbot.rviz
   expected_topics: []
 
-# --- Stage 8: Nav2 Stack ---
+# --- Stage 7: Nav2 Stack ---
 nav_stack:
   enabled: true
   config_file: nav2_rpp.yaml
@@ -143,7 +128,7 @@ nav_stack:
     - /local_costmap/costmap
     - /global_costmap/costmap
 
-# --- Stage 9: Load Waypoints ---
+# --- Stage 8: Load Waypoints ---
 load_waypoints:
   enabled: true
   config_file: sim_waypoints_fixed.json
