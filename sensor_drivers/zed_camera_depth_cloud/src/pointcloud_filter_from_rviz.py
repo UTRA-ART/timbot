@@ -91,19 +91,6 @@ class PointCloudRVizFilter(Node):
 
         self.get_logger().info(f'Filtering {self.input_topic} -> {self.filtered_topic},{self.obstacle_topic},{self.ramp_topic}')
 
-    def optical_to_base(self, x_opt: float, y_opt: float, z_opt: float) -> tuple:
-        # Optical frame uses x right, y down, z forward.
-        # Convert to the camera frame expected by the URDF mount:
-        # x forward, y left, z up.
-        x_cam = z_opt
-        y_cam = -x_opt
-        z_cam = -y_opt
-
-        x_base = self.cos_pitch * x_cam + self.sin_pitch * z_cam + self.camera_offset_x
-        y_base = y_cam + self.camera_offset_y
-        z_base = -self.sin_pitch * x_cam + self.cos_pitch * z_cam + self.camera_offset_z
-        return x_base, y_base, z_base
-
     def cloud_callback(self, msg: PointCloud2):
         # Read points
         points_iter = point_cloud2.read_points(msg, field_names=("x", "y", "z"), skip_nans=True)
@@ -118,25 +105,26 @@ class PointCloudRVizFilter(Node):
         header.stamp = msg.header.stamp
         header.frame_id = msg.header.frame_id
 
-        # Apply ROI/height filtering using base-frame coordinates
+        # Apply ROI/height filtering directly on left_camera_link coordinates
+        # (no optical_to_base transform; points_rviz frame is source of truth)
         filtered = []
         ramp_candidates = []
-        for x_o, y_o, z_o in points:
-            x_base, y_base, z_base = self.optical_to_base(x_o, y_o, z_o)
+        for x_cam, y_cam, z_cam in points:
+            # x_cam: forward (X in camera frame), y_cam: lateral, z_cam: height
             if self.filter_by_roi:
-                if x_base < self.min_forward or x_base > self.max_forward:
+                if x_cam < self.min_forward or x_cam > self.max_forward:
                     continue
-                if y_base < self.min_lateral or y_base > self.max_lateral:
+                if y_cam < self.min_lateral or y_cam > self.max_lateral:
                     continue
             if self.filter_by_height:
-                if z_base < self.min_height or z_base > self.max_height:
+                if z_cam < self.min_height or z_cam > self.max_height:
                     continue
-            filtered.append((x_o, y_o, z_o))
+            filtered.append((x_cam, y_cam, z_cam))
             # collect ramp candidates within forward distance and lateral center
             if self.classify_ramps:
-                if x_base <= self.max_ramp_detection_distance and abs(y_base) <= self.ramp_center_lateral_limit:
-                    if z_base >= self.ramp_grid_min_height and z_base <= self.ramp_grid_max_height:
-                        ramp_candidates.append((x_o, y_o, z_o))
+                if x_cam <= self.max_ramp_detection_distance and abs(y_cam) <= self.ramp_center_lateral_limit:
+                    if z_cam >= self.ramp_grid_min_height and z_cam <= self.ramp_grid_max_height:
+                        ramp_candidates.append((x_cam, y_cam, z_cam))
 
         # Publish filtered cloud
         cloud_filtered = point_cloud2.create_cloud_xyz32(header, filtered)
