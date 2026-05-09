@@ -3,15 +3,14 @@
   <name>zed_camera_depth_cloud</name>
   <version>0.0.0</version>
   <description>ZED depth to pointcloud utilities</description>
-  <maintainer email="root@localhost">root</maintainer>
+  <maintainer email="robot@localhost.local">robot</maintainer>
   <license>Apache-2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
-  <depend>rclpy</depend>
-  <depend>sensor_msgs</depend>
-  <depend>cv_bridge</depend>
-  <depend>sensor_msgs_py</depend>
-
+  
   <exec_depend>rclpy</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>cv_bridge</exec_depend>
+  <exec_depend>sensor_msgs_py</exec_depend>
   <exec_depend>python3</exec_depend>
 </package>
