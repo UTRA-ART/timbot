@@ -5,6 +5,7 @@ import math
 import numpy as np
 import rclpy
 from cv_bridge import CvBridge
+from rcl_interfaces.msg import SetParametersResult
 from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
@@ -34,6 +35,10 @@ class DepthToPointCloud(Node):
         self.declare_parameter('filter_by_height', True)
         self.declare_parameter('min_height', 0.05)
         self.declare_parameter('max_height', 2.0)
+        self.declare_parameter('use_distance_height_filter', True)
+        self.declare_parameter('height_filter_slope', 0.015)
+        self.declare_parameter('height_filter_start_distance', 1.0)
+        self.declare_parameter('height_filter_max_extra', 0.10)
         self.declare_parameter('camera_pitch_deg', 25.0)
         self.declare_parameter('camera_offset_x', 0.222173)
         self.declare_parameter('camera_offset_y', 0.061524)
@@ -80,6 +85,21 @@ class DepthToPointCloud(Node):
         self.filter_by_height = bool(self.get_parameter('filter_by_height').value)
         self.min_height = float(self.get_parameter('min_height').value)
         self.max_height = float(self.get_parameter('max_height').value)
+        self.use_distance_height_filter = bool(
+            self.get_parameter('use_distance_height_filter').value
+        )
+        self.height_filter_slope = max(
+            0.0,
+            float(self.get_parameter('height_filter_slope').value),
+        )
+        self.height_filter_start_distance = max(
+            0.0,
+            float(self.get_parameter('height_filter_start_distance').value),
+        )
+        self.height_filter_max_extra = max(
+            0.0,
+            float(self.get_parameter('height_filter_max_extra').value),
+        )
         self.camera_pitch_rad = math.radians(float(self.get_parameter('camera_pitch_deg').value))
         self.camera_offset_x = float(self.get_parameter('camera_offset_x').value)
         self.camera_offset_y = float(self.get_parameter('camera_offset_y').value)
@@ -162,6 +182,7 @@ class DepthToPointCloud(Node):
         self.cluster_metadata = []
         self.ramp_metadata = []
         self.ramp_points = []
+        self.add_on_set_parameters_callback(self.parameters_callback)
 
         self.publisher = self.create_publisher(PointCloud2, self.pointcloud_topic, 10)
         self.obstacle_publisher = self.create_publisher(
@@ -210,6 +231,87 @@ class DepthToPointCloud(Node):
             f'ramp_slope_range=[{self.min_ramp_slope_deg:.2f}, {self.max_ramp_slope_deg:.2f}] deg, '
             f'ramp_grid_resolution={self.ramp_grid_resolution:.2f} m)'
         )
+
+    def parameters_callback(self, params):
+        for param in params:
+            name = param.name
+            value = param.value
+            try:
+                if name in (
+                    'filter_by_roi',
+                    'filter_by_height',
+                    'voxel_downsample_obstacles',
+                    'cluster_obstacles',
+                    'classify_ramps',
+                    'use_distance_height_filter',
+                    'log_cluster_metadata',
+                ):
+                    setattr(self, name, bool(value))
+                elif name in (
+                    'min_depth',
+                    'max_depth',
+                    'min_forward',
+                    'max_forward',
+                    'min_lateral',
+                    'max_lateral',
+                    'min_height',
+                    'max_height',
+                    'camera_offset_x',
+                    'camera_offset_y',
+                    'camera_offset_z',
+                    'height_filter_slope',
+                    'max_ramp_detection_distance',
+                    'ramp_grid_min_height',
+                    'ramp_grid_max_height',
+                    'min_ramp_slope_deg',
+                    'max_ramp_slope_deg',
+                ):
+                    setattr(self, name, float(value))
+                elif name == 'camera_pitch_deg':
+                    self.camera_pitch_rad = math.radians(float(value))
+                    self.cos_pitch = math.cos(self.camera_pitch_rad)
+                    self.sin_pitch = math.sin(self.camera_pitch_rad)
+                elif name == 'voxel_size':
+                    value = float(value)
+                    if value <= 0.0:
+                        return SetParametersResult(successful=False, reason='voxel_size must be > 0')
+                    self.voxel_size = value
+                elif name == 'cluster_tolerance':
+                    value = float(value)
+                    if value <= 0.0:
+                        return SetParametersResult(successful=False, reason='cluster_tolerance must be > 0')
+                    self.cluster_tolerance = value
+                elif name == 'ramp_grid_resolution':
+                    value = float(value)
+                    if value <= 0.0:
+                        return SetParametersResult(successful=False, reason='ramp_grid_resolution must be > 0')
+                    self.ramp_grid_resolution = value
+                elif name in (
+                    'ramp_center_lateral_limit',
+                    'min_ramp_forward_length',
+                    'min_ramp_width',
+                    'max_ramp_width',
+                    'max_ramp_height',
+                    'ramp_grid_spike_height',
+                    'height_filter_start_distance',
+                    'height_filter_max_extra',
+                ):
+                    setattr(self, name, max(0.0, float(value)))
+                elif name in (
+                    'pixel_stride',
+                    'min_cluster_points',
+                    'cluster_metadata_log_period',
+                    'min_ramp_points',
+                    'ramp_grid_min_points_per_cell',
+                    'ramp_grid_min_connected_cells',
+                ):
+                    setattr(self, name, max(1, int(value)))
+                elif name == 'max_cluster_points':
+                    self.max_cluster_points = max(0, int(value))
+            except (TypeError, ValueError) as exc:
+                return SetParametersResult(successful=False, reason=f'invalid {name}: {exc}')
+
+        return SetParametersResult(successful=True)
 
     def voxel_downsample(self, points: list) -> list:
         if not self.voxel_downsample_obstacles or not points:
@@ -365,6 +467,17 @@ class DepthToPointCloud(Node):
             for forward, height in zip(forward_values, height_values)
         )
         return covariance / variance_forward
+
+    def effective_min_height(self, x_forward: float) -> float:
+        if not self.use_distance_height_filter:
+            return self.min_height
+
+        extra_height = max(
+            0.0,
+            x_forward - self.height_filter_start_distance,
+        ) * self.height_filter_slope
+        extra_height = min(extra_height, self.height_filter_max_extra)
+        return self.min_height + extra_height
 
     def detect_ramp_points_from_elevation_grid(self, points: list) -> list:
         if not self.classify_ramps or not points:
@@ -666,7 +779,8 @@ class DepthToPointCloud(Node):
                         continue
                 terrain_points.append((x, y, z))
                 if self.filter_by_height:
-                    if z_base < self.min_height or z_base > self.max_height:
+                    min_height = self.effective_min_height(x_base)
+                    if z_base < min_height or z_base > self.max_height:
                         continue
                 points.append((x, y, z))
 

@@ -58,6 +58,12 @@ def generate_launch_description():
     camera_width = LaunchConfiguration('camera_width')
     camera_height = LaunchConfiguration('camera_height')
 
+    shared_depth_params = PathJoinSubstitution([
+        FindPackageShare('depth_detection'),
+        'config',
+        'depth_detection.yaml',
+    ])
+
     # --- Robot Description (URDF via xacro) ---
     robot_description_content = ParameterValue(
         Command([
@@ -141,9 +147,7 @@ def generate_launch_description():
         name='pointcloud_rviz_filter',
         condition=IfCondition(enable_lane_detection),
         executable='/media/robotswithai/data1/utra/install/zed_camera_depth_cloud/lib/zed_camera_depth_cloud/pointcloud_filter_from_rviz.py',
-        parameters=[{
-            'use_sim_time': use_sim_time,
-        }],
+        parameters=[shared_depth_params, {'use_sim_time': use_sim_time}],
         arguments=['--ros-args', '--log-level', log_level],
         output='screen',
     )
