@@ -120,10 +120,10 @@ class PointCloudRVizFilter(Node):
                 if z_cam < self.min_height or z_cam > self.max_height:
                     continue
             filtered.append((x_cam, y_cam, z_cam))
-            # Ramp candidates: same ROI/height constraints as filtered points
+            # Ramp candidates use the looser ramp grid height band so near-ground slopes remain visible.
             if self.classify_ramps:
                 if x_cam <= self.max_ramp_detection_distance and abs(y_cam) <= self.ramp_center_lateral_limit:
-                    if z_cam >= self.min_height and z_cam <= self.max_height:
+                    if z_cam >= self.ramp_grid_min_height and z_cam <= self.ramp_grid_max_height:
                         ramp_candidates.append((x_cam, y_cam, z_cam))
 
         # Publish filtered cloud
