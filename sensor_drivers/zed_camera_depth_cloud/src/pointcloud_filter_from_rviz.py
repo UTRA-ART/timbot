@@ -4,6 +4,7 @@ import math
 
 import numpy as np
 import rclpy
+from rcl_interfaces.msg import SetParametersResult
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
 from sensor_msgs.msg import PointCloud2
@@ -30,6 +31,10 @@ class PointCloudRVizFilter(Node):
         self.declare_parameter('filter_by_height', True)
         self.declare_parameter('min_height', 0.05)
         self.declare_parameter('max_height', 2.0)
+        self.declare_parameter('use_distance_height_filter', True)
+        self.declare_parameter('height_filter_slope', 0.015)
+        self.declare_parameter('height_filter_start_distance', 1.0)
+        self.declare_parameter('height_filter_max_extra', 0.10)
         self.declare_parameter('camera_pitch_deg', 25.0)
         self.declare_parameter('camera_offset_x', 0.222173)
         self.declare_parameter('camera_offset_y', 0.061524)
@@ -73,6 +78,13 @@ class PointCloudRVizFilter(Node):
         self.filter_by_height = bool(self.get_parameter('filter_by_height').value)
         self.min_height = float(self.get_parameter('min_height').value)
         self.max_height = float(self.get_parameter('max_height').value)
+        self.use_distance_height_filter = bool(self.get_parameter('use_distance_height_filter').value)
+        self.height_filter_slope = max(0.0, float(self.get_parameter('height_filter_slope').value))
+        self.height_filter_start_distance = max(
+            0.0,
+            float(self.get_parameter('height_filter_start_distance').value),
+        )
+        self.height_filter_max_extra = max(0.0, float(self.get_parameter('height_filter_max_extra').value))
         self.camera_pitch_rad = math.radians(float(self.get_parameter('camera_pitch_deg').value))
         self.camera_offset_x = float(self.get_parameter('camera_offset_x').value)
         self.camera_offset_y = float(self.get_parameter('camera_offset_y').value)
@@ -115,6 +127,7 @@ class PointCloudRVizFilter(Node):
         self.ramp_grid_spike_height = max(0.0, float(self.get_parameter('ramp_grid_spike_height').value))
         self.ramp_grid_min_height = float(self.get_parameter('ramp_grid_min_height').value)
         self.ramp_grid_max_height = float(self.get_parameter('ramp_grid_max_height').value)
+        self.add_on_set_parameters_callback(self.parameters_callback)
 
         # Publishers
         self.pub_filtered = self.create_publisher(PointCloud2, self.filtered_topic, 10)
@@ -125,6 +138,93 @@ class PointCloudRVizFilter(Node):
         self.create_subscription(PointCloud2, self.input_topic, self.cloud_callback, qos_profile_sensor_data)
 
         self.get_logger().info(f'Filtering {self.input_topic} -> {self.filtered_topic},{self.obstacle_topic},{self.ramp_topic}')
+
+    def parameters_callback(self, params):
+        for param in params:
+            name = param.name
+            value = param.value
+            try:
+                if name in (
+                    'filter_by_roi',
+                    'filter_by_height',
+                    'voxel_downsample_obstacles',
+                    'cluster_obstacles',
+                    'classify_ramps',
+                    'use_distance_height_filter',
+                ):
+                    setattr(self, name, bool(value))
+                elif name in (
+                    'min_forward',
+                    'max_forward',
+                    'min_lateral',
+                    'max_lateral',
+                    'min_height',
+                    'max_height',
+                    'camera_offset_x',
+                    'camera_offset_y',
+                    'camera_offset_z',
+                    'height_filter_slope',
+                    'max_ramp_detection_distance',
+                    'ramp_grid_min_height',
+                    'ramp_grid_max_height',
+                    'min_ramp_slope_deg',
+                    'max_ramp_slope_deg',
+                ):
+                    setattr(self, name, float(value))
+                elif name == 'camera_pitch_deg':
+                    self.camera_pitch_rad = math.radians(float(value))
+                    self.cos_pitch = math.cos(self.camera_pitch_rad)
+                    self.sin_pitch = math.sin(self.camera_pitch_rad)
+                elif name == 'voxel_size':
+                    value = float(value)
+                    if value <= 0.0:
+                        return SetParametersResult(successful=False, reason='voxel_size must be > 0')
+                    self.voxel_size = value
+                elif name == 'cluster_tolerance':
+                    value = float(value)
+                    if value <= 0.0:
+                        return SetParametersResult(successful=False, reason='cluster_tolerance must be > 0')
+                    self.cluster_tolerance = value
+                elif name == 'ramp_grid_resolution':
+                    value = float(value)
+                    if value <= 0.0:
+                        return SetParametersResult(successful=False, reason='ramp_grid_resolution must be > 0')
+                    self.ramp_grid_resolution = value
+                elif name in (
+                    'ramp_center_lateral_limit',
+                    'min_ramp_forward_length',
+                    'min_ramp_width',
+                    'max_ramp_width',
+                    'max_ramp_height',
+                    'ramp_grid_spike_height',
+                    'height_filter_start_distance',
+                    'height_filter_max_extra',
+                ):
+                    setattr(self, name, max(0.0, float(value)))
+                elif name in (
+                    'min_cluster_points',
+                    'min_ramp_points',
+                    'ramp_grid_min_points_per_cell',
+                    'ramp_grid_min_connected_cells',
+                ):
+                    setattr(self, name, max(1, int(value)))
+                elif name == 'max_cluster_points':
+                    self.max_cluster_points = max(0, int(value))
+            except (TypeError, ValueError) as exc:
+                return SetParametersResult(successful=False, reason=f'invalid {name}: {exc}')
+
+        return SetParametersResult(successful=True)
+
+    def effective_min_height(self, x_forward: float) -> float:
+        if not self.use_distance_height_filter:
+            return self.min_height
+
+        extra_height = max(
+            0.0,
+            x_forward - self.height_filter_start_distance,
+        ) * self.height_filter_slope
+        extra_height = min(extra_height, self.height_filter_max_extra)
+        return self.min_height + extra_height
 
     def voxel_downsample(self, points: list) -> list:
         if not self.voxel_downsample_obstacles or not points:
@@ -399,7 +499,8 @@ class PointCloudRVizFilter(Node):
                     continue
             terrain_points.append((x_cam, y_cam, z_cam))
             if self.filter_by_height:
-                if z_cam < self.min_height or z_cam > self.max_height:
+                min_height = self.effective_min_height(x_cam)
+                if z_cam < min_height or z_cam > self.max_height:
                     continue
             filtered.append((x_cam, y_cam, z_cam))
 
