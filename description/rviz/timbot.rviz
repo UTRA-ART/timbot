@@ -318,7 +318,7 @@ Visualization Manager:
       Max Intensity: 4096
       Min Color: 0; 0; 0
       Min Intensity: 0
-      Name: Filtered Point Cloud
+      Name: ZED Filtered Point Cloud
       Position Transformer: XYZ
       Selectable: true
       Size (Pixels): 2
@@ -352,7 +352,7 @@ Visualization Manager:
       Max Intensity: 4096
       Min Color: 0; 0; 0
       Min Intensity: 0
-      Name: Obstacles Voxel Grid
+      Name: ZED Obstacles Voxel Grid
       Position Transformer: XYZ
       Selectable: true
       Size (Pixels): 3
@@ -386,7 +386,7 @@ Visualization Manager:
       Max Intensity: 4096
       Min Color: 0; 0; 0
       Min Intensity: 0
-      Name: Ramps Detection
+      Name: ZED Ramps Detection
       Position Transformer: XYZ
       Selectable: true
       Size (Pixels): 3
