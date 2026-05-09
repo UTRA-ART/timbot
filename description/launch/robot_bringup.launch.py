@@ -136,6 +136,18 @@ def generate_launch_description():
         output='screen',
     )
 
+    # Point cloud filter — filters relay output for navigation
+    pointcloud_rviz_filter = Node(
+        name='pointcloud_rviz_filter',
+        condition=IfCondition(enable_lane_detection),
+        executable='/media/robotswithai/data1/utra/install/zed_camera_depth_cloud/lib/zed_camera_depth_cloud/pointcloud_filter_from_rviz.py',
+        parameters=[{
+            'use_sim_time': use_sim_time,
+        }],
+        arguments=['--ros-args', '--log-level', log_level],
+        output='screen',
+    )
+
     return LaunchDescription([
         use_sim_time_arg,
         log_level_arg,
@@ -146,4 +158,5 @@ def generate_launch_description():
         robot_state_publisher,
         twist_mux,
         pointcloud_relay,
+        pointcloud_rviz_filter,
     ])
