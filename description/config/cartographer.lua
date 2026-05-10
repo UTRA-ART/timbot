@@ -74,4 +74,7 @@ TRAJECTORY_BUILDER_2D.max_range = 3.5 -- Decrease
 
 -------------------------------------------------------------------------------------
 
+-- ---------Parallel Threads--------------
+-- MAP_BUILDER.num_background_threads = 16
+
 return options

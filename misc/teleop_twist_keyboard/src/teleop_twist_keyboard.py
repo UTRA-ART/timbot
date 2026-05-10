@@ -77,12 +77,12 @@ class PublishThread(threading.Thread):
 
     def update(self, x, y, z, th, speed, turn):
         self.condition.acquire()
-        self.x = x
-        self.y = y
-        self.z = z
-        self.th = th
-        self.speed = speed
-        self.turn = turn
+        self.x = float(x)
+        self.y = float(y)
+        self.z = float(z)
+        self.th = float(th)
+        self.speed = float(speed)
+        self.turn = float(turn)
         # Notify publish thread that we have a new message.
         self.condition.notify()
         self.condition.release()
