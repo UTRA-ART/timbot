@@ -47,7 +47,7 @@
     <xacro:property name="diff_drive_update_rate" value="30.0"/>
 
     <xacro:property name="diff_drive_commandTopic" value="/cmd_vel"/>
-    <xacro:property name="diff_drive_odometryTopic" value="/odom"/>
+    <xacro:property name="diff_drive_odometryTopic" value="/wheel_odom"/>
 
     <xacro:property name="diff_drive_odometryFrame" value="odom"/>
     <xacro:property name="diff_drive_robotBaseFrame" value="base_link"/>
