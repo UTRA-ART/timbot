@@ -149,8 +149,8 @@ class WheelOdomPub(Node):
 
         # Radians turned since last cycle
         diff = (
-            (self._l_direction * self._distance_left)
-            - (self._r_direction * self._distance_right)
+            (self._r_direction * self._distance_right)
+            - (self._l_direction * self._distance_left)
         )
         cycle_angle = math.asin(max(-1.0, min(1.0, diff / self.WHEEL_BASE)))
 

@@ -250,6 +250,8 @@ def launch_cartographer(config: dict, sim: bool, context: LaunchContext) -> list
             ('odom', '/odometry/local'),
             ('imu', '/imu/data'),
             ('fix', '/gps/fix_cov'),
+            ('odom', '/odometry/local'),
+            ('points2', '/cv/lane_detections_cloud'),
         ]
     )
 
