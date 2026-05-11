@@ -16,6 +16,9 @@ def generate_launch_description():
     datum = LaunchConfiguration('datum')
     magnetic_declination_radians = LaunchConfiguration('magnetic_declination_radians')
     
+    lin_acc_stddev = LaunchConfiguration('lin_acc_stddev')
+    ang_vel_stddev = LaunchConfiguration('ang_vel_stddev')
+    
     # 1. Declare the use_sim_time argument (Default to true for safety in this context)
     use_sim_time_arg = DeclareLaunchArgument(
         'sim',
@@ -62,6 +65,7 @@ def generate_launch_description():
         output='screen',
         remappings=[
             ('/odometry/filtered', '/odometry/local'),
+            ('/imu/data', '/imu/data_cov'),
             ('set_pose', '/ekf_local/set_pose'),
             ('/set_pose', '/ekf_local/set_pose')
         ],
@@ -80,6 +84,7 @@ def generate_launch_description():
         output='screen',
         remappings=[
             ('/odometry/filtered', '/odometry/global'),
+            ('/imu/data', '/imu/data_cov'),
             ('set_pose', '/ekf_global/set_pose'),
             ('/set_pose', '/ekf_global/set_pose')
         ],
@@ -100,7 +105,7 @@ def generate_launch_description():
         arguments=['--ros-args', '--log-level', log_level],
         remappings=[('/odometry/filtered', '/odometry/global'), 
                     ('/gps/fix', '/gps/fix_cov'), 
-                    ('/imu', '/imu/data')],
+                    ('/imu', '/imu/data_cov')],
         parameters=[
             odom_yaml,
             {'use_sim_time': use_sim_time},
@@ -125,6 +130,21 @@ def generate_launch_description():
         ]
     )
 
+    imu_cov_relay = Node(
+        package='odom_state',
+        executable='imu_cov_relay.py',
+        name='imu_cov_relay',
+        output='screen',
+        parameters=[
+            {'input_topic': '/imu/data'},
+            {'output_topic': '/imu/data_cov'},
+            {'override_covariance': True},
+            {'force_unknown_fields': False},
+            {'lin_acc_stddev': lin_acc_stddev},
+            {'ang_vel_stddev': ang_vel_stddev},
+        ]
+    )
+
     gps_cov_relay = Node(
         package='odom_state',
         executable='gps_cov_relay.py',
@@ -141,6 +161,7 @@ def generate_launch_description():
         use_sim_time_arg,
         config_file_arg,
         log_level_arg,
+        imu_cov_relay,
         ekf_local,
         pose_relay,
         gps_cov_relay,

@@ -117,6 +117,8 @@ odom_state:
   orientation_covariance: 0.01 # cartographer pose
   horizontal_stddev: 5.0 # gps horizontal error - in meters
   vertical_stddev: 0.0 # gps vertical error
+  lin_acc_stddev: [0.00896889, 0.00649372, 0.01154264] # IMU linear acceleration error
+  ang_vel_stddev: [0.00071867, 0.00115473, 0.00050693] # IMU angular velocity error
   wait_for_datum: false # if this is set to true, then set datum, if false, set magnetic declination radians
   datum: [0.0, 0.0, 0.0]
   magnetic_declination_radians: 0.0
