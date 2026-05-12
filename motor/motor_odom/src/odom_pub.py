@@ -199,7 +199,7 @@ class WheelOdomPub(Node):
 
         odom = Odometry()
         odom.header.stamp = self._prev_stamp.to_msg()
-        odom.header.frame_id = 'wheel_odom'
+        odom.header.frame_id = 'odom'
         odom.child_frame_id = 'base_link'
 
         odom.pose.pose.position.x = self._x

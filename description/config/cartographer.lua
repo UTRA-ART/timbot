@@ -32,7 +32,7 @@ options = {
   num_laser_scans = 1,
   num_multi_echo_laser_scans = 0,
   num_subdivisions_per_laser_scan = 1,
-  num_point_clouds = 0,
+  num_point_clouds = 2,
   lookup_transform_timeout_sec = 1.,
   submap_publish_period_sec = 0.3,
   pose_publish_period_sec = 5e-3,
@@ -46,11 +46,11 @@ options = {
 
 MAP_BUILDER.use_trajectory_builder_2d = true
 
-TRAJECTORY_BUILDER_2D.num_accumulated_range_data = 10
+TRAJECTORY_BUILDER_2D.num_accumulated_range_data = 1
 
 TRAJECTORY_BUILDER_2D.min_range = 0.1
 TRAJECTORY_BUILDER_2D.missing_data_ray_length = 3.
-TRAJECTORY_BUILDER_2D.use_imu_data = true -- should we be using this or not we need to see
+TRAJECTORY_BUILDER_2D.use_imu_data = false -- should we be using this or not we need to see
 TRAJECTORY_BUILDER_2D.ceres_scan_matcher.translation_weight = 10
 TRAJECTORY_BUILDER_2D.ceres_scan_matcher.rotation_weight = 15
 
@@ -67,7 +67,7 @@ POSE_GRAPH.global_sampling_ratio = 0.003 -- Decrease
 POSE_GRAPH.constraint_builder.sampling_ratio = 0.4 -- Decrease
 POSE_GRAPH.constraint_builder.min_score = 0.85 -- Increase
 POSE_GRAPH.global_constraint_search_after_n_seconds = 30 -- Increase
-POSE_GRAPH.optimization_problem.odometry_rotation_weight = 20e-5
+-- POSE_GRAPH.optimization_problem.odometry_rotation_weight = 20e-5
 ---------Global/Local SLAM---------
 TRAJECTORY_BUILDER_2D.submaps.num_range_data = 100 -- Decrease
 TRAJECTORY_BUILDER_2D.max_range = 3.5 -- Decrease
