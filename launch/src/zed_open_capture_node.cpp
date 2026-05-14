@@ -17,6 +17,7 @@
 
 #include <opencv2/opencv.hpp>
 
+#include "rcl_interfaces/msg/set_parameters_result.hpp"
 #include "videocapture.hpp"
 #include "calibration.hpp" // <-- Added to use driver's auto-calibration
 
@@ -66,15 +67,7 @@ public:
   {
     // The ONLY ROS parameter: the port. (e.g., /dev/video0, or -1 for auto)
     declare_parameter("video_device", std::string("/dev/video0"));
-    declare_parameter("auto_exposure", true);
-    declare_parameter("exposure", 50);
-    declare_parameter("gain", 50);
-    declare_parameter("gamma", 5);
     std::string video_device = get_parameter("video_device").as_string();
-    const bool auto_exposure = get_parameter("auto_exposure").as_bool();
-    const int exposure = get_parameter("exposure").as_int();
-    const int gain = get_parameter("gain").as_int();
-    const int gamma = get_parameter("gamma").as_int();
 
     // Setup ROS Publishers
     left_pub_ = create_publisher<sensor_msgs::msg::Image>(left_image_topic_, rclcpp::SensorDataQoS());
@@ -99,20 +92,58 @@ public:
       throw std::runtime_error("Failed to initialize ZED Open Capture");
     }
 
-    if (auto_exposure) {
-      cap_->setAECAGC(true);
-      RCLCPP_INFO(get_logger(), "Using automatic exposure/gain");
-    } else {
-      cap_->setExposure(sl_oc::video::CAM_SENS_POS::LEFT, exposure);
-      cap_->setExposure(sl_oc::video::CAM_SENS_POS::RIGHT, exposure);
-      cap_->setGain(sl_oc::video::CAM_SENS_POS::LEFT, gain);
-      cap_->setGain(sl_oc::video::CAM_SENS_POS::RIGHT, gain);
-      cap_->setGamma(gamma);
-      RCLCPP_INFO(
-        get_logger(),
-        "Using manual exposure: %d, gain: %d, and gamma: %d (applied to both sensors)",
-        exposure, gain, gamma);
-    }
+    declare_parameter("aec_agc", true);
+    declare_parameter("exposure", 157);
+    declare_parameter("gain", 0);
+    declare_parameter("auto_white_balance", true);
+    declare_parameter("brightness", 0);
+    declare_parameter("contrast", 32);
+    declare_parameter("gamma", 100);
+    declare_parameter("hue", 0);
+    declare_parameter("saturation", 64);
+    declare_parameter("sharpness", 3);
+
+    cap_->resetAECAGC();
+    cap_->resetAutoWhiteBalance();
+    cap_->resetBrightness();
+    cap_->resetContrast();
+    cap_->resetGamma();
+    cap_->resetHue();
+    cap_->resetSaturation();
+    cap_->resetSharpness();
+    RCLCPP_INFO(get_logger(), "Capture params reset to device defaults");
+
+    apply_capture_params(true);
+
+    param_cb_handle_ = add_on_set_parameters_callback(
+      [this](const std::vector<rclcpp::Parameter> & params)
+      {
+        rcl_interfaces::msg::SetParametersResult result;
+        result.successful = true;
+
+        bool should_apply = false;
+        for (const auto & param : params) {
+          const auto & name = param.get_name();
+          if (name == "aec_agc" || name == "exposure" || name == "gain" ||
+              name == "auto_white_balance" || name == "brightness" ||
+              name == "contrast" || name == "gamma" || name == "hue" ||
+              name == "saturation" || name == "sharpness") {
+            should_apply = true;
+            break;
+          }
+        }
+
+        if (should_apply) {
+          try {
+            apply_capture_params(false);
+          } catch (const std::exception & e) {
+            result.successful = false;
+            result.reason = e.what();
+          }
+        }
+
+        return result;
+      });
 
     // 2. Auto-load calibration from the driver/server
     int sn = cap_->getSerialNumber();
@@ -156,6 +187,51 @@ public:
   }
 
 private:
+  void apply_capture_params(bool log)
+  {
+    const bool aec_agc = get_parameter("aec_agc").as_bool();
+    const int exposure = get_parameter("exposure").as_int();
+    const int gain = get_parameter("gain").as_int();
+    const bool auto_white_balance = get_parameter("auto_white_balance").as_bool();
+    const int brightness = get_parameter("brightness").as_int();
+    const int contrast = get_parameter("contrast").as_int();
+    const int gamma = get_parameter("gamma").as_int();
+    const int hue = get_parameter("hue").as_int();
+    const int saturation = get_parameter("saturation").as_int();
+    const int sharpness = get_parameter("sharpness").as_int();
+
+    cap_->setAECAGC(aec_agc);
+    if (!aec_agc) {
+      cap_->setExposure(sl_oc::video::CAM_SENS_POS::LEFT, exposure);
+      cap_->setExposure(sl_oc::video::CAM_SENS_POS::RIGHT, exposure);
+      cap_->setGain(sl_oc::video::CAM_SENS_POS::LEFT, gain);
+      cap_->setGain(sl_oc::video::CAM_SENS_POS::RIGHT, gain);
+    }
+    cap_->setAutoWhiteBalance(auto_white_balance);
+    cap_->setBrightness(brightness);
+    cap_->setContrast(contrast);
+    cap_->setGamma(gamma);
+    cap_->setHue(hue);
+    cap_->setSaturation(saturation);
+    cap_->setSharpness(sharpness);
+
+    if (log) {
+      RCLCPP_INFO(
+        get_logger(),
+        "Capture params: AEC/AGC=%s, exp=%d, gain=%d, AWB=%s, bright=%d, contrast=%d, gamma=%d, hue=%d, sat=%d, sharp=%d",
+        aec_agc ? "on" : "off",
+        exposure,
+        gain,
+        auto_white_balance ? "on" : "off",
+        brightness,
+        contrast,
+        gamma,
+        hue,
+        saturation,
+        sharpness);
+    }
+  }
+
   void init_sgbm()
   {
     int min_disparity = 0;
@@ -325,6 +401,7 @@ private:
   rclcpp::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr left_info_pub_;
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr depth_pub_;
   rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr cloud_pub_;
+  OnSetParametersCallbackHandle::SharedPtr param_cb_handle_;
 
   // --- Start configuration defaults ---
   std::string resolution_ = "VGA";
