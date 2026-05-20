@@ -558,12 +558,18 @@ class NavigateWaypoints(Node):
 
     def populate_waypoint_dict(self):
         """Load waypoints from JSON file and convert all to map-frame poses."""
+        if not self.waypoints_file or not os.path.exists(self.waypoints_file):
+            self.get_logger().warn(f'No valid waypoints file configured. Waypoint auto-navigation disabled.')
+            self.pose_queue = []
+            return
+        
         try:
             with open(self.waypoints_file, 'r') as f:
                 waypoint_data = json.load(f)
         except Exception as e:
             self.get_logger().error(f'Failed to load waypoints file: {e}')
-            sys.exit(1)
+            self.pose_queue = []
+            return
         # self.waypoints = {wp["id"]:[wp["latitude"], wp["longitude"]] for wp in waypoint_data["waypoints"]}
         self.start_direction = 1 if waypoint_data.get("start_direction", "north") == "north" else -1
         self.laps = waypoint_data.get("laps", 1)

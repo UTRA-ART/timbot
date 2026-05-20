@@ -96,7 +96,7 @@ public:
     declare_parameter("exposure", 157);
     declare_parameter("gain", 0);
     declare_parameter("auto_white_balance", true);
-    declare_parameter("brightness", 0);
+    declare_parameter("brightness", 5);
     declare_parameter("contrast", 32);
     declare_parameter("gamma", 100);
     declare_parameter("hue", 0);

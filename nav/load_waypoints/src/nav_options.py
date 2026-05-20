@@ -6,39 +6,28 @@
 # and provide the corresponding coordinates. 'handle_navigation_request' method
 # processes these different requests and navigates the rover.
 
-
-######## Request Format ########
-# Only formats below works properly. Format such as:
-# rosservice call /rover_navigation "goal_type: 'abs' goal: x: 5.0, y: 0.0"
-
-# If a single line does not work, uncomment blocks (e.g. lines 18-21) to test in terminals
-# TO SET A NEW GOAL IN THE MIDDLE, open new terminal and 1. source devel/setup.bash 2. input request format 3. <enter>
+# NOTE:
+# Source your terminal before running these commands:
 
 # 1. Absolute goals in map frame ('abs')
-# rosservice call /rover_navigation "goal_type: 'abs'
+# ros2 service call /rover_navigation load_waypoints/srv/RoverNavigation "goal_type: 'abs'
 # goal:
 #   x: 5.0
 #   y: 0.0"
 
 # 2. Relative goals in map frame ('rel')
-# rosservice call /rover_navigation "goal_type: 'rel'
+# ros2 service call /rover_navigation load_waypoints/srv/RoverNavigation "goal_type: 'rel'
 # goal:
 #   x: 10.0
 #   y: 0.0"
 
-# 3. Single gps goal ('gps')
-# rosservice call /rover_navigation "goal_type: 'gps'
+# 3. Single gps goal ('gps') - x is longitude, y is latitude
+# ros2 service call /rover_navigation load_waypoints/srv/RoverNavigation "goal_type: 'gps'
 # goal:
 #   x: -79.3904467252
 #   y: 43.6570767441"
 
-# Example:
-# rosservice call /rover_navigation "goal_type: ''     
-# goal:
-#  x: 0.0
-#  y: 0.0
-#  z: 0.0" 
-
+# ros2 launch load_waypoints load_waypoints.launch.py
 
 
 import rclpy
@@ -50,6 +39,7 @@ from nav2_msgs.action import NavigateToPose
 
 import tf2_ros
 from tf2_ros import TransformListener
+import tf2_geometry_msgs
 
 import utm
 from load_waypoints.srv import RoverNavigation
@@ -57,8 +47,8 @@ from load_waypoints.srv import RoverNavigation
 class RoverNavigator(Node):
     def __init__(self):
         super().__init__('nav_control')
-        tf_buffer = tf2_ros.Buffer()
-        self.tf = TransformListener(tf_buffer, self)
+        self.tf_buffer = tf2_ros.Buffer()
+        self.tf = TransformListener(self.tf_buffer, self)
         self.current_pos = None
         self.active = False  # Indicates if the rover is actively navigating to a goal
 
@@ -82,12 +72,12 @@ class RoverNavigator(Node):
         action_client = ActionClient(self, NavigateToPose, '/navigate_to_pose')
         action_client.wait_for_server()
 
-        goal = NavigateToPose()
-        goal.target_pose.header.frame_id = 'map'
-        goal.target_pose.header.stamp = self.get_clock().now().to_msg()
-        goal.target_pose.pose.position.x = goal_pos[0]
-        goal.target_pose.pose.position.y = goal_pos[1]
-        goal.target_pose.pose.orientation.w = 1.0  
+        goal = NavigateToPose.Goal()
+        goal.pose.header.frame_id = 'map'
+        goal.pose.header.stamp = self.get_clock().now().to_msg()
+        goal.pose.pose.position.x = goal_pos[0]
+        goal.pose.pose.position.y = goal_pos[1]
+        goal.pose.pose.orientation.w = 1.0  
 
         future = action_client.send_goal_async(goal)
         future.add_done_callback(self.goal_response_callback)
@@ -106,26 +96,31 @@ class RoverNavigator(Node):
         utm_pose.pose.position.y = utm_coords[1]
         utm_pose.pose.orientation.w = 1.0  # To make sure it's right side up
 
-        p_in_map = self.tf.transformPose("/map", utm_pose)   # self.tf (listener) listens for transforms between frames
-                                                            # transform utm pose to map frame
+        p_in_map = self.tf_buffer.transform(utm_pose, "map")  # Use tf_buffer to transform utm pose to map frame
         return p_in_map.pose.position.x, p_in_map.pose.position.y
 
-    def handle_navigation_request(self, req):
+    def handle_navigation_request(self, req, resp):
         if req.goal_type == 'abs':
             goal_pos = (req.goal.x, req.goal.y) # if 'goal_type' = 'abs', directly use coordinates as target
                                                 # rover will move to target in /map frame
         elif req.goal_type == 'rel':
             if self.current_pos is None:
-                return RoverNavigation.Response(False, "Current position not yet initialized.")
+                resp.success = False
+                resp.message = "Current position not yet initialized."
+                return resp
             goal_pos = (self.current_pos[0] + req.goal.x, self.current_pos[1] + req.goal.y) # if 'goal_type' = 'rel', calculate target
                                                                                             # relative to rover's current position
         elif req.goal_type == 'gps':
             goal_pos = self.get_pose_from_gps(req.goal.x, req.goal.y)
         else:
-            return RoverNavigation.Response(False, "Invalid goal type.")
+            resp.success = False
+            resp.message = "Invalid goal type."
+            return resp
         
         self.navigate_to_goal(goal_pos)
-        return RoverNavigation.Response(True, "Navigating to goal.")
+        resp.success = True
+        resp.message = "Navigating to goal."
+        return resp
     
     def goal_response_callback(self, future):
         self.goal_handle = future.result()
@@ -137,11 +132,11 @@ class RoverNavigator(Node):
         self.get_logger().info("Goal accepted")
 
         # Start timer for timeout (600 seconds)
-        self.timeout_timer = self.create_timer(600.0, self.timeout_cb)
+        self.timeout_timer = self.create_timer(600.0, self.timeout_callback)
 
         # Start waiting for result
         self.result_future = self.goal_handle.get_result_async()
-        self.result_future.add_done_callback(self.result_cb)
+        self.result_future.add_done_callback(self.result_callback)
 
     def timeout_callback(self):
         self.get_logger().info("Time out!")

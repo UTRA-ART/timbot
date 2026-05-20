@@ -1,0 +1,15 @@
+{
+    "start_direction": "north",
+    "laps": 1,
+    "clockwise": true,
+    "add_corners": false,
+    "waypoints" : [
+        {
+            "id" : 0,
+            "longitude" : -79.3958333333,
+            "latitude" : 43.6613888889,
+            "description"  : "North middle",
+            "frame_id" : "map"
+        }
+    ]
+}

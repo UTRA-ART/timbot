@@ -194,7 +194,7 @@ rviz:
 # --- Stage 7: Nav2 Stack ---
 nav_stack:
   enabled: true
-  config_file: espresso_nav2.yaml
+  config_file: espresso_nav2_new.yaml
   log_level: error
   delay_sec: 10.0
   expected_topics:
