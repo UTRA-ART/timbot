@@ -103,7 +103,7 @@ spawn:
   delay_sec: 10.0
   expected_topics:
     - /clock
-    - /odom
+    - /wheel_odom
     - /imu/data
     - /scan_lower
 

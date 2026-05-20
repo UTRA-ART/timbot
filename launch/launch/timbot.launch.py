@@ -250,8 +250,6 @@ def launch_cartographer(config: dict, sim: bool, context: LaunchContext) -> list
             ('odom', '/odometry/local'),
             ('imu', '/imu/data'),
             ('fix', '/gps/fix_cov'),
-            ('odom', '/odometry/local'),
-            ('points2', '/cv/lane_detections_cloud'),
         ]
     )
 
@@ -476,7 +474,7 @@ def build_hardware_driver_stages(config: dict) -> list:
         (
             'Driver: RPi Sync',
             _hw_driver('motor_odom', 'odom_pub.launch.py'),
-            ['/odom'],
+            ['/wheel_odom'],
             3.0,
         ),
     ]

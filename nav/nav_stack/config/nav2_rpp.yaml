@@ -69,8 +69,8 @@ local_costmap:
       inflation_layer_cv:
         plugin: "nav2_costmap_2d::InflationLayer"
         enabled: true
-        inflation_radius: 0.2
-        cost_scaling_factor: 15.0
+        inflation_radius:  0.3 
+        cost_scaling_factor: 1.0
 
 # Global path planning
 
@@ -95,7 +95,7 @@ global_costmap:
       # resolution: 0.02   # Optional, set if not defined elsewhere
 
       footprint: "[ [0.5, 0.46], [0.5, -0.46], [-0.5, -0.46], [-0.5, 0.46] ]"
-      footprint_padding: 0.01
+      footprint_padding: 0.1
 
       # Declare which costmap layers to load
       plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
@@ -152,8 +152,8 @@ global_costmap:
       # ---- Inflation Layer ----
       inflation_layer:
         enabled: true
-        inflation_radius: 2.5
-        cost_scaling_factor: 3.0
+      inflation_radius:  0.3 
+      cost_scaling_factor: 1.0
 
 # ----------------------------
 # Behavior Server (recovery behaviors)
@@ -233,7 +233,7 @@ controller_server:
       # rotate_to_goal_heading: false
 
       plugin: "nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"
-      max_linear_vel: 0.2
+      max_linear_vel: 1.0
       max_angular_vel: 1.25
       max_angular_accel: 1.6
     # short_circuit_trajectory_evaluation: false
@@ -305,7 +305,7 @@ bt_navigator:
   ros__parameters:
     global_frame: map
     robot_base_frame: base_link
-    odom_topic: /odometry/local
+    odom_topic: /tracked_pose_cov
     bt_loop_duration: 100
     default_server_timeout: 20
     # These are the default Nav2 behavior tree plugins

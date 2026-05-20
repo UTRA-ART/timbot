@@ -13,7 +13,7 @@ Subscribed to:
   rover_pose/reset (std_msgs/Bool)
 
 Publishes:
-  odom (nav_msgs/Odometry)
+  wheel_odom (nav_msgs/Odometry)
 
 History:
   2023-04-29  Initial version (C++)
@@ -83,7 +83,7 @@ class WheelOdomPub(Node):
         self._wz = 0.0
 
         # --- Publishers ---
-        self._odom_pub = self.create_publisher(Odometry, 'odom', 100)
+        self._odom_pub = self.create_publisher(Odometry, 'wheel_odom', 100)
         self._debug_pub = self.create_publisher(String, 'debug_wheel_odom', 100)
 
         # --- Subscribers ---
