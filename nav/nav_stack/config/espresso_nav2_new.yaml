@@ -161,11 +161,11 @@ controller_server:
       yaw_goal_tolerance: 0.1
       xy_goal_tolerance: 0.25
       path_length_tolerance: 1.0
-      stateful: false
+      stateful: true
     
     PathHandler:
       plugin: "nav2_controller::FeasiblePathHandler"
-      prune_distance: 2.0
+      prune_distance: 0.5
       # FIX: was True with no reverse velocities allowed -> contradiction caused thrashing.
       # If you actually have reverse drive wired up, set this back to True AND make min_vel_x negative.
       enforce_path_inversion: False
@@ -222,10 +222,14 @@ controller_server:
       GoalAlign.scale: 10.0
       PathDist.scale: 32.0
       GoalDist.scale: 24.0
-      GoalAlign.forward_point_distance: 0.2
-      PathAlign.forward_point_distance: 0.2
+      GoalAlign.forward_point_distance: 0.8
+      PathAlign.forward_point_distance: 0.8
       ObstacleFootprint.scale: 5.0
       BaseObstacle.scale: 1.0
+
+      RotateToGoal.scale: 32.0
+      RotateToGoal.slowing_factor: 5.0
+      RotateToGoal.lookahead_time: 0.5
 
       # min_speed_scale: 0.5
       # prefer_high_velocities: true
