@@ -49,12 +49,14 @@ MAP_BUILDER.use_trajectory_builder_2d = true
 TRAJECTORY_BUILDER_2D.num_accumulated_range_data = 1 -- Try putting this to 10 and see if it improves
 
 TRAJECTORY_BUILDER_2D.min_range = 0.1
+TRAJECTORY_BUILDER_2D.max_range = 5.0 -- Ignore anything further than 5 meters
 TRAJECTORY_BUILDER_2D.missing_data_ray_length = 3.
-TRAJECTORY_BUILDER_2D.use_imu_data = false -- should we be using this or not we need to see
-TRAJECTORY_BUILDER_2D.ceres_scan_matcher.translation_weight = 2e3
-TRAJECTORY_BUILDER_2D.ceres_scan_matcher.rotation_weight = 1e3
+TRAJECTORY_BUILDER_2D.use_imu_data = true -- should we be using this or not we need to see
+TRAJECTORY_BUILDER_2D.ceres_scan_matcher.translation_weight = 400
+TRAJECTORY_BUILDER_2D.ceres_scan_matcher.rotation_weight = 400
+TRAJECTORY_BUILDER_2D.ceres_scan_matcher.occupied_space_weight = 20.0
 
-POSE_GRAPH.constraint_builder.fast_correlative_scan_matcher.angular_search_window = math.rad(15.)
+POSE_GRAPH.constraint_builder.fast_correlative_scan_matcher.angular_search_window = math.rad(5.)
 POSE_GRAPH.constraint_builder.fast_correlative_scan_matcher.linear_search_window = 3.
 
 POSE_GRAPH.optimization_problem.huber_scale = 1e2
@@ -67,7 +69,7 @@ POSE_GRAPH.global_sampling_ratio = 0.003 -- Decrease
 POSE_GRAPH.constraint_builder.sampling_ratio = 0.4 -- Decrease
 POSE_GRAPH.constraint_builder.min_score = 0.85 -- Increase
 POSE_GRAPH.global_constraint_search_after_n_seconds = 30 -- Increase
-POSE_GRAPH.optimization_problem.odometry_rotation_weight = 1e5
+POSE_GRAPH.optimization_problem.odometry_rotation_weight = 1e6
 POSE_GRAPH.optimization_problem.odometry_translation_weight = 2e5 -- Increase
 ---------Global/Local SLAM---------
 TRAJECTORY_BUILDER_2D.submaps.num_range_data = 100 -- Decrease

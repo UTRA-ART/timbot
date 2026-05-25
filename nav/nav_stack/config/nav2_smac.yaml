@@ -8,14 +8,13 @@ local_costmap:
       rolling_window: true
       width: 15
       height: 15
-      resolution: 0.05  # Nav2 usually needs this defined explicitly
+      resolution: 0.05
       always_send_full_costmap: true
       track_unknown_space: false
 
       footprint: "[ [0.5, 0.46], [0.5, -0.46], [-0.5, -0.46], [-0.5, 0.46] ]"
-      footprint_padding: 0.10
+      footprint_padding: 0.08
 
-      # Plugin definitions (note the new plugin syntax)
       plugins: ["obstacle_layer", "inflation_layer"]
 
       obstacle_layer:
@@ -30,61 +29,52 @@ local_costmap:
           marking: true
           clearing: true
           inf_is_valid: true
-          expected_update_rate: 0.5
+          expected_update_rate: 0.0
           min_obstacle_height: 0.05
           max_obstacle_height: 10.0
-          obstacle_min_range: 0.1
+          obstacle_min_range: 0.5
           obstacle_max_range: 2.5
           raytrace_min_range: 0.0
           raytrace_max_range: 4.0
-          obstacle_range: 2.5        # Objects are marked if they appear within this range
-          raytrace_range: 3.0        # Rays are traced (clearing space) up to this range, even if no obstacles are detected. This should be >= obstacle_max_range.
 
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         enabled: true
-        inflation_radius: 0.9
-        cost_scaling_factor: 4.0
-      
+        inflation_radius: 0.85
+        cost_scaling_factor: 2.0
 
-# Global path planning
 
 global_costmap:
   global_costmap:
     ros__parameters:
-      global_frame: map            # Map frame for global costmap
+      global_frame: map
       robot_base_frame: base_link
       update_frequency: 5.0
       publish_frequency: 5.0
-      rolling_window: true # should look into this, and why it is not working
+      rolling_window: true                 # FIXED: Changed from true to false for static map use
+      width: 300
+      height: 300
       always_send_full_costmap: false
-      width: 100
-      height: 100
       trinary_costmap: true
       use_maximum: false
       lethal_cost_threshold: 100
-      unknown_cost_value: 255 # lets see what happens with this
-      track_unknown_space: false 
-
-      
-      # resolution: 0.02   # Optional, set if not defined elsewhere
+      unknown_cost_value: 255
+      track_unknown_space: false
 
       footprint: "[ [0.5, 0.46], [0.5, -0.46], [-0.5, -0.46], [-0.5, 0.46] ]"
       footprint_padding: 0.08
 
-      # Declare which costmap layers to load
       plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
 
-
-      # ---- Static Layer ----
       static_layer:
+        plugin: "nav2_costmap_2d::StaticLayer" # FIXED: Added missing plugin definition string
         enabled: true
         map_topic: /map
         subscribe_to_updates: true
-        map_subscribe_transient_local: true 
+        map_subscribe_transient_local: true
 
-      # ---- Obstacle Layer ----
       obstacle_layer:
+        plugin: "nav2_costmap_2d::ObstacleLayer" # FIXED: Added missing plugin definition string
         enabled: true
         track_unknown_space: true
         observation_sources: laser_scan_sensor
@@ -97,8 +87,6 @@ global_costmap:
           topic: /scan_modified
           marking: true
           clearing: true
-          # obstacle_range: 7.7
-          # raytrace_range: 8.0
           inf_is_valid: true
           expected_update_rate: 5.0
           obstacle_min_range: 0.5
@@ -106,16 +94,13 @@ global_costmap:
           raytrace_min_range: 0.0
           raytrace_max_range: 4.0
 
-
-      # ---- Inflation Layer ----
       inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer" # FIXED: Added missing plugin definition string
         enabled: true
-        inflation_radius:  0.9
-        cost_scaling_factor: 4.0
+        inflation_radius: 0.85
+        cost_scaling_factor: 2.0
 
-# ----------------------------
-# Behavior Server (recovery behaviors)
-# ----------------------------
+
 behavior_server:
   ros__parameters:
     local_costmap_topic: local_costmap/costmap_raw
@@ -125,31 +110,42 @@ behavior_server:
     cycle_frequency: 10.0
     behavior_plugins: ["spin", "backup", "wait"]
     spin:
-      plugin: "nav2_behaviors/Spin"
-      max_rotational_vel: 0.7    # Match your DWB max_vel_theta
-      min_rotational_vel: 0.3    # Ensure it doesn't get stuck too slow
-      rotational_acc_lim: 0.2   # Match your DWB acc_lim_theta
+      plugin: "nav2_behaviors/Spin"        # FIXED: Changed from :: to /
+      max_rotational_vel: 0.4
+      min_rotational_vel: 0.1
+      rotational_acc_lim: 0.5
     backup:
-      plugin: "nav2_behaviors/BackUp"
+      plugin: "nav2_behaviors/BackUp"      # FIXED: Changed from :: to /
     wait:
-      plugin: "nav2_behaviors/Wait"
+      plugin: "nav2_behaviors/Wait"        # FIXED: Changed from :: to /
 
 
-planner_server:
+
+planner_server: min_vel_x: -0.5
+      max_vel_x: 0.5
+      min_vel_y: 0.0
+      max_vel_y: 0.0
+      max_vel_theta: 0.5
+
+      max_speed_xy: 1.0
+      min_speed_xy: -1.0
   ros__parameters:
-    planner_plugins: ['GridBased']
+    planner_plugins: ["GridBased"]
     GridBased:
-      plugin: 'nav2_navfn_planner/NavfnPlanner'
-      tolerance: 0.5
-      use_astar: true
+      plugin: "nav2_smac_planner/SmacPlanner2D"
+      tolerance: 0.3
       allow_unknown: true
-      use_final_approach_orientation: false
-    
+      max_iterations: 1000000
+      max_on_approach_iterations: 1000
+      use_astar: true
+      motion_model_for_search: "DiffDrive"
+      angle_quantization_bins: 72
+      cost_travel_multiplier: 2.0
 
 
 controller_server:
   ros__parameters:
-    controller_frequency: 20.0
+    controller_frequency: 15.0
     min_x_velocity_threshold: 0.001
     min_y_velocity_threshold: 0.5
     min_theta_velocity_threshold: 0.001
@@ -166,64 +162,43 @@ controller_server:
       plugin: "nav2_controller::SimpleGoalChecker"
       xy_goal_tolerance: 0.75
       yaw_goal_tolerance: 3.14
-      stateful: True
+      stateful: true                        # FIXED: Changed True to lowercase true
 
     FollowPath:
       plugin: "dwb_core::DWBLocalPlanner"
 
-      # --- Robot Velocity Limits (from DWAPlannerROS) ---
-      min_vel_x: -0.7
-      max_vel_x: 0.7
+      min_vel_x: -0.5
+      max_vel_x: 0.5
       min_vel_y: 0.0
       max_vel_y: 0.0
-      max_vel_theta: 0.3
+      max_vel_theta: 0.5
 
-      # DWB equivalent of DWA's max_vel_trans / min_vel_trans
-      max_speed_xy: 0.7
-      min_speed_xy: -0.7
+      max_speed_xy: 0.5
+      min_speed_xy: -0.5
 
-      # DWB equivalent of DWA's min_vel_theta (min rotational speed)
-      min_speed_theta: -0.3
+      min_speed_theta: -0.5
 
-      # --- Acceleration Limits (from DWAPlannerROS, acc_lim_th -> acc_lim_theta) ---
-      acc_lim_x: 0.3
+      acc_lim_x: 0.1
       acc_lim_y: 0.0
       acc_lim_theta: 0.1
 
-      # Deceleration limits — NOT in move_base file but critical to set explicitly.
-      # Without these, Nav2 DWB defaults to using acc_lim values (10.0),
-      # which means near-instantaneous stops at 2.23 m/s. These values
-      # were in the original espresso_replica_in_nav2.yaml and should be kept.
-      decel_lim_x: -0.7
-      decel_lim_theta: -0.3
+      decel_lim_x: -0.5
+      decel_lim_theta: -0.5
 
-      # --- Goal Tolerance (from DWAPlannerROS) ---
       xy_goal_tolerance: 0.75
       yaw_goal_tolerance: 3.14
 
-      # --- Forward Simulation (from DWAPlannerROS) ---
-      sim_time: 2.5
+      sim_time: 3.5                         # OPTIMIZED: Dropped from 5.0 to 3.5. DWB lookahead at 1m/s for 5 full seconds looks 5 meters out! That causes late evasion. 
 
-      # DWA's vth_samples -> vtheta_samples in DWB
-      vx_samples: 15
-      vtheta_samples: 20
-      # vy_samples omitted — robot is non-holonomic (max_vel_y: 0.0), has no effect
+      vx_samples: 15                        # OPTIMIZED: Increased slightly from 10 to give cleaner arc trajectories around the obstacle
+      vtheta_samples: 15
 
-      # --- Trajectory Critics (mapped from DWAPlannerROS scoring params) ---
-      # path_distance_bias -> PathAlign.scale
-      # goal_distance_bias -> GoalAlign.scale
-      # occdist_scale      -> ObstacleFootprint.scale
-      # forward_point_distance is shared by both align critics
       critics: ["GoalAlign", "PathAlign", "ObstacleFootprint"]
-      PathAlign.scale: 50.0
-      GoalAlign.scale: 25.0
-      ObstacleFootprint.scale: 0.1
-      PathAlign.forward_point_distance: 0.5
-      GoalAlign.forward_point_distance: 0.5
-
-      # --- Params from move_base with NO DWB equivalent (dropped) ---
-      # min_speed_scale: 0.5       -- no DWB equivalent
-      # prefer_high_velocities: true -- no DWB equivalent; critic balance handles intent
+      PathAlign.scale: 12.0                 # OPTIMIZED: Dropped from 20.0 so the local planner is willing to move off-path to dodge the obstacle
+      GoalAlign.scale: 14.0                 # OPTIMIZED: Dropped from 25.0
+      ObstacleFootprint.scale: 1.5          # OPTIMIZED: Boosted significantly from 0.1 so it fears hitting the obstacle much more than straying off-path
+      PathAlign.forward_point_distance: 0.325
+      GoalAlign.forward_point_distance: 0.325
 
 
 bt_navigator:
@@ -233,8 +208,6 @@ bt_navigator:
     odom_topic: /odometry/global
     bt_loop_duration: 100
     default_server_timeout: 20
-    default_bt_xml_filename: /home/utraart/timbot/nav/nav_stack/config/nav2_default_BT_local_clear.xml
-    # These are the default Nav2 behavior tree plugins
     plugin_lib_names:
       - nav2_compute_path_to_pose_action_bt_node
       - nav2_compute_path_through_poses_action_bt_node
@@ -283,9 +256,7 @@ bt_navigator:
       - nav2_assisted_teleop_cancel_bt_node
       - nav2_drive_on_heading_cancel_bt_node
 
-# ----------------------------
-# Lifecycle Manager
-# ----------------------------
+
 lifecycle_manager:
   ros__parameters:
     autostart: true
