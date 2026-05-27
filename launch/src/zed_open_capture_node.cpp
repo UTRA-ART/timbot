@@ -65,7 +65,7 @@ public:
   ZedOpenCaptureNode()
   : Node("zed_open_capture_node")
   {
-    // Camera and stereo tuning parameters.
+    // The ONLY ROS parameter: the port. (e.g., /dev/video0, or -1 for auto)
     declare_parameter("video_device", std::string("/dev/video0"));
     declare_parameter("num_disparities", 96);
     declare_parameter("block_size", 3);
@@ -239,8 +239,8 @@ private:
   void init_sgbm()
   {
     const int min_disparity = 0;
-    const int num_disparities = get_parameter("num_disparities").as_int();
-    const int block_size = get_parameter("block_size").as_int();
+    const int num_disparities = get_parameter("num_disparities").as_int(); // Must be multiple of 16
+    const int block_size = get_parameter("block_size").as_int(); // Must be odd
     const int p1_multiplier = get_parameter("p1_multiplier").as_int();
     const int p2_multiplier = get_parameter("p2_multiplier").as_int();
 
