@@ -65,8 +65,12 @@ public:
   ZedOpenCaptureNode()
   : Node("zed_open_capture_node")
   {
-    // The ONLY ROS parameter: the port. (e.g., /dev/video0, or -1 for auto)
+    // Camera and stereo tuning parameters.
     declare_parameter("video_device", std::string("/dev/video0"));
+    declare_parameter("num_disparities", 96);
+    declare_parameter("block_size", 3);
+    declare_parameter("p1_multiplier", 8);
+    declare_parameter("p2_multiplier", 32);
     std::string video_device = get_parameter("video_device").as_string();
 
     // Setup ROS Publishers
@@ -234,13 +238,15 @@ private:
 
   void init_sgbm()
   {
-    int min_disparity = 0;
-    int num_disparities = 96;  // Must be multiple of 16
-    int block_size = 3;        // Must be odd
+    const int min_disparity = 0;
+    const int num_disparities = get_parameter("num_disparities").as_int();
+    const int block_size = get_parameter("block_size").as_int();
+    const int p1_multiplier = get_parameter("p1_multiplier").as_int();
+    const int p2_multiplier = get_parameter("p2_multiplier").as_int();
 
     sgbm_ = cv::StereoSGBM::create(min_disparity, num_disparities, block_size);
-    int p1 = 8 * block_size * block_size;
-    int p2 = 32 * block_size * block_size;
+    const int p1 = p1_multiplier * block_size * block_size;
+    const int p2 = p2_multiplier * block_size * block_size;
     sgbm_->setP1(p1);
     sgbm_->setP2(p2);
     sgbm_->setMode(cv::StereoSGBM::MODE_SGBM_3WAY);
