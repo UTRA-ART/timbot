@@ -117,9 +117,9 @@ odom_state:
   orientation_covariance: 0.01 # cartographer pose
   horizontal_stddev: 5.0 # gps horizontal error - in meters
   vertical_stddev: 0.0 # gps vertical error
-  wait_for_datum: false # if this is set to true, then set datum, if false, set magnetic declination radians
-  datum: [0.0, 0.0, 0.0]
-  magnetic_declination_radians: 0.0
+  wait_for_datum: true # if this is set to true, then set datum, if false, set magnetic declination radians
+  datum: [43.66138588, -79.39591013, -1.53589]
+  magnetic_declination_radians: 0.175
   expected_topics:
     - /odometry/local
 

@@ -71,6 +71,8 @@ POSE_GRAPH.constraint_builder.min_score = 0.85 -- Increase
 POSE_GRAPH.global_constraint_search_after_n_seconds = 30 -- Increase
 POSE_GRAPH.optimization_problem.odometry_rotation_weight = 1e6
 POSE_GRAPH.optimization_problem.odometry_translation_weight = 2e5 -- Increase
+POSE_GRAPH.optimization_problem.fixed_frame_pose_translation_weight = 1e1
+POSE_GRAPH.optimization_problem.fixed_frame_pose_rotation_weight = 1e0
 ---------Global/Local SLAM---------
 TRAJECTORY_BUILDER_2D.submaps.num_range_data = 100 -- Decrease
 TRAJECTORY_BUILDER_2D.max_range = 3.5 -- Decrease
