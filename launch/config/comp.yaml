@@ -20,6 +20,10 @@ zed_camera:
   log_level: error
   delay_sec: 5.0
   video_device: "/dev/video2"
+  num_disparities: 96
+  block_size: 3
+  p1_multiplier: 8
+  p2_multiplier: 32
   expected_topics:
     - /zed_node/left/image
 

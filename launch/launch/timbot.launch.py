@@ -416,6 +416,10 @@ def build_hardware_driver_stages(config: dict) -> list:
     zed_exposure = str(zed_cfg.get('exposure', 50))
     zed_gain = str(zed_cfg.get('gain', 50))
     zed_gamma = str(zed_cfg.get('gamma', 5))
+    zed_num_disparities = str(zed_cfg.get('num_disparities', 96))
+    zed_block_size = str(zed_cfg.get('block_size', 3))
+    zed_p1_multiplier = str(zed_cfg.get('p1_multiplier', 8))
+    zed_p2_multiplier = str(zed_cfg.get('p2_multiplier', 32))
 
     zed_stage = (
         'Driver: ZED Open Capture',
@@ -425,6 +429,10 @@ def build_hardware_driver_stages(config: dict) -> list:
             'exposure': zed_exposure,
             'gain': zed_gain,
             'gamma': zed_gamma,
+            'num_disparities': zed_num_disparities,
+            'block_size': zed_block_size,
+            'p1_multiplier': zed_p1_multiplier,
+            'p2_multiplier': zed_p2_multiplier,
         }),
         zed_expected_topics,
         zed_delay_sec,

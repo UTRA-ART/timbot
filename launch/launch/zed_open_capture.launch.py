@@ -35,6 +35,30 @@ def generate_launch_description():
         description='Manual gamma value in the range 1-9',
     )
 
+    num_disparities_arg = DeclareLaunchArgument(
+        'num_disparities',
+        default_value='96',
+        description='StereoSGBM disparity count (multiple of 16)',
+    )
+
+    block_size_arg = DeclareLaunchArgument(
+        'block_size',
+        default_value='3',
+        description='StereoSGBM block size (odd integer)',
+    )
+
+    p1_multiplier_arg = DeclareLaunchArgument(
+        'p1_multiplier',
+        default_value='8',
+        description='Multiplier used to compute StereoSGBM P1',
+    )
+
+    p2_multiplier_arg = DeclareLaunchArgument(
+        'p2_multiplier',
+        default_value='32',
+        description='Multiplier used to compute StereoSGBM P2',
+    )
+
     left_image_topic_arg = DeclareLaunchArgument(
         'left_image_topic',
         default_value='/zed_node/left/image',
@@ -64,6 +88,10 @@ def generate_launch_description():
                 'exposure': LaunchConfiguration('exposure'),
                 'gain': LaunchConfiguration('gain'),
                 'gamma': LaunchConfiguration('gamma'),
+                'num_disparities': LaunchConfiguration('num_disparities'),
+                'block_size': LaunchConfiguration('block_size'),
+                'p1_multiplier': LaunchConfiguration('p1_multiplier'),
+                'p2_multiplier': LaunchConfiguration('p2_multiplier'),
                 'left_image_topic': LaunchConfiguration('left_image_topic'),
                 'left_camera_info_topic': LaunchConfiguration('left_camera_info_topic'),
                 'depth_image_topic': LaunchConfiguration('depth_image_topic'),
@@ -78,6 +106,10 @@ def generate_launch_description():
         exposure_arg,
         gain_arg,
         gamma_arg,
+        num_disparities_arg,
+        block_size_arg,
+        p1_multiplier_arg,
+        p2_multiplier_arg,
         left_image_topic_arg,
         left_camera_info_topic_arg,
         depth_image_topic_arg,
