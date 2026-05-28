@@ -122,10 +122,13 @@ odom_state:
   horizontal_stddev: 5.0 # gps horizontal error - in meters
   vertical_stddev: 0.0 # gps vertical error
   wait_for_datum: true # if this is set to true, then set datum, if false, set magnetic declination radians
-  datum: [43.66138588, -79.39591013, -1.53589]
+  datum: [43.66089963333334, -79.3950963, 1.34390]
+
   magnetic_declination_radians: 0.175
   expected_topics:
     - /odometry/local
+
+
 
 # --- Stage 4: Filter Lidar Data ---
 filter_lidar:

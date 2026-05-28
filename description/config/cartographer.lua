@@ -50,7 +50,7 @@ TRAJECTORY_BUILDER_2D.num_accumulated_range_data = 1 -- Try putting this to 10 a
 
 TRAJECTORY_BUILDER_2D.min_range = 0.1
 TRAJECTORY_BUILDER_2D.max_range = 5.0 -- Ignore anything further than 5 meters
-TRAJECTORY_BUILDER_2D.missing_data_ray_length = 3.
+TRAJECTORY_BUILDER_2D.missing_data_ray_length = 5.0
 TRAJECTORY_BUILDER_2D.use_imu_data = true -- should we be using this or not we need to see
 TRAJECTORY_BUILDER_2D.ceres_scan_matcher.translation_weight = 400
 TRAJECTORY_BUILDER_2D.ceres_scan_matcher.rotation_weight = 400
@@ -64,7 +64,7 @@ POSE_GRAPH.optimization_problem.huber_scale = 1e2
 -----------------TUNE THESE PARAMETERS FOR LOW LATENCY-------------------------------
 
 ------------Global SLAM------------
-POSE_GRAPH.optimize_every_n_nodes = 90 -- Decrease
+POSE_GRAPH.optimize_every_n_nodes = 45 -- Decrease
 POSE_GRAPH.global_sampling_ratio = 0.003 -- Decrease
 POSE_GRAPH.constraint_builder.sampling_ratio = 0.4 -- Decrease
 POSE_GRAPH.constraint_builder.min_score = 0.85 -- Increase

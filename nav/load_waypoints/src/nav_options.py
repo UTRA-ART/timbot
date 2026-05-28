@@ -24,8 +24,15 @@
 # 3. Single gps goal ('gps') - x is longitude, y is latitude
 # ros2 service call /rover_navigation load_waypoints/srv/RoverNavigation "goal_type: 'gps'
 # goal:
-#   x: -79.3904467252
-#   y: 43.6570767441"
+# x: -79.39585696666667
+# y: 43.66129326666667"
+
+
+#   x: -79.395877
+#   y: 43.66129313333333"
+
+
+
 
 # ros2 launch load_waypoints load_waypoints.launch.py
 
