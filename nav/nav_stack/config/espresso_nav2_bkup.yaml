@@ -16,7 +16,7 @@ local_costmap:
       footprint_padding: 0.10
 
       # Plugin definitions (note the new plugin syntax)
-      plugins: ["obstacle_layer", "inflation_layer", "lane_layer_cv", "lane_inflation_layer_cv"]
+      plugins: ["obstacle_layer", "inflation_layer", "lane_layer_cv", "lane_inflation_layer_cv", "obstacle_layer_cv", "obstacle_inflation_layer_cv"]
 
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
@@ -72,7 +72,7 @@ local_costmap:
 
       obstacle_layer_cv:
         plugin: "nav2_costmap_2d::ObstacleLayer"
-        enabled: true
+        enabled: false
         observation_sources: cv_obstacles
         
         cv_obstacles:
@@ -92,7 +92,7 @@ local_costmap:
 
       obstacle_inflation_layer_cv:
         plugin: "nav2_costmap_2d::InflationLayer"
-        enabled: true
+        enabled: false
         inflation_radius:  0.3 
         cost_scaling_factor: 1.0
 
