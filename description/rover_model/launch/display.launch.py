@@ -19,7 +19,7 @@ def generate_launch_description():
         FindPackageShare('description'),
         'rover_model',
         'urdf',
-        'espresso.urdf.xacro'
+        'timbot.urdf.xacro'
     ])
     
     # Process the URDF file with xacro
@@ -52,7 +52,7 @@ def generate_launch_description():
         FindPackageShare('description'),
         'rover_model',
         'rviz',
-        'espresso.rviz'
+        'timbot.rviz'
     ])
     
     # RViz node
