@@ -39,7 +39,7 @@
     </link>
 
     <joint name="stand_joint" type="fixed">
-        <origin xyz="-0.1268 -0.0003302 0.6548" rpy="0 0 0" />
+        <origin xyz="0.178 0.001524 0.26861" rpy="0 0 0" />
         <parent link="chassis_link" />
         <child link="stand_link" />
         <axis xyz="0 0 0" />
@@ -83,7 +83,7 @@
     </link>
 
     <joint name="zed_joint" type="fixed">
-        <origin xyz="0.073649 0 0.10196" rpy="0 0.21468 0" />
+        <origin xyz="0.044163 0 ${ZED_camera_to_top_plate_z}" rpy="0 ${ZED_camera_pitch} 0" />
         <parent link="stand_link" />
         <child link="zed_link" />
         <axis xyz="0 0 0" />
@@ -148,7 +148,7 @@
     </link>
 
     <joint name="imu_joint" type="fixed">
-        <origin xyz="0.096934 0.026936 0.0022059" rpy="0 0 0" />
+        <origin xyz="0.159347 0 0" rpy="0 0 0" />
         <!-- The x-pos is same as it's actual position on the stand, but z-pos same as base_link
              x: imu_x_dist_to_stand + chassis_to_stand_link_x_dist -->
         <parent link="base_link" /> <!-- The frame origin is centered on base_link -->
@@ -193,10 +193,10 @@
     </link>
 
     <joint name="gps_joint" type="fixed">
-        <origin xyz="-0.028849 -0.027397 0.009525" rpy="0 0 0" />
+        <origin xyz="-0.054799 0 0.0095015" rpy="0 0 0" />
         <parent link="stand_link" />
         <child link="gps_link" />
-        <axis xyz="0 0 0" />
+        <axis xyz="0 0 1" />
     </joint>
 
     <gazebo reference="gps_link">
