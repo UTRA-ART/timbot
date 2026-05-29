@@ -51,22 +51,22 @@ class GpsCovRelay(Node):
                 'GPS cov relay [REAL]: passing through GPS covariance from receiver')
 
     def callback(self, msg: NavSatFix):
-        if self.is_sim:
-            # Sim: Ignition doesn't set covariance, inject our own
-            msg.position_covariance = [
-                self.h_var, 0.0, 0.0,
-                0.0, self.h_var, 0.0,
-                0.0, 0.0, self.v_var
-            ]
-            msg.position_covariance_type = NavSatFix.COVARIANCE_TYPE_DIAGONAL_KNOWN
-        # else: real hardware — trust the GPS receiver's covariance as-is
+        msg.header.frame_id = 'gps_link'
+        
+        # Force covariance injection for the Columbus P-7 Pro even on real hardware,
+        # because the raw NMEA driver relies on loose HDOP math without $GPGST strings.
+        msg.position_covariance = [
+            self.h_var, 0.0, 0.0,
+            0.0, self.h_var, 0.0,
+            0.0, 0.0, self.v_var
+        ]
+        msg.position_covariance_type = NavSatFix.COVARIANCE_TYPE_DIAGONAL_KNOWN
 
         # Ensure status is set to FIX
         if msg.status.status == NavSatStatus.STATUS_NO_FIX:
             msg.status.status = NavSatStatus.STATUS_FIX
 
         self.pub.publish(msg)
-
 
 def main(args=None):
     try:

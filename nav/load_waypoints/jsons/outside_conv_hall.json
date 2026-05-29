@@ -6,10 +6,12 @@
     "waypoints" : [
         {
             "id" : 0,
-            "longitude" : -79.39585696666667,
-            "latitude" : 43.66129326666667,
+            "longitude" : -79.39508545,
+            "latitude" : 43.661034816666664,
             "description"  : "North middle",
             "frame_id" : "map"
         }
     ]
 }
+
+

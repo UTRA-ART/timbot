@@ -40,6 +40,19 @@ def generate_launch_description():
     )
     log_level = LaunchConfiguration('log_level')
 
+    # GPS Covariance parameters
+    horizontal_stddev_arg = DeclareLaunchArgument(
+        'horizontal_stddev',
+        default_value='0.5', # 0.5m accuracy for the Columbus P-7 Pro
+        description='Horizontal standard deviation for GPS'
+    )
+    
+    vertical_stddev_arg = DeclareLaunchArgument(
+        'vertical_stddev',
+        default_value='1.0', # Altitude is slightly noisier
+        description='Vertical standard deviation for GPS'
+    )
+
     # 3. Derive launch_state automatically
     # If use_sim_time is true, state is 'sim'. Otherwise 'real'.
     launch_state = PythonExpression([
@@ -140,6 +153,8 @@ def generate_launch_description():
     return LaunchDescription([
         use_sim_time_arg,
         config_file_arg,
+        horizontal_stddev_arg, # ADDED
+        vertical_stddev_arg,   # ADDED
         log_level_arg,
         ekf_local,
         pose_relay,
