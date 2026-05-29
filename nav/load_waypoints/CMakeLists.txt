@@ -38,6 +38,7 @@ install(PROGRAMS
   src/navigate_waypoints.py
   src/nav_options.py
   src/ramp_navigate.py
+  src/nav_autonomous_relay.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

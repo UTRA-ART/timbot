@@ -81,7 +81,7 @@ def generate_launch_description():
         name='nav_relay',
         output='screen',
         arguments=['--ros-args', '--log-level', log_level],
-        parameters=[{'nav_input_topic':' /nav_vel'},
+        parameters=[{'nav_input_topic':'/nav_vel'},
             {'teleop_input_topic': '/teleop_vel'},
             {'output_topic': '/cmd_vel'},
             {'pause_topic': '/pause_navigation'}]

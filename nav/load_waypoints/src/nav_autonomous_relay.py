@@ -49,11 +49,11 @@ class NavRelay(Node):
 
     def nav_callback(self, msg: Twist):
         if not self.is_paused:
-            self.pub.publish(msg)
+            self.vel_pub.publish(msg)
     
     def teleop_callback(self, msg: Twist):
         if self.is_paused:
-            self.pub.publish(msg)
+            self.vel_pub.publish(msg)
 
 
 def main(args=None):
