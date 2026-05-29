@@ -21,6 +21,11 @@ def generate_launch_description():
         default_value='depth_detection.yaml',
         description='Name of the depth detection config file in depth_detection/config/',
     )
+    ramp_seg_using_lidar_arg = DeclareLaunchArgument(
+        'ramp_seg_using_lidar',
+        default_value='false',
+        description='If true, /ramp_seg is published by the lidar filter; if false, by this node',
+    )
 
     params_file = PathJoinSubstitution([
         FindPackageShare('depth_detection'),
@@ -30,10 +35,16 @@ def generate_launch_description():
 
     depth_node = Node(
         package='depth_detection',
-        executable='depth_to_pointcloud.py',
-        name='depth_to_pointcloud',
+        executable='pointcloud_filter_from_rviz.py',
+        name='pointcloud_rviz_filter',
         output='screen',
-        parameters=[params_file, {'use_sim_time': LaunchConfiguration('sim')}],
+        parameters=[
+            params_file,
+            {
+                'use_sim_time': LaunchConfiguration('sim'),
+                'ramp_seg_using_lidar': LaunchConfiguration('ramp_seg_using_lidar'),
+            },
+        ],
         arguments=['--ros-args', '--log-level', LaunchConfiguration('log_level')],
     )
 
@@ -41,5 +52,6 @@ def generate_launch_description():
         sim_arg,
         log_level_arg,
         config_file_arg,
+        ramp_seg_using_lidar_arg,
         depth_node,
     ])

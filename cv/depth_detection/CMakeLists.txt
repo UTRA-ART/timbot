@@ -4,7 +4,7 @@ project(depth_detection)
 find_package(ament_cmake REQUIRED)
 
 install(PROGRAMS
-  src/depth_to_pointcloud.py
+  src/pointcloud_filter_from_rviz.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

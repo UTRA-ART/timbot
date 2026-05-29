@@ -17,8 +17,14 @@ def generate_launch_description():
     main_lidar_angular_total_range = LaunchConfiguration('main_lidar_angular_total_range')
     limit_output_range = LaunchConfiguration('limit_output_range')
     desired_output_total_range = LaunchConfiguration('desired_output_total_range')
+    ramp_seg_using_lidar = LaunchConfiguration('ramp_seg_using_lidar')
 
     # --- Arguments ---
+    ramp_seg_using_lidar_arg = DeclareLaunchArgument(
+        'ramp_seg_using_lidar',
+        default_value='true',
+        description='If true, publish /ramp_seg from lidar; if false, suppress (depth_detection publishes it)',
+    )
     use_sim_time_arg = DeclareLaunchArgument(
         'sim',
         default_value='true',
@@ -68,10 +74,12 @@ def generate_launch_description():
             'main_lidar_angular_total_range': main_lidar_angular_total_range,
             'limit_output_range': limit_output_range,
             'desired_output_total_range': desired_output_total_range,
+            'ramp_seg_using_lidar': ramp_seg_using_lidar,
         }]
     )
 
     return LaunchDescription([
+        ramp_seg_using_lidar_arg,
         use_sim_time_arg,
         log_level_arg,
         dual_lidar_filter_node,

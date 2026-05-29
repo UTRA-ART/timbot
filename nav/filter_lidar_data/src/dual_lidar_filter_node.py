@@ -51,6 +51,7 @@ class DualLidarFilterNode(Node):
         self.declare_parameter('main_lidar_angular_total_range', 360)
         self.declare_parameter('limit_output_range', True)
         self.declare_parameter('desired_output_total_range', 180)
+        self.declare_parameter('ramp_seg_using_lidar', True)
 
         # Get parameters
         self.main_lidar_topic = self.get_parameter('main_lidar_topic').value
@@ -65,6 +66,7 @@ class DualLidarFilterNode(Node):
         self.main_lidar_angular_range = self.get_parameter('main_lidar_angular_total_range').value
         self.limit_output_range = self.get_parameter('limit_output_range').value
         self.desired_output_range = self.get_parameter('desired_output_total_range').value
+        self.ramp_seg_using_lidar = bool(self.get_parameter('ramp_seg_using_lidar').value)
 
         # Validate desired_output_range
         if self.limit_output_range and self.desired_output_range > self.main_lidar_angular_range:
@@ -142,8 +144,9 @@ class DualLidarFilterNode(Node):
 
             self.out_pub.publish(out_msg)
 
-            # Detect and publish ramp segments
-            self.detect_and_publish_ramp(msg)
+            # Detect and publish ramp segments (only when lidar is the ramp source)
+            if self.ramp_seg_using_lidar:
+                self.detect_and_publish_ramp(msg)
         else:
             # No valid upper lidar data, pass through original
             self.out_pub.publish(msg)

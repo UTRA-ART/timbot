@@ -1,14 +1,9 @@
 /**:
   ros__parameters:
-    depth_topic: /zed_node/left/depth_image
-    camera_info_topic: /zed_node/left/camera_info
-    pointcloud_topic: /zed_node/left/depth_points
-    obstacle_pointcloud_topic: /zed_node/left/obstacle_points
-    ramp_pointcloud_topic: /zed_node/left/ramp_points
-    frame_id: left_camera_link_optical
-    min_depth: 0.1
-    max_depth: 20.0
-    pixel_stride: 2
+    input_topic: /zed_node/left/points_rviz
+    filtered_topic: /zed_node/left/depth_points
+    obstacle_topic: /zed_node/left/obstacle_points
+    ramp_topic: /zed_node/left/ramp_points
     filter_by_roi: true
     min_forward: 0.3
     max_forward: 6.0
@@ -31,8 +26,6 @@
     cluster_tolerance: 0.35
     min_cluster_points: 5
     max_cluster_points: 0
-    log_cluster_metadata: false
-    cluster_metadata_log_period: 30
     classify_ramps: true
     max_ramp_detection_distance: 4.5
     ramp_center_lateral_limit: 1.2
