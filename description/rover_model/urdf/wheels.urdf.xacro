@@ -53,10 +53,10 @@
     </link>
 
     <joint name="left_wheel_joint" type="continuous">
-        <origin xyz="0.30478 0.40518 -0.21541" rpy="0 0 0" />
+        <origin xyz="0 0.337221649344587 0" rpy="0 0 0" />
         <parent link="chassis_link" />
         <child link="left_wheel_link" />
-        <axis xyz="0 1 0" />
+        <axis xyz="0 -1 0" />
 
         <limit effort="100.0" velocity="20.0"/>
     </joint>
@@ -109,10 +109,10 @@
     </link>
 
     <joint name="right_wheel_joint" type="continuous">
-        <origin xyz="0.30482 -0.40518 -0.21541" rpy="0 0 0" />
+        <origin xyz="0 -0.337221649344586 0" rpy="0 0 0" />
         <parent link="chassis_link" />
         <child link="right_wheel_link" />
-        <axis xyz="0 1 0" />
+        <axis xyz="0 -1 0" />
 
         <limit effort="100.0" velocity="20.0"/>
     </joint>
@@ -160,7 +160,7 @@
     </link>
 
     <joint name="caster_joint" type="fixed">
-        <origin xyz="-0.36833 0.001524 -0.13183" rpy="0 0 0" />
+        <origin xyz="-0.67301 7.5398E-05 0.070217" rpy="0 0 0" />
         <parent link="chassis_link" />
         <child link="caster_link" />
         <axis xyz="0 0 0" />
