@@ -71,7 +71,7 @@ ekf_local:
     #Imu is only to use orientation vel for now, since that is the only reliable data
     imu0: /imu/data
     imu0_config: [false, false, false, # The order of the boolean values are (X,Y,Z,roll,pitch,yaw,X˙,Y˙,Z˙,roll˙,pitch˙,yaw˙,X¨,Y¨,Z¨).
-                  false , false , false,
+                  true , true , true,
                   false, false, false,
                   true , true , true ,
                   false , false , false]
@@ -244,6 +244,6 @@ navsat_transform_node:
     sensor_frame: gps_link
     
     # Heading Setup
-    yaw_offset: 0.0 # 1.5708  # Correct for ENU if IMU is North-facing
-    use_odometry_yaw: true
+    yaw_offset: 1.5707963 # 1.5708  # Correct for ENU if IMU is North-facing
+    use_odometry_yaw: false
     # magnetic_declination_radians: 0.0 # for sim # needs to be sit through the config

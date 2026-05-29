@@ -455,7 +455,9 @@ def build_hardware_driver_stages(config: dict) -> list:
         # ),
         (
             'Driver: IMU',
-            _hw_driver('phidgets_spatial', 'spatial-launch.py',
+            _hw_driver('phidgets_spatial', 'spatial-launch.py', {
+                'use_orientation': True,
+            },
                        remappings=[('/imu/data_raw', '/imu/data')]),
             ['/imu/data'],
             5.0,
