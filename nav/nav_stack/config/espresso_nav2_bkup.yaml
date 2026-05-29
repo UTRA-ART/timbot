@@ -16,7 +16,7 @@ local_costmap:
       footprint_padding: 0.10
 
       # Plugin definitions (note the new plugin syntax)
-      plugins: ["obstacle_layer", "inflation_layer"]
+      plugins: ["obstacle_layer", "inflation_layer", "lane_layer_cv", "lane_inflation_layer_cv", "obstacle_layer_cv", "obstacle_inflation_layer_cv"]
 
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
@@ -43,7 +43,58 @@ local_costmap:
         enabled: true
         inflation_radius: 0.7
         cost_scaling_factor: 10.0
-      
+
+      lane_layer_cv:
+        plugin: "nav2_costmap_2d::ObstacleLayer"
+        enabled: true
+        observation_sources: cv_lanes
+        
+        cv_lanes:
+          sensor_frame: left_camera_link_optical
+          data_type: PointCloud2
+          topic: /cv/lane_detections_cloud
+          marking: true
+          clearing: false
+          inf_is_valid: true
+          expected_update_rate: 0.0 # Set to 0 to disable automatic timeout
+          min_obstacle_height: -0.05
+          max_obstacle_height: 0.05
+          obstacle_min_range: 0.05
+          obstacle_max_range: 2.5
+          raytrace_min_range: 0.0 # won't be used bc clearing set to false but leaving anyway
+          raytrace_max_range: 3.0 # won't be used bc clearing set to false but leaving anyway
+
+      lane_inflation_layer_cv:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        enabled: true
+        inflation_radius:  0.3 
+        cost_scaling_factor: 1.0
+
+      obstacle_layer_cv:
+        plugin: "nav2_costmap_2d::ObstacleLayer"
+        enabled: true
+        observation_sources: cv_obstacles
+        
+        cv_obstacles:
+          sensor_frame: left_camera_link_optical
+          data_type: PointCloud2
+          topic: /zed_node/left/obstacle_points
+          marking: true            # mark points as obstacles
+          clearing: false         # disable raytracing/clearing (depth camera unreliable)
+          inf_is_valid: true
+          expected_update_rate: 0.0 # Set to 0 to disable automatic timeout
+          min_obstacle_height: 0.05
+          max_obstacle_height: 10
+          obstacle_min_range: 0.05
+          obstacle_max_range: 2.5
+          raytrace_min_range: 0.0 # won't be used bc clearing set to false but leaving anyway
+          raytrace_max_range: 3.0 # won't be used bc clearing set to false but leaving anyway
+
+      obstacle_inflation_layer_cv:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        enabled: true
+        inflation_radius:  0.3 
+        cost_scaling_factor: 1.0
 
 # Global path planning
 
@@ -85,7 +136,7 @@ global_costmap:
       obstacle_layer:
         enabled: true
         track_unknown_space: true
-        observation_sources: laser_scan_sensor
+        observation_sources: laser_scan_sensor cv_point_cloud
 
         laser_scan_sensor:
           min_obstacle_height: 0.05
@@ -104,9 +155,27 @@ global_costmap:
           raytrace_min_range: 0.0
           raytrace_max_range: 5.0
 
+        cv_point_cloud:
+          min_obstacle_height: -0.05
+          max_obstacle_height: 0.05
+          # obstacle_min_range: 0.5
+          sensor_frame: left_camera_link_optical
+          data_type: PointCloud2
+          topic: /cv/lane_detections_cloud
+          marking: true
+          clearing: true
+          # obstacle_range: 3.7
+          # raytrace_range: 4.0
+          inf_is_valid: true
+          expected_update_rate: 0.0 # Set to 0 to disable automatic timeout
+          obstacle_min_range: 0.05
+          obstacle_max_range: 2.5
+          raytrace_min_range: 0.0
+          raytrace_max_range: 3.0
 
       # ---- Inflation Layer ----
       inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
         enabled: true
         inflation_radius:  1.3
         cost_scaling_factor: 3.0
