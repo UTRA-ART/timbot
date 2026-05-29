@@ -32,7 +32,7 @@
         <visual>
             <origin xyz="0 0 0" rpy="0 0 0" />
             <geometry>
-                <mesh filename="package://description/rover_model/meshes/leftwheel_link.STL" />
+                <mesh filename="package://description/rover_model/meshes/left_wheel_link.STL" />
             </geometry>
             <material name="">
                 <color rgba="0.34118 0.34118 0.34118 1" />
@@ -42,7 +42,7 @@
         <!-- <collision>
             <origin xyz="0 0 0" rpy="0 0 0" />
             <geometry>
-                <mesh filename="package://description/rover_model/meshes/leftwheel_link.STL" />
+                <mesh filename="package://description/rover_model/meshes/left_wheel_link.STL" />
             </geometry>
         </collision> -->
         <collision>
@@ -88,7 +88,7 @@
         <visual>
             <origin xyz="0 0 0" rpy="0 0 0" />
             <geometry>
-                <mesh filename="package://description/rover_model/meshes/rightwheel_link.STL" />
+                <mesh filename="package://description/rover_model/meshes/right_wheel_link.STL" />
             </geometry>
             <material name="">
                 <color rgba="0.34118 0.34118 0.34118 1" />
