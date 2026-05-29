@@ -40,19 +40,18 @@ def generate_launch_description():
     )
     
     # Joint state publisher GUI node
-    joint_state_publisher_gui_node = Node(
-        package='joint_state_publisher_gui',
-        executable='joint_state_publisher_gui',
-        name='joint_state_publisher_gui',
+    joint_state_publisher_node = Node(
+        package='joint_state_publisher',
+        executable='joint_state_publisher',
+        name='joint_state_publisher',
         output='screen'
     )
     
     # RViz configuration file path
     rviz_config_file = PathJoinSubstitution([
         FindPackageShare('description'),
-        'rover_model',
         'rviz',
-        'timbot.rviz'
+        'timbot_viz.rviz'
     ])
     
     # RViz node
@@ -67,6 +66,6 @@ def generate_launch_description():
     return LaunchDescription([
         model_arg,
         robot_state_publisher_node,
-        joint_state_publisher_gui_node,
+        joint_state_publisher_node,
         rviz_node
     ])
