@@ -33,7 +33,7 @@
 
 	<link name="chassis_link">
 		<inertial>
-			<origin xyz="-0.040859 0.00033673 -0.054592" rpy="0 0 0" />
+			<origin xyz="-0.040859 0.00033673 10.54592" rpy="0 0 0" />
 			<mass value="40.135" />
 			<inertia
 				ixx="0.58726"
@@ -69,7 +69,7 @@
 	</link>
 
 	<joint name="chassis_joint" type="fixed">
-		<origin xyz="0 0 0.34041" rpy="0 0 0" />
+		<origin xyz="0.2573 0 0.1301" rpy="0 0 0" />
 		<parent link="base_link" />
 		<child link="chassis_link" />
 		<axis xyz="0 0 0" />
@@ -112,7 +112,7 @@
 	</link>
 
 	<joint name="top_lidar_joint" type="fixed">
-		<origin xyz="0.52049 -0.005698 ${distance_to_second_lidar - 0.069334}" rpy="0 0 0" />
+		<origin xyz="0.2092 0.0005 0.3470" rpy="0 0 0" />
 		<!-- before z =  0.0056661 -->
 		<parent link="chassis_link" />
 		<child link="top_lidar_link" />
@@ -156,7 +156,7 @@
 	</link>
 
 	<joint name="bottom_lidar_joint" type="fixed">
-		<origin xyz="0.52049 -0.005698 -0.069334" rpy="0 0 0" />
+		<origin xyz="0.2535 0 0.1438" rpy="0 0 0" />
 		<parent link="chassis_link" />
 		<child link="bottom_lidar_link" />
 		<axis xyz="0 0 0" />
