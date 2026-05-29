@@ -151,6 +151,7 @@ def launch_odom_state(config: dict, sim: bool, context: LaunchContext) -> list:
 def launch_filter_lidar(config: dict, sim: bool, context: LaunchContext) -> list:
     lidar_cfg = config.get('filter_lidar', {})
     log_level = lidar_cfg.get('log_level', 'info')
+    ramp_seg_using_lidar = config.get('ramp_seg_using_lidar', True)
     filter_args = {
         'sim': str(sim).lower(),
         'log_level': log_level,
@@ -166,6 +167,7 @@ def launch_filter_lidar(config: dict, sim: bool, context: LaunchContext) -> list
         'main_lidar_angular_total_range': str(lidar_cfg.get('main_lidar_angular_total_range', 360)),
         'limit_output_range': str(lidar_cfg.get('limit_output_range', True)).lower(),
         'desired_output_total_range': str(lidar_cfg.get('desired_output_total_range', 180)),
+        'ramp_seg_using_lidar': str(ramp_seg_using_lidar).lower(),
     }
     filter_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([
@@ -207,6 +209,7 @@ def launch_lane_detection(config: dict, sim: bool, context: LaunchContext) -> li
 def launch_depth_detection(config: dict, sim: bool, context: LaunchContext) -> list:
     depth_cfg = config.get('depth_detection', {})
     log_level = depth_cfg.get('log_level', 'info')
+    ramp_seg_using_lidar = config.get('ramp_seg_using_lidar', True)
 
     depth_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([
@@ -217,6 +220,7 @@ def launch_depth_detection(config: dict, sim: bool, context: LaunchContext) -> l
             'sim': str(sim).lower(),
             'log_level': log_level,
             'config_file': depth_cfg.get('config_file', 'depth_detection.yaml'),
+            'ramp_seg_using_lidar': str(ramp_seg_using_lidar).lower(),
         }.items()
     )
 

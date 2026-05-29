@@ -2,7 +2,7 @@
 <package format="3">
   <name>depth_detection</name>
   <version>0.0.1</version>
-  <description>Standalone depth-image to PointCloud2 converter for depth-based obstacle and ramp detection.</description>
+  <description>Point cloud filter for obstacle and ramp detection from ZED depth camera.</description>
   <maintainer email="robotswithai@example.com">robotswithai</maintainer>
   <license>MIT</license>
 
@@ -16,7 +16,7 @@
   <depend>sensor_msgs</depend>
   <depend>sensor_msgs_py</depend>
   <depend>std_msgs</depend>
-  <depend>cv_bridge</depend>
+  <depend>geometry_msgs</depend>
 
   <export>
     <build_type>ament_cmake</build_type>
