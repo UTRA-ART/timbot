@@ -106,7 +106,7 @@
 		<collision>
 			<origin xyz="0 0 0" rpy="0 0 0" />
 			<geometry>
-				<mesh filename="package://description/rover_model/meshes/lidar_link.STL" />
+				<mesh filename="package://description/rover_model/meshes/top_lidar_link.STL" />
 			</geometry>
 		</collision>
 	</link>
@@ -150,7 +150,7 @@
 		<collision>
 			<origin xyz="0 0 0" rpy="0 0 0" />
 			<geometry>
-				<mesh filename="package://description/rover_model/meshes/lidar_link.STL" />
+				<mesh filename="package://description/rover_model/meshes/bottom_lidar_link.STL" />
 			</geometry>
 		</collision>
 	</link>
