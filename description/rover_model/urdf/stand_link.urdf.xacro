@@ -128,7 +128,7 @@
         </inertial>
 
         <visual>
-            <origin xyz="0 0 0.61854" rpy="0 0 0" /> <!-- Physical imu located on stand -->
+            <origin xyz="0 0 0" rpy="0 0 0" /> <!-- Physical imu located on stand -->
             <!-- z-pos of visual model moved back up to stand height
                  z: imu_z_dist_to_stand + chassis_to_stand_link_z_dist + chassis_to_base_link_dist} -->
             <geometry>
@@ -140,7 +140,7 @@
         </visual>
 
         <collision>
-            <origin xyz="0 0 0.61854" rpy="0 0 0" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
             <geometry>
                 <mesh filename="package://description/rover_model/meshes/imu_link.STL" />
             </geometry>
