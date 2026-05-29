@@ -80,7 +80,7 @@ def generate_launch_description():
             '/world/default/delete@ros_gz_interfaces/srv/DeleteEntity',
             '/world/default/create@ros_gz_interfaces/srv/SpawnEntity',
             # Receive raw odometry FROM Gazebo (Optional, but good for debugging)
-            '/odom@nav_msgs/msg/Odometry[ignition.msgs.Odometry',
+            '/wheel_odom@nav_msgs/msg/Odometry[ignition.msgs.Odometry',
             '--ros-args', '--log-level', log_level,
         ],
         output='screen',

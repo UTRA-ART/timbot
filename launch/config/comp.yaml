@@ -115,7 +115,7 @@ spawn:
 # --- Stage 3: Odom State (EKF local + global + navsat) ---
 odom_state:
   enabled: true
-  config_file: odom.yaml
+  config_file: odom_sim.yaml
   log_level: error  # Set to 'debug' to see EKF covariance internals
   delay_sec: 5.0
   position_covariance: 0.05 # cartographer pose

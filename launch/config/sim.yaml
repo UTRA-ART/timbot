@@ -56,7 +56,7 @@ spawn:
   delay_sec: 10.0
   expected_topics:
     - /clock
-    - /odom
+    - /wheel_odom
     - /imu/data
     - /scan_lower
 
@@ -146,7 +146,7 @@ rviz:
 # --- Stage 7: Nav2 Stack ---
 nav_stack:
   enabled: true
-  config_file: nav2_rpp.yaml
+  config_file: espresso_nav2_bkup.yaml
   log_level: error
   delay_sec: 10.0
   expected_topics:
