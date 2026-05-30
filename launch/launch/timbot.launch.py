@@ -481,7 +481,7 @@ def build_hardware_driver_stages(config: dict) -> list:
             # AHRS publishes its orientation (in NED) on /imu/data_raw.
             'Driver: IMU',
             _hw_driver('phidgets_spatial', 'spatial-launch.py', {
-                'use_orientation': True,
+                # 'use_orientation': 'true',
             }),
             ['/imu/data_raw'],
             5.0,
