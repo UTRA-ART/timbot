@@ -39,7 +39,7 @@
     </link>
 
     <joint name="stand_joint" type="fixed">
-        <origin xyz="0.1268 0 0.6548" rpy="0 0 0" />
+        <origin xyz="-0.1268 0 0.6548" rpy="0 0 0" />
         <parent link="chassis_link" />
         <child link="stand_link" />
         <axis xyz="0 0 0" />
