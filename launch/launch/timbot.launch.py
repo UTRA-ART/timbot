@@ -211,6 +211,12 @@ def launch_depth_detection(config: dict, sim: bool, context: LaunchContext) -> l
     log_level = depth_cfg.get('log_level', 'info')
     ramp_seg_using_lidar = config.get('ramp_seg_using_lidar', True)
 
+    # depth_detection subscribes to /zed_node/left/points_rviz, which is only
+    # published by pointcloud_relay in robot_bringup when lane_detection is enabled.
+    if not config.get('lane_detection', {}).get('enabled', False):
+        print('[timbot_launch] depth_detection skipped: lane_detection is disabled (no points_rviz feed)', flush=True)
+        return []
+
     depth_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([
             FindPackageShare('depth_detection'),
