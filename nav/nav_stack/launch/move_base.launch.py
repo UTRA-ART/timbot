@@ -89,7 +89,7 @@ def generate_launch_description():
         name="controller_server",
         output="screen",
         parameters=[nav2_params_configured, {'use_sim_time': use_sim_time}],
-        remappings=[('/cmd_vel', '/nav_vel')],
+        # remappings=[('/cmd_vel', '/nav_vel')],
         arguments=['--ros-args', '--log-level', log_level],
     )
 
