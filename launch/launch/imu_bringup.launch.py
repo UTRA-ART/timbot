@@ -1,26 +1,27 @@
 """
-IMU Bringup (real rover)
-========================
-Brings up the Phidgets Spatial as a RAW sensor source plus an
-``imu_filter_madgwick`` node that fuses accel + gyro + magnetometer into an
-ENU-referenced orientation on ``/imu/data``.
-
-Why this exists
----------------
-The Phidgets onboard AHRS reports its orientation quaternion in a NED-style
-(Z-down, north-referenced) frame, which is incompatible with ROS/REP-103 (ENU).
-Instead of using that quaternion, we run the driver with ``use_orientation:=False``
-(so it publishes only raw ``/imu/data_raw`` + ``/imu/mag``) and let
-``imu_filter_madgwick`` compute orientation directly in ENU
-(``world_frame:=enu``).  Nothing downstream ever sees NED.
+IMU Bringup (real rover) — onboard AHRS + NED→ENU relay
+=======================================================
+Brings up the Phidgets Spatial with its ONBOARD AHRS enabled
+(``use_orientation:=True``), which fuses accel + gyro + magnetometer on-device
+into an orientation quaternion — but in a NED-referenced world frame. A small
+relay (``odom_state/imu_relay.py``) converts that orientation to ENU (REP-103)
+and republishes ``/imu/data``.
 
 Topic flow:
-    phidgets_spatial -> /imu/data_raw (accel+gyro), /imu/mag (magnetometer)
-    imu_filter_madgwick (/imu/data_raw + /imu/mag) -> /imu/data (ENU orientation)
+    phidgets_spatial (AHRS) -> /imu/data_raw  (NED orientation + accel + gyro)
+    imu_relay (/imu/data_raw) -> /imu/data    (ENU orientation, accel/gyro passthrough)
+    phidgets_spatial         -> /imu/mag      (unused downstream; AHRS uses mag on-device)
 
-PREREQUISITE: the magnetometer must be calibrated for heading to be correct.
-Fill in the ``cc_*`` compass-correction params below once calibrated (see the
-Phidgets 1044 user guide); until then heading from the mag will wander.
+Why this instead of imu_filter_madgwick:
+    The onboard AHRS handles the device's internal sensor-axis conventions and
+    mag fusion itself, so we only need a single fixed NED→ENU world rotation in
+    the relay rather than feeding raw axes to an external filter.
+
+PREREQUISITE: heading accuracy still depends on a calibrated magnetometer. The
+AHRS uses the magnetometer for yaw, and the robot's own magnetic field (motors,
+battery, steel) distorts it. Calibrate each device once via the Phidget Control
+Panel (mounted on the powered robot); the correction persists in the device's
+firmware. The relay/AHRS choice does NOT remove this requirement.
 """
 
 from launch import LaunchDescription
@@ -46,28 +47,40 @@ def generate_launch_description():
     )
     log_level = LaunchConfiguration('log_level')
 
-    # --- Phidgets Spatial: RAW data only (no onboard AHRS orientation) ---
+    # --- Phidgets Spatial with onboard AHRS (orientation in NED) ---
     phidgets_params = {
-        # Do NOT use the onboard AHRS — its quaternion is NED. madgwick gives ENU.
-        'use_orientation': False,
+        'use_orientation': True,        # enable on-device AHRS fusion
+        'spatial_algorithm': 'ahrs',
         'frame_id': 'imu_link',
         # 125 Hz is the magnetometer ceiling; matches the URDF imu_update_rate.
         'data_interval_ms': 8,
-        'publish_rate': 0.0,           # publish on every device sample
+        'publish_rate': 0.0,            # publish on every device sample
         'use_sim_time': use_sim_time,
 
+        # AHRS tuning (Phidgets stock defaults).
+        'ahrs_angular_velocity_threshold': 1.0,
+        'ahrs_angular_velocity_delta_threshold': 0.1,
+        'ahrs_acceleration_threshold': 0.1,
+        'ahrs_mag_time': 10.0,
+        'ahrs_accel_time': 10.0,
+        'ahrs_bias_time': 1.25,
+
         # --- Magnetometer compass-correction (hard/soft-iron) calibration ---
-        # From the Phidget Control Panel magnetometer calibration (run with the IMU
-        # mounted on the powered robot). These are ALSO persisted in device firmware;
-        # setting them here just documents the calibration in git and restores it if
-        # firmware is ever reset. Idempotent with firmware (it replaces, not stacks).
-        # NOTE: do NOT also set madgwick mag_bias_* — that would double-correct.
-        # Order: magField, offset0-2, gain0-2, T0-5.
-        'cc_mag_field': 1.00000,
-        'cc_offset0': 0.78557, 'cc_offset1': 0.63800, 'cc_offset2': -0.41549,
-        'cc_gain0': 0.97048,  'cc_gain1': 1.43722,  'cc_gain2': 1.49328,
-        'cc_t0': -0.61325, 'cc_t1': 0.16235, 'cc_t2': -0.76681,
-        'cc_t3': -0.22019, 'cc_t4': 0.56628, 'cc_t5': 0.33753,
+        # IMPORTANT: calibration is PER-DEVICE and persists in each unit's firmware
+        # (run the Phidget Control Panel magnetometer calibration once per device,
+        # mounted on the powered robot). Do NOT hardcode one device's values here —
+        # that would push the wrong correction onto a different unit. Leave these
+        # commented so each device uses its own firmware calibration.
+        #
+        # Reference (device serial ____, calibrated YYYY-MM-DD): magField, offset0-2,
+        # gain0-2, T0-5 = 1.00000, 0.78557, 0.63800, -0.41549, 0.97048, 1.43722,
+        # 1.49328, -0.61325, 0.16235, -0.76681, -0.22019, 0.56628, 0.33753
+        #
+        # 'cc_mag_field': ...,
+        # 'cc_offset0': ..., 'cc_offset1': ..., 'cc_offset2': ...,
+        # 'cc_gain0': ...,  'cc_gain1': ...,  'cc_gain2': ...,
+        # 'cc_t0': ..., 'cc_t1': ..., 'cc_t2': ...,
+        # 'cc_t3': ..., 'cc_t4': ..., 'cc_t5': ...,
     }
 
     phidgets_container = ComposableNodeContainer(
@@ -87,20 +100,20 @@ def generate_launch_description():
         output='screen',
     )
 
-    # --- Madgwick filter: raw accel/gyro/mag -> ENU orientation on /imu/data ---
-    imu_filter = Node(
-        package='imu_filter_madgwick',
-        executable='imu_filter_madgwick_node',
-        name='imu_filter',
+    # --- Relay: convert AHRS NED orientation -> ENU, republish /imu/data ---
+    imu_relay = Node(
+        package='odom_state',
+        executable='imu_relay.py',
+        name='imu_relay',
         output='screen',
         parameters=[{
-            'use_mag': True,            # fuse magnetometer for absolute heading
-            'world_frame': 'enu',       # <-- produces REP-103 ENU orientation
-            'publish_tf': False,        # ekf owns the TF tree, not this filter
-            'gain': 0.1,
+            'input_topic': '/imu/data_raw',
+            'output_topic': '/imu/data',
+            # Set if bench verification shows a constant heading offset (else 0).
+            'extra_yaw_offset_deg': 0.0,
+            'orientation_stddev': 0.05,
             'use_sim_time': use_sim_time,
         }],
-        # Subscribes /imu/data_raw + /imu/mag, publishes /imu/data (all global ns).
         arguments=['--ros-args', '--log-level', log_level],
     )
 
@@ -108,5 +121,5 @@ def generate_launch_description():
         sim_arg,
         log_level_arg,
         phidgets_container,
-        imu_filter,
+        imu_relay,
     ])
