@@ -55,6 +55,7 @@ find_package(std_msgs REQUIRED)
 install(PROGRAMS
   src/pose_relay.py
   src/gps_cov_relay.py
+  src/imu_relay.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

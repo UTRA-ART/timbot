@@ -148,7 +148,7 @@
     </link>
 
     <joint name="imu_joint" type="fixed">
-        <origin xyz="0.159347 0 0" rpy="3.14159 0 0" />
+        <origin xyz="0.159347 0 0" rpy="0 0 0" />
         <!-- The x-pos is same as it's actual position on the stand, but z-pos same as base_link
              x: imu_x_dist_to_stand + chassis_to_stand_link_x_dist -->
         <parent link="base_link" /> <!-- The frame origin is centered on base_link -->
