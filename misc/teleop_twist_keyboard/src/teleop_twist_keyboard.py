@@ -164,7 +164,7 @@ def main(args=None):
     node.declare_parameter('turn', 0.0)
     node.declare_parameter('repeat_rate', 0.001)
     node.declare_parameter('key_timeout', 0.0)
-    node.declare_parameter('cmd_vel_topic', '/teleop_vel')
+    node.declare_parameter('cmd_vel_topic', '/cmd_vel')
 
     speed = node.get_parameter('speed').value
     turn = node.get_parameter('turn').value
