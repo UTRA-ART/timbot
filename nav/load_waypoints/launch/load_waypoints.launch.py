@@ -21,7 +21,7 @@ def generate_launch_description():
     # Default: sim_waypoints.json
     config_file_arg = DeclareLaunchArgument(
         'config_file',
-        default_value='outside.json',
+        default_value='comp_mag_test.json',
         description='Name of the waypoints JSON file in load_waypoints/jsons/'
     )
 
