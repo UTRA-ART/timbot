@@ -465,12 +465,14 @@ def build_hardware_driver_stages(config: dict) -> list:
         # ),
         (
             'Driver: IMU',
-            _hw_driver('phidgets_spatial', 'spatial-launch.py', {
-                'use_orientation': True,
-            },
-                       remappings=[('/imu/data_raw', '/imu/data')]),
+            # Phidgets (raw) + imu_filter_madgwick → ENU orientation on /imu/data.
+            # The onboard AHRS is NOT used (its quaternion is NED); madgwick fuses
+            # raw accel/gyro/mag directly in ENU. See imu_bringup.launch.py.
+            _hw_driver('timbot_launch', 'imu_bringup.launch.py', {
+                'sim': 'false',
+            }),
             ['/imu/data'],
-            5.0,
+            8.0,
         ),
         (
             'Driver: LiDAR Lower',

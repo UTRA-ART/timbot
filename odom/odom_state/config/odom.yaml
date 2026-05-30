@@ -57,9 +57,13 @@ ekf_local:
     # odom0_relative: false
 
     odom0: /wheel_odom #wheel encoder
+    # Wheel odom is the planar pose anchor for the odom frame: X,Y,Z + YAW.
+    # Its X,Y and yaw are mutually consistent (both integrated from the same
+    # encoders), so fusing yaw here keeps heading and position coherent.
+    # roll/pitch stay OFF — wheel odom can't observe tilt (would inject 0s).
     odom0_config: [true , true, true, # The order of the boolean values are (X,Y,Z,roll,pitch,yaw,X˙,Y˙,Z˙,roll˙,pitch˙,yaw˙,X¨,Y¨,Z¨).
-                   true, true, true,
-                   false , false, false, 
+                   false, false, true,
+                   false , false, false,
                    false, false, false,
                    false, false, false]
     odom0_queue_size: 10
@@ -68,12 +72,16 @@ ekf_local:
 
     # IMU Sensor(s) ##
 
-    #Imu is only to use orientation vel for now, since that is the only reliable data
+    # Local EKF must stay in the smooth/continuous odom frame: feed only relative
+    # data (angular velocity). The absolute (magnetometer-referenced) orientation
+    # is intentionally NOT fused here — it belongs to navsat_transform for GPS
+    # heading. Fusing absolute yaw here pollutes odom and fights the wheel-odom
+    # heading (see git history; this was the 9fe3197 regression).
     imu0: /imu/data
     imu0_config: [false, false, false, # The order of the boolean values are (X,Y,Z,roll,pitch,yaw,X˙,Y˙,Z˙,roll˙,pitch˙,yaw˙,X¨,Y¨,Z¨).
-                  true , true , true,
+                  false, false, false,  # orientation OFF (odom frame must stay smooth)
                   false, false, false,
-                  true , true , true ,
+                  true , true , true ,  # angular velocity ON
                   false , false , false]
     imu0_queue_size: 5
     imu0_differential: false
@@ -244,6 +252,10 @@ navsat_transform_node:
     sensor_frame: gps_link
     
     # Heading Setup
-    yaw_offset: 1.5707963 # 1.5708  # Correct for ENU if IMU is North-facing
+    # /imu/data is now true ENU (produced by imu_filter_madgwick, world_frame=enu),
+    # so NO yaw_offset is needed. madgwick references MAGNETIC north; the
+    # magnetic_declination_radians param (set per-site in the launch config)
+    # converts magnetic→true north.
+    yaw_offset: 0.0
     use_odometry_yaw: false
     # magnetic_declination_radians: 0.0 # for sim # needs to be sit through the config
