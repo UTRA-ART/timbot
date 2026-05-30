@@ -387,6 +387,20 @@ def _exec_driver(cmd: list[str], cwd: str | None = None, name: str | None = None
     return launcher
 
 
+def _node_driver(package: str, executable: str, name: str,
+                 parameters: dict | None = None):
+    """Return a launcher function that wraps a single ros2 Node."""
+    def launcher(context: LaunchContext) -> list:
+        return [Node(
+            package=package,
+            executable=executable,
+            name=name,
+            output='screen',
+            parameters=[parameters or {}],
+        )]
+    return launcher
+
+
 def _normalize_exec_cmd(cmd_value: object, default_cmd: list[str]) -> list[str]:
     """Normalize a YAML command entry into ExecuteProcess cmd form."""
     if isinstance(cmd_value, list) and cmd_value:
@@ -464,15 +478,29 @@ def build_hardware_driver_stages(config: dict) -> list:
         #     5.0,
         # ),
         (
+            # AHRS publishes its orientation (in NED) on /imu/data_raw.
             'Driver: IMU',
-            # Phidgets (raw) + imu_filter_madgwick → ENU orientation on /imu/data.
-            # The onboard AHRS is NOT used (its quaternion is NED); madgwick fuses
-            # raw accel/gyro/mag directly in ENU. See imu_bringup.launch.py.
-            _hw_driver('timbot_launch', 'imu_bringup.launch.py', {
-                'sim': 'false',
+            _hw_driver('phidgets_spatial', 'spatial-launch.py', {
+                'use_orientation': True,
+            }),
+            ['/imu/data_raw'],
+            5.0,
+        ),
+        (
+            # Relay: NED->ENU orientation correction -> /imu/data,
+            # plus imu_ned / imu_enu degree debug topics. yaw_offset
+            # (degrees) is read from the YAML for heading calibration.
+            'IMU NED->ENU Relay',
+            _node_driver('odom_state', 'imu_relay.py', 'imu_relay', {
+                'input_topic': '/imu/data_raw',
+                'output_topic': '/imu/data',
+                'yaw_offset': float(config.get('imu_relay', {}).get('yaw_offset', 0.0)),
+                'orientation_stddev': float(
+                    config.get('imu_relay', {}).get('orientation_stddev', 0.05)
+                ),
             }),
             ['/imu/data'],
-            8.0,
+            3.0,
         ),
         (
             'Driver: LiDAR Lower',

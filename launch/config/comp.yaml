@@ -16,6 +16,13 @@ gps_baud: 57600
 lidar_lower_port: "/dev/lidar_port_0"
 lidar_upper_port: "/dev/lidar_port_1"
 
+# --- IMU NED->ENU relay ---
+# Converts the AHRS orientation (NED on /imu/data_raw) to ENU on /imu/data, and
+# publishes orientation in degrees on imu_ned / imu_enu for bench calibration.
+imu_relay:
+  yaw_offset: 0.0          # degrees, world-frame yaw calibration about ENU Up
+  orientation_stddev: 0.05 # rad, orientation covariance fed to the EKF/navsat
+
 zed_camera:
   enabled: true
   log_level: error
