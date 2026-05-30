@@ -19,6 +19,20 @@ git apply ../../patches/navsat_fix.patch
 # 4. Return to the workspace root
 cd ../..
 
+# 5. Navigate to the IMU submodule
+cd sensor_drivers/imu
+
+# 6. Reset the submodule to its clean, tracked state to prevent patch conflicts
+git checkout .
+git clean -fd
+
+# 7. Apply IMU patch
+echo "Applying IMU patch"
+git apply ../../patches/imu_fix.patch
+
+# 8. Return to the workspace root
+cd ../..
+
 echo "=== Building Workspace ==="
 
 echo "=== Post-Build: ZED Open Capture Build ==="
