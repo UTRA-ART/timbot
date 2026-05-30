@@ -116,7 +116,7 @@
     <!-- Due to the requirements of cartographer, the imu_link frame is located on same height as base_link, but the model is located on top of the stand -->
     <link name="imu_link">
         <inertial>
-            <origin xyz="3.0642E-07 -2.658E-07 0.0062442" rpy="3.14159 0 0" />
+            <origin xyz="3.0642E-07 -2.658E-07 0.0062442" rpy="0 0 0" />
             <mass value="0.016518" />
             <inertia
                 ixx="1.9791E-06"
@@ -128,7 +128,7 @@
         </inertial>
 
         <visual>
-            <origin xyz="0 0 0" rpy="3.14159 0 0" /> <!-- Physical imu located on stand -->
+            <origin xyz="0 0 0" rpy="0 0 0" /> <!-- Physical imu located on stand -->
             <!-- z-pos of visual model moved back up to stand height
                  z: imu_z_dist_to_stand + chassis_to_stand_link_z_dist + chassis_to_base_link_dist} -->
             <geometry>
@@ -140,7 +140,7 @@
         </visual>
 
         <collision>
-            <origin xyz="0 0 0" rpy="3.14159 0 0" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
             <geometry>
                 <mesh filename="package://description/rover_model/meshes/imu_link.STL" />
             </geometry>
@@ -152,7 +152,7 @@
              rolled 180° about X relative to base_link. This rpy MUST match the
              real sensor mounting — TF uses it to rotate gyro/accel into base_link.
              If you ever remount the IMU FLU (x-fwd, y-left, z-up), change to "0 0 0". -->
-        <origin xyz="0.0969 0.0229 0" rpy="3.14159 0 0" />
+        <origin xyz="0.0969 0.0229 0" rpy="0 0 0" />
         <!-- The x-pos is same as it's actual position on the stand, but z-pos same as base_link
              x: imu_x_dist_to_stand + chassis_to_stand_link_x_dist -->
         <parent link="base_link" /> <!-- The frame origin is centered on base_link -->
