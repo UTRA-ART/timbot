@@ -33,6 +33,7 @@ import math
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
+from rclpy.serialization import deserialize_message
 from sensor_msgs.msg import Imu
 
 
@@ -77,7 +78,11 @@ class ImuNedToEnuRelay(Node):
 
         self.pub = self.create_publisher(Imu, self.output_topic, 10)
         self.sub = self.create_subscription(
-            Imu, self.input_topic, self.callback, qos_profile_sensor_data
+            Imu,
+            self.input_topic,
+            self.callback,
+            qos_profile_sensor_data,
+            raw=True,
         )
 
         self.get_logger().info(
@@ -85,7 +90,12 @@ class ImuNedToEnuRelay(Node):
             f'(extra_yaw_offset={math.degrees(yaw_off):.1f}°)'
         )
 
-    def callback(self, msg: Imu):
+    def callback(self, msg):
+        try:
+            msg = deserialize_message(msg, Imu)
+        except Exception as exc:
+            self.get_logger().warn(f'Failed to deserialize IMU message: {exc}')
+            return
         q_ned = (
             msg.orientation.x,
             msg.orientation.y,
