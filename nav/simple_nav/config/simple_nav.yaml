@@ -12,7 +12,7 @@ simple_nav_node:
 
     linear_speed: 0.4
     angular_speed: 0.6
-    position_tolerance: 0.10
+    position_tolerance: 0.05
     angular_tolerance: 0.1
     min_drive_distance: 0.05
     control_rate: 20.0

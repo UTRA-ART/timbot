@@ -18,22 +18,20 @@ without Nav2, GPS, cameras, or the full Timbot stack. Starts:
  10. Depth detection           — ZED point cloud filtering -> /zed_node/left/obstacle_points
  11. Cartographer              — SLAM: scan + odom + IMU + obstacle_points + lane_cloud
                                  publishes /tracked_pose (map frame) + map->odom TF
- 12. Pose Relay                — /tracked_pose -> /tracked_pose_cov
- 13. simple_nav_node           — open-loop relative goal follower using /tracked_pose_cov
+ 12. Pose Relay                — /tracked_pose -> /tracked_pose_cov (available for
+                                 debugging; not in simple_nav's feedback loop)
+ 13. simple_nav_node           — open-loop relative goal follower using /odometry/local
 
 Data flow:
-  wheel_odom + IMU -> ekf_local (/odometry/local) ──────────────────────────────┐
-                                                                                 │
-  RPLidar (/scan_lower) ─────────────────────────────────────────────────→ Cartographer
-                                                                                 │
+  wheel_odom + IMU -> ekf_local -> /odometry/local -> simple_nav_node -> /cmd_vel
+                                        |
+  RPLidar (/scan_lower) ────────→ Cartographer (map building + map->odom TF only)
+                                        |
   ZED -> pointcloud_relay -> depth_detection -> /zed_node/left/obstacle_points ─┤
       -> lane_detection  -> /cv/lane_detections_cloud ───────────────────────────┘
-                                                                                 │
-                                                              /tracked_pose -> pose_relay
-                                                                                 │
-                                                                         /tracked_pose_cov
-                                                                                 │
-                                                                       simple_nav_node -> /cmd_vel
+
+  Note: Cartographer's map->odom TF is the stable output used by the broader stack.
+  /tracked_pose is available via pose_relay for future ekf_global integration.
 
 motor_control is NOT launched here — start it separately (systemd on the Pi, or
 `ros2 run motor_control motor_control.py`). simple_nav publishes /cmd_vel directly.
@@ -316,8 +314,6 @@ def generate_launch_description():
             ('scan', '/scan_lower'),
             ('odom', '/odometry/local'),
             ('imu', '/imu/data'),
-            ('points2_1', '/zed_node/left/obstacle_points'),
-            ('points2_2', '/cv/lane_detections_cloud'),
         ],
     )
 
@@ -350,6 +346,24 @@ def generate_launch_description():
             'use_sim_time': False,
         }],
         arguments=['--ros-args', '--log-level', log_level],
+    )
+
+    # ── RViz ─────────────────────────────────────────────────────────────────
+    # Shows: map (/map), robot model, TF tree, LiDAR scan, obstacle + lane clouds.
+    # Fixed frame: map. Camera follows base_link (top-down ortho).
+
+    rviz_config = PathJoinSubstitution([
+        FindPackageShare('simple_nav'),
+        'config',
+        'simple_nav.rviz',
+    ])
+
+    rviz = Node(
+        package='rviz2',
+        executable='rviz2',
+        name='rviz2',
+        output='screen',
+        arguments=['-d', rviz_config, '--ros-args', '--log-level', 'warn'],
     )
 
     # ── Simple Nav: open-loop relative goal follower ──────────────────────────
@@ -392,5 +406,6 @@ def generate_launch_description():
         cartographer_node,
         occupancy_grid_node,
         pose_relay,
+        rviz,
         simple_nav,
     ])
