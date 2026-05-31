@@ -16,6 +16,13 @@ gps_baud: 57600
 lidar_lower_port: "/dev/lidar_port_0"
 lidar_upper_port: "/dev/lidar_port_1"
 
+# --- IMU NED->ENU relay ---
+# Converts the AHRS orientation (NED on /imu/data_raw) to ENU on /imu/data, and
+# publishes orientation in degrees on imu_ned / imu_enu for bench calibration.
+imu_relay:
+  yaw_offset: 0.0          # degrees, world-frame yaw calibration about ENU Up
+  orientation_stddev: 0.05 # rad, orientation covariance fed to the EKF/navsat
+
 zed_camera:
   enabled: true
   log_level: error
@@ -122,10 +129,13 @@ odom_state:
   orientation_covariance: 0.01 # cartographer pose
   horizontal_stddev: 5.0 # gps horizontal error - in meters
   vertical_stddev: 0.0 # gps vertical error
-  wait_for_datum: false # if this is set to true, then set datum, if false, set magnetic declination radians
-  datum: [43.66089963333334, -79.3950963, 1.34390]
+  # No datum: navsat uses the FIRST GPS fix + the IMU's absolute (ENU) heading to
+  # establish the utm→map origin. This relies on a calibrated magnetometer giving
+  # a correct heading at startup (use_odometry_yaw is false in odom.yaml).
+  wait_for_datum: false
+  datum: [0.0, 0.0, 0.0] # ignored when wait_for_datum is false
 
-  magnetic_declination_radians: 0.1328195561
+  magnetic_declination_radians: 0.130202 
   expected_topics:
     - /odometry/local
 

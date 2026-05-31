@@ -211,6 +211,12 @@ def launch_depth_detection(config: dict, sim: bool, context: LaunchContext) -> l
     log_level = depth_cfg.get('log_level', 'info')
     ramp_seg_using_lidar = config.get('ramp_seg_using_lidar', True)
 
+    # depth_detection subscribes to /zed_node/left/points_rviz, which is only
+    # published by pointcloud_relay in robot_bringup when lane_detection is enabled.
+    if not config.get('lane_detection', {}).get('enabled', False):
+        print('[timbot_launch] depth_detection skipped: lane_detection is disabled (no points_rviz feed)', flush=True)
+        return []
+
     depth_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([
             FindPackageShare('depth_detection'),
@@ -381,6 +387,20 @@ def _exec_driver(cmd: list[str], cwd: str | None = None, name: str | None = None
     return launcher
 
 
+def _node_driver(package: str, executable: str, name: str,
+                 parameters: dict | None = None):
+    """Return a launcher function that wraps a single ros2 Node."""
+    def launcher(context: LaunchContext) -> list:
+        return [Node(
+            package=package,
+            executable=executable,
+            name=name,
+            output='screen',
+            parameters=[parameters or {}],
+        )]
+    return launcher
+
+
 def _normalize_exec_cmd(cmd_value: object, default_cmd: list[str]) -> list[str]:
     """Normalize a YAML command entry into ExecuteProcess cmd form."""
     if isinstance(cmd_value, list) and cmd_value:
@@ -448,23 +468,39 @@ def build_hardware_driver_stages(config: dict) -> list:
             [],
             2.0,
         ),
-        # (
-        #     'Driver: GPS',
-        #     _hw_driver('nmea_navsat_driver', 'nmea_serial_driver.launch.py', {
-        #         'serial_port': gps_port,
-        #         'gps_baud': gps_baud,
-        #     }, remappings=[('/fix', '/gps/fix')]),
-        #     ['/gps/fix'],
-        #     5.0,
-        # ),
         (
+            'Driver: GPS',
+            _hw_driver('nmea_navsat_driver', 'nmea_serial_driver.launch.py', {
+                'serial_port': gps_port,
+                'gps_baud': gps_baud,
+            }, remappings=[('/fix', '/gps/fix')]),
+            ['/gps/fix'],
+            5.0,
+        ),
+        (
+            # AHRS publishes its orientation (in NED) on /imu/data_raw.
             'Driver: IMU',
             _hw_driver('phidgets_spatial', 'spatial-launch.py', {
-                'use_orientation': True,
-            },
-                       remappings=[('/imu/data_raw', '/imu/data')]),
-            ['/imu/data'],
+                # 'use_orientation': 'true',
+            }),
+            ['/imu/data_raw'],
             5.0,
+        ),
+        (
+            # Relay: NED->ENU orientation correction -> /imu/data,
+            # plus imu_ned / imu_enu degree debug topics. yaw_offset
+            # (degrees) is read from the YAML for heading calibration.
+            'IMU NED->ENU Relay',
+            _node_driver('odom_state', 'imu_relay.py', 'imu_relay', {
+                'input_topic': '/imu/data_raw',
+                'output_topic': '/imu/data',
+                'yaw_offset': float(config.get('imu_relay', {}).get('yaw_offset', 0.0)),
+                'orientation_stddev': float(
+                    config.get('imu_relay', {}).get('orientation_stddev', 0.05)
+                ),
+            }),
+            ['/imu/data'],
+            3.0,
         ),
         (
             'Driver: LiDAR Lower',

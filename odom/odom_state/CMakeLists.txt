@@ -16,6 +16,8 @@ find_package(ament_cmake_python REQUIRED)
 find_package(rclpy REQUIRED)
 find_package(robot_localization REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
 
 # Install Python modules
 # ament_python_install_package(${PROJECT_NAME})
@@ -55,6 +57,7 @@ find_package(std_msgs REQUIRED)
 install(PROGRAMS
   src/pose_relay.py
   src/gps_cov_relay.py
+  src/imu_relay.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

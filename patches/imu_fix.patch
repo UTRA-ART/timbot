@@ -1,0 +1,13 @@
+diff --git a/phidgets_spatial/launch/spatial-launch.py b/phidgets_spatial/launch/spatial-launch.py
+index ab1a097..ef0f83b 100644
+--- a/phidgets_spatial/launch/spatial-launch.py
++++ b/phidgets_spatial/launch/spatial-launch.py
+@@ -24,7 +24,7 @@ def generate_launch_description():
+ 
+     params = {
+         # optional param use_orientation, default is false
+-        'use_orientation': False,
++        'use_orientation': True,
+ 
+         # optional param spatial_algorithm, default is 'ahrs'
+         'spatial_algorithm': 'ahrs',
