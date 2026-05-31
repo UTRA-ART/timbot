@@ -8,7 +8,7 @@ simple_nav_node:
     # Encoded as a JSON string because ROS 2 parameter types don't allow nested
     # arrays. The example below: forward 2 m, then 90 deg left turn in place,
     # then forward 1 m.
-    goals: "[[2.0, 0.0, 0.0], [0.0, 0.0, 1.5707963], [1.0, 0.0, 0.0]]"
+    goals: "[[2.0, 0.0, 0.0]]"
 
     linear_speed: 0.4
     angular_speed: 0.6

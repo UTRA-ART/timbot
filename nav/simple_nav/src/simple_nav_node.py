@@ -51,7 +51,7 @@ class SimpleNavNode(Node):
         # JSON is used because ROS 2 parameter types don't allow nested arrays.
         self.declare_parameter("goals", "[[2.0, 0.0, 0.0]]")
 
-        self.declare_parameter("linear_speed", 0.4)         # m/s
+        self.declare_parameter("linear_speed", 0.5)         # m/s
         self.declare_parameter("angular_speed", 0.6)        # rad/s
         self.declare_parameter("position_tolerance", 0.10)  # m
         self.declare_parameter("angular_tolerance", 0.05)   # rad
