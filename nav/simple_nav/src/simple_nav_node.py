@@ -21,6 +21,7 @@ import math
 
 import numpy as np
 import rclpy
+from nav_msgs.msg import Odometry
 from geometry_msgs.msg import PoseWithCovarianceStamped, Twist
 from rclpy.node import Node
 from std_msgs.msg import Bool
@@ -79,6 +80,7 @@ class SimpleNavNode(Node):
         self.cmd_pub = self.create_publisher(Twist, "/cmd_vel", 10)
         self.done_pub = self.create_publisher(Bool, "~/done", 1)
         self.create_subscription(PoseWithCovarianceStamped, "/tracked_pose_cov", self._odom_cb, 10)
+        #self.create_subscription(Odometry, "odometry/local", self._odom_cb, 10)
 
         self.current_pose = None  # (x, y, yaw)
 

@@ -160,19 +160,25 @@ def generate_launch_description():
         output='screen',
     )
 
-    imu_relay = Node(
-        package='odom_state',
-        executable='imu_relay.py',
-        name='imu_relay',
-        output='screen',
-        parameters=[{
-            'input_topic': '/imu/data_raw',
-            'output_topic': '/imu/data',
-            'yaw_offset': yaw_offset,
-            'orientation_stddev': orientation_stddev,
-            'use_sim_time': False,
-        }],
-        arguments=['--ros-args', '--log-level', log_level],
+    from launch.actions import TimerAction
+    imu_relay = TimerAction(
+        period=2.0,  # seconds
+        actions=[
+            Node(
+                package='odom_state',
+                executable='imu_relay.py',
+                name='imu_relay',
+                output='screen',
+                parameters=[{
+                    'input_topic': '/imu/data_raw',
+                    'output_topic': '/imu/data',
+                    'yaw_offset': yaw_offset,
+                    'orientation_stddev': orientation_stddev,
+                    'use_sim_time': False,
+                }],
+                arguments=['--ros-args', '--log-level', log_level],
+            )
+        ]
     )
 
     # ── Wheel encoders: odom publisher ───────────────────────────────────────

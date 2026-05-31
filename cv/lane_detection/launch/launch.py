@@ -49,7 +49,6 @@ def generate_launch_description():
         sim_arg,
         log_level_arg,
         lane_detection_mode_arg,
-        lane_detection_inference,
         width_arg,
         height_arg,
         white_sensitivity_arg,
@@ -58,4 +57,5 @@ def generate_launch_description():
         morph_size_arg,
         morph_open_iters_arg,
         morph_close_iters_arg,
+        lane_detection_inference,
     ])
