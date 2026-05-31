@@ -104,23 +104,20 @@ def generate_launch_description():
         ]
     )
 
-    navsat_transform_node = Node(
-        package='robot_localization',
-        executable='navsat_transform_node',
-        name='navsat_transform_node',
+    gps_static_transform = Node(
+        package='odom_state',
+        executable='gps_static_transform.py',
+        name='gps_static_transform',
         output='screen',
-        respawn=True,
         arguments=['--ros-args', '--log-level', log_level],
-        remappings=[('/odometry/filtered', '/odometry/global'), 
-                    ('/gps/fix', '/gps/fix_cov'), 
-                    ('/imu', '/imu/data')],
         parameters=[
             odom_yaml,
             {'use_sim_time': use_sim_time},
-            {'launch_state': launch_state},
             {'wait_for_datum': wait_for_datum},
             {'datum': datum},
-            {'magnetic_declination_radians': magnetic_declination_radians}
+            {'magnetic_declination_radians': magnetic_declination_radians},
+            {'horizontal_stddev': horizontal_stddev},
+            {'vertical_stddev': vertical_stddev}
         ]
     )
 
@@ -160,5 +157,5 @@ def generate_launch_description():
         pose_relay,
         gps_cov_relay,
         ekf_global,
-        navsat_transform_node
+        gps_static_transform
     ])

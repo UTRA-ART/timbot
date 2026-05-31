@@ -1,6 +1,6 @@
 # =============================================================================
 # Combined Odom State Configuration
-# Contains params for: ekf_local, ekf_global, navsat_transform_node
+# Contains params for: ekf_local, ekf_global, gps_static_transform
 # =============================================================================
 
 # --- EKF Local (odom → base_link) ---
