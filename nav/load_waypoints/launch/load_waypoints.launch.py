@@ -74,18 +74,18 @@ def generate_launch_description():
         arguments=['--ros-args', '--log-level', log_level],
         parameters=[{'use_sim_time': use_sim_time}]
     )
-# # -- 4. Nav relay node for choosing whether to send teleop or keyboard data
-#     nav_relay_node = Node(
-#         package="load_waypoints",
-#         executable='nav_autonomous_relay.py',
-#         name='nav_relay',
-#         output='screen',
-#         arguments=['--ros-args', '--log-level', log_level],
-#         parameters=[{'nav_input_topic':'/nav_vel'},
-#             {'teleop_input_topic': '/teleop_vel'},
-#             {'output_topic': '/cmd_vel'},
-#             {'pause_topic': '/pause_navigation'}]
-#     )
+# -- 4. Nav relay node for choosing whether to send teleop or keyboard data
+    nav_relay_node = Node(
+        package="load_waypoints",
+        executable='nav_autonomous_relay.py',
+        name='nav_relay',
+        output='screen',
+        arguments=['--ros-args', '--log-level', log_level],
+        parameters=[{'nav_input_topic':'/nav_vel'},
+            {'teleop_input_topic': '/teleop_vel'},
+            {'output_topic': '/cmd_vel'},
+            {'pause_topic': '/pause_navigation'}]
+    )
 
     return LaunchDescription([
         use_sim_time_arg,
@@ -94,5 +94,5 @@ def generate_launch_description():
         navigate_waypoints_node,
         ramp_navigate_node,
         nav_options_node,
-        # nav_relay_node
+        nav_relay_node
     ])
