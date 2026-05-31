@@ -132,8 +132,8 @@ odom_state:
   # No datum: navsat uses the FIRST GPS fix + the IMU's absolute (ENU) heading to
   # establish the utm→map origin. This relies on a calibrated magnetometer giving
   # a correct heading at startup (use_odometry_yaw is false in odom.yaml).
-  wait_for_datum: false
-  datum: [0.0, 0.0, 0.0] # ignored when wait_for_datum is false
+  wait_for_datum: true
+  # datum: [0.0, 0.0, 0.0] # ignored when wait_for_datum is false
 
   magnetic_declination_radians: 0.130202 
   expected_topics:
@@ -216,8 +216,7 @@ teleop_key:
   delay_sec: 1.0
   expected_topics:
     - /pause_navigation
-
-# --- Stage 8: Nav2 Stack ---
+2) for gps make a node that basically takes initial position and heading and updates based on local ekf output (so this node will have to keep track of heading always and of lat and long. Use roll and pitch to consider changes in elevation as well) - after this test going from test point 1 to test point 2 using teleop to see if this node can accurately keep track of gps position - can also use compass heading from imu# --- Stage 8: Nav2 Stack ---
 nav_stack:
   enabled: true
   config_file: espresso_nav2_bkup.yaml

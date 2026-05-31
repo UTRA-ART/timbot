@@ -18,6 +18,9 @@ find_package(robot_localization REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
+find_package(tf2_ros REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
 
 # Install Python modules
 # ament_python_install_package(${PROJECT_NAME})
@@ -58,6 +61,7 @@ install(PROGRAMS
   src/pose_relay.py
   src/gps_cov_relay.py
   src/imu_relay.py
+  src/gps_static_transform.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

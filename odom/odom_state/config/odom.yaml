@@ -1,6 +1,6 @@
 # =============================================================================
 # Combined Odom State Configuration
-# Contains params for: ekf_local, ekf_global, navsat_transform_node
+# Contains params for: ekf_local, ekf_global, gps_static_transform
 # =============================================================================
 
 # --- EKF Local (odom → base_link) ---
@@ -74,7 +74,7 @@ ekf_local:
 
     # Local EKF must stay in the smooth/continuous odom frame: feed only relative
     # data (angular velocity). The absolute (magnetometer-referenced) orientation
-    # is intentionally NOT fused here — it belongs to navsat_transform for GPS
+    # is intentionally NOT fused here — it is reserved for gps_static_transform
     # heading. Fusing absolute yaw here pollutes odom and fights the wheel-odom
     # heading (see git history; this was the 9fe3197 regression).
     imu0: /imu/data
@@ -106,16 +106,14 @@ ekf_local:
 
 
 # --- EKF Global (map → odom) ---
-# Fuses cartographer SLAM pose + GPS to produce map→odom TF
+# Smooths cartographer pose; map→odom TF is published by cartographer
 ekf_global:
   ros__parameters:
     frequency: 10.0
 
-    # ekf_global fuses cartographer SLAM pose + GPS to produce map→odom TF.
-    # Pipeline: ekf_local (odom→base_link) → cartographer (tracked_pose, NO TF)
-    #         → ekf_global (map→odom via SLAM+GPS) → navsat (utm→map)
-    # Data flow: cartographer /tracked_pose_cov (position/yaw) + /odometry/gps (GPS correction, differential)
-    # Cartographer does NOT use GPS — it only does local SLAM (lidar + odom + IMU)
+    # ekf_global filters cartographer SLAM pose for a smooth /odometry/global.
+    # Pipeline: ekf_local (odom→base_link) → cartographer (/tracked_pose)
+    #         → ekf_global (map pose smoothing)
 
     # Specify planar environment
     two_d_mode: true
@@ -169,27 +167,6 @@ ekf_global:
     pose0_differential: false
     pose0_relative: false
 
-    ## Odometry Sensor(s) ##
-
-    # GPS odometry from navsat (absolute global anchor)
-    # Cartographer (pose0) has no GPS so it can drift globally.
-    # GPS is the only global reference — it must be absolute here.
-    # Cartographer is set to differential to provide smooth incremental corrections
-    # on top of the GPS global anchor, avoiding the 2-absolute-inputs conflict.
-    odom0: /odometry/gps
-    odom0_config: [true , true , false,
-                   false, false, false,
-                   false, false, false,
-                   false, false, false,
-                   false, false, false]
-    odom0_queue_size: 10
-    odom0_differential: false
-    odom0_relative: false
-
-    # # Reject GPS outliers: innovations > 2 Mahalanobis std devs are discarded.
-    # # Aggressive threshold since GPS is noisy and cartographer provides stable pose.
-    # odom0_rejection_threshold: 2.0
-
     # odom2: zed_node/odom
     # odom2_config: [true, true, false,
     #                false, false, true,
@@ -226,36 +203,31 @@ ekf_global:
     # pose0_relative: false
 
 
-# --- Navsat Transform Node ---
-# Converts GPS (lat/lon) into the map frame using UTM projection
-navsat_transform_node:
+# --- GPS Static Transform ---
+# Latches the first GPS+IMU heading, publishes a static UTM→map TF, and
+# optionally publishes a dead-reckoned NavSatFix from local odometry.
+gps_static_transform:
   ros__parameters:
-    frequency: 5.0
-    delay: 1.0
-    
-    # Use the first GPS fix to set origin if datum fails
-    # wait_for_datum: false # if this is set to true, it will use the datum parameter
-    # datum: [0.0, 0.0, 0.0] # if you set this, you do not need to set the magnetic_declination_radians
-    zero_altitude: true
-    
-    # CRITICAL: This determines the TF direction
-    broadcast_cartesian_transform: true 
-      # If true, broadcast cartesian transform as parent frame of MAP (UTM→MAP).
-    # Usually, we want UTM as the parent of MAP
-    broadcast_cartesian_transform_as_parent_frame: true
-    
-    # Frames
-    publish_filtered_gps: true
-    world_frame: map
+    gps_topic: /gps/fix
+    imu_topic: /imu/data
+    odom_topic: /odometry/local
+    gps_fix_topic: /gps/filtered
+    publish_gps_fix: true
+    publish_gps_odom: false
+    gps_odom_topic: /odometry/gps
+
+    map_frame: map
     odom_frame: odom
+    utm_frame: utm
     base_link_frame: base_link
     sensor_frame: gps_link
-    
-    # Heading Setup
-    # /imu/data is now true ENU (produced by imu_filter_madgwick, world_frame=enu),
-    # so NO yaw_offset is needed. madgwick references MAGNETIC north; the
-    # magnetic_declination_radians param (set per-site in the launch config)
-    # converts magnetic→true north.
+
+    wait_for_datum: false
+    datum: [0.0, 0.0, 0.0]
+    zero_altitude: true
+    magnetic_declination_radians: 0.0
     yaw_offset: 0.0
-    use_odometry_yaw: false
+    publish_rate: 10.0
+    horizontal_stddev: 5.0
+    vertical_stddev: 5.0
     # magnetic_declination_radians: 0.0 # for sim # needs to be sit through the config
