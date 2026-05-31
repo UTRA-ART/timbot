@@ -118,6 +118,24 @@ def launch_spawn(config: dict, sim: bool, context: LaunchContext) -> list:
     )
     return [spawn_launch]
 
+def launch_teleop_key(config: dict, sim: bool, context: LaunchContext) -> list:
+    teleop_cfg = config.get('teleop_key', {})
+    # log_level = teleop_cfg.get('log_level', 'info')
+    output_topic = teleop_cfg.get('output_topic', '/teleop_vel')
+
+
+    teleop_node = Node(
+        package='teleop_twist_keyboard',
+        executable='teleop_twist_keyboard.py',
+        name='teleop_twist_keyboard',
+        output='screen',
+        prefix='xterm -e',
+        remappings=[
+            ('cmd_vel_topic', output_topic)
+        ]
+    )
+    return [teleop_node]
+
 
 def launch_odom_state(config: dict, sim: bool, context: LaunchContext) -> list:
     odom_cfg = config.get('odom_state', {})
@@ -546,6 +564,7 @@ LAUNCH_STAGES = [
     ('Depth Detection','depth_detection',launch_depth_detection),
     ('Cartographer',   'cartographer',   launch_cartographer),
     ('RViz',           'rviz',           launch_rviz),
+    ('Teleop Keyboard', 'teleop_twist_keyboard', launch_teleop_key),
     ('Nav Stack',      'nav_stack',      launch_nav_stack),
     ('Load Waypoints', 'load_waypoints', launch_load_waypoints),
 ]

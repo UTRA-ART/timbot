@@ -16,8 +16,6 @@ class NavRelay(Node):
     def __init__(self):
         super().__init__('nav_relay')
 
-        # Configurable covariance diagonal values (position xyz, orientation rpy)
-        # ~0.22m std dev
 
         self.declare_parameter('nav_input_topic', '/nav_vel')
         self.declare_parameter('teleop_input_topic', '/teleop_vel')
@@ -29,13 +27,15 @@ class NavRelay(Node):
         nav_input_topic = self.get_parameter('nav_input_topic').value
         teleop_input_topic = self.get_parameter('teleop_input_topic').value
         output_topic = self.get_parameter('output_topic').value
+        pause_topic = self.get_parameter('pause_topic').value
 
        
         self.vel_pub = self.create_publisher(Twist, output_topic, 10)
+
         self.nav_input_topic = self.create_subscription(Twist, nav_input_topic, self.nav_callback, 20)
         self.teleop_vel_sub = self.create_subscription(Twist, teleop_input_topic, self.teleop_callback, 1)
-        self.mode_sub = self.create_subscription(Bool, 'pause_topic', self.pause_callback, 1)
-        self.is_paused = False # we default to being in autonomy mode
+        self.mode_sub = self.create_subscription(Bool, pause_topic, self.pause_callback, 1)
+        self.is_paused = True # we default to being in keyboard mode
 
         self.get_logger().info(
             f'Relaying {teleop_input_topic} and {nav_input_topic} → {output_topic} '
@@ -48,11 +48,18 @@ class NavRelay(Node):
         self.is_paused = msg.data
 
     def nav_callback(self, msg: Twist):
+        
         if not self.is_paused:
+            self.get_logger().info(
+                'we are publishing nav vel'
+            )
             self.vel_pub.publish(msg)
     
     def teleop_callback(self, msg: Twist):
         if self.is_paused:
+            self.get_logger().info(
+                'we are publishing teleop vel'
+            )
             self.vel_pub.publish(msg)
 
 

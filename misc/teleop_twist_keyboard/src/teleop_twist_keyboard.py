@@ -177,7 +177,9 @@ def main(args=None):
     pub_thread = PublishThread(node, repeat, cmd_vel_topic)
     autonomous_mode = False
     mode_pub = node.create_publisher(Bool, '/pause_navigation', 1)
-
+    initial_message = Bool()
+    initial_message.data = True
+    mode_pub.publish(initial_message) # initially published that we are in keyboard mode
     x = 1
     y = 0
     z = 0
