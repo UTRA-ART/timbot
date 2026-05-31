@@ -468,15 +468,15 @@ def build_hardware_driver_stages(config: dict) -> list:
             [],
             2.0,
         ),
-        # (
-        #     'Driver: GPS',
-        #     _hw_driver('nmea_navsat_driver', 'nmea_serial_driver.launch.py', {
-        #         'serial_port': gps_port,
-        #         'gps_baud': gps_baud,
-        #     }, remappings=[('/fix', '/gps/fix')]),
-        #     ['/gps/fix'],
-        #     5.0,
-        # ),
+        (
+            'Driver: GPS',
+            _hw_driver('nmea_navsat_driver', 'nmea_serial_driver.launch.py', {
+                'serial_port': gps_port,
+                'gps_baud': gps_baud,
+            }, remappings=[('/fix', '/gps/fix')]),
+            ['/gps/fix'],
+            5.0,
+        ),
         (
             # AHRS publishes its orientation (in NED) on /imu/data_raw.
             'Driver: IMU',
