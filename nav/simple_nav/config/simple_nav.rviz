@@ -5,9 +5,11 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
-        - /Map1/Topic1
+        - /Map1
+        - /Submaps1
+        - /Odometry (Local EKF)1
       Splitter Ratio: 0.5
-    Tree Height: 400
+    Tree Height: 600
   - Class: rviz_common/Views
     Expanded:
       - /Current View1
@@ -34,6 +36,7 @@ Visualization Manager:
       Plane Cell Count: 20
       Reference Frame: <Fixed Frame>
       Value: true
+
     - Alpha: 1
       Class: rviz_default_plugins/RobotModel
       Collision Enabled: false
@@ -56,18 +59,32 @@ Visualization Manager:
       Update Interval: 0
       Value: true
       Visual Enabled: true
+
     - Class: rviz_default_plugins/TF
       Enabled: true
       Frame Timeout: 15
       Frames:
-        All Enabled: true
+        All Enabled: false
+        base_link:
+          Value: true
+        map:
+          Value: true
+        odom:
+          Value: true
+        bottom_lidar_link:
+          Value: false
+        imu_link:
+          Value: false
+        left_camera_link:
+          Value: false
       Marker Scale: 0.5
       Name: TF
-      Show Arrows: false
+      Show Arrows: true
       Show Axes: true
       Show Names: true
       Update Interval: 1
       Value: true
+
     - Alpha: 0.7
       Class: rviz_default_plugins/Map
       Color Scheme: map
@@ -89,6 +106,25 @@ Visualization Manager:
         Value: /map_updates
       Use Timestamp: false
       Value: true
+
+    - Class: cartographer_rviz/SubmapDisplay
+      Enabled: true
+      Fade Out Interval: 0.10000000149011612
+      High Resolution: true
+      Low Resolution: false
+      Name: Submaps
+      Slice High Value: 0.20000000298023224
+      Slice Low Value: -0.10000000149011612
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /submap_list
+      Tracking Frame: base_link
+      Value: true
+
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
@@ -98,14 +134,14 @@ Visualization Manager:
       Axis: Z
       Channel Name: intensity
       Class: rviz_default_plugins/LaserScan
-      Color: 255; 50; 0
+      Color: 255; 100; 0
       Color Transformer: FlatColor
       Decay Time: 0
       Enabled: true
       Name: LiDAR
       Position Transformer: XYZ
       Selectable: true
-      Size (Pixels): 2
+      Size (Pixels): 3
       Size (m): 0.03
       Style: Points
       Topic:
@@ -117,6 +153,7 @@ Visualization Manager:
         Value: /scan_lower
       Use Fixed Frame: true
       Value: true
+
     - Alpha: 0.8
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
@@ -145,6 +182,7 @@ Visualization Manager:
         Value: /zed_node/left/obstacle_points
       Use Fixed Frame: true
       Value: true
+
     - Alpha: 0.8
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
@@ -154,7 +192,7 @@ Visualization Manager:
       Axis: Z
       Channel Name: intensity
       Class: rviz_default_plugins/PointCloud2
-      Color: 255; 255; 0
+      Color: 255; 230; 0
       Color Transformer: FlatColor
       Decay Time: 0
       Enabled: true
@@ -173,9 +211,90 @@ Visualization Manager:
         Value: /cv/lane_detections_cloud
       Use Fixed Frame: true
       Value: true
+
+    - Angle Tolerance: 0.087266460490226
+      Class: rviz_default_plugins/Odometry
+      Covariance:
+        Orientation:
+          Alpha: 0.5
+          Color: 255; 255; 127
+          Color Style: Unique
+          Frame: Local
+          Offset: 1
+          Scale: 1
+          Value: false
+        Position:
+          Alpha: 0.3
+          Color: 204; 51; 204
+          Scale: 1
+          Value: false
+        Value: false
+      Enabled: true
+      Keep: 200
+      Name: "Odometry (Local EKF)"
+      Position Tolerance: 0.05
+      Shape:
+        Alpha: 1
+        Axes Length: 0.25
+        Axes Radius: 0.02
+        Color: 0; 200; 100
+        Head Length: 0.07
+        Head Radius: 0.035
+        Shaft Length: 0.23
+        Shaft Radius: 0.01
+        Value: Arrow
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /odometry/local
+      Value: true
+
+    - Class: rviz_default_plugins/Odometry
+      Angle Tolerance: 0.5
+      Covariance:
+        Orientation:
+          Alpha: 0.5
+          Color: 255; 255; 127
+          Color Style: Unique
+          Frame: Local
+          Offset: 1
+          Scale: 1
+          Value: false
+        Position:
+          Alpha: 0.3
+          Color: 204; 51; 204
+          Scale: 1
+          Value: false
+        Value: false
+      Enabled: true
+      Keep: 50
+      Name: "GPS Odometry"
+      Position Tolerance: 0.5
+      Shape:
+        Alpha: 0.8
+        Axes Length: 0.4
+        Axes Radius: 0.02
+        Color: 255; 160; 0
+        Head Length: 0.1
+        Head Radius: 0.05
+        Shaft Length: 0.3
+        Shaft Radius: 0.01
+        Value: Arrow
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /odometry/gps
+      Value: true
+
   Enabled: true
   Global Options:
-    Background Color: 48; 48; 48
+    Background Color: 30; 30; 35
     Fixed Frame: map
     Frame Rate: 30
   Name: root
@@ -193,13 +312,13 @@ Visualization Manager:
     Current:
       Class: rviz_default_plugins/TopDownOrtho
       Enable Stereo Rendering:
-        Stereo Eye Separation: 0.05999999865889549
+        Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Invert Z Axis: false
       Name: Current View
-      Near Clip Distance: 0.009999999776482582
+      Near Clip Distance: 0.01
       Scale: 50
       Target Frame: base_link
       Value: TopDownOrtho (rviz_default_plugins)
@@ -209,11 +328,11 @@ Visualization Manager:
 Window Geometry:
   Displays:
     collapsed: false
-  Height: 900
+  Height: 1000
   Hide Left Dock: false
   Hide Right Dock: true
   Views:
     collapsed: false
-  Width: 1200
+  Width: 1400
   X: 0
   Y: 0

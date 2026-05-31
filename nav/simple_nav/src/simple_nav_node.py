@@ -6,7 +6,8 @@ Takes a list of relative goals [dx, dy, dyaw_deg] (each goal expressed in the
 rover's local frame at the moment that goal becomes active) and drives the
 rover through them by publishing geometry_msgs/Twist on /cmd_vel.
 
-Assumes no obstacles. Uses /tracked_pose_cov (Cartographer) for pose feedback.
+Assumes no obstacles. Uses /odometry/local (EKF local, odom frame) for pose
+feedback — smooth wheel-odom + IMU integration with no SLAM jitter.
 
 Per-goal control sequence (turn -> drive -> align):
     1. Rotate in place to face the (dx, dy) point.
@@ -22,7 +23,7 @@ import math
 import numpy as np
 import rclpy
 from nav_msgs.msg import Odometry
-from geometry_msgs.msg import PoseWithCovarianceStamped, Twist
+from geometry_msgs.msg import Twist
 from rclpy.node import Node
 from std_msgs.msg import Bool
 
@@ -79,8 +80,7 @@ class SimpleNavNode(Node):
 
         self.cmd_pub = self.create_publisher(Twist, "/cmd_vel", 10)
         self.done_pub = self.create_publisher(Bool, "~/done", 1)
-        self.create_subscription(PoseWithCovarianceStamped, "/tracked_pose_cov", self._odom_cb, 10)
-        #self.create_subscription(Odometry, "odometry/local", self._odom_cb, 10)
+        self.create_subscription(Odometry, "/odometry/local", self._odom_cb, 10)
 
         self.current_pose = None  # (x, y, yaw)
 
@@ -113,7 +113,7 @@ class SimpleNavNode(Node):
         # Convert yaw_deg to radians internally
         return [(float(g[0]), float(g[1]), math.radians(float(g[2]))) for g in parsed]
 
-    def _odom_cb(self, msg: PoseWithCovarianceStamped):
+    def _odom_cb(self, msg: Odometry):
         p = msg.pose.pose.position
         yaw = yaw_from_quat(msg.pose.pose.orientation)
         self.current_pose = (p.x, p.y, yaw)

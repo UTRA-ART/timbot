@@ -2,44 +2,45 @@
 Simple Nav Isolated Test Launch
 ================================
 Minimal bringup for testing odometry and SLAM-based waypoint following
-without Nav2, GPS, cameras, or the full Timbot stack. Starts:
+without Nav2.  Starts:
 
   1. Robot State Publisher     — URDF -> /tf (base_link, imu_link, etc.)
   2. Phidgets Spatial          — raw IMU on /imu/data_raw
   3. IMU Relay (NED->ENU)      — corrects orientation frame -> /imu/data
   4. Wheel Odom Publisher      — integrates encoder ticks -> /wheel_odom
   5. EKF Local                 — fuses /wheel_odom + /imu/data -> /odometry/local
+                                 publishes odom->base_link TF
   6. RPLidar                   — LaserScan on /scan_lower
   7. ZED open capture          — stereo depth camera on /dev/video2
-                                 publishes /zed_node/left/{image,camera_info,depth_image,points}
-  8. Pointcloud frame relay    — re-stamps /zed_node/left/points -> /zed_node/left/points_rviz
-                                 with frame_id=left_camera_link_optical (real hardware)
-  9. Lane detection            — classical HSV white-threshold -> /cv/lane_detections_cloud
- 10. Depth detection           — ZED point cloud filtering -> /zed_node/left/obstacle_points
- 11. Cartographer              — SLAM: scan + odom + IMU + obstacle_points + lane_cloud
-                                 publishes /tracked_pose (map frame) + map->odom TF
- 12. Pose Relay                — /tracked_pose -> /tracked_pose_cov (available for
-                                 debugging; not in simple_nav's feedback loop)
- 13. simple_nav_node           — open-loop relative goal follower using /odometry/local
+  8. Pointcloud frame relay    — re-stamps ZED points with left_camera_link_optical
+  9. Lane detection            — classical HSV -> /cv/lane_detections_cloud
+ 10. Depth detection           — ZED filtering -> /zed_node/left/obstacle_points
+ 11. Cartographer              — pure map builder: lidar + odom + point clouds
+                                 publishes /map (occupancy grid) + map->odom TF (≈ identity,
+                                 no SLAM corrections — just stamps scans at EKF position)
+ 12. GPS Covariance Relay      — /gps/fix -> /gps/fix_cov with covariance (always running;
+                                 harmless if no GPS)
+ 13. Navsat Transform          — GPS + IMU + /odometry/local -> utm->map TF + /odometry/gps
+                                 (publishes utm->map when GPS fix available)
+ 14. GPS Driver (optional)     — nmea_navsat_driver on serial port; enable with use_gps:=true
+ 15. RViz
+ 16. simple_nav_node           — open-loop relative goal follower using /odometry/local
 
-Data flow:
-  wheel_odom + IMU -> ekf_local -> /odometry/local -> simple_nav_node -> /cmd_vel
-                                        |
-  RPLidar (/scan_lower) ────────→ Cartographer (map building + map->odom TF only)
-                                        |
-  ZED -> pointcloud_relay -> depth_detection -> /zed_node/left/obstacle_points ─┤
-      -> lane_detection  -> /cv/lane_detections_cloud ───────────────────────────┘
+TF chain:
+  utm --(navsat_transform)--> map --(cartographer, ≈identity)--> odom --(ekf_local)--> base_link
 
-  Note: Cartographer's map->odom TF is the stable output used by the broader stack.
-  /tracked_pose is available via pose_relay for future ekf_global integration.
+Cartographer role: draws lidar returns onto the map at the EKF-reported position.
+It does NOT do scan-based localization (optimize_every_n_nodes=0, occupied_space_weight=1e-9).
+The map->odom TF it publishes is therefore ~identity — the real global anchor is navsat.
 
 motor_control is NOT launched here — start it separately (systemd on the Pi, or
-`ros2 run motor_control motor_control.py`). simple_nav publishes /cmd_vel directly.
+`ros2 run motor_control motor_control.py`).
 
 Usage:
   ros2 launch simple_nav simple_nav.launch.py
-  ros2 launch simple_nav simple_nav.launch.py lidar_port:=/dev/ttyUSB0 zed_device:=/dev/video2
-  ros2 launch simple_nav simple_nav.launch.py yaw_offset:=5.0
+  ros2 launch simple_nav simple_nav.launch.py lidar_port:=/dev/ttyUSB0
+  ros2 launch simple_nav simple_nav.launch.py use_gps:=true gps_port:=/dev/ttyUSB1
+  ros2 launch simple_nav simple_nav.launch.py magnetic_declination:=-0.24 use_gps:=true
   ros2 launch simple_nav simple_nav.launch.py log_level:=debug
 """
 
@@ -48,7 +49,9 @@ from launch.actions import (
     DeclareLaunchArgument,
     GroupAction,
     IncludeLaunchDescription,
+    TimerAction,
 )
+from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import (
     Command,
@@ -66,63 +69,89 @@ def generate_launch_description():
     # ── Launch arguments ──────────────────────────────────────────────────────
 
     log_level_arg = DeclareLaunchArgument(
-        'log_level',
-        default_value='info',
+        'log_level', default_value='info',
         description='Log level: debug, info, warn, error',
     )
     log_level = LaunchConfiguration('log_level')
 
     yaw_offset_arg = DeclareLaunchArgument(
-        'yaw_offset',
-        default_value='0.0',
+        'yaw_offset', default_value='0.0',
         description='IMU heading calibration offset in DEGREES (ENU, about Up).',
     )
     yaw_offset = LaunchConfiguration('yaw_offset')
 
     orientation_stddev_arg = DeclareLaunchArgument(
-        'orientation_stddev',
-        default_value='0.05',
+        'orientation_stddev', default_value='0.05',
         description='IMU orientation covariance diagonal stddev (rad).',
     )
     orientation_stddev = LaunchConfiguration('orientation_stddev')
 
     lidar_port_arg = DeclareLaunchArgument(
-        'lidar_port',
-        default_value='/dev/lidar_port_0',
+        'lidar_port', default_value='/dev/lidar_port_0',
         description='Serial port for the RPLidar (e.g. /dev/ttyUSB0).',
     )
     lidar_port = LaunchConfiguration('lidar_port')
 
     zed_device_arg = DeclareLaunchArgument(
-        'zed_device',
-        default_value='/dev/video2',
+        'zed_device', default_value='/dev/video2',
         description='Video device path for the ZED camera.',
     )
     zed_device = LaunchConfiguration('zed_device')
 
-    # ── Robot description (URDF → /tf static frames) ─────────────────────────
+    use_gps_arg = DeclareLaunchArgument(
+        'use_gps', default_value='false',
+        description='Launch the NMEA GPS serial driver. Set true when GPS receiver is connected.',
+    )
+    use_gps = LaunchConfiguration('use_gps')
+
+    gps_port_arg = DeclareLaunchArgument(
+        'gps_port', default_value='/dev/gps_port_0',
+        description='Serial port for the GPS receiver (e.g. /dev/ttyUSB1).',
+    )
+    gps_port = LaunchConfiguration('gps_port')
+
+    gps_baud_arg = DeclareLaunchArgument(
+        'gps_baud', default_value='4800',
+        description='Baud rate for the GPS serial port.',
+    )
+    gps_baud = LaunchConfiguration('gps_baud')
+
+    horizontal_stddev_arg = DeclareLaunchArgument(
+        'horizontal_stddev', default_value='0.5',
+        description='GPS horizontal stddev in metres (injected by gps_cov_relay).',
+    )
+    horizontal_stddev = LaunchConfiguration('horizontal_stddev')
+
+    vertical_stddev_arg = DeclareLaunchArgument(
+        'vertical_stddev', default_value='1.0',
+        description='GPS vertical stddev in metres (injected by gps_cov_relay).',
+    )
+    vertical_stddev = LaunchConfiguration('vertical_stddev')
+
+    magnetic_declination_arg = DeclareLaunchArgument(
+        'magnetic_declination', default_value='0.0',
+        description=(
+            'Magnetic declination in radians for the test site. '
+            'Toronto ≈ -0.24 rad. Passed to navsat_transform_node.'
+        ),
+    )
+    magnetic_declination = LaunchConfiguration('magnetic_declination')
+
+    # ── Robot description ─────────────────────────────────────────────────────
 
     urdf_path = PathJoinSubstitution([
-        FindPackageShare('description'),
-        'rover_model',
-        'urdf',
-        'timbot.urdf.xacro',
+        FindPackageShare('description'), 'rover_model', 'urdf', 'timbot.urdf.xacro',
     ])
-
     robot_description = ParameterValue(
         Command(['xacro ', urdf_path, ' sim:=false']),
         value_type=str,
     )
-
     robot_state_publisher = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
         name='robot_state_publisher',
         output='screen',
-        parameters=[{
-            'robot_description': robot_description,
-            'use_sim_time': False,
-        }],
+        parameters=[{'robot_description': robot_description, 'use_sim_time': False}],
         arguments=['--ros-args', '--log-level', log_level],
     )
 
@@ -158,9 +187,8 @@ def generate_launch_description():
         output='screen',
     )
 
-    from launch.actions import TimerAction
     imu_relay = TimerAction(
-        period=2.0,  # seconds
+        period=2.0,
         actions=[
             Node(
                 package='odom_state',
@@ -176,15 +204,11 @@ def generate_launch_description():
                 }],
                 arguments=['--ros-args', '--log-level', log_level],
             )
-        ]
+        ],
     )
 
-    # ── Wheel encoders: odom publisher ───────────────────────────────────────
-    # motor_control is started separately (e.g. via systemd on the Pi).
-    # simple_nav publishes /cmd_vel directly; motor_control reads it there.
+    # ── Wheel encoders ────────────────────────────────────────────────────────
 
-    # odom_pub integrates /left_wheel/ticks + /right_wheel/ticks
-    # into /wheel_odom (nav_msgs/Odometry, odom → base_link).
     wheel_odom = Node(
         package='motor_odom',
         executable='odom_pub.py',
@@ -193,12 +217,12 @@ def generate_launch_description():
         arguments=['--ros-args', '--log-level', log_level],
     )
 
-    # ── EKF Local: /wheel_odom + /imu/data → /odometry/local ─────────────────
+    # ── EKF Local ─────────────────────────────────────────────────────────────
+    # Fuses /wheel_odom + /imu/data -> /odometry/local + odom->base_link TF.
+    # This is the primary truth source for the entire stack.
 
     odom_yaml = PathJoinSubstitution([
-        FindPackageShare('odom_state'),
-        'config',
-        'odom.yaml',
+        FindPackageShare('odom_state'), 'config', 'odom.yaml',
     ])
 
     ekf_local = Node(
@@ -212,22 +236,16 @@ def generate_launch_description():
             ('/set_pose', '/ekf_local/set_pose'),
         ],
         arguments=['--ros-args', '--log-level', log_level],
-        parameters=[
-            odom_yaml,
-            {'use_sim_time': False},
-        ],
+        parameters=[odom_yaml, {'use_sim_time': False}],
     )
 
-    # ── RPLidar → /scan_lower ─────────────────────────────────────────────────
-    # rplidar_a1_launch.py publishes on /scan; SetRemap redirects it to
-    # /scan_lower to match the topic name the rest of the stack expects.
+    # ── RPLidar ───────────────────────────────────────────────────────────────
 
     rplidar = GroupAction(actions=[
         SetRemap(src='/scan', dst='/scan_lower'),
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([
-                FindPackageShare('rplidar_ros'),
-                '/launch/rplidar_a1_launch.py',
+                FindPackageShare('rplidar_ros'), '/launch/rplidar_a1_launch.py',
             ]),
             launch_arguments={
                 'serial_port': lidar_port,
@@ -238,18 +256,13 @@ def generate_launch_description():
 
     # ── ZED camera + CV pipeline ──────────────────────────────────────────────
 
-    # zed_open_capture_node: stereo USB feed → disparity → depth. Publishes
-    # /zed_node/left/{image,camera_info,depth_image,points}.
     zed = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([
-            FindPackageShare('timbot_launch'),
-            '/launch/zed_open_capture.launch.py',
+            FindPackageShare('timbot_launch'), '/launch/zed_open_capture.launch.py',
         ]),
         launch_arguments={'video_device': zed_device}.items(),
     )
 
-    # Re-stamps /zed_node/left/points with left_camera_link_optical so
-    # depth_detection gets the correct frame on real hardware.
     pointcloud_relay = Node(
         package='description',
         executable='pointcloud_frame_relay.py',
@@ -264,11 +277,9 @@ def generate_launch_description():
         arguments=['--ros-args', '--log-level', log_level],
     )
 
-    # Lane detection (classical HSV, comp default) → /cv/lane_detections_cloud.
     lane_detection = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([
-            FindPackageShare('lane_detection'),
-            '/launch/launch.py',
+            FindPackageShare('lane_detection'), '/launch/launch.py',
         ]),
         launch_arguments={
             'sim': 'false',
@@ -278,11 +289,9 @@ def generate_launch_description():
         }.items(),
     )
 
-    # Depth detection: filters /zed_node/left/points_rviz → /zed_node/left/obstacle_points.
     depth_detection = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([
-            FindPackageShare('depth_detection'),
-            '/launch/depth_detection.launch.py',
+            FindPackageShare('depth_detection'), '/launch/depth_detection.launch.py',
         ]),
         launch_arguments={
             'sim': 'false',
@@ -290,13 +299,16 @@ def generate_launch_description():
         }.items(),
     )
 
-    # ── Cartographer: SLAM using /scan_lower + /odometry/local + /imu/data ───
-    # Uses cartographer_simple.lua (no point clouds, one laser scan).
-    # Publishes /tracked_pose (PoseStamped, map frame) and map->odom TF.
+    # ── Cartographer: pure map builder ────────────────────────────────────────
+    # Receives /scan_lower + /odometry/local + obstacle/lane point clouds.
+    # optimize_every_n_nodes=0 means NO global SLAM, NO loop closure.
+    # The Ceres scan matcher is pinned to odometry (occupied_space_weight=1e-9),
+    # so scan data influences the map appearance only, not the pose estimate.
+    # publish_to_tf=true: publishes map->odom, but ≈ identity since no corrections.
+    # The real global anchor (utm->map) comes from navsat_transform below.
 
     carto_config_dir = PathJoinSubstitution([
-        FindPackageShare('simple_nav'),
-        'config',
+        FindPackageShare('simple_nav'), 'config',
     ])
 
     cartographer_node = Node(
@@ -314,6 +326,8 @@ def generate_launch_description():
             ('scan', '/scan_lower'),
             ('odom', '/odometry/local'),
             ('imu', '/imu/data'),
+            ('points2_1', '/zed_node/left/obstacle_points'),
+            ('points2_2', '/cv/lane_detections_cloud'),
         ],
     )
 
@@ -330,32 +344,59 @@ def generate_launch_description():
         ],
     )
 
-    # ── Pose Relay: /tracked_pose → /tracked_pose_cov ─────────────────────────
-    # Cartographer publishes PoseStamped; ekf_global needs PoseWithCovarianceStamped.
+    # ── GPS pipeline ──────────────────────────────────────────────────────────
+    # gps_cov_relay: always running; adds covariance to /gps/fix -> /gps/fix_cov.
+    # navsat_transform: uses /odometry/local + GPS -> publishes utm->map TF.
+    # GPS driver: conditional (use_gps:=true), launches nmea_navsat_driver.
 
-    pose_relay = Node(
+    gps_cov_relay = Node(
         package='odom_state',
-        executable='pose_relay.py',
-        name='pose_relay',
+        executable='gps_cov_relay.py',
+        name='gps_cov_relay',
         output='screen',
         parameters=[{
-            'input_topic': '/tracked_pose',
-            'output_topic': '/tracked_pose_cov',
-            'position_covariance': 0.05,
-            'orientation_covariance': 0.01,
             'use_sim_time': False,
+            'horizontal_stddev': horizontal_stddev,
+            'vertical_stddev': vertical_stddev,
         }],
         arguments=['--ros-args', '--log-level', log_level],
     )
 
-    # ── RViz ─────────────────────────────────────────────────────────────────
-    # Shows: map (/map), robot model, TF tree, LiDAR scan, obstacle + lane clouds.
-    # Fixed frame: map. Camera follows base_link (top-down ortho).
+    navsat_transform = Node(
+        package='robot_localization',
+        executable='navsat_transform_node',
+        name='navsat_transform_node',
+        output='screen',
+        respawn=True,
+        remappings=[
+            ('/odometry/filtered', '/odometry/local'),  # local EKF is the truth source
+            ('/gps/fix', '/gps/fix_cov'),               # covariance-stamped GPS fix
+            ('/imu', '/imu/data'),
+        ],
+        parameters=[
+            odom_yaml,                                  # reads navsat_transform_node: section
+            {'use_sim_time': False},
+            {'magnetic_declination_radians': magnetic_declination},
+            {'wait_for_datum': False},                  # use first GPS fix as origin
+        ],
+        arguments=['--ros-args', '--log-level', log_level],
+    )
+
+    gps_driver = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([
+            FindPackageShare('nmea_navsat_driver'), '/launch/nmea_serial_driver.launch.py',
+        ]),
+        launch_arguments={
+            'serial_port': gps_port,
+            'gps_baud': gps_baud,
+        }.items(),
+        condition=IfCondition(use_gps),
+    )
+
+    # ── RViz ──────────────────────────────────────────────────────────────────
 
     rviz_config = PathJoinSubstitution([
-        FindPackageShare('simple_nav'),
-        'config',
-        'simple_nav.rviz',
+        FindPackageShare('simple_nav'), 'config', 'simple_nav.rviz',
     ])
 
     rviz = Node(
@@ -367,13 +408,12 @@ def generate_launch_description():
     )
 
     # ── Simple Nav: open-loop relative goal follower ──────────────────────────
-    # Subscribes directly to /tracked_pose_cov (PoseWithCovarianceStamped, map frame).
-    # ekf_global is not needed at this stage; add it once this is validated.
+    # Subscribes to /odometry/local (EKF local, odom frame) for pose feedback.
+    # Cartographer's map->odom is ≈ identity so the nav targets are effectively
+    # in the map frame too.
 
     simple_nav_yaml = PathJoinSubstitution([
-        FindPackageShare('simple_nav'),
-        'config',
-        'simple_nav.yaml',
+        FindPackageShare('simple_nav'), 'config', 'simple_nav.yaml',
     ])
 
     simple_nav = Node(
@@ -393,6 +433,12 @@ def generate_launch_description():
         orientation_stddev_arg,
         lidar_port_arg,
         zed_device_arg,
+        use_gps_arg,
+        gps_port_arg,
+        gps_baud_arg,
+        horizontal_stddev_arg,
+        vertical_stddev_arg,
+        magnetic_declination_arg,
         robot_state_publisher,
         phidgets_container,
         imu_relay,
@@ -405,7 +451,9 @@ def generate_launch_description():
         depth_detection,
         cartographer_node,
         occupancy_grid_node,
-        pose_relay,
+        gps_cov_relay,
+        navsat_transform,
+        gps_driver,
         rviz,
         simple_nav,
     ])
