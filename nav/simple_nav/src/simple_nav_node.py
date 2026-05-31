@@ -2,16 +2,18 @@
 """
 simple_nav_node: open-loop sequential goal follower.
 
-Takes a list of relative goals [dx, dy, dyaw] (each goal expressed in the
+Takes a list of relative goals [dx, dy, dyaw_deg] (each goal expressed in the
 rover's local frame at the moment that goal becomes active) and drives the
 rover through them by publishing geometry_msgs/Twist on /cmd_vel.
 
-Assumes no obstacles. Uses /odometry/local for pose feedback.
+Assumes no obstacles. Uses /tracked_pose_cov (Cartographer) for pose feedback.
 
 Per-goal control sequence (turn -> drive -> align):
-  1. Rotate in place to face the (dx, dy) point.
-  2. Drive forward until within position_tolerance of the point.
-  3. Rotate in place to the target yaw (start_yaw + dyaw).
+    1. Rotate in place to face the (dx, dy) point.
+    2. Drive forward until within position_tolerance of the point.
+    3. Rotate in place to the target yaw (start_yaw + dyaw_deg).
+
+NOTE: dyaw_deg is now interpreted in DEGREES, not radians.
 """
 
 import json
@@ -19,8 +21,7 @@ import math
 
 import numpy as np
 import rclpy
-from geometry_msgs.msg import Twist
-from nav_msgs.msg import Odometry
+from geometry_msgs.msg import PoseWithCovarianceStamped, Twist
 from rclpy.node import Node
 from std_msgs.msg import Bool
 
@@ -45,10 +46,11 @@ class SimpleNavNode(Node):
     def __init__(self):
         super().__init__("simple_nav_node")
 
-        # Goals as a JSON-encoded list of [x, y, yaw] triplets. Each triplet is
+        # Goals as a JSON-encoded list of [x, y, yaw_deg] triplets. Each triplet is
         # interpreted in the rover's local frame at the moment that goal becomes
         # active (i.e. each goal is relative to where the previous one ended).
         # JSON is used because ROS 2 parameter types don't allow nested arrays.
+        # NOTE: yaw_deg is now in DEGREES, not radians.
         self.declare_parameter("goals", "[[2.0, 0.0, 0.0]]")
 
         self.declare_parameter("linear_speed", 0.5)         # m/s
@@ -72,11 +74,11 @@ class SimpleNavNode(Node):
         self.kp_angular = float(self.get_parameter("kp_angular").value)
 
         self.goals = self._parse_goals(self.get_parameter("goals").value)
-        self.get_logger().info(f"Loaded {len(self.goals)} relative goal(s).")
+        self.get_logger().info(f"Loaded {len(self.goals)} relative goal(s) (yaw in degrees).")
 
         self.cmd_pub = self.create_publisher(Twist, "/cmd_vel", 10)
         self.done_pub = self.create_publisher(Bool, "~/done", 1)
-        self.create_subscription(Odometry, "/odometry/local", self._odom_cb, 10)
+        self.create_subscription(PoseWithCovarianceStamped, "/tracked_pose_cov", self._odom_cb, 10)
 
         self.current_pose = None  # (x, y, yaw)
 
@@ -95,20 +97,21 @@ class SimpleNavNode(Node):
             parsed = json.loads(raw)
         except (TypeError, json.JSONDecodeError) as e:
             self.get_logger().error(
-                f"Could not parse 'goals' as JSON ({e}). Expected a list of [x, y, yaw] "
-                "triplets, e.g. '[[2.0, 0.0, 0.0], [0.0, 0.0, 1.5708]]'. No goals will be executed."
+                f"Could not parse 'goals' as JSON ({e}). Expected a list of [x, y, yaw_deg] "
+                "triplets, e.g. '[[2.0, 0.0, 0.0], [0.0, 0.0, 90.0]]'. No goals will be executed."
             )
             return []
         if not isinstance(parsed, list) or not all(
             isinstance(g, (list, tuple)) and len(g) == 3 for g in parsed
         ):
             self.get_logger().error(
-                "'goals' must be a list of [x, y, yaw] triplets. No goals will be executed."
+                "'goals' must be a list of [x, y, yaw_deg] triplets. No goals will be executed."
             )
             return []
-        return [(float(g[0]), float(g[1]), float(g[2])) for g in parsed]
+        # Convert yaw_deg to radians internally
+        return [(float(g[0]), float(g[1]), math.radians(float(g[2]))) for g in parsed]
 
-    def _odom_cb(self, msg: Odometry):
+    def _odom_cb(self, msg: PoseWithCovarianceStamped):
         p = msg.pose.pose.position
         yaw = yaw_from_quat(msg.pose.pose.orientation)
         self.current_pose = (p.x, p.y, yaw)

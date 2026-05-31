@@ -1,19 +1,19 @@
 simple_nav_node:
   ros__parameters:
-    # List of relative goals as [x, y, yaw] triplets. Each goal is interpreted in
+    # List of relative goals as [x, y, yaw_deg] triplets. Each goal is interpreted in
     # the rover's local frame at the moment that goal becomes active (i.e. each
     # goal is relative to where the previous one ended). x is forward (m),
-    # y is left (m), yaw is in radians.
+    # y is left (m), yaw_deg is in DEGREES.
     #
     # Encoded as a JSON string because ROS 2 parameter types don't allow nested
     # arrays. The example below: forward 2 m, then 90 deg left turn in place,
-    # then forward 1 m.
-    goals: "[[2.0, 0.0, 0.0]]"
+    # then forward 1 m. (yaw_deg = 90 means 90 degrees)
+    goals: "[[2.0, 0.0, 90.0], [2.0, 0.0, 90.0], [2.0, 0.0, 90.0], [2.0, 0.0, 90.0]]"
 
     linear_speed: 0.4
     angular_speed: 0.6
     position_tolerance: 0.10
-    angular_tolerance: 0.05
+    angular_tolerance: 0.1
     min_drive_distance: 0.05
     control_rate: 20.0
     kp_linear: 0.8
