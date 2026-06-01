@@ -226,6 +226,12 @@ nav_stack:
     - /local_costmap/costmap
     - /global_costmap/costmap
 
+nav_relay:
+  enabled: true
+  log_level: error
+  delay_sec: 1.0
+  expected_topics: []
+
 # --- Stage 9: Load Waypoints ---
 load_waypoints:
   enabled: false

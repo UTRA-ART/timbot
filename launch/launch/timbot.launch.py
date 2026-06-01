@@ -336,6 +336,28 @@ def launch_nav_stack(config: dict, sim: bool, context: LaunchContext) -> list:
     return [nav_launch]
 
 
+def launch_nav_relay(config: dict, sim: bool, context: LaunchContext) -> list:
+    relay_cfg = config.get('nav_relay', {})
+    log_level = relay_cfg.get('log_level', 'info')
+
+    nav_relay_node = Node(
+        package='load_waypoints',
+        executable='nav_autonomous_relay.py',
+        name='nav_relay',
+        output='screen',
+        arguments=['--ros-args', '--log-level', log_level],
+        parameters=[
+            {'use_sim_time': sim},
+            {'nav_input_topic': '/nav_vel'},
+            {'teleop_input_topic': '/teleop_vel'},
+            {'output_topic': '/cmd_vel'},
+            {'pause_topic': '/pause_navigation'},
+        ]
+    )
+
+    return [nav_relay_node]
+
+
 def launch_load_waypoints(config: dict, sim: bool, context: LaunchContext) -> list:
     wp_cfg = config.get('load_waypoints', {})
     log_level = wp_cfg.get('log_level', 'info')
@@ -585,6 +607,7 @@ LAUNCH_STAGES = [
     ('Teleop Keyboard', 'teleop_key', launch_teleop_key),
     ('RViz',           'rviz',           launch_rviz),
     ('Nav Stack',      'nav_stack',      launch_nav_stack),
+    ('Nav Relay',      'nav_relay',      launch_nav_relay),
     ('Load Waypoints', 'load_waypoints', launch_load_waypoints),
 ]
 
