@@ -74,8 +74,9 @@ public:
     std::string video_device = get_parameter("video_device").as_string();
 
     // Setup ROS Publishers
-    left_pub_ = create_publisher<sensor_msgs::msg::Image>(left_image_topic_, rclcpp::SensorDataQoS());
-    left_info_pub_ = create_publisher<sensor_msgs::msg::CameraInfo>(left_camera_info_topic_, rclcpp::SensorDataQoS());
+    auto img_qos = rclcpp::QoS(rclcpp::KeepLast(5)).reliable();
+    left_pub_ = create_publisher<sensor_msgs::msg::Image>(left_image_topic_, img_qos);
+    left_info_pub_ = create_publisher<sensor_msgs::msg::CameraInfo>(left_camera_info_topic_, img_qos);
     auto depth_qos = rclcpp::QoS(rclcpp::KeepLast(5)).reliable();
     depth_pub_ = create_publisher<sensor_msgs::msg::Image>(depth_image_topic_, depth_qos);
     cloud_pub_ = create_publisher<sensor_msgs::msg::PointCloud2>(point_cloud_topic_, rclcpp::SensorDataQoS());

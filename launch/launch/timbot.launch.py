@@ -265,17 +265,20 @@ def launch_visual_odom(config: dict, sim: bool, context: LaunchContext) -> list:
         'publish_tf': False,            # EKFs own the TF tree — never publish here
         'approx_sync': True,            # ZED image/depth/info stamps are not identical
         # ZED publishes left image + camera_info as best-effort (SensorDataQoS).
-        # A best-effort subscriber is compatible with both best-effort and the
-        # reliable depth publisher, so use best-effort (2) across the board.
+        # Set both the legacy per-topic params and the global 'qos' override so
+        # this works regardless of which rtabmap_ros version is installed.
+        'qos': 2,
         'qos_image': int(vo_cfg.get('qos_image', 2)),
         'qos_camera_info': int(vo_cfg.get('qos_camera_info', 2)),
         'wait_imu_to_init': False,
         # RTAB-Map core params (passed straight through as node params):
-        'Odom/Strategy': str(vo_cfg.get('odom_strategy', '0')),    # 0 = Frame-to-Map (less drift)
-        'Vis/FeatureType': str(vo_cfg.get('feature_type', '6')),   # 6 = GFTT/BRIEF (no nonfree dep; SURF often unavailable)
-        'Vis/CorType': '0',                                        # 0 = features matching
-        'Vis/MaxDepth': str(vo_cfg.get('max_depth', 8.0)),         # ignore noisy far-range stereo depth
-        'Reg/Force3DoF': 'true',                                   # ground robot — keep VO planar
+        'Odom/Strategy': str(vo_cfg.get('odom_strategy', '1')),    # 1 = Frame-to-Frame (robust with sparse depth)
+        'Vis/FeatureType': str(vo_cfg.get('feature_type', '8')),  # 8 = GFTT/ORB (no nonfree dep)
+        'Vis/CorType': '0',                                       # 0 = features matching
+        'Vis/MaxDepth': str(vo_cfg.get('max_depth', 8.0)),        # ignore noisy far-range stereo depth
+        'Vis/MinInliers': str(vo_cfg.get('min_inliers', 5)),      # lower bar for sparse stereo depth
+        'Vis/DepthAsMask': str(vo_cfg.get('depth_as_mask', 'false')),  # use features even at depth=0 pixels
+        'Reg/Force3DoF': 'true',                                  # ground robot — keep VO planar
     }
 
     vo_node = Node(

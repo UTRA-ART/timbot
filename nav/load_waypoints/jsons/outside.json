@@ -3,6 +3,7 @@
     "laps": 1,
     "clockwise": true,
     "add_corners": false,
+    "return_to_start": true,
     "waypoints" : [
         {
             "id" : 0,

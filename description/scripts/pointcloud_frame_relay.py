@@ -82,7 +82,7 @@ class PointCloudFrameRelay(Node):
         if not raw:
             return
 
-        pts = np.array(raw, dtype=np.float64)   # (N, 3)
+        pts = np.array([(p[0], p[1], p[2]) for p in raw], dtype=np.float64)  # (N, 3)
         transformed = (R @ pts.T).T + trans      # (N, 3)
 
         header = Header()

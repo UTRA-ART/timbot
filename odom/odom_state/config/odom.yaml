@@ -79,9 +79,9 @@ ekf_local:
     # heading (see git history; this was the 9fe3197 regression).
     imu0: /imu/data
     imu0_config: [false, false, false, # The order of the boolean values are (X,Y,Z,roll,pitch,yaw,X˙,Y˙,Z˙,roll˙,pitch˙,yaw˙,X¨,Y¨,Z¨).
-                  false, false, true,  # orientation OFF (odom frame must stay smooth)
+                  false, false, false,  # orientation OFF (odom frame must stay smooth)
                   false, false, false,
-                  true , true , true ,  # angular velocity ON
+                  false , false , true ,  # angular velocity ON
                   false , false , false]
     imu0_queue_size: 5
     imu0_differential: false
@@ -178,7 +178,7 @@ ekf_global:
     odom1_config: [true , true , false,
                    false, false, true,
                    false, false, false,
-                   false, false, false,
+                   false, false, true,
                    false, false, false]
     odom1_queue_size: 10
     odom1_differential: false
@@ -191,13 +191,13 @@ ekf_global:
     # heading comes from gps_static_transform.
     imu0: /imu/data
     imu0_config: [false, false, false,
-                  false, false, true,
                   false, false, false,
-                  true, true, true,
+                  false, false, false,
+                  false, false, true,
                   false, false, false]
     imu0_queue_size: 5
     imu0_differential: false
-    imu0_relative: true
+    imu0_relative: false
     imu0_remove_gravitational_acceleration: true
     imu0_linear_acceleration_noise: 0.5
     imu0_angular_velocity_noise: 0.2
@@ -239,5 +239,5 @@ gps_static_transform:
     publish_gps_heading: true
     gps_heading_topic: /gps/heading
     use_manual_heading: true
-    manual_heading_deg: 0.0  # ENU degrees — North=90, East=0. Only used when use_manual_heading is true.
+    manual_heading_deg: -90.0  # ENU degrees — North=90, East=0. Only used when use_manual_heading is true.
     # magnetic_declination_radians: 0.0 # for sim # needs to be sit through the config

@@ -209,9 +209,11 @@ visual_odom:
   depth_topic: /zed_node/left/depth_image
   camera_info_topic: /zed_node/left/camera_info
   output_topic: /visual_odom
-  feature_type: '6'      # 6 = GFTT/BRIEF (robust outdoors, no nonfree dep)
-  odom_strategy: '0'     # 0 = Frame-to-Map
+  feature_type: '8'      # 8 = GFTT/ORB (what rtabmap falls back to anyway without xfeatures2d)
+  odom_strategy: '1'     # 1 = Frame-to-Frame (more robust with patchy stereo depth)
   max_depth: 8.0
+  min_inliers: 5         # default 20 is too high when stereo depth is sparse
+  depth_as_mask: 'false' # allow features at depth-invalid pixels to participate in 2D matching
   qos_image: 2           # best-effort, matches ZED publishers
   qos_camera_info: 2
   expected_topics: []
