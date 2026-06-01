@@ -8,9 +8,21 @@ import tty
 
 import rclpy
 from rclpy.node import Node
+from rclpy.qos import QoSProfile, QoSDurabilityPolicy, QoSHistoryPolicy
 from geometry_msgs.msg import Twist
 from std_msgs.msg import Bool
 from std_srvs.srv import Empty
+
+# Latched QoS for /pause_navigation: this key is only published on a keypress
+# (getKey blocks), so late-joining subscribers (e.g. nav_autonomous_relay, which
+# is launched in a separate terminal AFTER 'p' is pressed) would otherwise never
+# learn the current teleop/autonomous mode. TRANSIENT_LOCAL retains the last
+# value and delivers it on subscription.
+PAUSE_QOS = QoSProfile(
+    depth=1,
+    history=QoSHistoryPolicy.KEEP_LAST,
+    durability=QoSDurabilityPolicy.TRANSIENT_LOCAL,
+)
 
 msg = """
 Reading from the keyboard  and Publishing to Twist!
@@ -176,7 +188,7 @@ def main(args=None):
 
     pub_thread = PublishThread(node, repeat, cmd_vel_topic)
     autonomous_mode = False
-    mode_pub = node.create_publisher(Bool, '/pause_navigation', 1)
+    mode_pub = node.create_publisher(Bool, '/pause_navigation', PAUSE_QOS)
     initial_message = Bool()
     initial_message.data = True
     mode_pub.publish(initial_message) # initially published that we are in keyboard mode

@@ -1,16 +1,30 @@
 #!/usr/bin/env python3
 """
-Relay node: converts PoseStamped → PoseWithCovarianceStamped.
+Nav/teleop cmd_vel relay.
 
-Cartographer publishes /tracked_pose as PoseStamped, but robot_localization's
-EKF node requires PoseWithCovarianceStamped for pose inputs. This node bridges
-that gap by copying the pose and adding a configurable covariance matrix.
+Forwards either /teleop_vel (manual) or /nav_vel (autonomous) to /cmd_vel based
+on the /pause_navigation mode published by teleop_twist_keyboard:
+  pause_navigation == True  -> teleop mode (forward /teleop_vel)
+  pause_navigation == False -> autonomous  (forward /nav_vel)
 """
 
 import rclpy
 from rclpy.node import Node
+from rclpy.qos import QoSProfile, QoSDurabilityPolicy, QoSHistoryPolicy
 from geometry_msgs.msg import Twist
 from std_msgs.msg import Bool
+
+# Must match the latched publisher in teleop_twist_keyboard.py. This relay is
+# typically launched (via load_waypoints) AFTER the operator has already pressed
+# 'p' in teleop, so the mode was published before this node existed. A volatile
+# subscription would miss it and stay stuck in the default teleop mode, silently
+# dropping all /nav_vel — so the rover never moves in autonomous. TRANSIENT_LOCAL
+# delivers the last retained /pause_navigation value the moment we subscribe.
+PAUSE_QOS = QoSProfile(
+    depth=1,
+    history=QoSHistoryPolicy.KEEP_LAST,
+    durability=QoSDurabilityPolicy.TRANSIENT_LOCAL,
+)
 
 class NavRelay(Node):
     def __init__(self):
@@ -34,8 +48,8 @@ class NavRelay(Node):
 
         self.nav_input_topic = self.create_subscription(Twist, nav_input_topic, self.nav_callback, 20)
         self.teleop_vel_sub = self.create_subscription(Twist, teleop_input_topic, self.teleop_callback, 1)
-        self.mode_sub = self.create_subscription(Bool, pause_topic, self.pause_callback, 1)
-        self.is_paused = True # we default to being in keyboard mode
+        self.mode_sub = self.create_subscription(Bool, pause_topic, self.pause_callback, PAUSE_QOS)
+        self.is_paused = True # default to keyboard mode until the latched pause_navigation arrives
 
         self.get_logger().info(
             f'Relaying {teleop_input_topic} and {nav_input_topic} → {output_topic} '

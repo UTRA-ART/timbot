@@ -122,7 +122,7 @@ spawn:
 # --- Stage 3: Odom State (EKF local + global + navsat) ---
 odom_state:
   enabled: true
-  config_file: odom.yaml
+  config_file: odom.yaml  # tested chud-mobile structure: ekf_local + static map=odom identity TF, no global EKF
   log_level: error  # Set to 'debug' to see EKF covariance internals
   delay_sec: 5.0
   position_covariance: 0.05 # cartographer pose
@@ -192,9 +192,34 @@ depth_detection:
   expected_topics:
     - /zed_node/left/obstacle_points
 
-# --- Stage 5: Cartographer (SLAM) ---
-cartographer:
+# --- Visual Odometry (RTAB-Map) — replaces Cartographer ---
+# Publishes /visual_odom (nav_msgs/Odometry), consumed by ekf_global as the
+# absolute map-frame anchor. publish_tf is forced false in the launch file.
+# expected_topics is intentionally EMPTY so the pipeline hands off on delay_sec
+# instead of hard-blocking if the camera/rtabmap is slow to initialise — a
+# camera failure must not stall the rest of bring-up (ekf_global still produces
+# map→odom from wheel+IMU alone, degraded).
+visual_odom:
   enabled: true
+  log_level: error
+  delay_sec: 6.0
+  frame_id: base_link
+  odom_frame_id: odom_visual
+  rgb_topic: /zed_node/left/image
+  depth_topic: /zed_node/left/depth_image
+  camera_info_topic: /zed_node/left/camera_info
+  output_topic: /visual_odom
+  feature_type: '6'      # 6 = GFTT/BRIEF (robust outdoors, no nonfree dep)
+  odom_strategy: '0'     # 0 = Frame-to-Map
+  max_depth: 8.0
+  qos_image: 2           # best-effort, matches ZED publishers
+  qos_camera_info: 2
+  expected_topics: []
+
+# --- Cartographer (SLAM) — DISABLED on comp: replaced by visual_odom above ---
+# Still used by sim.yaml. Leave disabled here.
+cartographer:
+  enabled: false
   config_file: cartographer.lua
   log_level: error
   delay_sec: 5.0
@@ -219,7 +244,7 @@ teleop_key:
 #2) for gps make a node that basically takes initial position and heading and updates based on local ekf output (so this node will have to keep track of heading always and of lat and long. Use roll and pitch to consider changes in elevation as well) - after this test going from test point 1 to test point 2 using teleop to see if this node can accurately keep track of gps position - can also use compass heading from imu# --- Stage 8: Nav2 Stack ---
 nav_stack:
   enabled: true
-  config_file: espresso_nav2_bkup.yaml
+  config_file: espresso_nav2_bkup.yaml  # chud-mobile tuning: no static_layer, persistent 200m costmap, local odom
   log_level: error
   delay_sec: 10.0
   expected_topics:

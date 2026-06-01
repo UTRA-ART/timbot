@@ -14,7 +14,7 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.conditions import IfCondition, UnlessCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, Command, PathJoinSubstitution, PythonExpression
+from launch.substitutions import LaunchConfiguration, Command, PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 from launch_ros.parameter_descriptions import ParameterValue
@@ -116,11 +116,9 @@ def generate_launch_description():
         }.items()
     )
 
-    # Point cloud frame relay for RViz in sim. Enabled only when lane detection is enabled.
-    relay_output_frame = PythonExpression([
-        "'left_camera_link' if '", use_sim_time, "' == 'true' else 'left_camera_link_optical'"
-    ])
-
+    # Point cloud relay: transforms /zed_node/left/points into base_link so depth_detection
+    # receives x=forward, y=lateral, z=height (truly vertical) regardless of sim vs real.
+    # Enabled only when lane detection is enabled.
     pointcloud_relay = Node(
         package='description',
         executable='pointcloud_frame_relay.py',
@@ -130,7 +128,7 @@ def generate_launch_description():
             'use_sim_time': use_sim_time,
             'input_topic': '/zed_node/left/points',
             'output_topic': '/zed_node/left/points_rviz',
-            'output_frame_id': relay_output_frame,
+            'output_frame_id': 'base_link',
         }],
         arguments=['--ros-args', '--log-level', log_level],
         output='screen',

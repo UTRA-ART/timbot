@@ -84,6 +84,7 @@ def generate_launch_description():
         ]
     )
 
+    # Global EKF owns map→odom and fuses RTAB /visual_odom (see odom.yaml).
     ekf_global = Node(
         package='robot_localization',
         executable='ekf_node',

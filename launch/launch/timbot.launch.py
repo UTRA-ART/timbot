@@ -246,6 +246,55 @@ def launch_depth_detection(config: dict, sim: bool, context: LaunchContext) -> l
 
     return [depth_launch]
 
+def launch_visual_odom(config: dict, sim: bool, context: LaunchContext) -> list:
+    """RTAB-Map RGB-D visual odometry (rtabmap_odom/rgbd_odometry).
+
+    Replaces Cartographer as the absolute map-frame pose source. Consumes the
+    ZED left image + depth + camera_info and publishes nav_msgs/Odometry on
+    /visual_odom (remapped from 'odom'). publish_tf is FORCED false — ekf_global
+    owns map→odom and ekf_local owns odom→base_link, so rtabmap must NOT touch
+    the TF tree. Its internal 'odom_visual' frame is topic-only.
+    """
+    vo_cfg = config.get('visual_odom', {})
+    log_level = vo_cfg.get('log_level', 'info')
+
+    params = {
+        'use_sim_time': sim,
+        'frame_id': vo_cfg.get('frame_id', 'base_link'),
+        'odom_frame_id': vo_cfg.get('odom_frame_id', 'odom_visual'),
+        'publish_tf': False,            # EKFs own the TF tree — never publish here
+        'approx_sync': True,            # ZED image/depth/info stamps are not identical
+        # ZED publishes left image + camera_info as best-effort (SensorDataQoS).
+        # A best-effort subscriber is compatible with both best-effort and the
+        # reliable depth publisher, so use best-effort (2) across the board.
+        'qos_image': int(vo_cfg.get('qos_image', 2)),
+        'qos_camera_info': int(vo_cfg.get('qos_camera_info', 2)),
+        'wait_imu_to_init': False,
+        # RTAB-Map core params (passed straight through as node params):
+        'Odom/Strategy': str(vo_cfg.get('odom_strategy', '0')),    # 0 = Frame-to-Map (less drift)
+        'Vis/FeatureType': str(vo_cfg.get('feature_type', '6')),   # 6 = GFTT/BRIEF (no nonfree dep; SURF often unavailable)
+        'Vis/CorType': '0',                                        # 0 = features matching
+        'Vis/MaxDepth': str(vo_cfg.get('max_depth', 8.0)),         # ignore noisy far-range stereo depth
+        'Reg/Force3DoF': 'true',                                   # ground robot — keep VO planar
+    }
+
+    vo_node = Node(
+        package='rtabmap_odom',
+        executable='rgbd_odometry',
+        name='visual_odometry',
+        output='screen',
+        parameters=[params],
+        remappings=[
+            ('rgb/image', vo_cfg.get('rgb_topic', '/zed_node/left/image')),
+            ('depth/image', vo_cfg.get('depth_topic', '/zed_node/left/depth_image')),
+            ('rgb/camera_info', vo_cfg.get('camera_info_topic', '/zed_node/left/camera_info')),
+            ('odom', vo_cfg.get('output_topic', '/visual_odom')),
+        ],
+        arguments=['--ros-args', '--log-level', log_level],
+    )
+    return [vo_node]
+
+
 def launch_cartographer(config: dict, sim: bool, context: LaunchContext) -> list:
     carto_cfg = config.get('cartographer', {})
     log_level = carto_cfg.get('log_level', 'info')
@@ -577,6 +626,7 @@ LAUNCH_STAGES = [
     ('Gazebo',         'gazebo',         launch_gazebo),
     ('Spawn',          'spawn',          launch_spawn),
     ('Robot Bringup',  'robot_bringup',  launch_robot_bringup),
+    ('Visual Odom',    'visual_odom',    launch_visual_odom),
     ('Odom State',     'odom_state',     launch_odom_state),
     ('Filter Lidar',   'filter_lidar',   launch_filter_lidar),
     ('Lane Detection', 'lane_detection', launch_lane_detection),

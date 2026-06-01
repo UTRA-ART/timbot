@@ -79,13 +79,13 @@ ekf_local:
     # heading (see git history; this was the 9fe3197 regression).
     imu0: /imu/data
     imu0_config: [false, false, false, # The order of the boolean values are (X,Y,Z,roll,pitch,yaw,X˙,Y˙,Z˙,roll˙,pitch˙,yaw˙,X¨,Y¨,Z¨).
-                  false, false, false,  # orientation OFF (odom frame must stay smooth)
+                  false, false, true,  # orientation OFF (odom frame must stay smooth)
                   false, false, false,
-                  false , false , true ,  # angular velocity ON
+                  true , true , true ,  # angular velocity ON
                   false , false , false]
     imu0_queue_size: 5
     imu0_differential: false
-    imu0_relative: false
+    imu0_relative: true
     imu0_remove_gravitational_acceleration: true
 
     imu0_linear_acceleration_noise: 0.5
@@ -106,16 +106,18 @@ ekf_local:
 
 
 # --- EKF Global (map → odom) ---
-# Smooths cartographer pose; map→odom TF is published by cartographer
+# Owns the map→odom TF. Fuses the SAME continuous sensors as ekf_local
+# (wheel encoders + IMU yaw-rate) plus RTAB-Map visual odometry (/visual_odom)
+# as the map-frame anchor — this REPLACES the old Cartographer pose pipeline.
+#   ekf_local (odom→base_link)
+#     + rtabmap rgbd_odometry (/visual_odom)
+#     → ekf_global (map→odom)
+# The map origin itself is anchored by gps_static_transform's static utm→map TF.
 ekf_global:
   ros__parameters:
     frequency: 10.0
 
-    # ekf_global filters cartographer SLAM pose for a smooth /odometry/global.
-    # Pipeline: ekf_local (odom→base_link) → cartographer (/tracked_pose)
-    #         → ekf_global (map pose smoothing)
-
-    # Specify planar environment
+    # Specify planar environment (nav2 is 2D; map→odom stays planar)
     two_d_mode: true
 
     map_frame: map
@@ -123,10 +125,9 @@ ekf_global:
     base_link_frame: base_link
     world_frame: map
 
-    # ekf_global IS the authority on map→odom.
-    # Cartographer's TF output is redirected to /tf_carto (via launch remap)
-    # so there is no conflict — only ekf_global publishes map→odom on /tf.
-    publish_tf: false
+    # ekf_global is the SOLE authority on map→odom (Cartographer is gone and
+    # there is no identity TF). publish_tf MUST be true.
+    publish_tf: true
 
     transform_time_offset: 0.05
 
@@ -152,55 +153,56 @@ ekf_global:
                                0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.01,  0.0,
                                0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.01]
 
-    ## Pose Sensor(s) ##
+    ## Odometry Sensor(s) ##
 
-    # Cartographer tracked pose (converted from PoseStamped by pose_relay node)
-    # Provides absolute x, y, yaw position in the map frame
-    # Already fuses odom + IMU + lidar + GPS internally, so no GPS needed here
-    pose0: /tracked_pose_cov
-    pose0_config: [true , true , false,
+    # Wheel encoders — SAME config as ekf_local: provides the smooth, high-rate
+    # continuous motion (X,Y,Z + YAW) so the global pose stays fluid between the
+    # slower visual-odom updates.
+    odom0: /wheel_odom
+    odom0_config: [true , true, true,
                    false, false, true,
                    false, false, false,
                    false, false, false,
                    false, false, false]
-    pose0_queue_size: 10
-    pose0_differential: false
-    pose0_relative: false
+    odom0_queue_size: 10
+    odom0_differential: false
+    odom0_relative: false
 
-    # odom2: zed_node/odom
-    # odom2_config: [true, true, false,
-    #                false, false, true,
-    #                false, false, false,
-    #                false, false, false,
-    #                false, false, false]
-    # odom2_queue_size: 10
-    # odom2_differential: true
-    # odom2_relative: false
+    # RTAB-Map visual odometry (rtabmap_odom/rgbd_odometry -> /visual_odom).
+    # The map-frame anchor that replaces the old Cartographer /tracked_pose,
+    # fused as an absolute X,Y,YAW measurement. rgbd_odometry inflates its own
+    # covariance when it loses tracking, so the EKF auto-down-weights bad frames.
+    # NOTE: drifting visual odometry, not loop-closed SLAM — long-term global
+    # accuracy still leans on the gps_static_transform anchor (utm→map).
+    odom1: /visual_odom
+    odom1_config: [true , true , false,
+                   false, false, true,
+                   false, false, false,
+                   false, false, false,
+                   false, false, false]
+    odom1_queue_size: 10
+    odom1_differential: false
+    odom1_relative: false
 
+    ## IMU Sensor(s) ##
 
-
-    ## IMU Sensor(s) ## 
-
-    # imu0: /imu/data_denoised
-    # imu0_config: [false, false, false,
-    #               false, false , true ,
-    #               false, false, false,
-    #               false, false , true ,
-    #               true , true , false] # Acceleration can be on/off
-    # imu0_queue_size: 10
-    # imu0_differential: false
-    # imu0_relative: true
-    # imu0_remove_gravitational_acceleration: true
-
-    # pose0: /orbslam/pose # For when we set up. Interfaces with orbslam
-    # pose0_config: [true , true , true ,
-    #                false , false , true ,
-    #                false , false , false ,
-    #                false , false , false ,
-    #                false, false, false]
-    # pose0_queue_size: 10
-    # pose0_differential: true
-    # pose0_relative: false
+    # IMU — SAME config as ekf_local: angular velocity (yaw-rate) ONLY. Absolute
+    # magnetometer yaw is NOT fused (unreliable near metal/power lines); absolute
+    # heading comes from gps_static_transform.
+    imu0: /imu/data
+    imu0_config: [false, false, false,
+                  false, false, true,
+                  false, false, false,
+                  true, true, true,
+                  false, false, false]
+    imu0_queue_size: 5
+    imu0_differential: false
+    imu0_relative: true
+    imu0_remove_gravitational_acceleration: true
+    imu0_linear_acceleration_noise: 0.5
+    imu0_angular_velocity_noise: 0.2
+    imu0_linear_acceleration_bias: 0.1
+    imu0_angular_velocity_bias: 0.1
 
 
 # --- GPS Static Transform ---
@@ -237,5 +239,5 @@ gps_static_transform:
     publish_gps_heading: true
     gps_heading_topic: /gps/heading
     use_manual_heading: true
-    manual_heading_deg: -90.0  # ENU degrees — North=90, East=0. Only used when use_manual_heading is true.
+    manual_heading_deg: 0.0  # ENU degrees — North=90, East=0. Only used when use_manual_heading is true.
     # magnetic_declination_radians: 0.0 # for sim # needs to be sit through the config

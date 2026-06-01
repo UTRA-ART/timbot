@@ -89,9 +89,6 @@ class NavigateWaypoints(Node):
             ClearEntireCostmap, 'local_costmap/clear_entirely_local_costmap',
             callback_group=self.client_cb_group
         )
-        self.ekf_global_set_pose_client = self.create_client(
-            SetPose, '/ekf_global/set_pose', callback_group=self.client_cb_group
-        )
         self.ekf_local_set_pose_client = self.create_client(
             SetPose, '/ekf_local/set_pose', callback_group=self.client_cb_group
         )
@@ -135,6 +132,13 @@ class NavigateWaypoints(Node):
         self.cv_respawning = th.Condition()
         self.stop_waypoint_loop = False
         self.is_clockwise = True
+
+        # Return-to-start: if enabled in the waypoints JSON, the rover records its
+        # current /gps/filtered position at startup and drives back to it after all
+        # course waypoints (and laps) are done.
+        self.return_to_start = False
+        self.return_pose = None
+        self.return_description = 'Return to start'
 
 
 
@@ -191,7 +195,7 @@ class NavigateWaypoints(Node):
             
             ids = list(self.waypoints.keys())
             if not self.is_clockwise:
-                ids = ids[-2::-1] + [ids[-1]]
+                ids = ids[::-1]
             lines = []
             for wp_id in ids:
                 desc = "unknown"
@@ -331,12 +335,6 @@ class NavigateWaypoints(Node):
         cov[28] = 9999.0    # pitch (not estimated)
         cov[35] = 0.20      # yaw
 
-        map_msg = PoseWithCovarianceStamped()
-        map_msg.header.stamp = self.get_clock().now().to_msg()
-        map_msg.header.frame_id = 'map'
-        map_msg.pose.pose = map_pose.pose
-        map_msg.pose.covariance = cov
-
         odom_msg = PoseWithCovarianceStamped()
         odom_msg.header.stamp = self.get_clock().now().to_msg()
         odom_msg.header.frame_id = 'odom'
@@ -366,16 +364,11 @@ class NavigateWaypoints(Node):
 
             return True
 
-        ok_global = call_set_pose(self.ekf_global_set_pose_client, '/ekf_global/set_pose', map_msg)
-        if not ok_global:
-            self.get_logger().info('Unsuccessfully reset global(map) EKF')
-            return False
-        self.get_logger().info('Succesfully reset global(map) EKF')
         ok_local = call_set_pose(self.ekf_local_set_pose_client, '/ekf_local/set_pose', odom_msg)
         if not ok_local:
             self.get_logger().info('Unsuccessfully reset local(odom) EKF')
             return False
-        self.get_logger().info('Successfully reset both local and global EKF\s')
+        self.get_logger().info('Successfully reset local EKF')
         return True
 
     def restart_cartographer_trajectory(self, map_pose: PoseStamped, timeout_sec: float = 3.0) -> bool:
@@ -619,8 +612,9 @@ class NavigateWaypoints(Node):
             waypoint_utms = midpoint_utms
 
         if not self.is_clockwise:
-            self.get_logger().warn("ATTENTION: Waypoints now in counter-clockwise order!!! Rover Respawn will still use the idx from the .json file!")
-            waypoint_utms = waypoint_utms[-2::-1] + [waypoint_utms[-1]] # assumes that you put the start location as the last point
+            self.get_logger().warn("ATTENTION: Counter-clockwise — visiting waypoints in REVERSE of the JSON order. Rover Respawn still uses the idx from the .json file!")
+            # clockwise = JSON order; counter-clockwise = plain reverse of JSON order.
+            waypoint_utms = waypoint_utms[::-1]
 
         # Convert all UTM coordinates to map-frame poses
         for i, wp_utm in enumerate(waypoint_utms):
@@ -631,8 +625,31 @@ class NavigateWaypoints(Node):
                 self.get_logger().info(f'Waypoint {i}: {wp_utm["description"]} -> ({pose.pose.position.x:.2f}, {pose.pose.position.y:.2f})')
             else:
                 self.get_logger().warn(f'Failed to convert waypoint {i} to map frame')
-        
+
         self.get_logger().info(f'Loaded {len(self.pose_queue)} waypoints into queue')
+
+        # --- Return-to-start (optional) -------------------------------------
+        # Remember where the rover is RIGHT NOW (the GPS fix captured above —
+        # i.e. where the operator teleop'd to and started load_waypoints) so it
+        # can drive back here once every course waypoint has been reached.
+        self.return_to_start = bool(waypoint_data.get("return_to_start", False))
+        if self.return_to_start:
+            return_pose = self.utm_to_map_pose(self.start_easting, self.start_northing, frame)
+            if return_pose is not None:
+                self.return_pose = return_pose
+                self.return_description = (
+                    f"Return to start (lat={gps_info.latitude:.7f}, lon={gps_info.longitude:.7f})"
+                )
+                self.get_logger().info(
+                    'Return-to-start ENABLED: will come back to '
+                    f'({return_pose.pose.position.x:.2f}, {return_pose.pose.position.y:.2f}) in {frame} frame'
+                )
+            else:
+                self.get_logger().warn(
+                    'Return-to-start enabled but failed to convert the start GPS fix '
+                    'to map frame; disabling it.'
+                )
+                self.return_to_start = False
 
     def add_corners_utm(self, midpoints):
         """
@@ -732,14 +749,22 @@ class NavigateWaypoints(Node):
         for _ in range(10):
             self.waypoint_pub.publish(msg)
 
-        # Update index
+        # Step to the next waypoint. Running off either end of the queue means we
+        # finished one full pass over the course; start another until we have
+        # completed `laps` passes total (laps=1 => one pass through the points).
         self.curr_waypoint_idx += self.start_direction
-        if self.curr_waypoint_idx < 0 and self.current_lap < self.laps:
+        ran_off_end = (
+            self.curr_waypoint_idx < 0
+            or self.curr_waypoint_idx >= len(self.pose_queue)
+        )
+        if ran_off_end:
             self.current_lap += 1
-            self.curr_waypoint_idx = len(self.pose_queue) - 1
-        elif self.curr_waypoint_idx >= len(self.pose_queue) and self.current_lap < self.laps:
-            self.current_lap += 1
-            self.curr_waypoint_idx = 0
+            if self.current_lap < self.laps:
+                # Wrap to the start of the queue for the current travel direction.
+                self.curr_waypoint_idx = (
+                    len(self.pose_queue) - 1 if self.start_direction == -1 else 0
+                )
+            # else: leave idx out of range so navigate_waypoints() ends the loop.
 
         return pose, description
 
@@ -920,6 +945,23 @@ class NavigateWaypoints(Node):
                     pose, description = self.get_next_waypoint()
                     self.get_logger().warn(f"Rover Respawned. New Goal '{description}' is now set. Retrying in 3 seconds...")
                     time.sleep(3.0)
+
+        # --- Return to start ------------------------------------------------
+        # Reached only when the loop above completed normally (all waypoints/laps
+        # done). Manual RViz override uses `return`, so it correctly skips this.
+        if (self.return_to_start and self.return_pose is not None
+                and not self.stop_waypoint_loop and rclpy.ok()):
+            self.get_logger().info('All waypoints reached — returning to start position.')
+            success = "RETRY_SAME"
+            while rclpy.ok() and success != "SUCCESS":
+                if self.stop_waypoint_loop:
+                    self.get_logger().info('Return-to-start stopped by manual RViz goal.')
+                    return
+                success = self.send_goal_to_nav2(self.return_pose, self.return_description)
+                if success != "SUCCESS":
+                    self.get_logger().warn('Return-to-start goal not yet complete; retrying in 3 seconds...')
+                    time.sleep(3.0)
+            self.get_logger().info('Returned to start. Mission complete.')
 
     def ramp_naving_callback(self, msg):
         """Handle ramp navigation state changes."""

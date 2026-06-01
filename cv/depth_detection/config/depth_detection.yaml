@@ -16,10 +16,6 @@
     height_filter_slope: 0.015
     height_filter_start_distance: 1.0
     height_filter_max_extra: 0.10
-    camera_pitch_deg: 25.0
-    camera_offset_x: 0.222173
-    camera_offset_y: 0.061524
-    camera_offset_z: 0.71
     voxel_downsample_obstacles: true
     voxel_size: 0.1
     cluster_obstacles: true
