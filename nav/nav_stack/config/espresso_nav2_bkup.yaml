@@ -328,6 +328,23 @@ controller_server:
       # prefer_high_velocities: true -- no DWB equivalent; critic balance handles intent
 
 
+velocity_smoother:
+  ros__parameters:
+    smoothing_frequency: 50.0
+    scale_velocities: false
+    feedback: "OPEN_LOOP"
+    max_velocity: [1.5, 0.0, 1.2]
+    min_velocity: [-0.5, 0.0, -1.2]
+    deadband_velocity: [0.05, 0.0, 0.125]
+    velocity_timeout: 0.5
+    max_accel: [0.7, 0.0, 1.0]
+    max_decel: [-2.5, 0.0, -3.2]
+    odom_topic: "odometry/local"
+    odom_duration: 0.1
+    use_realtime_priority: false
+    enable_stamped_cmd_vel: false
+
+
 bt_navigator:
   ros__parameters:
     global_frame: map

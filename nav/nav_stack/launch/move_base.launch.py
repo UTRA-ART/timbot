@@ -89,8 +89,21 @@ def generate_launch_description():
         name="controller_server",
         output="screen",
         parameters=[nav2_params_configured, {'use_sim_time': use_sim_time}],
-        # remappings=[('/cmd_vel', '/nav_vel')],
+        remappings=[('/cmd_vel', '/ctrl_vel')],
         arguments=['--ros-args', '--log-level', log_level],
+    )
+
+    velocity_smoother_node = Node(
+        package='nav2_velocity_smoother',
+        executable="velocity_smoother",
+        name='velocity_smoother',
+        output='screen',
+        parameters=[nav2_params_configured, {'use_sim_time': use_sim_time}],
+        remappings=[
+            ('/cmd_vel', '/ctrl_vel'),
+            ('/cmd_vel_smoothed', '/nav_vel')
+        ],
+        arguments=['--ros-args', '--log-level', log_level]
     )
 
     behavior_server_node = Node(
@@ -128,7 +141,8 @@ def generate_launch_description():
                 'planner_server',
                 'controller_server',
                 'bt_navigator',
-                'behavior_server'
+                'behavior_server',
+                'velocity_smoother'
             ]
         }],
         arguments=['--ros-args', '--log-level', log_level]
@@ -145,5 +159,6 @@ def generate_launch_description():
         controller_node,      # Local controller/planner (includes local costmap)
         behavior_server_node, # Behavior server for recovery behaviors
         bt_navigator_node,    # Behavior tree navigator
-        lifecycle_manager_node  # Lifecycle manager
+        lifecycle_manager_node,  # Lifecycle manager
+        velocity_smoother_node
     ])
