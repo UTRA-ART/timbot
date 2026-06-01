@@ -8,7 +8,7 @@
 sim: false
 use_topic_check: true  # Set to false to use blind delay_sec instead
 team_laptop: true
-ramp_seg_using_lidar: false  # true = lidar publishes /ramp_seg, false = depth_detection publishes /ramp_seg
+ramp_seg_using_lidar: true  # true = lidar publishes /ramp_seg, false = depth_detection publishes /ramp_seg
 
 # --- Hardware Ports ---
 gps_port: "/dev/gps_port_0"       # Serial port for GPS (e.g. /dev/ttyUSB0, /dev/ttyACM0)
@@ -273,4 +273,4 @@ new_imu_yaw_offset: 28.0  # degrees, same convention as imu_relay.yaw_offset
 # --- Odom Mode Toggle ---
 # true  = identity map->odom TF (no global EKF)
 # false = ekf_global owns map->odom (current flow)
-use_identity_map_odom: false
+use_identity_map_odom: true

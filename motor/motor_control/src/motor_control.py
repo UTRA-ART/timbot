@@ -101,6 +101,9 @@ class MotorControl(Node):
         self.left_dir = True
         self.right_dir_last = True
         self.left_dir_last = False
+        
+        self.vl=0
+        self.vr=0
 
         # timing
         self.rostime_last = 0.0
@@ -219,27 +222,29 @@ class MotorControl(Node):
             else:
                 # calculate speeds for each wheel
                 # right speed
-                vr = self.g_vx - (WHEEL_BASE * self.g_wz) / 2
-                if vr == 0:
+                vr_target = self.g_vx + (WHEEL_BASE * self.g_wz) / 2
+                self.vr=self.vr+(vr_target-self.vr)*0.2
+                if self.vr < 0.05 and self.vr > -0.05:
                     right_duty_cycle = 0.0
-                elif vr > 0:
-                    right_duty_cycle = convert_speed_right(vr)
-                    self.right_dir = True
-                else:
-                    right_duty_cycle = convert_speed_right(-vr)
+                elif self.vr > 0:
+                    right_duty_cycle = convert_speed_right(self.vr)
                     self.right_dir = False
+                else:
+                    right_duty_cycle = convert_speed_right(-self.vr)
+                    self.right_dir = True
                 self.right_speed = min(max(right_duty_cycle, 0), VEL_MAX)
 
                 # left speed
-                vl = self.g_vx + (WHEEL_BASE * self.g_wz) / 2
-                if vl == 0:
+                vl_target = self.g_vx - (WHEEL_BASE * self.g_wz) / 2
+                self.vl = self.vl+(vl_target-self.vl)*0.2
+                if self.vl < 0.05 and self.vl > -0.05:
                     left_duty_cycle = 0.0
-                elif vl > 0:
-                    left_duty_cycle = convert_speed_left(vl)
-                    self.left_dir = False
-                else:
-                    left_duty_cycle = convert_speed_left(-vl)
+                elif self.vl > 0:
+                    left_duty_cycle = convert_speed_left(self.vl)
                     self.left_dir = True
+                else:
+                    left_duty_cycle = convert_speed_left(-self.vl)
+                    self.left_dir = False
                 self.left_speed = min(max(left_duty_cycle, 0), VEL_MAX)
 
                 # write speed and direction pins
@@ -254,7 +259,7 @@ class MotorControl(Node):
                 self.get_logger().info(test_msg)
 
                 debug_msg1 = String()
-                debug_msg1.data = f"rpm: {vr * 60 / CIRCUMFERENCE}, {vl * 60 / CIRCUMFERENCE}"
+                debug_msg1.data = f"rpm: {self.vr * 60 / CIRCUMFERENCE}, {self.vl * 60 / CIRCUMFERENCE}"
                 self.debug_pub.publish(debug_msg1)
 
                 debug_msg2 = String()

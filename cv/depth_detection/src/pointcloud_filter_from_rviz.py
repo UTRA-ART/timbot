@@ -47,6 +47,12 @@ class PointCloudRVizFilter(Node):
         self.declare_parameter('cluster_tolerance', 0.35)
         self.declare_parameter('min_cluster_points', 5)
         self.declare_parameter('max_cluster_points', 0)
+        # Reject clusters whose lowest point is above this height (i.e. floating
+        # noise that does not start near the ground).
+        self.declare_parameter('max_obstacle_base_height', 0.30)
+        # Reject clusters whose highest point doesn't reach this height (i.e.
+        # short blobs that are too small to be a real obstacle).
+        self.declare_parameter('min_obstacle_top_height', 0.60)
         self.declare_parameter('classify_ramps', True)
         self.declare_parameter('max_ramp_detection_distance', 4.5)
         self.declare_parameter('ramp_center_lateral_limit', 1.2)
@@ -93,6 +99,8 @@ class PointCloudRVizFilter(Node):
         self.cluster_tolerance = float(self.get_parameter('cluster_tolerance').value)
         self.min_cluster_points = max(1, int(self.get_parameter('min_cluster_points').value))
         self.max_cluster_points = max(0, int(self.get_parameter('max_cluster_points').value))
+        self.max_obstacle_base_height = float(self.get_parameter('max_obstacle_base_height').value)
+        self.min_obstacle_top_height = float(self.get_parameter('min_obstacle_top_height').value)
 
         self.classify_ramps = bool(self.get_parameter('classify_ramps').value)
         self.max_ramp_detection_distance = float(self.get_parameter('max_ramp_detection_distance').value)
@@ -193,6 +201,8 @@ class PointCloudRVizFilter(Node):
                     'ramp_grid_spike_height',
                     'height_filter_start_distance',
                     'height_filter_max_extra',
+                    'max_obstacle_base_height',
+                    'min_obstacle_top_height',
                 ):
                     setattr(self, name, max(0.0, float(value)))
                 elif name in (
@@ -301,6 +311,16 @@ class PointCloudRVizFilter(Node):
             if cluster_size < self.min_cluster_points:
                 continue
             if self.max_cluster_points and cluster_size > self.max_cluster_points:
+                continue
+
+            # Reject clusters that don't start near the ground (floating noise)
+            # or don't reach a meaningful height (small blobs).
+            zs = [points[index][2] for index in cluster_indices]
+            cluster_min_z = min(zs)
+            cluster_max_z = max(zs)
+            if cluster_min_z > self.max_obstacle_base_height:
+                continue
+            if cluster_max_z < self.min_obstacle_top_height:
                 continue
 
             clustered_points.extend(points[index] for index in cluster_indices)

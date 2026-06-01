@@ -6,7 +6,7 @@
     ramp_topic: /zed_node/left/ramp_points
     filter_by_roi: true
     min_forward: 0.3
-    max_forward: 6.0
+    max_forward: 3.0
     min_lateral: -2.0
     max_lateral: 2.0
     filter_by_height: true
@@ -22,6 +22,12 @@
     cluster_tolerance: 0.35
     min_cluster_points: 5
     max_cluster_points: 0
+    # Reject clusters whose lowest point is above this height (m).
+    # Filters floating noise that isn't rooted on the ground.
+    max_obstacle_base_height: 0.30
+    # Reject clusters whose highest point doesn't reach this height (m).
+    # Filters short blobs that are too small to be a real obstacle.
+    min_obstacle_top_height: 0.60
     classify_ramps: true
     max_ramp_detection_distance: 4.5
     ramp_center_lateral_limit: 1.2

@@ -839,7 +839,19 @@ def orchestrate_launch(context: LaunchContext) -> list:
         print(f"[timbot_launch] Hardware drivers will be started sequentially before main pipeline.", flush=True)
     print(f"[timbot_launch] {'='*50}\n", flush=True)
 
-    active_stages = [stage for stage in LAUNCH_STAGES if config.get(stage[1], {}).get('enabled', False)]
+    # When the map→odom TF is the identity, ekf_global has no role and the
+    # absolute-pose sources feeding it (visual_odom, cartographer) must NOT run.
+    use_identity_map_odom = config.get('odom_state', {}).get(
+        'use_identity_map_odom', config.get('use_identity_map_odom', False)
+    )
+    _identity_skip = {'visual_odom', 'cartographer'} if use_identity_map_odom else set()
+    if _identity_skip:
+        print(f"[timbot_launch] use_identity_map_odom=true → skipping: {sorted(_identity_skip)}", flush=True)
+
+    active_stages = [
+        stage for stage in LAUNCH_STAGES
+        if config.get(stage[1], {}).get('enabled', False) and stage[1] not in _identity_skip
+    ]
 
     if not active_stages and sim:
         print("[timbot_launch] ERROR: No stages enabled in config.", flush=True)
