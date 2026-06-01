@@ -70,7 +70,7 @@ class GpsStaticTransform(Node):
 
         self.declare_parameter('gps_topic', '/gps/fix')
         self.declare_parameter('imu_topic', '/imu/data')
-        self.declare_parameter('odom_topic', '/odometry/global')
+        self.declare_parameter('odom_topic', '/odometry/local')
         self.declare_parameter('gps_fix_topic', '/gps/filtered')
         self.declare_parameter('publish_gps_fix', True)
         self.declare_parameter('publish_gps_odom', False)

@@ -278,6 +278,7 @@ def launch_visual_odom(config: dict, sim: bool, context: LaunchContext) -> list:
         'wait_imu_to_init': False,
         # RTAB-Map core params (passed straight through as node params):
         'Odom/Strategy': str(vo_cfg.get('odom_strategy', '1')),    # 1 = Frame-to-Frame (robust with sparse depth)
+        'Odom/MaxFeatures': str(vo_cfg.get('max_features', 2000)), # higher feature count for sparse scenes
         'Vis/FeatureType': str(vo_cfg.get('feature_type', '8')),  # 8 = GFTT/ORB (no nonfree dep)
         'Vis/CorType': '0',                                       # 0 = features matching
         'Vis/MaxDepth': str(vo_cfg.get('max_depth', 8.0)),        # ignore noisy far-range stereo depth

@@ -211,8 +211,9 @@ visual_odom:
   output_topic: /visual_odom
   feature_type: '8'      # 8 = GFTT/ORB (what rtabmap falls back to anyway without xfeatures2d)
   odom_strategy: '1'     # 1 = Frame-to-Frame (more robust with patchy stereo depth)
-  max_depth: 8.0
-  min_inliers: 5         # default 20 is too high when stereo depth is sparse
+  max_depth: 4.0
+  min_inliers: 4         # default 20 is too high when stereo depth is sparse
+  max_features: 2000     # more features -> more matches in low-texture scenes
   depth_as_mask: 'false' # allow features at depth-invalid pixels to participate in 2D matching
   qos_image: 2           # best-effort, matches ZED publishers
   qos_camera_info: 2
