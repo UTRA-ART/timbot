@@ -39,10 +39,6 @@ class PointCloudRVizFilter(Node):
         self.declare_parameter('height_filter_slope', 0.015)
         self.declare_parameter('height_filter_start_distance', 1.0)
         self.declare_parameter('height_filter_max_extra', 0.10)
-        self.declare_parameter('camera_pitch_deg', 25.0)
-        self.declare_parameter('camera_offset_x', 0.222173)
-        self.declare_parameter('camera_offset_y', 0.061524)
-        self.declare_parameter('camera_offset_z', 0.71)
 
         # Voxel / clustering / ramp params
         self.declare_parameter('voxel_downsample_obstacles', True)
@@ -90,12 +86,6 @@ class PointCloudRVizFilter(Node):
             float(self.get_parameter('height_filter_start_distance').value),
         )
         self.height_filter_max_extra = max(0.0, float(self.get_parameter('height_filter_max_extra').value))
-        self.camera_pitch_rad = math.radians(float(self.get_parameter('camera_pitch_deg').value))
-        self.camera_offset_x = float(self.get_parameter('camera_offset_x').value)
-        self.camera_offset_y = float(self.get_parameter('camera_offset_y').value)
-        self.camera_offset_z = float(self.get_parameter('camera_offset_z').value)
-        self.cos_pitch = math.cos(self.camera_pitch_rad)
-        self.sin_pitch = math.sin(self.camera_pitch_rad)
 
         self.voxel_downsample_obstacles = bool(self.get_parameter('voxel_downsample_obstacles').value)
         self.voxel_size = float(self.get_parameter('voxel_size').value)
@@ -171,9 +161,6 @@ class PointCloudRVizFilter(Node):
                     'max_lateral',
                     'min_height',
                     'max_height',
-                    'camera_offset_x',
-                    'camera_offset_y',
-                    'camera_offset_z',
                     'height_filter_slope',
                     'max_ramp_detection_distance',
                     'ramp_grid_min_height',
@@ -182,10 +169,6 @@ class PointCloudRVizFilter(Node):
                     'max_ramp_slope_deg',
                 ):
                     setattr(self, name, float(value))
-                elif name == 'camera_pitch_deg':
-                    self.camera_pitch_rad = math.radians(float(value))
-                    self.cos_pitch = math.cos(self.camera_pitch_rad)
-                    self.sin_pitch = math.sin(self.camera_pitch_rad)
                 elif name == 'voxel_size':
                     value = float(value)
                     if value <= 0.0:
