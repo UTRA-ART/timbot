@@ -79,13 +79,13 @@ ekf_local:
     # heading (see git history; this was the 9fe3197 regression).
     imu0: /imu/data
     imu0_config: [false, false, false, # The order of the boolean values are (X,Y,Z,roll,pitch,yaw,X˙,Y˙,Z˙,roll˙,pitch˙,yaw˙,X¨,Y¨,Z¨).
-                  false, false, false,  # orientation OFF (odom frame must stay smooth)
-                  false, false, false,
-                  false , false , true ,  # angular velocity ON
-                  false , false , false]
+            false, false, true,  # yaw only
+            false, false, false,
+            false, false, true,  # yaw rate only
+            false, false, false]
     imu0_queue_size: 5
     imu0_differential: false
-    imu0_relative: false
+    imu0_relative: true
     imu0_remove_gravitational_acceleration: true
 
     imu0_linear_acceleration_noise: 0.5
