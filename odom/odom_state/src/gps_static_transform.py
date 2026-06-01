@@ -23,6 +23,7 @@ from rclpy.duration import Duration
 from geometry_msgs.msg import PoseStamped, TransformStamped
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import Imu, NavSatFix, NavSatStatus
+from std_msgs.msg import Float64
 
 import tf2_ros
 import tf2_geometry_msgs  # noqa: F401
@@ -74,6 +75,8 @@ class GpsStaticTransform(Node):
         self.declare_parameter('publish_gps_fix', True)
         self.declare_parameter('publish_gps_odom', False)
         self.declare_parameter('gps_odom_topic', '/odometry/gps')
+        self.declare_parameter('publish_gps_heading', True)
+        self.declare_parameter('gps_heading_topic', '/gps/heading')
 
         self.declare_parameter('map_frame', 'map')
         self.declare_parameter('odom_frame', 'odom')
@@ -97,6 +100,8 @@ class GpsStaticTransform(Node):
         self.publish_gps_fix = bool(self.get_parameter('publish_gps_fix').value)
         self.publish_gps_odom = bool(self.get_parameter('publish_gps_odom').value)
         self.gps_odom_topic = self.get_parameter('gps_odom_topic').value
+        self.publish_gps_heading = bool(self.get_parameter('publish_gps_heading').value)
+        self.gps_heading_topic = self.get_parameter('gps_heading_topic').value
 
         self.map_frame = self.get_parameter('map_frame').value
         self.odom_frame = self.get_parameter('odom_frame').value
@@ -135,6 +140,10 @@ class GpsStaticTransform(Node):
         self.gps_odom_pub = None
         if self.publish_gps_odom:
             self.gps_odom_pub = self.create_publisher(Odometry, self.gps_odom_topic, 10)
+
+        self.heading_pub = None
+        if self.publish_gps_heading:
+            self.heading_pub = self.create_publisher(Float64, self.gps_heading_topic, 10)
 
         self.create_subscription(
             Imu, self.imu_topic, self._imu_callback, qos_profile_sensor_data
@@ -178,6 +187,11 @@ class GpsStaticTransform(Node):
             datum = (gps_msg.latitude, gps_msg.longitude, gps_msg.altitude)
 
         lat, lon, alt = datum
+        if alt is None:
+            if gps_msg is not None and gps_msg.status.status != NavSatStatus.STATUS_NO_FIX:
+                alt = gps_msg.altitude
+            else:
+                alt = 0.0
         utm_coords = utm.from_latlon(lat, lon)
         easting, northing, zone, letter = utm_coords
 
@@ -198,7 +212,7 @@ class GpsStaticTransform(Node):
             f'yaw={math.degrees(self.yaw_enu):.2f} deg'
         )
 
-    def _get_datum_from_params(self) -> Optional[Tuple[float, float, float]]:
+    def _get_datum_from_params(self) -> Optional[Tuple[float, float, Optional[float]]]:
         if not self.wait_for_datum:
             return None
 
@@ -207,17 +221,19 @@ class GpsStaticTransform(Node):
             # Accept strings like "[lat, lon, alt]" from LaunchConfiguration
             cleaned = datum.strip().lstrip('[').rstrip(']')
             parts = [p.strip() for p in cleaned.split(',') if p.strip()]
-            if len(parts) != 3:
+            if len(parts) not in (2, 3):
                 return None
             try:
                 datum = [float(p) for p in parts]
             except ValueError:
                 return None
 
-        if not isinstance(datum, (list, tuple)) or len(datum) != 3:
+        if not isinstance(datum, (list, tuple)) or len(datum) not in (2, 3):
             return None
 
-        lat, lon, alt = float(datum[0]), float(datum[1]), float(datum[2])
+        lat = float(datum[0])
+        lon = float(datum[1])
+        alt = float(datum[2]) if len(datum) == 3 else None
         if lat == 0.0 and lon == 0.0:
             return None
         return lat, lon, alt
@@ -260,7 +276,20 @@ class GpsStaticTransform(Node):
         self.static_broadcaster.sendTransform(tf_msg)
 
     def _publish_dead_reckoned_gps(self):
-        if not self.initialized or self.latest_odom is None:
+        # Heading is published independently of GPS/odom init — just needs IMU.
+        # ENU convention: East=0°, North=90°, West=±180°, South=-90°.
+        # Facing true north → 90° when magnetic_declination_radians is correct.
+        if self.heading_pub is not None and self.latest_imu is not None:
+            yaw_rad = self._get_imu_yaw(self.latest_imu)
+            msg = Float64()
+            msg.data = math.degrees(yaw_rad)
+            self.heading_pub.publish(msg)
+
+        if not self.initialized:
+            self.get_logger().warn('dead_reckoned_gps: not initialized')
+            return
+        if self.latest_odom is None:
+            self.get_logger().warn('dead_reckoned_gps: no /odometry/local yet')
             return
 
         map_pose = self._odom_pose_in_map(self.latest_odom)
@@ -268,6 +297,7 @@ class GpsStaticTransform(Node):
             return
 
         if self.datum_utm is None:
+            self.get_logger().warn('dead_reckoned_gps: datum UTM not set')
             return
 
         easting, northing, alt = self._map_pose_to_utm(map_pose)
@@ -325,9 +355,15 @@ class GpsStaticTransform(Node):
         if pose.header.frame_id == self.map_frame:
             return pose
 
+        # Use Time(0) = "latest available" to avoid ExtrapolationException
+        # when the odom timestamp is slightly ahead of the newest TF data.
+        pose.header.stamp.sec = 0
+        pose.header.stamp.nanosec = 0
+
         try:
             return self.tf_buffer.transform(pose, self.map_frame, timeout=Duration(seconds=0.2))
-        except Exception:
+        except Exception as e:
+            self.get_logger().error(f'TF lookup odom->map failed: {type(e).__name__}: {e}')
             return None
 
     def _map_pose_to_utm(self, map_pose: PoseStamped) -> Tuple[float, float, float]:

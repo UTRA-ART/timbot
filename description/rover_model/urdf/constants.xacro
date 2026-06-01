@@ -97,7 +97,7 @@
     <!-- <xacro:property name="ZED_camera_length" value="0.175"/> -->
 
     <xacro:property name="ZED_stereo_offset" value="0.12"/>
-    <xacro:property name="ZED_camera_pitch" value="${12 * pi/180}"/>
+    <xacro:property name="ZED_camera_pitch" value="${27 * pi/180}"/>
     <!--<xacro:property name="ZED_camera_pitch" value="${50 * pi/180}"/>-->
     <!-- ZED image height/width corresponds to image size for 60Hz refresh-->
     <xacro:property name="ZED_image_refresh" value="5"/>

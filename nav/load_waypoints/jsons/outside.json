@@ -6,9 +6,9 @@
     "waypoints" : [
         {
             "id" : 0,
-            "longitude" : -79.39585696666667,
-            "latitude" : 43.66129326666667,
-            "description"  : "North middle",
+            "latitude" : 42.6679601,
+            "longitude" : -83.2184327,
+            "description"  : "south",
             "frame_id" : "map"
         }
     ]

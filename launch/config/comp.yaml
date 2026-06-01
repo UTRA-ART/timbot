@@ -216,7 +216,7 @@ teleop_key:
   delay_sec: 1.0
   expected_topics:
     - /pause_navigation
-2) for gps make a node that basically takes initial position and heading and updates based on local ekf output (so this node will have to keep track of heading always and of lat and long. Use roll and pitch to consider changes in elevation as well) - after this test going from test point 1 to test point 2 using teleop to see if this node can accurately keep track of gps position - can also use compass heading from imu# --- Stage 8: Nav2 Stack ---
+#2) for gps make a node that basically takes initial position and heading and updates based on local ekf output (so this node will have to keep track of heading always and of lat and long. Use roll and pitch to consider changes in elevation as well) - after this test going from test point 1 to test point 2 using teleop to see if this node can accurately keep track of gps position - can also use compass heading from imu# --- Stage 8: Nav2 Stack ---
 nav_stack:
   enabled: true
   config_file: espresso_nav2_bkup.yaml

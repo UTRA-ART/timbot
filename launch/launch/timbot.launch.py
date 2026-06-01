@@ -140,9 +140,6 @@ def launch_teleop_key(config: dict, sim: bool, context: LaunchContext) -> list:
 def launch_odom_state(config: dict, sim: bool, context: LaunchContext) -> list:
     odom_cfg = config.get('odom_state', {})
     log_level = odom_cfg.get('log_level', 'info')
-    datum_lat = odom_cfg.get('datum', [0.0, 0.0, 0.0])[0]
-    datum_lon = odom_cfg.get('datum', [0.0, 0.0, 0.0])[1]
-    datum_alt = odom_cfg.get('datum', [0.0, 0.0, 0.0])[2]   
     launch_args = {
         'sim': str(sim).lower(),
         'log_level': log_level,
@@ -151,7 +148,6 @@ def launch_odom_state(config: dict, sim: bool, context: LaunchContext) -> list:
         'horizontal_stddev': str(odom_cfg.get('horizontal_stddev', 3.0)),
         'vertical_stddev': str(odom_cfg.get('vertical_stddev', 4.0)),
         'wait_for_datum': str(odom_cfg.get('wait_for_datum', False)).lower(),
-        'datum': f'[{datum_lat}, {datum_lon}, {datum_alt}]',
         'magnetic_declination_radians': str(odom_cfg.get('magnetic_declination_radians', 0.0))
     }
     config_file = odom_cfg.get('config_file', '')
@@ -486,15 +482,15 @@ def build_hardware_driver_stages(config: dict) -> list:
             [],
             2.0,
         ),
-        (
-            'Driver: GPS',
-            _hw_driver('nmea_navsat_driver', 'nmea_serial_driver.launch.py', {
-                'serial_port': gps_port,
-                'gps_baud': gps_baud,
-            }, remappings=[('/fix', '/gps/fix')]),
-            ['/gps/fix'],
-            5.0,
-        ),
+        # (
+        #     'Driver: GPS',
+        #     _hw_driver('nmea_navsat_driver', 'nmea_serial_driver.launch.py', {
+        #         'serial_port': gps_port,
+        #         'gps_baud': gps_baud,
+        #     }, remappings=[('/fix', '/gps/fix')]),
+        #     ['/gps/fix'],
+        #     5.0,
+        # ),
         (
             # AHRS publishes its orientation (in NED) on /imu/data_raw.
             'Driver: IMU',
@@ -563,8 +559,8 @@ LAUNCH_STAGES = [
     ('Lane Detection', 'lane_detection', launch_lane_detection),
     ('Depth Detection','depth_detection',launch_depth_detection),
     ('Cartographer',   'cartographer',   launch_cartographer),
+    ('Teleop Keyboard', 'teleop_key', launch_teleop_key),
     ('RViz',           'rviz',           launch_rviz),
-    ('Teleop Keyboard', 'teleop_twist_keyboard', launch_teleop_key),
     ('Nav Stack',      'nav_stack',      launch_nav_stack),
     ('Load Waypoints', 'load_waypoints', launch_load_waypoints),
 ]
@@ -629,6 +625,14 @@ def build_driver_chain(driver_stages, current_index, use_topic_check, next_pipel
     waiter_id = stage_name.lower().replace(' ', '_').replace(':', '')
 
     if use_topic_check and expected_topics:
+        current_actions.append(
+            LogInfo(
+                msg=(
+                    f"[timbot_launch] WAITING: {stage_name} topics -> "
+                    f"{', '.join(expected_topics)}"
+                )
+            )
+        )
         waiter_proc = _make_topic_waiter(stage_name, expected_topics, waiter_id)
         event_handler = RegisterEventHandler(
             OnProcessExit(
@@ -639,6 +643,13 @@ def build_driver_chain(driver_stages, current_index, use_topic_check, next_pipel
         current_actions.append(waiter_proc)
         current_actions.append(event_handler)
     else:
+        current_actions.append(
+            LogInfo(
+                msg=(
+                    f"[timbot_launch] DELAY: {stage_name} -> {delay_sec:.1f}s"
+                )
+            )
+        )
         current_actions.append(TimerAction(period=delay_sec, actions=tail_actions))
 
     return current_actions
@@ -669,6 +680,14 @@ def build_stage_chain(stages_info, current_index, config, sim, context):
     delay_sec = float(stage_cfg.get('delay_sec', 2.0))
 
     if use_topic_check and expected_topics:
+        current_actions.append(
+            LogInfo(
+                msg=(
+                    f"[timbot_launch] WAITING: {stage_name} topics -> "
+                    f"{', '.join(expected_topics)}"
+                )
+            )
+        )
         waiter_proc = _make_topic_waiter(
             stage_name, expected_topics, config_key
         )
@@ -682,6 +701,13 @@ def build_stage_chain(stages_info, current_index, config, sim, context):
         current_actions.append(event_handler)
     else:
         # Fallback to standard timer delay if use_topic_check is False, or expected_topics is empty
+        current_actions.append(
+            LogInfo(
+                msg=(
+                    f"[timbot_launch] DELAY: {stage_name} -> {delay_sec:.1f}s"
+                )
+            )
+        )
         timer = TimerAction(
             period=delay_sec,
             actions=next_actions

@@ -222,12 +222,18 @@ gps_static_transform:
     base_link_frame: base_link
     sensor_frame: gps_link
 
-    wait_for_datum: false
-    datum: [0.0, 0.0, 0.0]
+    wait_for_datum: true
+    
+    
+    #datum: [42.6682118, -83.2184587, 270.0] # north
+    datum: [42.6680860, -83.2184456, 270.0] # mid
+    #datum: [42.6679601, -83.2184327, 270.0] # south
     zero_altitude: true
-    magnetic_declination_radians: 0.0
+    magnetic_declination_radians: 0.130202
     yaw_offset: 0.0
     publish_rate: 10.0
     horizontal_stddev: 5.0
     vertical_stddev: 5.0
+    publish_gps_heading: true
+    gps_heading_topic: /gps/heading
     # magnetic_declination_radians: 0.0 # for sim # needs to be sit through the config
