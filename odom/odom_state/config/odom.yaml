@@ -244,5 +244,5 @@ gps_static_transform:
     publish_gps_heading: true
     gps_heading_topic: /gps/heading
     use_manual_heading: true
-    manual_heading_deg: -90.0  # ENU degrees — North=90, East=0. Only used when use_manual_heading is true.
+    manual_heading_deg: 0.0  # ENU degrees — North=90, East=0. Only used when use_manual_heading is true.
     # magnetic_declination_radians: 0.0 # for sim # needs to be sit through the config
