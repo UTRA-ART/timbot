@@ -1,0 +1,19 @@
+# =============================================================================
+# IMU Test Configuration
+# Tune here, then copy final values to comp.yaml when satisfied.
+# =============================================================================
+
+# --- IMU Selection ---
+# use_new_imu: true  → BNO085 serial IMU (already ENU)
+# use_new_imu: false → phidgets_spatial + imu_relay (NED→ENU)
+use_new_imu: true
+
+# --- BNO085 settings (use_new_imu: true) ---
+new_imu_port: "/dev/ttyACM0"
+new_imu_baud: 115200
+new_imu_yaw_offset: 28.0  # degrees — East=0, North=90
+
+# --- Phidgets settings (use_new_imu: false) ---
+imu_relay:
+  yaw_offset: 0.0          # degrees — East=0, North=90
+  orientation_stddev: 0.05  # rad, orientation covariance fed to EKF

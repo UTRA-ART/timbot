@@ -233,3 +233,11 @@ load_waypoints:
   log_level: error
   delay_sec: 2.0
   expected_topics: []
+
+# --- IMU Selection ---
+# use_new_imu: true  → launch BNO085 serial IMU (already ENU, publishes /imu/data + imu_enu)
+# use_new_imu: false → launch phidgets_spatial + imu_relay (NED→ENU conversion)
+use_new_imu: false
+new_imu_port: "/dev/ttyACM0"
+new_imu_baud: 115200
+new_imu_yaw_offset: 28.0  # degrees, same convention as imu_relay.yaw_offset

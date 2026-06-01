@@ -92,6 +92,8 @@ class GpsStaticTransform(Node):
         self.declare_parameter('publish_rate', 10.0)
         self.declare_parameter('horizontal_stddev', 5.0)
         self.declare_parameter('vertical_stddev', 5.0)
+        self.declare_parameter('use_manual_heading', False)
+        self.declare_parameter('manual_heading_deg', 0.0)
 
         self.gps_topic = self.get_parameter('gps_topic').value
         self.imu_topic = self.get_parameter('imu_topic').value
@@ -119,6 +121,8 @@ class GpsStaticTransform(Node):
         self.publish_rate = float(self.get_parameter('publish_rate').value)
         self.horiz_stddev = float(self.get_parameter('horizontal_stddev').value)
         self.vert_stddev = float(self.get_parameter('vertical_stddev').value)
+        self.use_manual_heading = bool(self.get_parameter('use_manual_heading').value)
+        self.manual_heading_deg = float(self.get_parameter('manual_heading_deg').value)
 
         self.latest_imu: Optional[Imu] = None
         self.latest_odom: Optional[Odometry] = None
@@ -158,8 +162,9 @@ class GpsStaticTransform(Node):
         if self.publish_rate > 0.0:
             self.create_timer(1.0 / self.publish_rate, self._publish_dead_reckoned_gps)
 
+        heading_src = f'manual ({self.manual_heading_deg:.1f} deg)' if self.use_manual_heading else 'IMU'
         self.get_logger().info(
-            'gps_static_transform ready: waiting for initial GPS + IMU to set utm->map'
+            f'gps_static_transform ready: heading source={heading_src}, waiting for datum to set utm->map'
         )
 
     def _imu_callback(self, msg: Imu):
@@ -175,7 +180,10 @@ class GpsStaticTransform(Node):
         self.latest_odom = msg
 
     def _try_initialize(self, gps_msg: Optional[NavSatFix] = None):
-        if self.initialized or self.latest_imu is None:
+        if self.initialized:
+            return
+        # IMU is only required when deriving heading from it.
+        if not self.use_manual_heading and self.latest_imu is None:
             return
 
         datum = self._get_datum_from_params()
@@ -202,14 +210,20 @@ class GpsStaticTransform(Node):
         self.utm_zone = zone
         self.utm_letter = letter
 
-        self.yaw_enu = self._get_imu_yaw(self.latest_imu)
+        if self.use_manual_heading:
+            self.yaw_enu = math.radians(self.manual_heading_deg)
+            heading_src = f'manual ({self.manual_heading_deg:.2f} deg)'
+        else:
+            self.yaw_enu = self._get_imu_yaw(self.latest_imu)
+            heading_src = f'IMU ({math.degrees(self.yaw_enu):.2f} deg)'
+
         self._broadcast_static_tf()
 
         self.initialized = True
         self.get_logger().info(
             f'UTM->map static TF set: datum=({lat:.7f}, {lon:.7f}, {alt:.2f}), '
             f'utm=({easting:.2f}, {northing:.2f}, zone {zone}{letter}), '
-            f'yaw={math.degrees(self.yaw_enu):.2f} deg'
+            f'heading={heading_src}'
         )
 
     def _get_datum_from_params(self) -> Optional[Tuple[float, float, Optional[float]]]:
@@ -284,6 +298,11 @@ class GpsStaticTransform(Node):
             msg = Float64()
             msg.data = math.degrees(yaw_rad)
             self.heading_pub.publish(msg)
+
+        # When use_manual_heading is set there is no IMU callback driving init,
+        # so retry here on every timer tick until the datum is ready.
+        if not self.initialized and self.use_manual_heading:
+            self._try_initialize()
 
         if not self.initialized:
             self.get_logger().warn('dead_reckoned_gps: not initialized')
