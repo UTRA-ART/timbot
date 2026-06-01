@@ -144,6 +144,16 @@ def generate_launch_description():
         ]
     )
 
+    map_odom_identity_tf = Node(
+        package='odom_state',
+        executable='map_odom_identity_tf.py',
+        name='map_odom_identity_tf',
+        output='screen',
+        parameters=[
+            {'use_sim_time': use_sim_time}
+        ]
+    )
+
     return LaunchDescription([
         use_sim_time_arg,
         config_file_arg,
@@ -153,6 +163,7 @@ def generate_launch_description():
         ekf_local,
         pose_relay,
         gps_cov_relay,
+        map_odom_identity_tf,
         ekf_global,
         gps_static_transform
     ])

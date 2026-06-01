@@ -63,6 +63,7 @@ install(PROGRAMS
   src/imu_relay.py
   src/gps_static_transform.py
   src/bno085_imu.py
+  src/map_odom_identity_tf.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

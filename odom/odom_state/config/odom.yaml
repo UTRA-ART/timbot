@@ -198,6 +198,13 @@ ekf_global:
     #                false , false , false ,
     #                false , false , false ,
     #                false, false, false]
+
+# --- Map->Odom Identity TF ---
+map_odom_identity_tf:
+  ros__parameters:
+    enabled: true
+    parent_frame: map
+    child_frame: odom
     # pose0_queue_size: 10
     # pose0_differential: true
     # pose0_relative: false
