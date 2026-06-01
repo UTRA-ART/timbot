@@ -62,6 +62,7 @@ install(PROGRAMS
   src/gps_cov_relay.py
   src/imu_relay.py
   src/gps_static_transform.py
+  src/bno085_imu.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

@@ -475,6 +475,53 @@ def build_hardware_driver_stages(config: dict) -> list:
         zed_expected_topics,
         zed_delay_sec,
     )
+
+    use_new_imu = config.get('use_new_imu', False)
+    new_imu_port = config.get('new_imu_port', '/dev/ttyACM1')
+    new_imu_baud = int(config.get('new_imu_baud', 115200))
+    new_imu_yaw_offset = float(config.get('new_imu_yaw_offset', 0.0))
+
+    if use_new_imu:
+        imu_stages = [
+            (
+                # BNO085 is already ENU — publishes /imu/data + imu_enu directly.
+                'Driver: BNO085 IMU',
+                _node_driver('odom_state', 'bno085_imu.py', 'bno085_imu', {
+                    'port': new_imu_port,
+                    'baud': new_imu_baud,
+                    'yaw_offset': new_imu_yaw_offset,
+                }),
+                ['/imu/data'],
+                5.0,
+            ),
+        ]
+    else:
+        imu_stages = [
+            (
+                # AHRS publishes its orientation (in NED) on /imu/data_raw.
+                'Driver: IMU',
+                _hw_driver('phidgets_spatial', 'spatial-launch.py', {}),
+                ['/imu/data_raw'],
+                5.0,
+            ),
+            (
+                # Relay: NED->ENU orientation correction -> /imu/data,
+                # plus imu_ned / imu_enu degree debug topics. yaw_offset
+                # (degrees) is read from the YAML for heading calibration.
+                'IMU NED->ENU Relay',
+                _node_driver('odom_state', 'imu_relay.py', 'imu_relay', {
+                    'input_topic': '/imu/data_raw',
+                    'output_topic': '/imu/data',
+                    'yaw_offset': float(config.get('imu_relay', {}).get('yaw_offset', 0.0)),
+                    'orientation_stddev': float(
+                        config.get('imu_relay', {}).get('orientation_stddev', 0.05)
+                    ),
+                }),
+                ['/imu/data'],
+                3.0,
+            ),
+        ]
+
     driver_stages = [
         (
             'Running refresh_motor command',
@@ -491,31 +538,7 @@ def build_hardware_driver_stages(config: dict) -> list:
         #     ['/gps/fix'],
         #     5.0,
         # ),
-        (
-            # AHRS publishes its orientation (in NED) on /imu/data_raw.
-            'Driver: IMU',
-            _hw_driver('phidgets_spatial', 'spatial-launch.py', {
-                # 'use_orientation': 'true',
-            }),
-            ['/imu/data_raw'],
-            5.0,
-        ),
-        (
-            # Relay: NED->ENU orientation correction -> /imu/data,
-            # plus imu_ned / imu_enu degree debug topics. yaw_offset
-            # (degrees) is read from the YAML for heading calibration.
-            'IMU NED->ENU Relay',
-            _node_driver('odom_state', 'imu_relay.py', 'imu_relay', {
-                'input_topic': '/imu/data_raw',
-                'output_topic': '/imu/data',
-                'yaw_offset': float(config.get('imu_relay', {}).get('yaw_offset', 0.0)),
-                'orientation_stddev': float(
-                    config.get('imu_relay', {}).get('orientation_stddev', 0.05)
-                ),
-            }),
-            ['/imu/data'],
-            3.0,
-        ),
+        *imu_stages,
         (
             'Driver: LiDAR Lower',
             _hw_driver('rplidar_ros', 'rplidar_a1_launch.py', {

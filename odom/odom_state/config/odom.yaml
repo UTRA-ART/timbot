@@ -225,8 +225,8 @@ gps_static_transform:
     wait_for_datum: true
     
     
-    #datum: [42.6682118, -83.2184587, 270.0] # north
-    datum: [42.6680860, -83.2184456, 270.0] # mid
+    datum: [42.6682118, -83.2184587, 270.0] # north
+    # datum: [42.6680860, -83.2184456, 270.0] # mid
     #datum: [42.6679601, -83.2184327, 270.0] # south
     zero_altitude: true
     magnetic_declination_radians: 0.130202
@@ -236,4 +236,6 @@ gps_static_transform:
     vertical_stddev: 5.0
     publish_gps_heading: true
     gps_heading_topic: /gps/heading
+    use_manual_heading: true
+    manual_heading_deg: -90.0  # ENU degrees — North=90, East=0. Only used when use_manual_heading is true.
     # magnetic_declination_radians: 0.0 # for sim # needs to be sit through the config
