@@ -109,6 +109,8 @@ Visualization Manager:
           Value: true
         top_lidar_link:
           Value: true
+        utm:
+          Value: true
         zed_link:
           Value: true
       Marker Scale: 1
@@ -117,29 +119,30 @@ Visualization Manager:
       Show Axes: true
       Show Names: true
       Tree:
-        map:
-          odom:
-            base_link:
-              chassis_link:
-                bottom_lidar_link:
-                  {}
-                caster_link:
-                  {}
-                left_wheel_link:
-                  {}
-                right_wheel_link:
-                  {}
-                stand_link:
-                  gps_link:
+        utm:
+          map:
+            odom:
+              base_link:
+                chassis_link:
+                  bottom_lidar_link:
                     {}
-                  zed_link:
-                    left_camera_link:
-                      left_camera_link_optical:
-                        {}
-                top_lidar_link:
+                  caster_link:
+                    {}
+                  left_wheel_link:
+                    {}
+                  right_wheel_link:
+                    {}
+                  stand_link:
+                    gps_link:
+                      {}
+                    zed_link:
+                      left_camera_link:
+                        left_camera_link_optical:
+                          {}
+                  top_lidar_link:
+                    {}
+                imu_link:
                   {}
-              imu_link:
-                {}
       Update Interval: 1
       Value: true
     - Alpha: 0.699999988079071
@@ -181,7 +184,7 @@ Visualization Manager:
       Max Intensity: 4096
       Min Color: 0; 0; 0
       Min Intensity: 0
-      Name: Depth Point Cloud
+      Name: Filtered Depth Point Cloud
       Position Transformer: XYZ
       Selectable: true
       Size (Pixels): 2
@@ -197,7 +200,6 @@ Visualization Manager:
       Use Fixed Frame: true
       Use rainbow: false
       Value: true
-
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
@@ -216,7 +218,7 @@ Visualization Manager:
       Max Intensity: 4096
       Min Color: 0; 0; 0
       Min Intensity: 0
-      Name: ZED Raw Point Cloud
+      Name: Raw Depth Point Cloud
       Position Transformer: XYZ
       Selectable: true
       Size (Pixels): 2
@@ -308,108 +310,6 @@ Visualization Manager:
         Value: true
       Axis: Z
       Channel Name: intensity
-      Class: rviz_default_plugins/PointCloud2
-      Color: 100; 150; 255
-      Color Transformer: FlatColor
-      Decay Time: 0
-      Enabled: true
-      Invert Rainbow: false
-      Max Color: 255; 255; 255
-      Max Intensity: 4096
-      Min Color: 0; 0; 0
-      Min Intensity: 0
-      Name: ZED Filtered Point Cloud
-      Position Transformer: XYZ
-      Selectable: true
-      Size (Pixels): 2
-      Size (m): 0.009999999776482582
-      Style: Points
-      Topic:
-        Depth: 5
-        Durability Policy: Volatile
-        Filter size: 10
-        History Policy: Keep Last
-        Reliability Policy: Reliable
-        Value: /zed_node/left/points/filtered
-      Use Fixed Frame: true
-      Use rainbow: false
-      Value: true
-    - Alpha: 1
-      Autocompute Intensity Bounds: true
-      Autocompute Value Bounds:
-        Max Value: 10
-        Min Value: -10
-        Value: true
-      Axis: Z
-      Channel Name: intensity
-      Class: rviz_default_plugins/PointCloud2
-      Color: 255; 100; 100
-      Color Transformer: FlatColor
-      Decay Time: 0
-      Enabled: true
-      Invert Rainbow: false
-      Max Color: 255; 255; 255
-      Max Intensity: 4096
-      Min Color: 0; 0; 0
-      Min Intensity: 0
-      Name: ZED Obstacles Voxel Grid
-      Position Transformer: XYZ
-      Selectable: true
-      Size (Pixels): 3
-      Size (m): 0.019999999552965164
-      Style: Points
-      Topic:
-        Depth: 5
-        Durability Policy: Volatile
-        Filter size: 10
-        History Policy: Keep Last
-        Reliability Policy: Reliable
-        Value: /zed_node/left/points/obstacles
-      Use Fixed Frame: true
-      Use rainbow: false
-      Value: true
-    - Alpha: 1
-      Autocompute Intensity Bounds: true
-      Autocompute Value Bounds:
-        Max Value: 10
-        Min Value: -10
-        Value: true
-      Axis: Z
-      Channel Name: intensity
-      Class: rviz_default_plugins/PointCloud2
-      Color: 100; 255; 100
-      Color Transformer: FlatColor
-      Decay Time: 0
-      Enabled: true
-      Invert Rainbow: false
-      Max Color: 255; 255; 255
-      Max Intensity: 4096
-      Min Color: 0; 0; 0
-      Min Intensity: 0
-      Name: ZED Ramps Detection
-      Position Transformer: XYZ
-      Selectable: true
-      Size (Pixels): 3
-      Size (m): 0.019999999552965164
-      Style: Points
-      Topic:
-        Depth: 5
-        Durability Policy: Volatile
-        Filter size: 10
-        History Policy: Keep Last
-        Reliability Policy: Reliable
-        Value: /zed_node/left/points/ramps
-      Use Fixed Frame: true
-      Use rainbow: false
-      Value: true
-    - Alpha: 1
-      Autocompute Intensity Bounds: true
-      Autocompute Value Bounds:
-        Max Value: 10
-        Min Value: -10
-        Value: true
-      Axis: Z
-      Channel Name: intensity
       Class: rviz_default_plugins/LaserScan
       Color: 255; 255; 255
       Color Transformer: Intensity
@@ -417,9 +317,9 @@ Visualization Manager:
       Enabled: true
       Invert Rainbow: false
       Max Color: 255; 255; 255
-      Max Intensity: 47
+      Max Intensity: -999999
       Min Color: 0; 0; 0
-      Min Intensity: 0
+      Min Intensity: 999999
       Name: LaserScan
       Position Transformer: XYZ
       Selectable: true
@@ -577,9 +477,9 @@ Visualization Manager:
       Enabled: true
       Invert Rainbow: false
       Max Color: 255; 255; 255
-      Max Intensity: -999999
+      Max Intensity: 9.324541091918945
       Min Color: 0; 0; 0
-      Min Intensity: 999999
+      Min Intensity: 5.306649684906006
       Name: Lane Detections
       Position Transformer: XYZ
       Selectable: true
@@ -656,25 +556,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/ThirdPersonFollower
-      Distance: 4.927244186401367
+      Distance: 4.858262538909912
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -1.8626779317855835
-        Y: -0.27070727944374084
-        Z: 1.3552527156068805e-20
+        X: 2.5604634284973145
+        Y: -2.960571527481079
+        Z: 1.3172828161600592e-08
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.3604109287261963
+      Pitch: -0.08458880335092545
       Target Frame: base_link
       Value: ThirdPersonFollower (rviz_default_plugins)
-      Yaw: 3.1860649585723877
+      Yaw: 4.501087665557861
     Saved: ~
 Window Geometry:
   Depth Image:

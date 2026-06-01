@@ -83,7 +83,7 @@
     </link>
 
     <joint name="zed_joint" type="fixed">
-        <origin xyz="0.0736 0 0.102" rpy="0 ${ZED_camera_pitch} 0" />
+        <origin xyz="0.0736 0 0.06" rpy="0 ${ZED_camera_pitch} 0" />
         <parent link="stand_link" />
         <child link="zed_link" />
         <axis xyz="0 0 0" />

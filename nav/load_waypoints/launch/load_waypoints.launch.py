@@ -21,7 +21,7 @@ def generate_launch_description():
     # Default: sim_waypoints.json
     config_file_arg = DeclareLaunchArgument(
         'config_file',
-        default_value='igvc2026_comp_point.json',
+        default_value='outside.json',
         description='Name of the waypoints JSON file in load_waypoints/jsons/'
     )
 

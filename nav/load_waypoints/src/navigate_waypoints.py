@@ -689,7 +689,7 @@ class NavigateWaypoints(Node):
             nonlocal gps_msg
             gps_msg = msg
 
-        sub = self.create_subscription(NavSatFix, '/gps/fix', callback, 10)
+        sub = self.create_subscription(NavSatFix, '/gps/filtered', callback, 10)
 
         start = time.time()
         while gps_msg is None and (time.time() - start) < timeout:
