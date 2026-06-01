@@ -89,9 +89,6 @@ class NavigateWaypoints(Node):
             ClearEntireCostmap, 'local_costmap/clear_entirely_local_costmap',
             callback_group=self.client_cb_group
         )
-        self.ekf_global_set_pose_client = self.create_client(
-            SetPose, '/ekf_global/set_pose', callback_group=self.client_cb_group
-        )
         self.ekf_local_set_pose_client = self.create_client(
             SetPose, '/ekf_local/set_pose', callback_group=self.client_cb_group
         )
@@ -331,12 +328,6 @@ class NavigateWaypoints(Node):
         cov[28] = 9999.0    # pitch (not estimated)
         cov[35] = 0.20      # yaw
 
-        map_msg = PoseWithCovarianceStamped()
-        map_msg.header.stamp = self.get_clock().now().to_msg()
-        map_msg.header.frame_id = 'map'
-        map_msg.pose.pose = map_pose.pose
-        map_msg.pose.covariance = cov
-
         odom_msg = PoseWithCovarianceStamped()
         odom_msg.header.stamp = self.get_clock().now().to_msg()
         odom_msg.header.frame_id = 'odom'
@@ -366,16 +357,11 @@ class NavigateWaypoints(Node):
 
             return True
 
-        ok_global = call_set_pose(self.ekf_global_set_pose_client, '/ekf_global/set_pose', map_msg)
-        if not ok_global:
-            self.get_logger().info('Unsuccessfully reset global(map) EKF')
-            return False
-        self.get_logger().info('Succesfully reset global(map) EKF')
         ok_local = call_set_pose(self.ekf_local_set_pose_client, '/ekf_local/set_pose', odom_msg)
         if not ok_local:
             self.get_logger().info('Unsuccessfully reset local(odom) EKF')
             return False
-        self.get_logger().info('Successfully reset both local and global EKF\s')
+        self.get_logger().info('Successfully reset local EKF')
         return True
 
     def restart_cartographer_trajectory(self, map_pose: PoseStamped, timeout_sec: float = 3.0) -> bool:
