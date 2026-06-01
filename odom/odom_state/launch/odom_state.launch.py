@@ -1,6 +1,7 @@
 from launch import LaunchDescription, LaunchContext
 from launch_ros.actions import Node
 from launch.actions import DeclareLaunchArgument, TimerAction, OpaqueFunction
+from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration, PythonExpression, PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
 from ament_index_python.packages import get_package_share_directory
@@ -37,6 +38,13 @@ def generate_launch_description():
         description='Log level: debug, info, warn, error'
     )
     log_level = LaunchConfiguration('log_level')
+
+    use_identity_map_odom_arg = DeclareLaunchArgument(
+        'use_identity_map_odom',
+        default_value='false',
+        description='If true, publish static map->odom identity TF and skip ekf_global'
+    )
+    use_identity_map_odom = LaunchConfiguration('use_identity_map_odom')
 
     # GPS Covariance parameters
     horizontal_stddev_arg = DeclareLaunchArgument(
@@ -100,7 +108,8 @@ def generate_launch_description():
             odom_yaml,
             {'use_sim_time': use_sim_time},
             {'launch_state': launch_state}
-        ]
+        ],
+        condition=IfCondition(PythonExpression(["'", use_identity_map_odom, "' == 'false'"]))
     )
 
     gps_static_transform = Node(
@@ -145,15 +154,28 @@ def generate_launch_description():
         ]
     )
 
+    map_odom_identity_tf = Node(
+        package='odom_state',
+        executable='map_odom_identity_tf.py',
+        name='map_odom_identity_tf',
+        output='screen',
+        parameters=[
+            {'use_sim_time': use_sim_time}
+        ],
+        condition=IfCondition(use_identity_map_odom)
+    )
+
     return LaunchDescription([
         use_sim_time_arg,
         config_file_arg,
         horizontal_stddev_arg, # ADDED
         vertical_stddev_arg,   # ADDED
         log_level_arg,
+        use_identity_map_odom_arg,
         ekf_local,
         pose_relay,
         gps_cov_relay,
         ekf_global,
+        map_odom_identity_tf,
         gps_static_transform
     ])

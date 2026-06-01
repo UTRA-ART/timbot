@@ -268,3 +268,8 @@ use_new_imu: false
 new_imu_port: "/dev/ttyACM0"
 new_imu_baud: 115200
 new_imu_yaw_offset: 28.0  # degrees, same convention as imu_relay.yaw_offset
+
+# --- Odom Mode Toggle ---
+# true  = identity map->odom TF (no global EKF)
+# false = ekf_global owns map->odom (current flow)
+use_identity_map_odom: false

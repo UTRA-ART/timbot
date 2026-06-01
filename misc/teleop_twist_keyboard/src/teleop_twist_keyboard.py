@@ -32,9 +32,9 @@ w : increase forward speed by 0.1
 a : increase leftward turn by 0.1rad/s 
 s : increase backward speed by 0.1
 d : increase rightward turn by 0.1rad/s 
-p : give motor control to nav_stack (set to autonomous mode)
+p : toggle autonomous/teleop control
 
-anything else : take control from nav_stack, stops rover 
+anything else : teleop movement keys only (no mode change)
 
 CTRL-C to quit
 """
@@ -213,33 +213,27 @@ def main(args=None):
         print(vels(speed, turn))
         while True:
             key = getKey(key_timeout)
-            if key != 'p' and key != '' and autonomous_mode:
-                node.get_logger().info(
-                    "Autonomous mode set to false, Teleop control is active.")
-                autonomous_mode = False
-                mode_msg = Bool()
-                mode_msg.data = not autonomous_mode
-                mode_pub.publish(mode_msg)
-            elif key == 'p':
-                autonomous_mode = True
+            if key == 'p':
+                autonomous_mode = not autonomous_mode
                 mode_msg = Bool()
                 mode_msg.data = not autonomous_mode
                 mode_pub.publish(mode_msg)
 
-                node.get_logger().info("Autonomous mode set to true.")
-                if call_empty_service(node, '/move_base/clear_costmaps'):
-                    node.get_logger().info("Cost map cleared.")
+                if autonomous_mode:
+                    node.get_logger().info("Autonomous mode enabled.")
+                    if call_empty_service(node, '/move_base/clear_costmaps'):
+                        node.get_logger().info("Cost map cleared.")
+                    else:
+                        node.get_logger().info("Unable to clear cost map.")
+                    if call_empty_service(node, '/move_base/clear_unknown_space'):
+                        node.get_logger().info("Unknown space cleared.")
+                    else:
+                        node.get_logger().info("Unable to clear unknown space.")
                 else:
-                    node.get_logger().info("Unable to clear cost map.")
-                if call_empty_service(node, '/move_base/clear_unknown_space'):
-                    node.get_logger().info("Unknown space cleared.")
-                else:
-                    node.get_logger().info("Unable to clear unknown space.")
-                node.get_logger().info("Autonomous mode set to true.")
-            else:
-                mode_msg = Bool()
-                mode_msg.data = not autonomous_mode
-                mode_pub.publish(mode_msg)
+                    node.get_logger().info("Teleop mode enabled; stopping rover.")
+                    speed = 0.0
+                    turn = 0.0
+                    pub_thread.update(x, y, z, th, speed, turn)
 
             if key in speedBindings.keys():
                 if speedBindings[key][1] != 0:  # case: changing angular vel

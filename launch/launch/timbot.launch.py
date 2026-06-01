@@ -140,6 +140,10 @@ def launch_teleop_key(config: dict, sim: bool, context: LaunchContext) -> list:
 def launch_odom_state(config: dict, sim: bool, context: LaunchContext) -> list:
     odom_cfg = config.get('odom_state', {})
     log_level = odom_cfg.get('log_level', 'info')
+    use_identity_map_odom = odom_cfg.get(
+        'use_identity_map_odom',
+        config.get('use_identity_map_odom', False)
+    )
     launch_args = {
         'sim': str(sim).lower(),
         'log_level': log_level,
@@ -148,7 +152,8 @@ def launch_odom_state(config: dict, sim: bool, context: LaunchContext) -> list:
         'horizontal_stddev': str(odom_cfg.get('horizontal_stddev', 3.0)),
         'vertical_stddev': str(odom_cfg.get('vertical_stddev', 4.0)),
         'wait_for_datum': str(odom_cfg.get('wait_for_datum', False)).lower(),
-        'magnetic_declination_radians': str(odom_cfg.get('magnetic_declination_radians', 0.0))
+        'magnetic_declination_radians': str(odom_cfg.get('magnetic_declination_radians', 0.0)),
+        'use_identity_map_odom': str(use_identity_map_odom).lower(),
     }
     config_file = odom_cfg.get('config_file', '')
     if config_file:
