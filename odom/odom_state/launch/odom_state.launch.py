@@ -84,23 +84,23 @@ def generate_launch_description():
         ]
     )
 
-    ekf_global = Node(
-        package='robot_localization',
-        executable='ekf_node',
-        name='ekf_global',
-        output='screen',
-        remappings=[
-            ('/odometry/filtered', '/odometry/global'),
-            ('set_pose', '/ekf_global/set_pose'),
-            ('/set_pose', '/ekf_global/set_pose')
-        ],
-        arguments=['--ros-args', '--log-level', log_level],
-        parameters=[
-            odom_yaml,
-            {'use_sim_time': use_sim_time},
-            {'launch_state': launch_state}
-        ]
-    )
+    # ekf_global = Node(
+    #     package='robot_localization',
+    #     executable='ekf_node',
+    #     name='ekf_global',
+    #     output='screen',
+    #     remappings=[
+    #         ('/odometry/filtered', '/odometry/global'),
+    #         ('set_pose', '/ekf_global/set_pose'),
+    #         ('/set_pose', '/ekf_global/set_pose')
+    #     ],
+    #     arguments=['--ros-args', '--log-level', log_level],
+    #     parameters=[
+    #         odom_yaml,
+    #         {'use_sim_time': use_sim_time},
+    #         {'launch_state': launch_state}
+    #     ]
+    # )
 
     gps_static_transform = Node(
         package='odom_state',
@@ -153,6 +153,6 @@ def generate_launch_description():
         ekf_local,
         pose_relay,
         gps_cov_relay,
-        ekf_global,
+        # ekf_global,
         gps_static_transform
     ])

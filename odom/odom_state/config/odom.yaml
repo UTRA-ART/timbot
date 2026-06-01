@@ -107,100 +107,100 @@ ekf_local:
 
 # --- EKF Global (map → odom) ---
 # Smooths cartographer pose; map→odom TF is published by cartographer
-ekf_global:
-  ros__parameters:
-    frequency: 10.0
+# ekf_global:
+#   ros__parameters:
+#     frequency: 10.0
 
-    # ekf_global filters cartographer SLAM pose for a smooth /odometry/global.
-    # Pipeline: ekf_local (odom→base_link) → cartographer (/tracked_pose)
-    #         → ekf_global (map pose smoothing)
+#     # ekf_global filters cartographer SLAM pose for a smooth /odometry/global.
+#     # Pipeline: ekf_local (odom→base_link) → cartographer (/tracked_pose)
+#     #         → ekf_global (map pose smoothing)
 
-    # Specify planar environment
-    two_d_mode: true
+#     # Specify planar environment
+#     two_d_mode: true
 
-    map_frame: map
-    odom_frame: odom
-    base_link_frame: base_link
-    world_frame: map
+#     map_frame: map
+#     odom_frame: odom
+#     base_link_frame: base_link
+#     world_frame: map
 
-    # ekf_global IS the authority on map→odom.
-    # Cartographer's TF output is redirected to /tf_carto (via launch remap)
-    # so there is no conflict — only ekf_global publishes map→odom on /tf.
-    publish_tf: false
+#     # ekf_global IS the authority on map→odom.
+#     # Cartographer's TF output is redirected to /tf_carto (via launch remap)
+#     # so there is no conflict — only ekf_global publishes map→odom on /tf.
+#     publish_tf: false
 
-    transform_time_offset: 0.05
+#     transform_time_offset: 0.05
 
-    # See /diagnostics topic for debug
-    print_diagnostics: true
+#     # See /diagnostics topic for debug
+#     print_diagnostics: true
 
-    # Process noise covariance (15x15 diagonal)
-    # Order: x, y, z, roll, pitch, yaw, vx, vy, vz, vroll, vpitch, vyaw, ax, ay, az
-    # Tuned for SLAM pose + GPS fusion (lower frequency, higher trust in sensors)
-    process_noise_covariance: [0.01,  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
-                               0.0,   0.01,  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
-                               0.0,   0.0,   0.01,  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
-                               0.0,   0.0,   0.0,   0.01,  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
-                               0.0,   0.0,   0.0,   0.0,   0.01,  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
-                               0.0,   0.0,   0.0,   0.0,   0.0,   0.02,  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
-                               0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.025, 0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
-                               0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.025, 0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
-                               0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.01,  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
-                               0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.01,  0.0,   0.0,   0.0,   0.0,   0.0,
-                               0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.01,  0.0,   0.0,   0.0,   0.0,
-                               0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.02,  0.0,   0.0,   0.0,
-                               0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.01,  0.0,   0.0,
-                               0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.01,  0.0,
-                               0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.01]
+#     # Process noise covariance (15x15 diagonal)
+#     # Order: x, y, z, roll, pitch, yaw, vx, vy, vz, vroll, vpitch, vyaw, ax, ay, az
+#     # Tuned for SLAM pose + GPS fusion (lower frequency, higher trust in sensors)
+#     process_noise_covariance: [0.01,  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
+#                                0.0,   0.01,  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
+#                                0.0,   0.0,   0.01,  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
+#                                0.0,   0.0,   0.0,   0.01,  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
+#                                0.0,   0.0,   0.0,   0.0,   0.01,  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
+#                                0.0,   0.0,   0.0,   0.0,   0.0,   0.02,  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
+#                                0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.025, 0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
+#                                0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.025, 0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
+#                                0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.01,  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
+#                                0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.01,  0.0,   0.0,   0.0,   0.0,   0.0,
+#                                0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.01,  0.0,   0.0,   0.0,   0.0,
+#                                0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.02,  0.0,   0.0,   0.0,
+#                                0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.01,  0.0,   0.0,
+#                                0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.01,  0.0,
+#                                0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.01]
 
-    ## Pose Sensor(s) ##
+#     ## Pose Sensor(s) ##
 
-    # Cartographer tracked pose (converted from PoseStamped by pose_relay node)
-    # Provides absolute x, y, yaw position in the map frame
-    # Already fuses odom + IMU + lidar + GPS internally, so no GPS needed here
-    pose0: /tracked_pose_cov
-    pose0_config: [true , true , false,
-                   false, false, true,
-                   false, false, false,
-                   false, false, false,
-                   false, false, false]
-    pose0_queue_size: 10
-    pose0_differential: false
-    pose0_relative: false
+#     # Cartographer tracked pose (converted from PoseStamped by pose_relay node)
+#     # Provides absolute x, y, yaw position in the map frame
+#     # Already fuses odom + IMU + lidar + GPS internally, so no GPS needed here
+#     pose0: /tracked_pose_cov
+#     pose0_config: [true , true , false,
+#                    false, false, true,
+#                    false, false, false,
+#                    false, false, false,
+#                    false, false, false]
+#     pose0_queue_size: 10
+#     pose0_differential: false
+#     pose0_relative: false
 
-    # odom2: zed_node/odom
-    # odom2_config: [true, true, false,
-    #                false, false, true,
-    #                false, false, false,
-    #                false, false, false,
-    #                false, false, false]
-    # odom2_queue_size: 10
-    # odom2_differential: true
-    # odom2_relative: false
+#     # odom2: zed_node/odom
+#     # odom2_config: [true, true, false,
+#     #                false, false, true,
+#     #                false, false, false,
+#     #                false, false, false,
+#     #                false, false, false]
+#     # odom2_queue_size: 10
+#     # odom2_differential: true
+#     # odom2_relative: false
 
 
 
-    ## IMU Sensor(s) ## 
+#     ## IMU Sensor(s) ## 
 
-    # imu0: /imu/data_denoised
-    # imu0_config: [false, false, false,
-    #               false, false , true ,
-    #               false, false, false,
-    #               false, false , true ,
-    #               true , true , false] # Acceleration can be on/off
-    # imu0_queue_size: 10
-    # imu0_differential: false
-    # imu0_relative: true
-    # imu0_remove_gravitational_acceleration: true
+#     # imu0: /imu/data_denoised
+#     # imu0_config: [false, false, false,
+#     #               false, false , true ,
+#     #               false, false, false,
+#     #               false, false , true ,
+#     #               true , true , false] # Acceleration can be on/off
+#     # imu0_queue_size: 10
+#     # imu0_differential: false
+#     # imu0_relative: true
+#     # imu0_remove_gravitational_acceleration: true
 
-    # pose0: /orbslam/pose # For when we set up. Interfaces with orbslam
-    # pose0_config: [true , true , true ,
-    #                false , false , true ,
-    #                false , false , false ,
-    #                false , false , false ,
-    #                false, false, false]
-    # pose0_queue_size: 10
-    # pose0_differential: true
-    # pose0_relative: false
+#     # pose0: /orbslam/pose # For when we set up. Interfaces with orbslam
+#     # pose0_config: [true , true , true ,
+#     #                false , false , true ,
+#     #                false , false , false ,
+#     #                false , false , false ,
+#     #                false, false, false]
+#     # pose0_queue_size: 10
+#     # pose0_differential: true
+#     # pose0_relative: false
 
 
 # --- GPS Static Transform ---

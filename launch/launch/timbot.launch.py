@@ -137,6 +137,49 @@ def launch_teleop_key(config: dict, sim: bool, context: LaunchContext) -> list:
     return [teleop_node]
 
 
+
+def launch_octomap_2d_server(config: dict, sim: bool, context: LaunchContext) -> list:
+    octomap_cfg = config.get('octomap_2d_server', {})
+    launch_args = {}
+
+    config_file = octomap_cfg.get('config_file', '')
+    if config_file:
+        launch_args['config_file'] = config_file
+
+    scan_topic = octomap_cfg.get('scan_topic', '')
+    if scan_topic:
+        launch_args['scan_topic'] = scan_topic
+
+    depth_cloud_topic = octomap_cfg.get('depth_cloud_topic', '')
+    if depth_cloud_topic:
+        launch_args['depth_cloud_topic'] = depth_cloud_topic
+
+    combined_cloud_topic = octomap_cfg.get('combined_cloud_topic', '')
+    if combined_cloud_topic:
+        launch_args['combined_cloud_topic'] = combined_cloud_topic
+
+    map_frame = octomap_cfg.get('map_frame', '')
+    if map_frame:
+        launch_args['map_frame'] = map_frame
+
+    odom_frame = octomap_cfg.get('odom_frame', '')
+    if odom_frame:
+        launch_args['odom_frame'] = odom_frame
+
+    publish_static_tf = octomap_cfg.get('publish_static_tf', None)
+    if publish_static_tf is not None:
+        launch_args['publish_static_tf'] = str(publish_static_tf).lower()
+
+    octomap_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([
+            FindPackageShare('octomap_2d_server'),
+            '/launch/octomap_2d_server.launch.py'
+        ]),
+        launch_arguments=launch_args.items()
+    )
+    return [octomap_launch]
+
+
 def launch_odom_state(config: dict, sim: bool, context: LaunchContext) -> list:
     odom_cfg = config.get('odom_state', {})
     log_level = odom_cfg.get('log_level', 'info')
@@ -582,6 +625,7 @@ LAUNCH_STAGES = [
     ('Lane Detection', 'lane_detection', launch_lane_detection),
     ('Depth Detection','depth_detection',launch_depth_detection),
     ('Cartographer',   'cartographer',   launch_cartographer),
+    ('Octomap Server', 'octomap_2d_server', launch_octomap_2d_server),
     ('Teleop Keyboard', 'teleop_key', launch_teleop_key),
     ('RViz',           'rviz',           launch_rviz),
     ('Nav Stack',      'nav_stack',      launch_nav_stack),

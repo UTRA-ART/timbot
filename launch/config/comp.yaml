@@ -119,7 +119,7 @@ spawn:
     - /imu/data
     - /scan_lower
 
-# --- Stage 3: Odom State (EKF local + global + navsat) ---
+# --- Stage 3: Odom State (EKF local + navsat) ---
 odom_state:
   enabled: true
   config_file: odom.yaml
@@ -194,12 +194,25 @@ depth_detection:
 
 # --- Stage 5: Cartographer (SLAM) ---
 cartographer:
-  enabled: true
+  enabled: false
   config_file: cartographer.lua
   log_level: error
   delay_sec: 5.0
   expected_topics:
     - /map
+
+octomap_2d_server:
+  enabled: true
+  config_file: octomap_params.yaml
+  scan_topic: /scan_modified
+  depth_cloud_topic: /zed_node/left/obstacle_points
+  combined_cloud_topic: /combined_cloud
+  map_frame: map
+  odom_frame: odom
+  publish_static_tf: true
+  delay_sec: 5.0
+  expected_topics:
+    - /combined_cloud
 
 # --- Stage 6: RViz (Visualization) ---
 rviz:
