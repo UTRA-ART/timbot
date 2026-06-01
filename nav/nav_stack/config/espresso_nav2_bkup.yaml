@@ -107,8 +107,8 @@ global_costmap:
       publish_frequency: 5.0
       rolling_window: false
       always_send_full_costmap: false
-      width: 200.0
-      height: 200.0
+      width: 200
+      height: 200
       origin_x: -100.0
       origin_y: -100.0
       trinary_costmap: true
@@ -128,6 +128,7 @@ global_costmap:
 
       # ---- Obstacle Layer ----Forward
       obstacle_layer:
+        plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: true
         track_unknown_space: true
         observation_sources: laser_scan_sensor
@@ -157,6 +158,7 @@ global_costmap:
         cost_scaling_factor: 3.0
 
       lane_obstacle_layer:
+        plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: true
         track_unknown_space: true
         observation_sources: lane_cv_point_cloud 
@@ -185,7 +187,7 @@ global_costmap:
         inflation_radius:  1.3
         cost_scaling_factor: 3.0
 
-      cv_obstacle_layer:
+      cv_obstacles:
         plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: false
         observation_sources: cv_obstacles
