@@ -29,7 +29,7 @@ ramp_seg_using_lidar: true  # true = lidar publishes /ramp_seg, false = depth_de
 gazebo:
   enabled: true
   gui: true
-  world_file: track.world
+  world_file: ramp_track.world
   log_level: error
   delay_sec: 5.0
   software_rendering: '0'
@@ -166,6 +166,6 @@ nav_stack:
 load_waypoints:
   enabled: true
   config_file: sim_waypoints_fixed.json
-  log_level: error
+  log_level: info
   delay_sec: 2.0
   expected_topics: []

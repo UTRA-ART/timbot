@@ -1,0 +1,65 @@
+# setup 
+conda deactivate 
+# make sure you are not in any env
+
+rm -rf build install log
+colcon build
+source install/setup.bash
+
+# make the gazebo models dir to find the models
+mkdir -p ~/.gazebo/models
+# download and move model to the dir
+cd ~/.gazebo/models
+# Download the standard construction barrel from OSRF
+git clone https://github.com/osrf/gazebo_models.git temp_models
+mv temp_models/construction_barrel .
+rm -rf temp_models
+
+sudo pkill -f ign
+sudo pkill -f gazebo
+
+sudo pkill -9 -f "ign gazebo"
+sudo pkill -9 -f "gz sim"
+
+# Delete the GUI configuration (window layout, camera settings)
+rm -rf ~/.ignition/gazebo/gui.config
+rm -rf ~/.ignition/gazebo/server.config
+
+# Delete the model cache
+rm -rf ~/.ignition/fuel
+rm -rf ~/.cache/ignition
+
+# check if the barrel is in the models folder or not
+ls -F ~/.gazebo/models/
+
+# kill processes 
+pkill -f ros
+
+# some installations
+# make sure you have this package
+sudo apt update
+sudo apt install ros-humble-ament-cmake-python
+
+# install twist mux
+sudo apt update
+sudo apt install ros-humble-twist-mux
+
+# install utm
+pip install utm
+
+# install rcply
+pip install rcply
+
+rm -rf /dev/shm/fastrtps_*
+
+ros2 daemon stop
+
+# now test
+1) MAKE SURE YOU CD TO YOUR REPO FOLDER
+colcon build --symlink-install
+source install/setup.bash
+
+# now launch this and monitor your terminal for any errors
+ros2 launch timbot_launch timbot.launch.py
+
+

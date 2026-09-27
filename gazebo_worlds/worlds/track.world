@@ -409,6 +409,7 @@
       </link>
     </model>
 
+  <!--
     <model name='Construction Barrel_13'>
       <pose>19.75 -18.75 0.5 0 -0 0</pose>
       <link name='link'>
@@ -443,7 +444,8 @@
           </geometry>
         </visual>
       </link>
-    </model>
+    </model> 
+  -->
 
     <model name='Construction Barrel_14'>
       <pose>16.5 -13.5 0.5 0 -0 0</pose>
@@ -551,7 +553,7 @@
           </geometry>
         </visual>
       </link>
-    </model>
+    </model> 
 
     <model name='Construction Barrel_17'>
       <pose>22.5 -7 0.5 0 -0 0</pose>

@@ -1,0 +1,125 @@
+[workspace]
+name = "timbot"
+version = "0.0.0"
+description = "UTRA-ART Timbot workspace, built natively on macOS via RoboStack (conda) instead of apt/WSL."
+channels = ["robostack-humble", "conda-forge"]
+platforms = ["osx-arm64", "osx-64"]
+
+# ---------------------------------------------------------------------------
+# Why pixi + RoboStack instead of the WSL/Docker route:
+#   RoboStack (robostack.github.io) publishes ROS 2 Humble as conda packages
+#   for macOS (both Apple Silicon and Intel), so `pixi run` gets a real,
+#   natively-compiled ROS 2 install with no Linux VM, no Docker, and no X11
+#   forwarding — RViz2 and Gazebo open as normal Cocoa windows and render
+#   through the Mac's actual GPU. Do NOT set LIBGL_ALWAYS_SOFTWARE here (the
+#   WSL/Docker docs set it because they had no GPU access; this environment
+#   does).
+#   CUDA is still never available on a Mac (no NVIDIA GPU support since
+#   2020ish) — `torch.cuda.is_available()` is expected to be False, so
+#   `lane_detection_mode: 0` (YOLO) falls back to CPU. Classical mode (the
+#   sim default) is unaffected. Apple Silicon's GPU is usable via PyTorch's
+#   MPS backend, but ml_lane_detection.py would need a code change to target
+#   it — out of scope here.
+# ---------------------------------------------------------------------------
+
+[activation]
+# Sources the local colcon overlay if it's been built yet; the ROS/RoboStack
+# underlay itself is already sourced automatically by conda activation hooks
+# that the ros-humble-* packages install (no manual `source setup.bash`
+# needed, unlike apt-based ROS installs).
+scripts = ["scripts/pixi_activate.sh"]
+
+[tasks]
+first-time-setup = { cmd = "bash scripts/pixi_first_time_setup.sh", description = "One-time: init submodules, mark hardware-only drivers COLCON_IGNORE, fix script perms, fetch the Gazebo barrel model." }
+build = { cmd = "colcon build --symlink-install", description = "Build the workspace (run after first-time-setup, and again after pulling changes)." }
+clean = { cmd = "rm -rf build install log", description = "Wipe build artifacts for a from-scratch rebuild (setup.md's troubleshooting step)." }
+sim = { cmd = "ros2 launch timbot_launch timbot.launch.py config:=sim.yaml", description = "Launch the simulation stack." }
+
+# ---------------------------------------------------------------------------
+# Conda dependencies
+# ---------------------------------------------------------------------------
+# Sourced from Updated_ROS2_WSL_Setup.pdf (ROS 2 Humble Desktop, ros_gz,
+# nav2, robot_localization, rplidar, rviz2/rqt), setup.md (cartographer,
+# --packages-skip zed_open_source -> here handled by COLCON_IGNORE instead,
+# see scripts/pixi_first_time_setup.sh), and barrel_setup.txt
+# (ament-cmake-python), translated to their robostack-humble package names
+# (verified against the actual robostack-humble osx-arm64/osx-64 channel
+# index, not guessed).
+[dependencies]
+ros-humble-desktop = "*"
+ros-humble-ros-gz = "*"
+ros-humble-ros-gz-bridge = "*"
+ros-humble-ros-gz-sim = "*"
+ros-humble-navigation2 = "*"
+ros-humble-nav2-bringup = "*"
+ros-humble-robot-localization = "*"
+ros-humble-rplidar-ros = "*"          # PDF's example sensor package; Timbot's own rplidar driver is a submodule that's COLCON_IGNORE'd for sim (see first-time-setup)
+ros-humble-imu-tools = "*"            # PDF's example perception package; not actually wired into Timbot's own IMU path (that's phidgets, also COLCON_IGNORE'd for sim)
+ros-humble-rviz2 = "*"
+ros-humble-rqt = "*"
+ros-humble-rqt-common-plugins = "*"
+ros-humble-rqt-tf-tree = "*"
+ros-humble-rqt-graph = "*"
+ros-humble-cartographer = "*"
+ros-humble-cartographer-ros = "*"
+ros-humble-ament-cmake-python = "*"
+# joint_state_publisher(-gui): required by description/launch/robot_bringup.launch.py
+# and description/rover_model/launch/display.launch.py (description/package.xml
+# already lists it as an exec_depend) — missing from every one of the source setup
+# docs, added per your note.
+ros-humble-joint-state-publisher = "*"
+ros-humble-joint-state-publisher-gui = "*"
+# rclpy ships as part of ros-humble-desktop above; barrel_setup.txt's `pip install
+# rcply` was a typo for this — there is no real PyPI package under either
+# "rclpy" or "rcply", and pip-installing a made-up name would just pull whatever
+# unrelated/unverified package happens to claim it. Listed explicitly here (as
+# the correctly-spelled conda package) purely so the fix is visible; it's already
+# pulled in transitively.
+ros-humble-rclpy = "*"
+# twist_mux itself is NOT listed here on purpose: robot_bringup.launch.py runs
+# in both sim and real modes and needs UTRA's forked twist_mux (misc/twist_mux,
+# a submodule) for its tuned priorities/locks config (joy=100, key=90, nav=10,
+# pause_navigation/joy_priority/stop_closing_loop locks) — the upstream conda
+# package ships different defaults. So the fork is built from source instead;
+# this only supplies its message package dependency.
+ros-humble-twist-mux-msgs = "*"
+ros-humble-diagnostic-updater = "*"   # build dep of the twist_mux fork
+# empy/lark: rosidl message generation needs these EXACT versions (newer empy
+# 4.x breaks it). Pinned via conda-forge instead of pip so they can't be
+# clobbered by an unconstrained transitive pip resolve.
+empy = "==3.3.4"
+lark = "==1.1.5"
+# setuptools: colcon/ament's Python tooling breaks on modern setuptools (a
+# well-known RoboStack/colcon gotcha) — this is the same problem setup.md
+# works around on Ubuntu by uninstalling pip's copy after the fact; here it's
+# just pinned once, cleanly, per the official pixi ROS2 tutorial's own guidance.
+setuptools = "<=58.2.0"
+compilers = "*"
+cmake = "*"
+pkg-config = "*"
+make = "*"
+ninja = "*"
+colcon-common-extensions = "*"
+git = "*"
+
+# ---------------------------------------------------------------------------
+# Python dependencies (requirements.txt), installed via pip into the same
+# pixi environment. numpy is capped <2 per setup.md's fix (newer numpy broke
+# things at the time this was written); empy/lark/setuptools are handled
+# above via conda instead of here, for the reasons noted there.
+# ---------------------------------------------------------------------------
+[pypi-dependencies]
+numpy = ">=1.21.0,<2"
+opencv-python = ">=4.5.0"
+opencv-contrib-python = ">=4.5.0"
+torch = ">=2.0.0"
+torchvision = ">=0.15.0"
+ultralytics = ">=8.0.0"
+scipy = ">=1.7.0"
+matplotlib = ">=3.3.0"
+pandas = ">=1.3.0"
+scikit-learn = ">=0.24.0"
+pyutm = ">=0.2.1"
+utm = "*"
+pyyaml = ">=5.4.0"
+catkin_pkg = ">=0.5.2"
