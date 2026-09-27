@@ -110,7 +110,14 @@ def generate_launch_description():
         executable='bt_navigator',
         name='bt_navigator',
         output='screen',
-        parameters=[nav2_params_configured, {'use_sim_time': use_sim_time, "default_bt_xml_filename": bt_xml}],
+        parameters=[
+            nav2_params_configured,
+            {
+                'use_sim_time': use_sim_time,
+                'default_bt_xml_filename': bt_xml,
+                'default_nav_to_pose_bt_xml': bt_xml,
+            },
+        ],
         arguments=['--ros-args', '--log-level', log_level]
     )
 
