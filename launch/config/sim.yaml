@@ -16,7 +16,7 @@
 # --- Global Settings ---
 sim: true
 use_topic_check: true  # Set to false to use blind delay_sec instead
-team_laptop: true
+team_laptop: false
 ramp_seg_using_lidar: true  # true = lidar publishes /ramp_seg, false = depth_detection publishes /ramp_seg
 
 # --- Launch Stages (order matters) ---
@@ -97,7 +97,7 @@ filter_lidar:
     - /scan_modified
 
 lane_detection:
-  enabled: true
+  enabled: false
   log_level: info
   lane_detection_mode: 1  # 0 = deep learning (YOLO), 1 = classical (HSV threshold)
   camera_fps: 10
@@ -119,7 +119,7 @@ lane_detection:
   roi_mask_points: [0.4, 1.0, 0.5, 0.6, 0.6, 0.6, 0.7, 1.0]
 
 depth_detection:
-  enabled: true
+  enabled: false
   log_level: info
   config_file: depth_detection.yaml
   delay_sec: 2.0
@@ -164,7 +164,7 @@ nav_stack:
 
 # --- Stage 9: Load Waypoints ---
 load_waypoints:
-  enabled: true
+  enabled: false
   config_file: sim_waypoints_fixed.json
   log_level: error
   delay_sec: 2.0
