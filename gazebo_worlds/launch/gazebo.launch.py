@@ -32,6 +32,30 @@ def _setup_gazebo(context: LaunchContext):
     env['IGN_GAZEBO_RESOURCE_PATH'] = f"{gazebo_models_path}:{worlds_dir}"
     env['LIBGL_ALWAYS_SOFTWARE'] = context.launch_configurations.get('software_rendering', '1')
 
+    if sys.platform == 'darwin':
+        # macOS can't run gz-sim's server and GUI in one process — Cocoa
+        # requires windowing on the main thread, which conflicts with how
+        # gz-sim forks/threads the combined mode. Upstream's own fix for this
+        # (gazebosim/gz-sim#44, gz-sim#1225) is to always run the server
+        # headless (-s) and, when a GUI is wanted, attach a separate `-g`
+        # client process to it via Ignition Transport.
+        gazebo_server = ExecuteProcess(
+            cmd=['ign', 'gazebo', 'sim', '-r', '-s', world_file],
+            output='screen',
+            env=env,
+            on_exit=Shutdown(),
+        )
+
+        gazebo_gui_client = ExecuteProcess(
+            cmd=['ign', 'gazebo', 'sim', '-g'],
+            output='screen',
+            env=env,
+            on_exit=Shutdown(),
+            condition=IfCondition(LaunchConfiguration('gui'))
+        )
+
+        return [gazebo_server, gazebo_gui_client]
+
     # Full GUI
     gazebo_gui = ExecuteProcess(
         cmd=['ign', 'gazebo', 'sim', '-r', world_file],
