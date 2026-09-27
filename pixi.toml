@@ -95,7 +95,11 @@ lark = "==1.1.5"
 # just pinned once, cleanly, per the official pixi ROS2 tutorial's own guidance.
 setuptools = "<=58.2.0"
 compilers = "*"
-cmake = "*"
+# CMake 4.x removed compatibility with cmake_minimum_required() below 3.5 and
+# started hard-erroring below 3.10 — this repo's (and many ROS 2 Humble-era)
+# CMakeLists.txt files still declare 3.5/3.8. Capped per the official pixi
+# ROS2 tutorial's own guidance for this exact issue.
+cmake = "<4"
 pkg-config = "*"
 make = "*"
 ninja = "*"
