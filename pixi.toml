@@ -119,7 +119,13 @@ scipy = ">=1.7.0"
 matplotlib = ">=3.3.0"
 pandas = ">=1.3.0"
 scikit-learn = ">=0.24.0"
-pyutm = ">=0.2.1"
+# requirements.txt lists pyutm, but nothing in this repo imports it (only
+# `import utm` appears, in nav_options.py / navigate_waypoints.py /
+# gps_static_transform.py). pyutm pulls in pyproj (a compiled PROJ wrapper)
+# for no reason, and pyproj's sdist fails to build on macOS out of the box
+# (conda-forge clang/ld64 vs. Xcode's libLTO.dylib mismatch — a known
+# conda-forge macOS toolchain issue, not a real repo dependency). Dropped
+# entirely rather than fought, since it's dead weight either way.
 utm = "*"
 pyyaml = ">=5.4.0"
 catkin_pkg = ">=0.5.2"
