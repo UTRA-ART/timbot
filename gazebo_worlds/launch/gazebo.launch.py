@@ -33,12 +33,24 @@ def _setup_gazebo(context: LaunchContext):
     env['LIBGL_ALWAYS_SOFTWARE'] = context.launch_configurations.get('software_rendering', '1')
 
     if sys.platform == 'darwin':
-        # macOS can't run gz-sim's server and GUI in one process — Cocoa
-        # requires windowing on the main thread, which conflicts with how
-        # gz-sim forks/threads the combined mode. Upstream's own fix for this
-        # (gazebosim/gz-sim#44, gz-sim#1225) is to always run the server
-        # headless (-s) and, when a GUI is wanted, attach a separate `-g`
-        # client process to it via Ignition Transport.
+        # Gazebo's own GUI cannot run on macOS with the Gazebo Fortress
+        # release ROS 2 Humble is tied to. Traced this to gz-sim's actual
+        # cmdsim.rb.in CLI script: the `-g` (GUI-only) branch unconditionally
+        # exits with "currently only works with the -s argument on macOS"
+        # whenever the loaded plugin is a .dylib (i.e. always, on macOS) —
+        # there is no flag/argument combination that avoids it. The fix that
+        # later allowed `-g` on macOS (gazebosim/gz-sim#1225, "Add Metal
+        # support to Gazebo for macOS") landed in Gazebo Garden, Fortress's
+        # successor; Fortress is EOL and never received it — this is a
+        # version-inherent limitation, not specific to RoboStack (the same
+        # block is reported against Homebrew-installed Fortress too, see
+        # gazebosim/gz-sim#2848).
+        #
+        # So: always run headless on macOS regardless of the `gui` launch
+        # argument, and use RViz2 (already in the pipeline, and a normal
+        # GPU-accelerated native window here — no such restriction) for
+        # visualization instead. Attempting `-g` would crash immediately and,
+        # via on_exit=Shutdown(), take the whole simulation down with it.
         gazebo_server = ExecuteProcess(
             cmd=['ign', 'gazebo', 'sim', '-r', '-s', world_file],
             output='screen',
@@ -46,22 +58,7 @@ def _setup_gazebo(context: LaunchContext):
             on_exit=Shutdown(),
         )
 
-        gazebo_gui_client = ExecuteProcess(
-            # world_file passed even though the server already loaded it: the
-            # GUI process resolves its own positional file argument via
-            # gz-sim's checkFile(), which mishandles an empty argument by
-            # falling through to a Fuel (network) lookup instead of skipping
-            # resolution ("Unable to find or download file"). Passing the
-            # already-resolved absolute path makes checkFile's first branch
-            # (std::filesystem::exists) succeed immediately, sidestepping it.
-            cmd=['ign', 'gazebo', 'sim', '-g', world_file],
-            output='screen',
-            env=env,
-            on_exit=Shutdown(),
-            condition=IfCondition(LaunchConfiguration('gui'))
-        )
-
-        return [gazebo_server, gazebo_gui_client]
+        return [gazebo_server]
 
     # Full GUI
     gazebo_gui = ExecuteProcess(
