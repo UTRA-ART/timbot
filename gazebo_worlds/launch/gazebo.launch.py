@@ -47,7 +47,14 @@ def _setup_gazebo(context: LaunchContext):
         )
 
         gazebo_gui_client = ExecuteProcess(
-            cmd=['ign', 'gazebo', 'sim', '-g'],
+            # world_file passed even though the server already loaded it: the
+            # GUI process resolves its own positional file argument via
+            # gz-sim's checkFile(), which mishandles an empty argument by
+            # falling through to a Fuel (network) lookup instead of skipping
+            # resolution ("Unable to find or download file"). Passing the
+            # already-resolved absolute path makes checkFile's first branch
+            # (std::filesystem::exists) succeed immediately, sidestepping it.
+            cmd=['ign', 'gazebo', 'sim', '-g', world_file],
             output='screen',
             env=env,
             on_exit=Shutdown(),
