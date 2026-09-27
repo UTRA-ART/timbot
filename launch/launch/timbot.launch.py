@@ -148,7 +148,9 @@ def launch_odom_state(config: dict, sim: bool, context: LaunchContext) -> list:
         'horizontal_stddev': str(odom_cfg.get('horizontal_stddev', 3.0)),
         'vertical_stddev': str(odom_cfg.get('vertical_stddev', 4.0)),
         'wait_for_datum': str(odom_cfg.get('wait_for_datum', False)).lower(),
-        'magnetic_declination_radians': str(odom_cfg.get('magnetic_declination_radians', 0.0))
+        'magnetic_declination_radians': str(odom_cfg.get('magnetic_declination_radians', 0.0)),
+        'publish_gps_fix': str(odom_cfg.get('publish_gps_fix', True)).lower(),
+        'gps_publish_rate': str(odom_cfg.get('gps_publish_rate', 10.0)),
     }
     config_file = odom_cfg.get('config_file', '')
     if config_file:
@@ -348,6 +350,7 @@ def launch_load_waypoints(config: dict, sim: bool, context: LaunchContext) -> li
     config_file = wp_cfg.get('config_file', '')
     if config_file:
         launch_args['config_file'] = config_file
+    launch_args['gps_topic'] = wp_cfg.get('gps_topic', '/gps/fix')
 
     wp_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([

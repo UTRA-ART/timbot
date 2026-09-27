@@ -13,6 +13,8 @@ def generate_launch_description():
     vertical_stddev = LaunchConfiguration('vertical_stddev')
     wait_for_datum = LaunchConfiguration('wait_for_datum')
     magnetic_declination_radians = LaunchConfiguration('magnetic_declination_radians')
+    publish_gps_fix = LaunchConfiguration('publish_gps_fix')
+    gps_publish_rate = LaunchConfiguration('gps_publish_rate')
     
     # 1. Declare the use_sim_time argument (Default to true for safety in this context)
     use_sim_time_arg = DeclareLaunchArgument(
@@ -49,6 +51,18 @@ def generate_launch_description():
         'vertical_stddev',
         default_value='1.0', # Altitude is slightly noisier
         description='Vertical standard deviation for GPS'
+    )
+
+    publish_gps_fix_arg = DeclareLaunchArgument(
+        'publish_gps_fix',
+        default_value='true',
+        description='Publish the dead-reckoned GPS fix'
+    )
+
+    gps_publish_rate_arg = DeclareLaunchArgument(
+        'gps_publish_rate',
+        default_value='10.0',
+        description='Dead-reckoned GPS publication rate; 0 disables it'
     )
 
     # 3. Derive launch_state automatically
@@ -113,6 +127,8 @@ def generate_launch_description():
             {'use_sim_time': use_sim_time},
             {'wait_for_datum': wait_for_datum},
             {'magnetic_declination_radians': magnetic_declination_radians},
+            {'publish_gps_fix': publish_gps_fix},
+            {'publish_rate': gps_publish_rate},
             {'horizontal_stddev': horizontal_stddev},
             {'vertical_stddev': vertical_stddev}
         ]
@@ -149,6 +165,8 @@ def generate_launch_description():
         config_file_arg,
         horizontal_stddev_arg, # ADDED
         vertical_stddev_arg,   # ADDED
+        publish_gps_fix_arg,
+        gps_publish_rate_arg,
         log_level_arg,
         ekf_local,
         pose_relay,

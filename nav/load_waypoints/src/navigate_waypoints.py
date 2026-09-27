@@ -53,7 +53,9 @@ class NavigateWaypoints(Node):
       
         # Get waypoints file from parameter (set by launch file)
         self.declare_parameter('waypoints_file', '')
+        self.declare_parameter('gps_topic', '/gps/fix')
         self.waypoints_file = self.get_parameter('waypoints_file').get_parameter_value().string_value
+        self.gps_topic = self.get_parameter('gps_topic').value
 
         if not self.waypoints_file:
             self.get_logger().error('No waypoints_file parameter provided!')
@@ -689,7 +691,7 @@ class NavigateWaypoints(Node):
             nonlocal gps_msg
             gps_msg = msg
 
-        sub = self.create_subscription(NavSatFix, '/gps/filtered', callback, 10)
+        sub = self.create_subscription(NavSatFix, self.gps_topic, callback, 10)
 
         start = time.time()
         while gps_msg is None and (time.time() - start) < timeout:

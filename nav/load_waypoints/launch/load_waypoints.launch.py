@@ -25,6 +25,12 @@ def generate_launch_description():
         description='Name of the waypoints JSON file in load_waypoints/jsons/'
     )
 
+    gps_topic_arg = DeclareLaunchArgument(
+        'gps_topic',
+        default_value='/gps/fix',
+        description='GPS topic used to initialize waypoint coordinates'
+    )
+
     # log_level argument — controls verbosity (debug, info, warn, error)
     log_level_arg = DeclareLaunchArgument(
         'log_level',
@@ -49,7 +55,8 @@ def generate_launch_description():
         arguments=['--ros-args', '--log-level', log_level],
         parameters=[{
             'use_sim_time': use_sim_time,
-            'waypoints_file': waypoints_file
+            'waypoints_file': waypoints_file,
+            'gps_topic': LaunchConfiguration('gps_topic')
         }]
     )
 
@@ -90,6 +97,7 @@ def generate_launch_description():
     return LaunchDescription([
         use_sim_time_arg,
         config_file_arg,
+        gps_topic_arg,
         log_level_arg,
         navigate_waypoints_node,
         ramp_navigate_node,
