@@ -27,9 +27,10 @@ def _setup_gazebo(context: LaunchContext):
     home_dir = os.path.expanduser('~')
     gazebo_models_path = os.path.join(home_dir, '.gazebo/models')
     worlds_dir = os.path.join(pkg_share, 'worlds')
+    description_resource_path = os.path.dirname(get_package_share_directory('description'))
 
     env = os.environ.copy()
-    env['IGN_GAZEBO_RESOURCE_PATH'] = f"{gazebo_models_path}:{worlds_dir}"
+    env['IGN_GAZEBO_RESOURCE_PATH'] = f"{gazebo_models_path}:{worlds_dir}:{description_resource_path}"
     env['LIBGL_ALWAYS_SOFTWARE'] = context.launch_configurations.get('software_rendering', '1')
 
     # Full GUI
