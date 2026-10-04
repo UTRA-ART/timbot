@@ -478,6 +478,7 @@ def build_hardware_driver_stages(config: dict) -> list:
         zed_expected_topics,
         zed_delay_sec,
     )
+    cv_enabled = config.get('cv_enabled', True)
 
     use_new_imu = config.get('use_new_imu', False)
     new_imu_port = config.get('new_imu_port', '/dev/ttyACM1')
@@ -560,7 +561,7 @@ def build_hardware_driver_stages(config: dict) -> list:
         #     ['/scan_upper'],
         #     5.0,
         # ),
-        zed_stage,
+        *([zed_stage] if cv_enabled else []),
         (
             'Driver: RPi Sync',
             _hw_driver('motor_odom', 'odom_pub.launch.py'),
@@ -568,6 +569,9 @@ def build_hardware_driver_stages(config: dict) -> list:
             3.0,
         ),
     ]
+
+    if not cv_enabled:
+        print('[timbot_launch] cv_enabled: false -> skipping ZED camera driver', flush=True)
 
     return driver_stages
 
@@ -759,6 +763,17 @@ def orchestrate_launch(context: LaunchContext) -> list:
     use_topic_check = config.get('use_topic_check', True)
     team_laptop = config.get('team_laptop', False)
 
+    # Master CV switch: when false, force off every CV-dependent stage
+    # regardless of their individual `enabled` flags, and fall back to
+    # lidar-only localization / ramp detection.
+    cv_enabled = config.get('cv_enabled', True)
+    config['cv_enabled'] = cv_enabled
+    if not cv_enabled:
+        config.setdefault('lane_detection', {})['enabled'] = False
+        config.setdefault('depth_detection', {})['enabled'] = False
+        config['ramp_seg_using_lidar'] = True
+        print("[timbot_launch] cv_enabled: false -> lane_detection, depth_detection disabled; ramp_seg_using_lidar forced true", flush=True)
+
     # Ensure ROS Python nodes launched via /usr/bin/env python3 resolve against
     # the system interpreter expected by ROS Humble, not an active Conda env.
     python_path = os.environ.get('PATH', '')
@@ -766,7 +781,12 @@ def orchestrate_launch(context: LaunchContext) -> list:
         SetEnvironmentVariable(
             name='PATH',
             value=f"/usr/bin:{python_path}",
-        )
+        ),
+        # Read by description/config/cartographer.lua to size num_point_clouds.
+        SetEnvironmentVariable(
+            name='TIMBOT_CV_ENABLED',
+            value=str(cv_enabled).lower(),
+        ),
     ]
 
     laptop_env_vars = [

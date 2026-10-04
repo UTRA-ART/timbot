@@ -17,6 +17,10 @@
 sim: true
 use_topic_check: true  # Set to false to use blind delay_sec instead
 team_laptop: false
+cv_enabled: false  # Master CV switch. false forces lane_detection/depth_detection off,
+                    # skips the ZED driver on real hardware, and forces lidar-based
+                    # ramp detection + lidar-only Cartographer, regardless of the
+                    # per-stage `enabled` flags below.
 ramp_seg_using_lidar: true  # true = lidar publishes /ramp_seg, false = depth_detection publishes /ramp_seg
 
 # --- Launch Stages (order matters) ---

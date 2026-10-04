@@ -32,7 +32,9 @@ options = {
   num_laser_scans = 1,
   num_multi_echo_laser_scans = 0,
   num_subdivisions_per_laser_scan = 1,
-  num_point_clouds = 0,
+  -- Set by timbot.launch.py from the `cv_enabled` master switch: 2 CV point
+  -- clouds (obstacle_points, lane_detections_cloud) when CV is on, 0 otherwise.
+  num_point_clouds = (os.getenv("TIMBOT_CV_ENABLED") == "true") and 2 or 0,
   lookup_transform_timeout_sec = 1.,
   submap_publish_period_sec = 0.3,
   pose_publish_period_sec = 5e-3,
