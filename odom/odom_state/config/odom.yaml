@@ -106,7 +106,7 @@ ekf_local:
 
 
 # --- EKF Global (map → odom) ---
-# Smooths cartographer pose; map→odom TF is published by cartographer
+# Smooths cartographer pose; map→odom TF is published by ekf_global (see publish_tf below)
 ekf_global:
   ros__parameters:
     frequency: 10.0
@@ -126,7 +126,7 @@ ekf_global:
     # ekf_global IS the authority on map→odom.
     # Cartographer's TF output is redirected to /tf_carto (via launch remap)
     # so there is no conflict — only ekf_global publishes map→odom on /tf.
-    publish_tf: false
+    publish_tf: true
 
     transform_time_offset: 0.05
 

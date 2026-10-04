@@ -22,7 +22,11 @@ options = {
   tracking_frame = "imu_link",
   published_frame = "odom",
   odom_frame = "odom",
-  publish_to_tf = true,-- publish map tf
+  -- ekf_global (odom.yaml) is the sole authority on map->odom TF; disabling
+  -- this keeps Cartographer's /tracked_pose topic (still published, see
+  -- publish_tracked_pose below) as the only path for its pose estimate,
+  -- instead of also broadcasting a second, uncoordinated map->odom on /tf.
+  publish_to_tf = false,
   provide_odom_frame = false,
   publish_tracked_pose = true,
   publish_frame_projected_to_2d = false,
