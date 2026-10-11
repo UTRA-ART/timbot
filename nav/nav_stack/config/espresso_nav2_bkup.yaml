@@ -105,7 +105,12 @@ global_costmap:
       robot_base_frame: base_link
       update_frequency: 5.0
       publish_frequency: 5.0
-      rolling_window: true # should look into this, and why it is not working
+      # A global costmap should stay fixed over the whole static map (sized/
+      # positioned from the static_layer's /map once received), not roll with
+      # the robot. rolling_window=true here made the published costmap's
+      # origin continuously re-center on the robot, which visually reads as
+      # the costmap "drifting" against the fixed map in RViz.
+      rolling_window: false
       always_send_full_costmap: false
       width: 100
       height: 100
