@@ -124,8 +124,9 @@ ekf_global:
     world_frame: map
 
     # ekf_global IS the authority on map→odom.
-    # Cartographer's TF output is redirected to /tf_carto (via launch remap)
-    # so there is no conflict — only ekf_global publishes map→odom on /tf.
+    # Cartographer's TF broadcast is disabled (publish_to_tf = false in
+    # cartographer.lua), so there is no conflict — only ekf_global publishes
+    # map→odom on /tf.
     publish_tf: true
 
     transform_time_offset: 0.05
