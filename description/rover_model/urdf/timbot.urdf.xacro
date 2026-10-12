@@ -33,7 +33,7 @@
 
 	<link name="chassis_link">
 		<inertial>
-			<origin xyz="-0.040859 0.00033673 10.54592" rpy="0 0 0" />
+			<origin xyz="-0.040859 0.00033673 -0.054592" rpy="0 0 0" />
 			<mass value="40.135" />
 			<inertia
 				ixx="0.58726"
@@ -63,7 +63,7 @@
 		<collision>
 			<origin xyz="0 0 0" rpy="0 0 0" />
 			<geometry>
-				<box size="0.9 0.6 0.3"/> 
+				<box size="0.9 0.6 0.2"/> 
 			</geometry>
 		</collision>
 	</link>
