@@ -1,0 +1,30 @@
+configuration:
+  map_update_frequency: 5.0 # (Hz) Sets how often the obstacle map is refreshed with new sensor data
+  controller_update_frequency: 20.0 # (Hz) Sets how often the controller calculates and publishes new velocity commands
+  
+  robot_position_topic: "/tracked_pase" # Specifies the topic providing the rover's current position
+  robot_velocity_topic: "/odometry/local" # Specifies the topic providing the rover's measured movement velocity
+  obstacle_map_topic: "/map" # Specifies the topic providing the map used to identify obstacles
+  path_map_topic: "nav/planned_path" # Specifies the topic on which the planner publishes its calculated route
+  velocity_output_topic: "/twist_mux/cmd_vel" # Specifies the topic on which the controller publishes movement commands
+
+
+mapping:
+  inflation_radius: 1 # (m) Adds a safety buffer around obstacles so planned paths keep clear
+  robot_radius: 1 # (m) Specifies the rover's approximate radius for collision checking
+  map_resolution: 1 # (m) Defines the physical distance represented by one map grid cell
+
+constraints:
+  goal_tolerance: 1 # (m) Sets how close the rover must get to the target to count as arrived
+  max_sideways_linear_acceleration: 1 # (m/s^2) Limits how quickly the rover can accelerate sideways
+  max_forwards_linear_acceleration: 1 # (m/s^2) Limits how quickly the rover can accelerate forward
+  max_angular_acceleration: 1 # (rad/s^2) Limits how quickly the rover's turning speed can change
+  max_linear_velocity: 1 # (m/s) Limits the rover's maximum straight-line speed
+  max_angular_velocity: 1 # (rad/s) Limits the rover's maximum turning speed
+
+controller:
+  lookahead_distance: 1 # (m) Sets how far ahead on the path the controller selects its tracking target
+  kP: 1 # Controls the proportional correction applied to the current tracking error
+  kI: 1 # Controls the correction accumulated from past tracking errors
+  kD: 1 # Controls the correction based on how quickly the tracking error changes
+
