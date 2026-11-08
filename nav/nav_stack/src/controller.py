@@ -1,5 +1,7 @@
 import rclpy
 from rclpy.node import Node
+from nav_msgs.msg import Path
+from geometry_msgs.msg import PoseStamped, Twist
 # ADD NECCESSARY IMPORTS HERE
 
 class NavController(Node):
@@ -9,7 +11,7 @@ class NavController(Node):
         # Gets all the parameters from config specified in launch file
         self.declare_parameter('configuration.map_update_frequency', 5.0)
         self.declare_parameter('configuration.controller_update_frequency', 20.0)
-        self.declare_parameter('configuration.robot_position_topic', '/tracked_pase')
+        self.declare_parameter('configuration.robot_position_topic', '/tracked_pose')
         self.declare_parameter('configuration.robot_velocity_topic', '/odometry/local')
         self.declare_parameter('configuration.obstacle_map_topic', '/map')
         self.declare_parameter('configuration.path_map_topic', 'nav/planned_path')
@@ -97,12 +99,46 @@ class NavController(Node):
         self.kI = float(self.get_parameter('controller.kI').value)
         self.kD = float(self.get_parameter('controller.kD').value)
 
+        # Creates variables to store current state
+        # TODO
 
+        # Creates subscribers
+        self.map_subscription = self.create_subscription(
+            Path,
+            self.path_map_topic,
+            self.map_update_callback,
+            10)
+        self.position_subscription = self.create_subscription(
+            PoseStamped,
+            self.robot_position_topic,
+            self.position_update_callback,
+            10)
+        self.velocity_subscription = self.create_subscription(
+            PoseStamped,
+            self.robot_velocity_topic,
+            self.velocity_update_callback,
+            10)
 
-        
-        # TO ADD HERE
+        # Creates publishers
+        self.publisher = self.create_publisher(
+            Twist,
+            self.velocity_output_topic,
+            10)
+
+        self.timer = self.create_timer(1/self.controller_update_frequency, self.main_loop_callback)
 
     # TO ADD HERE
+    def map_update_callback(self, msg):
+        pass
+
+    def position_update_callback(self, msg):
+        pass
+
+    def velocity_update_callback(self, msg):
+        pass
+
+    def main_loop_callback(self):
+        pass
 
 def main(args=None):
     rclpy.init(args=args)

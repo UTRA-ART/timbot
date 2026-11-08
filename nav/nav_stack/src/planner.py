@@ -8,7 +8,7 @@ class NavPlanner(Node):
         # Gets all the parameters from config specified in launch file
         self.declare_parameter('configuration.map_update_frequency', 5.0)
         self.declare_parameter('configuration.controller_update_frequency', 20.0)
-        self.declare_parameter('configuration.robot_position_topic', '/tracked_pase')
+        self.declare_parameter('configuration.robot_position_topic', '/tracked_pose')
         self.declare_parameter('configuration.robot_velocity_topic', '/odometry/local')
         self.declare_parameter('configuration.obstacle_map_topic', '/map')
         self.declare_parameter('configuration.path_map_topic', 'nav/planned_path')
