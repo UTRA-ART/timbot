@@ -82,13 +82,13 @@
     </spherical_coordinates>
 
     <model name='Construction Barrel_1'>
-      <pose>-17.75 -16.5 0.5 0 -0 0</pose>
+      <pose>-17.81 -16.71 0 0 -0 0</pose>
       <link name='link'>
         <inertial>
-          <pose>0 0 0.4 0 -0 0</pose>
-          <mass>500</mass>
+          <pose>0 0 0.5042 0 -0 0</pose>
+          <mass>3.629</mass>
           <inertia>
-            <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
+            <ixx>0.3883</ixx> <iyy>0.3883</iyy> <izz>0.1616</izz>
           </inertia>
         </inertial>
         <velocity_decay>
@@ -96,9 +96,9 @@
           <angular>0.2</angular>
         </velocity_decay>
         <collision name='collision'>
-          <pose>0 0 0.5 0 -0 0</pose>
+          <pose>0 0 0.5042 0 -0 0</pose>
           <geometry>
-            <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
+            <cylinder><radius>0.2984</radius><length>1.0084</length></cylinder>
           </geometry>
           <surface>
             <friction>
@@ -111,20 +111,23 @@
         </collision>
         <visual name='visual'>
           <geometry>
-            <mesh><uri>model://construction_barrel/meshes/construction_barrel.dae</uri></mesh>
+            <mesh>
+              <uri>model://construction_barrel/meshes/construction_barrel.dae</uri>
+              <scale>0.5853 0.5853 0.6506</scale>
+            </mesh>
           </geometry>
         </visual>
       </link>
     </model>
 
     <model name='Construction Barrel_3'>
-      <pose>-10 -19.5 0.5 0 -0 0</pose>
+      <pose>-9.92 -19.80 0 0 -0 0</pose>
       <link name='link'>
         <inertial>
-          <pose>0 0 0.4 0 -0 0</pose>
-          <mass>500</mass>
+          <pose>0 0 0.5042 0 -0 0</pose>
+          <mass>3.629</mass>
           <inertia>
-            <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
+            <ixx>0.3883</ixx> <iyy>0.3883</iyy> <izz>0.1616</izz>
           </inertia>
         </inertial>
         <velocity_decay>
@@ -132,9 +135,9 @@
           <angular>0.2</angular>
         </velocity_decay>
         <collision name='collision'>
-          <pose>0 0 0.5 0 -0 0</pose>
+          <pose>0 0 0.5042 0 -0 0</pose>
           <geometry>
-            <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
+            <cylinder><radius>0.2984</radius><length>1.0084</length></cylinder>
           </geometry>
           <surface>
             <friction>
@@ -147,7 +150,10 @@
         </collision>
         <visual name='visual'>
           <geometry>
-            <mesh><uri>model://construction_barrel/meshes/construction_barrel.dae</uri></mesh>
+            <mesh>
+              <uri>model://construction_barrel/meshes/construction_barrel.dae</uri>
+              <scale>0.5853 0.5853 0.6506</scale>
+            </mesh>
           </geometry>
         </visual>
       </link>
@@ -158,13 +164,13 @@
     
 
     <model name='Construction Barrel_4'>
-      <pose>-9.25 -20.25 0.5 0 -0 0</pose>
+      <pose>-9.40 -20.27 0 0 -0 0</pose>
       <link name='link'>
         <inertial>
-          <pose>0 0 0.4 0 -0 0</pose>
-          <mass>500</mass>
+          <pose>0 0 0.5042 0 -0 0</pose>
+          <mass>3.629</mass>
           <inertia>
-            <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
+            <ixx>0.3883</ixx> <iyy>0.3883</iyy> <izz>0.1616</izz>
           </inertia>
         </inertial>
         <velocity_decay>
@@ -172,9 +178,9 @@
           <angular>0.2</angular>
         </velocity_decay>
         <collision name='collision'>
-          <pose>0 0 0.5 0 -0 0</pose>
+          <pose>0 0 0.5042 0 -0 0</pose>
           <geometry>
-            <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
+            <cylinder><radius>0.2984</radius><length>1.0084</length></cylinder>
           </geometry>
           <surface>
             <friction>
@@ -187,20 +193,23 @@
         </collision>
         <visual name='visual'>
           <geometry>
-            <mesh><uri>model://construction_barrel/meshes/construction_barrel.dae</uri></mesh>
+            <mesh>
+              <uri>model://construction_barrel/meshes/construction_barrel.dae</uri>
+              <scale>0.5853 0.5853 0.6506</scale>
+            </mesh>
           </geometry>
         </visual>
       </link>
     </model>
 
     <model name='Construction Barrel_5'>
-      <pose>-6 -20 0.5 0 -0 0</pose>
+      <pose>-6.10 -20.03 0 0 -0 0</pose>
       <link name='link'>
         <inertial>
-          <pose>0 0 0.4 0 -0 0</pose>
-          <mass>500</mass>
+          <pose>0 0 0.5042 0 -0 0</pose>
+          <mass>3.629</mass>
           <inertia>
-            <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
+            <ixx>0.3883</ixx> <iyy>0.3883</iyy> <izz>0.1616</izz>
           </inertia>
         </inertial>
         <velocity_decay>
@@ -208,9 +217,9 @@
           <angular>0.2</angular>
         </velocity_decay>
         <collision name='collision'>
-          <pose>0 0 0.5 0 -0 0</pose>
+          <pose>0 0 0.5042 0 -0 0</pose>
           <geometry>
-            <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
+            <cylinder><radius>0.2984</radius><length>1.0084</length></cylinder>
           </geometry>
           <surface>
             <friction>
@@ -223,20 +232,23 @@
         </collision>
         <visual name='visual'>
           <geometry>
-            <mesh><uri>model://construction_barrel/meshes/construction_barrel.dae</uri></mesh>
+            <mesh>
+              <uri>model://construction_barrel/meshes/construction_barrel.dae</uri>
+              <scale>0.5853 0.5853 0.6506</scale>
+            </mesh>
           </geometry>
         </visual>
       </link>
     </model>
 
     <model name='Construction Barrel_6'>
-      <pose>-5.25 -20.75 0.5 0 -0 0</pose>
+      <pose>-5.49 -20.76 0 0 -0 0</pose>
       <link name='link'>
         <inertial>
-          <pose>0 0 0.4 0 -0 0</pose>
-          <mass>500</mass>
+          <pose>0 0 0.5042 0 -0 0</pose>
+          <mass>3.629</mass>
           <inertia>
-            <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
+            <ixx>0.3883</ixx> <iyy>0.3883</iyy> <izz>0.1616</izz>
           </inertia>
         </inertial>
         <velocity_decay>
@@ -244,9 +256,9 @@
           <angular>0.2</angular>
         </velocity_decay>
         <collision name='collision'>
-          <pose>0 0 0.5 0 -0 0</pose>
+          <pose>0 0 0.5042 0 -0 0</pose>
           <geometry>
-            <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
+            <cylinder><radius>0.2984</radius><length>1.0084</length></cylinder>
           </geometry>
           <surface>
             <friction>
@@ -259,20 +271,23 @@
         </collision>
         <visual name='visual'>
           <geometry>
-            <mesh><uri>model://construction_barrel/meshes/construction_barrel.dae</uri></mesh>
+            <mesh>
+              <uri>model://construction_barrel/meshes/construction_barrel.dae</uri>
+              <scale>0.5853 0.5853 0.6506</scale>
+            </mesh>
           </geometry>
         </visual>
       </link>
     </model>
 
     <model name='Construction Barrel_8'>
-      <pose>-4.25 -18 0.5 0 -0 0</pose>
+      <pose>-4.26 -18.10 0 0 -0 0</pose>
       <link name='link'>
         <inertial>
-          <pose>0 0 0.4 0 -0 0</pose>
-          <mass>500</mass>
+          <pose>0 0 0.5042 0 -0 0</pose>
+          <mass>3.629</mass>
           <inertia>
-            <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
+            <ixx>0.3883</ixx> <iyy>0.3883</iyy> <izz>0.1616</izz>
           </inertia>
         </inertial>
         <velocity_decay>
@@ -280,9 +295,9 @@
           <angular>0.2</angular>
         </velocity_decay>
         <collision name='collision'>
-          <pose>0 0 0.5 0 -0 0</pose>
+          <pose>0 0 0.5042 0 -0 0</pose>
           <geometry>
-            <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
+            <cylinder><radius>0.2984</radius><length>1.0084</length></cylinder>
           </geometry>
           <surface>
             <friction>
@@ -295,20 +310,23 @@
         </collision>
         <visual name='visual'>
           <geometry>
-            <mesh><uri>model://construction_barrel/meshes/construction_barrel.dae</uri></mesh>
+            <mesh>
+              <uri>model://construction_barrel/meshes/construction_barrel.dae</uri>
+              <scale>0.5853 0.5853 0.6506</scale>
+            </mesh>
           </geometry>
         </visual>
       </link>
     </model>
 
     <model name='Construction Barrel_9'>
-      <pose>-4 -19 0.5 0 -0 0</pose>
+      <pose>-4.22 -18.94 0 0 -0 0</pose>
       <link name='link'>
         <inertial>
-          <pose>0 0 0.4 0 -0 0</pose>
-          <mass>500</mass>
+          <pose>0 0 0.5042 0 -0 0</pose>
+          <mass>3.629</mass>
           <inertia>
-            <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
+            <ixx>0.3883</ixx> <iyy>0.3883</iyy> <izz>0.1616</izz>
           </inertia>
         </inertial>
         <velocity_decay>
@@ -316,9 +334,9 @@
           <angular>0.2</angular>
         </velocity_decay>
         <collision name='collision'>
-          <pose>0 0 0.5 0 -0 0</pose>
+          <pose>0 0 0.5042 0 -0 0</pose>
           <geometry>
-            <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
+            <cylinder><radius>0.2984</radius><length>1.0084</length></cylinder>
           </geometry>
           <surface>
             <friction>
@@ -331,20 +349,23 @@
         </collision>
         <visual name='visual'>
           <geometry>
-            <mesh><uri>model://construction_barrel/meshes/construction_barrel.dae</uri></mesh>
+            <mesh>
+              <uri>model://construction_barrel/meshes/construction_barrel.dae</uri>
+              <scale>0.5853 0.5853 0.6506</scale>
+            </mesh>
           </geometry>
         </visual>
       </link>
     </model>
 
     <model name='Construction Barrel_11'>
-      <pose>9.75 -20 0.5 0 -0 0</pose>
+      <pose>9.60 -20.13 0 0 -0 0</pose>
       <link name='link'>
         <inertial>
-          <pose>0 0 0.4 0 -0 0</pose>
-          <mass>500</mass>
+          <pose>0 0 0.5042 0 -0 0</pose>
+          <mass>3.629</mass>
           <inertia>
-            <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
+            <ixx>0.3883</ixx> <iyy>0.3883</iyy> <izz>0.1616</izz>
           </inertia>
         </inertial>
         <velocity_decay>
@@ -352,9 +373,9 @@
           <angular>0.2</angular>
         </velocity_decay>
         <collision name='collision'>
-          <pose>0 0 0.5 0 -0 0</pose>
+          <pose>0 0 0.5042 0 -0 0</pose>
           <geometry>
-            <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
+            <cylinder><radius>0.2984</radius><length>1.0084</length></cylinder>
           </geometry>
           <surface>
             <friction>
@@ -367,20 +388,23 @@
         </collision>
         <visual name='visual'>
           <geometry>
-            <mesh><uri>model://construction_barrel/meshes/construction_barrel.dae</uri></mesh>
+            <mesh>
+              <uri>model://construction_barrel/meshes/construction_barrel.dae</uri>
+              <scale>0.5853 0.5853 0.6506</scale>
+            </mesh>
           </geometry>
         </visual>
       </link>
     </model>
 
     <model name='Construction Barrel_12'>
-      <pose>15.25 -22 0.5 0 -0 0</pose>
+      <pose>15.29 -21.91 0 0 -0 0</pose>
       <link name='link'>
         <inertial>
-          <pose>0 0 0.4 0 -0 0</pose>
-          <mass>500</mass>
+          <pose>0 0 0.5042 0 -0 0</pose>
+          <mass>3.629</mass>
           <inertia>
-            <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
+            <ixx>0.3883</ixx> <iyy>0.3883</iyy> <izz>0.1616</izz>
           </inertia>
         </inertial>
         <velocity_decay>
@@ -388,9 +412,9 @@
           <angular>0.2</angular>
         </velocity_decay>
         <collision name='collision'>
-          <pose>0 0 0.5 0 -0 0</pose>
+          <pose>0 0 0.5042 0 -0 0</pose>
           <geometry>
-            <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
+            <cylinder><radius>0.2984</radius><length>1.0084</length></cylinder>
           </geometry>
           <surface>
             <friction>
@@ -403,20 +427,23 @@
         </collision>
         <visual name='visual'>
           <geometry>
-            <mesh><uri>model://construction_barrel/meshes/construction_barrel.dae</uri></mesh>
+            <mesh>
+              <uri>model://construction_barrel/meshes/construction_barrel.dae</uri>
+              <scale>0.5853 0.5853 0.6506</scale>
+            </mesh>
           </geometry>
         </visual>
       </link>
     </model>
 
     <model name='Construction Barrel_13'>
-      <pose>19.75 -18.75 0.5 0 -0 0</pose>
+      <pose>19.89 -18.68 0 0 -0 0</pose>
       <link name='link'>
         <inertial>
-          <pose>0 0 0.4 0 -0 0</pose>
-          <mass>500</mass>
+          <pose>0 0 0.5042 0 -0 0</pose>
+          <mass>3.629</mass>
           <inertia>
-            <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
+            <ixx>0.3883</ixx> <iyy>0.3883</iyy> <izz>0.1616</izz>
           </inertia>
         </inertial>
         <velocity_decay>
@@ -424,9 +451,9 @@
           <angular>0.2</angular>
         </velocity_decay>
         <collision name='collision'>
-          <pose>0 0 0.5 0 -0 0</pose>
+          <pose>0 0 0.5042 0 -0 0</pose>
           <geometry>
-            <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
+            <cylinder><radius>0.2984</radius><length>1.0084</length></cylinder>
           </geometry>
           <surface>
             <friction>
@@ -439,20 +466,23 @@
         </collision>
         <visual name='visual'>
           <geometry>
-            <mesh><uri>model://construction_barrel/meshes/construction_barrel.dae</uri></mesh>
+            <mesh>
+              <uri>model://construction_barrel/meshes/construction_barrel.dae</uri>
+              <scale>0.5853 0.5853 0.6506</scale>
+            </mesh>
           </geometry>
         </visual>
       </link>
     </model>
 
     <model name='Construction Barrel_14'>
-      <pose>16.5 -13.5 0.5 0 -0 0</pose>
+      <pose>16.57 -13.47 0 0 -0 0</pose>
       <link name='link'>
         <inertial>
-          <pose>0 0 0.4 0 -0 0</pose>
-          <mass>500</mass>
+          <pose>0 0 0.5042 0 -0 0</pose>
+          <mass>3.629</mass>
           <inertia>
-            <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
+            <ixx>0.3883</ixx> <iyy>0.3883</iyy> <izz>0.1616</izz>
           </inertia>
         </inertial>
         <velocity_decay>
@@ -460,9 +490,9 @@
           <angular>0.2</angular>
         </velocity_decay>
         <collision name='collision'>
-          <pose>0 0 0.5 0 -0 0</pose>
+          <pose>0 0 0.5042 0 -0 0</pose>
           <geometry>
-            <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
+            <cylinder><radius>0.2984</radius><length>1.0084</length></cylinder>
           </geometry>
           <surface>
             <friction>
@@ -475,20 +505,23 @@
         </collision>
         <visual name='visual'>
           <geometry>
-            <mesh><uri>model://construction_barrel/meshes/construction_barrel.dae</uri></mesh>
+            <mesh>
+              <uri>model://construction_barrel/meshes/construction_barrel.dae</uri>
+              <scale>0.5853 0.5853 0.6506</scale>
+            </mesh>
           </geometry>
         </visual>
       </link>
     </model>
 
     <model name='Construction Barrel_15'>
-      <pose>23 -9.5 0.5 0 -0 0</pose>
+      <pose>22.84 -9.42 0 0 -0 0</pose>
       <link name='link'>
         <inertial>
-          <pose>0 0 0.4 0 -0 0</pose>
-          <mass>500</mass>
+          <pose>0 0 0.5042 0 -0 0</pose>
+          <mass>3.629</mass>
           <inertia>
-            <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
+            <ixx>0.3883</ixx> <iyy>0.3883</iyy> <izz>0.1616</izz>
           </inertia>
         </inertial>
         <velocity_decay>
@@ -496,9 +529,9 @@
           <angular>0.2</angular>
         </velocity_decay>
         <collision name='collision'>
-          <pose>0 0 0.5 0 -0 0</pose>
+          <pose>0 0 0.5042 0 -0 0</pose>
           <geometry>
-            <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
+            <cylinder><radius>0.2984</radius><length>1.0084</length></cylinder>
           </geometry>
           <surface>
             <friction>
@@ -511,20 +544,23 @@
         </collision>
         <visual name='visual'>
           <geometry>
-            <mesh><uri>model://construction_barrel/meshes/construction_barrel.dae</uri></mesh>
+            <mesh>
+              <uri>model://construction_barrel/meshes/construction_barrel.dae</uri>
+              <scale>0.5853 0.5853 0.6506</scale>
+            </mesh>
           </geometry>
         </visual>
       </link>
     </model>
 
     <model name='Construction Barrel_16'>
-      <pose>17.25 -6.5 0.5 0 -0 0</pose>
+      <pose>17.24 -6.33 0 0 -0 0</pose>
       <link name='link'>
         <inertial>
-          <pose>0 0 0.4 0 -0 0</pose>
-          <mass>500</mass>
+          <pose>0 0 0.5042 0 -0 0</pose>
+          <mass>3.629</mass>
           <inertia>
-            <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
+            <ixx>0.3883</ixx> <iyy>0.3883</iyy> <izz>0.1616</izz>
           </inertia>
         </inertial>
         <velocity_decay>
@@ -532,9 +568,9 @@
           <angular>0.2</angular>
         </velocity_decay>
         <collision name='collision'>
-          <pose>0 0 0.5 0 -0 0</pose>
+          <pose>0 0 0.5042 0 -0 0</pose>
           <geometry>
-            <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
+            <cylinder><radius>0.2984</radius><length>1.0084</length></cylinder>
           </geometry>
           <surface>
             <friction>
@@ -547,20 +583,23 @@
         </collision>
         <visual name='visual'>
           <geometry>
-            <mesh><uri>model://construction_barrel/meshes/construction_barrel.dae</uri></mesh>
+            <mesh>
+              <uri>model://construction_barrel/meshes/construction_barrel.dae</uri>
+              <scale>0.5853 0.5853 0.6506</scale>
+            </mesh>
           </geometry>
         </visual>
       </link>
     </model>
 
     <model name='Construction Barrel_17'>
-      <pose>22.5 -7 0.5 0 -0 0</pose>
+      <pose>22.54 -6.97 0 0 -0 0</pose>
       <link name='link'>
         <inertial>
-          <pose>0 0 0.4 0 -0 0</pose>
-          <mass>500</mass>
+          <pose>0 0 0.5042 0 -0 0</pose>
+          <mass>3.629</mass>
           <inertia>
-            <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
+            <ixx>0.3883</ixx> <iyy>0.3883</iyy> <izz>0.1616</izz>
           </inertia>
         </inertial>
         <velocity_decay>
@@ -568,9 +607,9 @@
           <angular>0.2</angular>
         </velocity_decay>
         <collision name='collision'>
-          <pose>0 0 0.5 0 -0 0</pose>
+          <pose>0 0 0.5042 0 -0 0</pose>
           <geometry>
-            <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
+            <cylinder><radius>0.2984</radius><length>1.0084</length></cylinder>
           </geometry>
           <surface>
             <friction>
@@ -583,20 +622,23 @@
         </collision>
         <visual name='visual'>
           <geometry>
-            <mesh><uri>model://construction_barrel/meshes/construction_barrel.dae</uri></mesh>
+            <mesh>
+              <uri>model://construction_barrel/meshes/construction_barrel.dae</uri>
+              <scale>0.5853 0.5853 0.6506</scale>
+            </mesh>
           </geometry>
         </visual>
       </link>
     </model>
 
     <model name='Construction Barrel_18'>
-      <pose>22.5 -3 0.5 0 -0 0</pose>
+      <pose>22.51 -3.03 0 0 -0 0</pose>
       <link name='link'>
         <inertial>
-          <pose>0 0 0.4 0 -0 0</pose>
-          <mass>500</mass>
+          <pose>0 0 0.5042 0 -0 0</pose>
+          <mass>3.629</mass>
           <inertia>
-            <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
+            <ixx>0.3883</ixx> <iyy>0.3883</iyy> <izz>0.1616</izz>
           </inertia>
         </inertial>
         <velocity_decay>
@@ -604,9 +646,9 @@
           <angular>0.2</angular>
         </velocity_decay>
         <collision name='collision'>
-          <pose>0 0 0.5 0 -0 0</pose>
+          <pose>0 0 0.5042 0 -0 0</pose>
           <geometry>
-            <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
+            <cylinder><radius>0.2984</radius><length>1.0084</length></cylinder>
           </geometry>
           <surface>
             <friction>
@@ -619,20 +661,23 @@
         </collision>
         <visual name='visual'>
           <geometry>
-            <mesh><uri>model://construction_barrel/meshes/construction_barrel.dae</uri></mesh>
+            <mesh>
+              <uri>model://construction_barrel/meshes/construction_barrel.dae</uri>
+              <scale>0.5853 0.5853 0.6506</scale>
+            </mesh>
           </geometry>
         </visual>
       </link>
     </model>
 
     <model name='Construction Barrel_19'>
-      <pose>21.5 1.25 0.5 0 -0 0</pose>
+      <pose>21.47 1.28 0 0 -0 0</pose>
       <link name='link'>
         <inertial>
-          <pose>0 0 0.4 0 -0 0</pose>
-          <mass>500</mass>
+          <pose>0 0 0.5042 0 -0 0</pose>
+          <mass>3.629</mass>
           <inertia>
-            <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
+            <ixx>0.3883</ixx> <iyy>0.3883</iyy> <izz>0.1616</izz>
           </inertia>
         </inertial>
         <velocity_decay>
@@ -640,9 +685,9 @@
           <angular>0.2</angular>
         </velocity_decay>
         <collision name='collision'>
-          <pose>0 0 0.5 0 -0 0</pose>
+          <pose>0 0 0.5042 0 -0 0</pose>
           <geometry>
-            <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
+            <cylinder><radius>0.2984</radius><length>1.0084</length></cylinder>
           </geometry>
           <surface>
             <friction>
@@ -655,20 +700,23 @@
         </collision>
         <visual name='visual'>
           <geometry>
-            <mesh><uri>model://construction_barrel/meshes/construction_barrel.dae</uri></mesh>
+            <mesh>
+              <uri>model://construction_barrel/meshes/construction_barrel.dae</uri>
+              <scale>0.5853 0.5853 0.6506</scale>
+            </mesh>
           </geometry>
         </visual>
       </link>
     </model>
 
     <model name='Construction Barrel_20'>
-      <pose>19.5 1.5 0.5 0 -0 0</pose>
+      <pose>19.47 1.42 0 0 -0 0</pose>
       <link name='link'>
         <inertial>
-          <pose>0 0 0.4 0 -0 0</pose>
-          <mass>500</mass>
+          <pose>0 0 0.5042 0 -0 0</pose>
+          <mass>3.629</mass>
           <inertia>
-            <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
+            <ixx>0.3883</ixx> <iyy>0.3883</iyy> <izz>0.1616</izz>
           </inertia>
         </inertial>
         <velocity_decay>
@@ -676,9 +724,9 @@
           <angular>0.2</angular>
         </velocity_decay>
         <collision name='collision'>
-          <pose>0 0 0.5 0 -0 0</pose>
+          <pose>0 0 0.5042 0 -0 0</pose>
           <geometry>
-            <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
+            <cylinder><radius>0.2984</radius><length>1.0084</length></cylinder>
           </geometry>
           <surface>
             <friction>
@@ -691,20 +739,23 @@
         </collision>
         <visual name='visual'>
           <geometry>
-            <mesh><uri>model://construction_barrel/meshes/construction_barrel.dae</uri></mesh>
+            <mesh>
+              <uri>model://construction_barrel/meshes/construction_barrel.dae</uri>
+              <scale>0.5853 0.5853 0.6506</scale>
+            </mesh>
           </geometry>
         </visual>
       </link>
     </model>
 
     <model name='Construction Barrel_21'>
-      <pose>21.75 5 0.5 0 -0 0</pose>
+      <pose>21.75 4.97 0 0 -0 0</pose>
       <link name='link'>
         <inertial>
-          <pose>0 0 0.4 0 -0 0</pose>
-          <mass>500</mass>
+          <pose>0 0 0.5042 0 -0 0</pose>
+          <mass>3.629</mass>
           <inertia>
-            <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
+            <ixx>0.3883</ixx> <iyy>0.3883</iyy> <izz>0.1616</izz>
           </inertia>
         </inertial>
         <velocity_decay>
@@ -712,9 +763,9 @@
           <angular>0.2</angular>
         </velocity_decay>
         <collision name='collision'>
-          <pose>0 0 0.5 0 -0 0</pose>
+          <pose>0 0 0.5042 0 -0 0</pose>
           <geometry>
-            <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
+            <cylinder><radius>0.2984</radius><length>1.0084</length></cylinder>
           </geometry>
           <surface>
             <friction>
@@ -727,20 +778,23 @@
         </collision>
         <visual name='visual'>
           <geometry>
-            <mesh><uri>model://construction_barrel/meshes/construction_barrel.dae</uri></mesh>
+            <mesh>
+              <uri>model://construction_barrel/meshes/construction_barrel.dae</uri>
+              <scale>0.5853 0.5853 0.6506</scale>
+            </mesh>
           </geometry>
         </visual>
       </link>
     </model>
 
     <model name='Construction Barrel_22'>
-      <pose>21.25 12.25 0.5 0 -0 0</pose>
+      <pose>21.21 12.27 0 0 -0 0</pose>
       <link name='link'>
         <inertial>
-          <pose>0 0 0.4 0 -0 0</pose>
-          <mass>500</mass>
+          <pose>0 0 0.5042 0 -0 0</pose>
+          <mass>3.629</mass>
           <inertia>
-            <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
+            <ixx>0.3883</ixx> <iyy>0.3883</iyy> <izz>0.1616</izz>
           </inertia>
         </inertial>
         <velocity_decay>
@@ -748,9 +802,9 @@
           <angular>0.2</angular>
         </velocity_decay>
         <collision name='collision'>
-          <pose>0 0 0.5 0 -0 0</pose>
+          <pose>0 0 0.5042 0 -0 0</pose>
           <geometry>
-            <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
+            <cylinder><radius>0.2984</radius><length>1.0084</length></cylinder>
           </geometry>
           <surface>
             <friction>
@@ -763,20 +817,23 @@
         </collision>
         <visual name='visual'>
           <geometry>
-            <mesh><uri>model://construction_barrel/meshes/construction_barrel.dae</uri></mesh>
+            <mesh>
+              <uri>model://construction_barrel/meshes/construction_barrel.dae</uri>
+              <scale>0.5853 0.5853 0.6506</scale>
+            </mesh>
           </geometry>
         </visual>
       </link>
     </model>
 
     <model name='Construction Barrel_23'>
-      <pose>16.25 7.5 0.5 0 -0 0</pose>
+      <pose>16.28 7.45 0 0 -0 0</pose>
       <link name='link'>
         <inertial>
-          <pose>0 0 0.4 0 -0 0</pose>
-          <mass>500</mass>
+          <pose>0 0 0.5042 0 -0 0</pose>
+          <mass>3.629</mass>
           <inertia>
-            <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
+            <ixx>0.3883</ixx> <iyy>0.3883</iyy> <izz>0.1616</izz>
           </inertia>
         </inertial>
         <velocity_decay>
@@ -784,9 +841,9 @@
           <angular>0.2</angular>
         </velocity_decay>
         <collision name='collision'>
-          <pose>0 0 0.5 0 -0 0</pose>
+          <pose>0 0 0.5042 0 -0 0</pose>
           <geometry>
-            <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
+            <cylinder><radius>0.2984</radius><length>1.0084</length></cylinder>
           </geometry>
           <surface>
             <friction>
@@ -799,20 +856,23 @@
         </collision>
         <visual name='visual'>
           <geometry>
-            <mesh><uri>model://construction_barrel/meshes/construction_barrel.dae</uri></mesh>
+            <mesh>
+              <uri>model://construction_barrel/meshes/construction_barrel.dae</uri>
+              <scale>0.5853 0.5853 0.6506</scale>
+            </mesh>
           </geometry>
         </visual>
       </link>
     </model>
 
     <model name='Construction Barrel_24'>
-      <pose>20.25 15.25 0.5 0 -0 0</pose>
+      <pose>20.30 15.12 0 0 -0 0</pose>
       <link name='link'>
         <inertial>
-          <pose>0 0 0.4 0 -0 0</pose>
-          <mass>500</mass>
+          <pose>0 0 0.5042 0 -0 0</pose>
+          <mass>3.629</mass>
           <inertia>
-            <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
+            <ixx>0.3883</ixx> <iyy>0.3883</iyy> <izz>0.1616</izz>
           </inertia>
         </inertial>
         <velocity_decay>
@@ -820,9 +880,9 @@
           <angular>0.2</angular>
         </velocity_decay>
         <collision name='collision'>
-          <pose>0 0 0.5 0 -0 0</pose>
+          <pose>0 0 0.5042 0 -0 0</pose>
           <geometry>
-            <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
+            <cylinder><radius>0.2984</radius><length>1.0084</length></cylinder>
           </geometry>
           <surface>
             <friction>
@@ -835,20 +895,23 @@
         </collision>
         <visual name='visual'>
           <geometry>
-            <mesh><uri>model://construction_barrel/meshes/construction_barrel.dae</uri></mesh>
+            <mesh>
+              <uri>model://construction_barrel/meshes/construction_barrel.dae</uri>
+              <scale>0.5853 0.5853 0.6506</scale>
+            </mesh>
           </geometry>
         </visual>
       </link>
     </model>
 
     <model name='Construction Barrel_25'>
-      <pose>15.75 14.5 0.5 0 -0 0</pose>
+      <pose>15.74 14.56 0 0 -0 0</pose>
       <link name='link'>
         <inertial>
-          <pose>0 0 0.4 0 -0 0</pose>
-          <mass>500</mass>
+          <pose>0 0 0.5042 0 -0 0</pose>
+          <mass>3.629</mass>
           <inertia>
-            <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
+            <ixx>0.3883</ixx> <iyy>0.3883</iyy> <izz>0.1616</izz>
           </inertia>
         </inertial>
         <velocity_decay>
@@ -856,9 +919,9 @@
           <angular>0.2</angular>
         </velocity_decay>
         <collision name='collision'>
-          <pose>0 0 0.5 0 -0 0</pose>
+          <pose>0 0 0.5042 0 -0 0</pose>
           <geometry>
-            <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
+            <cylinder><radius>0.2984</radius><length>1.0084</length></cylinder>
           </geometry>
           <surface>
             <friction>
@@ -871,20 +934,23 @@
         </collision>
         <visual name='visual'>
           <geometry>
-            <mesh><uri>model://construction_barrel/meshes/construction_barrel.dae</uri></mesh>
+            <mesh>
+              <uri>model://construction_barrel/meshes/construction_barrel.dae</uri>
+              <scale>0.5853 0.5853 0.6506</scale>
+            </mesh>
           </geometry>
         </visual>
       </link>
     </model>
 
     <model name='Construction Barrel_26'>
-      <pose>14.75 21 0.5 0 -0 0</pose>
+      <pose>12.96 23.33 0 0 -0 0</pose>
       <link name='link'>
         <inertial>
-          <pose>0 0 0.4 0 -0 0</pose>
-          <mass>500</mass>
+          <pose>0 0 0.5042 0 -0 0</pose>
+          <mass>3.629</mass>
           <inertia>
-            <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
+            <ixx>0.3883</ixx> <iyy>0.3883</iyy> <izz>0.1616</izz>
           </inertia>
         </inertial>
         <velocity_decay>
@@ -892,9 +958,9 @@
           <angular>0.2</angular>
         </velocity_decay>
         <collision name='collision'>
-          <pose>0 0 0.5 0 -0 0</pose>
+          <pose>0 0 0.5042 0 -0 0</pose>
           <geometry>
-            <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
+            <cylinder><radius>0.2984</radius><length>1.0084</length></cylinder>
           </geometry>
           <surface>
             <friction>
@@ -907,20 +973,23 @@
         </collision>
         <visual name='visual'>
           <geometry>
-            <mesh><uri>model://construction_barrel/meshes/construction_barrel.dae</uri></mesh>
+            <mesh>
+              <uri>model://construction_barrel/meshes/construction_barrel.dae</uri>
+              <scale>0.5853 0.5853 0.6506</scale>
+            </mesh>
           </geometry>
         </visual>
       </link>
     </model>
 
     <model name='Construction Barrel_28'>
-      <pose>-18.75 17.75 0.5 0 -0 0</pose>
+      <pose>-18.90 17.76 0 0 -0 0</pose>
       <link name='link'>
         <inertial>
-          <pose>0 0 0.4 0 -0 0</pose>
-          <mass>500</mass>
+          <pose>0 0 0.5042 0 -0 0</pose>
+          <mass>3.629</mass>
           <inertia>
-            <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
+            <ixx>0.3883</ixx> <iyy>0.3883</iyy> <izz>0.1616</izz>
           </inertia>
         </inertial>
         <velocity_decay>
@@ -928,9 +997,9 @@
           <angular>0.2</angular>
         </velocity_decay>
         <collision name='collision'>
-          <pose>0 0 0.5 0 -0 0</pose>
+          <pose>0 0 0.5042 0 -0 0</pose>
           <geometry>
-            <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
+            <cylinder><radius>0.2984</radius><length>1.0084</length></cylinder>
           </geometry>
           <surface>
             <friction>
@@ -943,20 +1012,23 @@
         </collision>
         <visual name='visual'>
           <geometry>
-            <mesh><uri>model://construction_barrel/meshes/construction_barrel.dae</uri></mesh>
+            <mesh>
+              <uri>model://construction_barrel/meshes/construction_barrel.dae</uri>
+              <scale>0.5853 0.5853 0.6506</scale>
+            </mesh>
           </geometry>
         </visual>
       </link>
     </model>
 
     <model name='Construction Barrel_29'>
-      <pose>-11.5 20 0.5 0 -0 0</pose>
+      <pose>-11.35 20.18 0 0 -0 0</pose>
       <link name='link'>
         <inertial>
-          <pose>0 0 0.4 0 -0 0</pose>
-          <mass>500</mass>
+          <pose>0 0 0.5042 0 -0 0</pose>
+          <mass>3.629</mass>
           <inertia>
-            <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
+            <ixx>0.3883</ixx> <iyy>0.3883</iyy> <izz>0.1616</izz>
           </inertia>
         </inertial>
         <velocity_decay>
@@ -964,9 +1036,9 @@
           <angular>0.2</angular>
         </velocity_decay>
         <collision name='collision'>
-          <pose>0 0 0.5 0 -0 0</pose>
+          <pose>0 0 0.5042 0 -0 0</pose>
           <geometry>
-            <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
+            <cylinder><radius>0.2984</radius><length>1.0084</length></cylinder>
           </geometry>
           <surface>
             <friction>
@@ -979,20 +1051,23 @@
         </collision>
         <visual name='visual'>
           <geometry>
-            <mesh><uri>model://construction_barrel/meshes/construction_barrel.dae</uri></mesh>
+            <mesh>
+              <uri>model://construction_barrel/meshes/construction_barrel.dae</uri>
+              <scale>0.5853 0.5853 0.6506</scale>
+            </mesh>
           </geometry>
         </visual>
       </link>
     </model>
 
     <model name='Construction Barrel_30'>
-      <pose>-11 21 0.5 0 -0 0</pose>
+      <pose>-11.15 21.18 0 0 -0 0</pose>
       <link name='link'>
         <inertial>
-          <pose>0 0 0.4 0 -0 0</pose>
-          <mass>500</mass>
+          <pose>0 0 0.5042 0 -0 0</pose>
+          <mass>3.629</mass>
           <inertia>
-            <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
+            <ixx>0.3883</ixx> <iyy>0.3883</iyy> <izz>0.1616</izz>
           </inertia>
         </inertial>
         <velocity_decay>
@@ -1000,9 +1075,9 @@
           <angular>0.2</angular>
         </velocity_decay>
         <collision name='collision'>
-          <pose>0 0 0.5 0 -0 0</pose>
+          <pose>0 0 0.5042 0 -0 0</pose>
           <geometry>
-            <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
+            <cylinder><radius>0.2984</radius><length>1.0084</length></cylinder>
           </geometry>
           <surface>
             <friction>
@@ -1015,20 +1090,23 @@
         </collision>
         <visual name='visual'>
           <geometry>
-            <mesh><uri>model://construction_barrel/meshes/construction_barrel.dae</uri></mesh>
+            <mesh>
+              <uri>model://construction_barrel/meshes/construction_barrel.dae</uri>
+              <scale>0.5853 0.5853 0.6506</scale>
+            </mesh>
           </geometry>
         </visual>
       </link>
     </model>
 
     <model name='Construction Barrel_31'>
-      <pose>-8.25 22 0.5 0 -0 0</pose>
+      <pose>-8.33 21.84 0 0 -0 0</pose>
       <link name='link'>
         <inertial>
-          <pose>0 0 0.4 0 -0 0</pose>
-          <mass>500</mass>
+          <pose>0 0 0.5042 0 -0 0</pose>
+          <mass>3.629</mass>
           <inertia>
-            <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
+            <ixx>0.3883</ixx> <iyy>0.3883</iyy> <izz>0.1616</izz>
           </inertia>
         </inertial>
         <velocity_decay>
@@ -1036,9 +1114,9 @@
           <angular>0.2</angular>
         </velocity_decay>
         <collision name='collision'>
-          <pose>0 0 0.5 0 -0 0</pose>
+          <pose>0 0 0.5042 0 -0 0</pose>
           <geometry>
-            <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
+            <cylinder><radius>0.2984</radius><length>1.0084</length></cylinder>
           </geometry>
           <surface>
             <friction>
@@ -1051,20 +1129,23 @@
         </collision>
         <visual name='visual'>
           <geometry>
-            <mesh><uri>model://construction_barrel/meshes/construction_barrel.dae</uri></mesh>
+            <mesh>
+              <uri>model://construction_barrel/meshes/construction_barrel.dae</uri>
+              <scale>0.5853 0.5853 0.6506</scale>
+            </mesh>
           </geometry>
         </visual>
       </link>
     </model>
 
     <model name='Construction Barrel_32'>
-      <pose>1 20 0.5 0 -0 0</pose>
+      <pose>1.06 19.60 0 0 -0 0</pose>
       <link name='link'>
         <inertial>
-          <pose>0 0 0.4 0 -0 0</pose>
-          <mass>500</mass>
+          <pose>0 0 0.5042 0 -0 0</pose>
+          <mass>3.629</mass>
           <inertia>
-            <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
+            <ixx>0.3883</ixx> <iyy>0.3883</iyy> <izz>0.1616</izz>
           </inertia>
         </inertial>
         <velocity_decay>
@@ -1072,9 +1153,9 @@
           <angular>0.2</angular>
         </velocity_decay>
         <collision name='collision'>
-          <pose>0 0 0.5 0 -0 0</pose>
+          <pose>0 0 0.5042 0 -0 0</pose>
           <geometry>
-            <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
+            <cylinder><radius>0.2984</radius><length>1.0084</length></cylinder>
           </geometry>
           <surface>
             <friction>
@@ -1087,20 +1168,23 @@
         </collision>
         <visual name='visual'>
           <geometry>
-            <mesh><uri>model://construction_barrel/meshes/construction_barrel.dae</uri></mesh>
+            <mesh>
+              <uri>model://construction_barrel/meshes/construction_barrel.dae</uri>
+              <scale>0.5853 0.5853 0.6506</scale>
+            </mesh>
           </geometry>
         </visual>
       </link>
     </model>
 
     <model name='Construction Barrel_33'>
-      <pose>-6.75 18.25 0.5 0 -0 0</pose>
+      <pose>-6.82 18.47 0 0 -0 0</pose>
       <link name='link'>
         <inertial>
-          <pose>0 0 0.4 0 -0 0</pose>
-          <mass>500</mass>
+          <pose>0 0 0.5042 0 -0 0</pose>
+          <mass>3.629</mass>
           <inertia>
-            <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
+            <ixx>0.3883</ixx> <iyy>0.3883</iyy> <izz>0.1616</izz>
           </inertia>
         </inertial>
         <velocity_decay>
@@ -1108,9 +1192,9 @@
           <angular>0.2</angular>
         </velocity_decay>
         <collision name='collision'>
-          <pose>0 0 0.5 0 -0 0</pose>
+          <pose>0 0 0.5042 0 -0 0</pose>
           <geometry>
-            <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
+            <cylinder><radius>0.2984</radius><length>1.0084</length></cylinder>
           </geometry>
           <surface>
             <friction>
@@ -1123,20 +1207,23 @@
         </collision>
         <visual name='visual'>
           <geometry>
-            <mesh><uri>model://construction_barrel/meshes/construction_barrel.dae</uri></mesh>
+            <mesh>
+              <uri>model://construction_barrel/meshes/construction_barrel.dae</uri>
+              <scale>0.5853 0.5853 0.6506</scale>
+            </mesh>
           </geometry>
         </visual>
       </link>
     </model>
 
     <model name='Construction Barrel_34'>
-      <pose>-8.3 21.1 0.5 0 -0 0</pose>
+      <pose>-8.52 20.95 0 0 -0 0</pose>
       <link name='link'>
         <inertial>
-          <pose>0 0 0.4 0 -0 0</pose>
-          <mass>500</mass>
+          <pose>0 0 0.5042 0 -0 0</pose>
+          <mass>3.629</mass>
           <inertia>
-            <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
+            <ixx>0.3883</ixx> <iyy>0.3883</iyy> <izz>0.1616</izz>
           </inertia>
         </inertial>
         <velocity_decay>
@@ -1144,9 +1231,9 @@
           <angular>0.2</angular>
         </velocity_decay>
         <collision name='collision'>
-          <pose>0 0 0.5 0 -0 0</pose>
+          <pose>0 0 0.5042 0 -0 0</pose>
           <geometry>
-            <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
+            <cylinder><radius>0.2984</radius><length>1.0084</length></cylinder>
           </geometry>
           <surface>
             <friction>
@@ -1159,20 +1246,23 @@
         </collision>
         <visual name='visual'>
           <geometry>
-            <mesh><uri>model://construction_barrel/meshes/construction_barrel.dae</uri></mesh>
+            <mesh>
+              <uri>model://construction_barrel/meshes/construction_barrel.dae</uri>
+              <scale>0.5853 0.5853 0.6506</scale>
+            </mesh>
           </geometry>
         </visual>
       </link>
     </model>
 
     <model name='Construction Barrel_35'>
-      <pose>-8.75 20.25 0.5 0 -0 0</pose>
+      <pose>-8.77 20.23 0 0 -0 0</pose>
       <link name='link'>
         <inertial>
-          <pose>0 0 0.4 0 -0 0</pose>
-          <mass>500</mass>
+          <pose>0 0 0.5042 0 -0 0</pose>
+          <mass>3.629</mass>
           <inertia>
-            <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
+            <ixx>0.3883</ixx> <iyy>0.3883</iyy> <izz>0.1616</izz>
           </inertia>
         </inertial>
         <velocity_decay>
@@ -1180,9 +1270,9 @@
           <angular>0.2</angular>
         </velocity_decay>
         <collision name='collision'>
-          <pose>0 0 0.5 0 -0 0</pose>
+          <pose>0 0 0.5042 0 -0 0</pose>
           <geometry>
-            <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
+            <cylinder><radius>0.2984</radius><length>1.0084</length></cylinder>
           </geometry>
           <surface>
             <friction>
@@ -1195,20 +1285,23 @@
         </collision>
         <visual name='visual'>
           <geometry>
-            <mesh><uri>model://construction_barrel/meshes/construction_barrel.dae</uri></mesh>
+            <mesh>
+              <uri>model://construction_barrel/meshes/construction_barrel.dae</uri>
+              <scale>0.5853 0.5853 0.6506</scale>
+            </mesh>
           </geometry>
         </visual>
       </link>
     </model>
 
     <model name='Construction Barrel_36'>
-      <pose>-6.75 19.25 0.5 0 -0 0</pose>
+      <pose>-6.75 19.32 0 0 -0 0</pose>
       <link name='link'>
         <inertial>
-          <pose>0 0 0.4 0 -0 0</pose>
-          <mass>500</mass>
+          <pose>0 0 0.5042 0 -0 0</pose>
+          <mass>3.629</mass>
           <inertia>
-            <ixx>51.2096</ixx> <iyy>51.2096</iyy> <izz>25</izz>
+            <ixx>0.3883</ixx> <iyy>0.3883</iyy> <izz>0.1616</izz>
           </inertia>
         </inertial>
         <velocity_decay>
@@ -1216,9 +1309,9 @@
           <angular>0.2</angular>
         </velocity_decay>
         <collision name='collision'>
-          <pose>0 0 0.5 0 -0 0</pose>
+          <pose>0 0 0.5042 0 -0 0</pose>
           <geometry>
-            <cylinder><radius>0.3</radius><length>1.0</length></cylinder>
+            <cylinder><radius>0.2984</radius><length>1.0084</length></cylinder>
           </geometry>
           <surface>
             <friction>
@@ -1231,7 +1324,166 @@
         </collision>
         <visual name='visual'>
           <geometry>
-            <mesh><uri>model://construction_barrel/meshes/construction_barrel.dae</uri></mesh>
+            <mesh>
+              <uri>model://construction_barrel/meshes/construction_barrel.dae</uri>
+              <scale>0.5853 0.5853 0.6506</scale>
+            </mesh>
+          </geometry>
+        </visual>
+      </link>
+    </model>
+
+    <model name='Construction Barrel_37'>
+      <pose>19.57 21.06 0 0 -0 0</pose>
+      <link name='link'>
+        <inertial>
+          <pose>0 0 0.5042 0 -0 0</pose>
+          <mass>3.629</mass>
+          <inertia>
+            <ixx>0.3883</ixx> <iyy>0.3883</iyy> <izz>0.1616</izz>
+          </inertia>
+        </inertial>
+        <velocity_decay>
+          <linear>0.2</linear>
+          <angular>0.2</angular>
+        </velocity_decay>
+        <collision name='collision'>
+          <pose>0 0 0.5042 0 -0 0</pose>
+          <geometry>
+            <cylinder><radius>0.2984</radius><length>1.0084</length></cylinder>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://construction_barrel/meshes/construction_barrel.dae</uri>
+              <scale>0.5853 0.5853 0.6506</scale>
+            </mesh>
+          </geometry>
+        </visual>
+      </link>
+    </model>
+
+    <model name='Construction Barrel_38'>
+      <pose>3.00 -19.00 0 0 -0 0</pose>
+      <link name='link'>
+        <inertial>
+          <pose>0 0 0.5042 0 -0 0</pose>
+          <mass>3.629</mass>
+          <inertia>
+            <ixx>0.3883</ixx> <iyy>0.3883</iyy> <izz>0.1616</izz>
+          </inertia>
+        </inertial>
+        <velocity_decay>
+          <linear>0.2</linear>
+          <angular>0.2</angular>
+        </velocity_decay>
+        <collision name='collision'>
+          <pose>0 0 0.5042 0 -0 0</pose>
+          <geometry>
+            <cylinder><radius>0.2984</radius><length>1.0084</length></cylinder>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://construction_barrel/meshes/construction_barrel.dae</uri>
+              <scale>0.5853 0.5853 0.6506</scale>
+            </mesh>
+          </geometry>
+        </visual>
+      </link>
+    </model>
+
+    <model name='Construction Barrel_39'>
+      <pose>-15.34 -23.28 0 0 -0 0</pose>
+      <link name='link'>
+        <inertial>
+          <pose>0 0 0.5042 0 -0 0</pose>
+          <mass>3.629</mass>
+          <inertia>
+            <ixx>0.3883</ixx> <iyy>0.3883</iyy> <izz>0.1616</izz>
+          </inertia>
+        </inertial>
+        <velocity_decay>
+          <linear>0.2</linear>
+          <angular>0.2</angular>
+        </velocity_decay>
+        <collision name='collision'>
+          <pose>0 0 0.5042 0 -0 0</pose>
+          <geometry>
+            <cylinder><radius>0.2984</radius><length>1.0084</length></cylinder>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://construction_barrel/meshes/construction_barrel.dae</uri>
+              <scale>0.5853 0.5853 0.6506</scale>
+            </mesh>
+          </geometry>
+        </visual>
+      </link>
+    </model>
+
+    <model name='Construction Barrel_40'>
+      <pose>-6.53 -19.37 0 0 -0 0</pose>
+      <link name='link'>
+        <inertial>
+          <pose>0 0 0.5042 0 -0 0</pose>
+          <mass>3.629</mass>
+          <inertia>
+            <ixx>0.3883</ixx> <iyy>0.3883</iyy> <izz>0.1616</izz>
+          </inertia>
+        </inertial>
+        <velocity_decay>
+          <linear>0.2</linear>
+          <angular>0.2</angular>
+        </velocity_decay>
+        <collision name='collision'>
+          <pose>0 0 0.5042 0 -0 0</pose>
+          <geometry>
+            <cylinder><radius>0.2984</radius><length>1.0084</length></cylinder>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://construction_barrel/meshes/construction_barrel.dae</uri>
+              <scale>0.5853 0.5853 0.6506</scale>
+            </mesh>
           </geometry>
         </visual>
       </link>
