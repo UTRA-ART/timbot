@@ -14,11 +14,11 @@ class NavPlanner(Node):
         # Gets all the parameters from config specified in launch file
         self.declare_parameter('configuration.map_update_frequency', 5.0)
         self.declare_parameter('configuration.controller_update_frequency', 20.0)
-        self.declare_parameter('configuration.robot_position_topic', 'odometry/global')
+        self.declare_parameter('configuration.robot_position_topic', '/odometry/global')
         self.declare_parameter('configuration.obstacle_map_topic', '/map')
-        self.declare_parameter('configuration.path_map_topic', 'nav/planned_path')
+        self.declare_parameter('configuration.path_map_topic', '/nav/planned_path')
         self.declare_parameter(
-            'configuration.velocity_output_topic', '/twist_mux/cmd_vel'
+            'configuration.velocity_output_topic', '/nav_vel'
         )
 
         self.declare_parameter('mapping.inflation_radius', 1.0)
@@ -99,7 +99,8 @@ class NavPlanner(Node):
         self.kD = float(self.get_parameter('controller.kD').value)
 
         # Creates variables to store current state
-        # TODO
+        self.occupancy_grid = None
+        self.pose = None
 
         # Creates subscribers
         self.position_subscription = self.create_subscription(
@@ -132,10 +133,11 @@ class NavPlanner(Node):
         )
 
     def obstacle_update_callback(self, msg):
-        pass
+        self.occupancy_grid = msg
+        # Add inflation radius and stuff here before saving it
     
     def position_update_callback(self, msg):
-        pass
+        self.pose = msg
 
 
     def goal_callback(self, goal_request):

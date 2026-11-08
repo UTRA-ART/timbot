@@ -4,8 +4,8 @@ configuration:
   
   robot_position_topic: "/odometry/global" # Specifies the topic providing the rover's current position
   obstacle_map_topic: "/map" # Specifies the topic providing the map used to identify obstacles
-  path_map_topic: "nav/planned_path" # Specifies the topic on which the planner publishes its calculated route
-  velocity_output_topic: "/twist_mux/cmd_vel" # Specifies the topic on which the controller publishes movement commands
+  path_map_topic: "/nav/planned_path" # Specifies the topic on which the planner publishes its calculated route
+  velocity_output_topic: "/nav_vel" # Consumed by nav_autonomous_relay before twist muxing
 
 
 mapping:
@@ -26,4 +26,3 @@ controller:
   kP: 1 # Controls the proportional correction applied to the current tracking error
   kI: 1 # Controls the correction accumulated from past tracking errors
   kD: 1 # Controls the correction based on how quickly the tracking error changes
-

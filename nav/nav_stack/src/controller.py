@@ -13,9 +13,9 @@ class NavController(Node):
         self.declare_parameter('configuration.controller_update_frequency', 20.0)
         self.declare_parameter('configuration.robot_position_topic', '/odometry/global')
         self.declare_parameter('configuration.obstacle_map_topic', '/map')
-        self.declare_parameter('configuration.path_map_topic', 'nav/planned_path')
+        self.declare_parameter('configuration.path_map_topic', '/nav/planned_path')
         self.declare_parameter(
-            'configuration.velocity_output_topic', '/twist_mux/cmd_vel'
+            'configuration.velocity_output_topic', '/nav_vel'
         )
 
         self.declare_parameter('mapping.inflation_radius', 1.0)
@@ -96,13 +96,14 @@ class NavController(Node):
         self.kD = float(self.get_parameter('controller.kD').value)
 
         # Creates variables to store current state
-        # TODO
+        self.path = None
+        self.pose = None
 
         # Creates subscribers
-        self.map_subscription = self.create_subscription(
+        self.path_subscription = self.create_subscription(
             Path,
             self.path_map_topic,
-            self.map_update_callback,
+            self.path_update_callback,
             10)
         self.position_subscription = self.create_subscription(
             Odometry,
@@ -118,11 +119,11 @@ class NavController(Node):
 
         self.timer = self.create_timer(1/self.controller_update_frequency, self.main_loop_callback)
 
-    def map_update_callback(self, msg):
-        pass
+    def path_update_callback(self, msg):
+        self.path = msg
 
     def position_update_callback(self, msg):
-        pass
+        self.pose = msg
 
     def main_loop_callback(self):
         pass

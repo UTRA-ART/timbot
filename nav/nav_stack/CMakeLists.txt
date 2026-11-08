@@ -20,8 +20,10 @@ install(DIRECTORY
   DESTINATION share/${PROJECT_NAME}/
 )
 
-# Install debugging/testing scripts
+# Install Python nodes
 install(PROGRAMS
+  src/planner.py
+  src/controller.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
