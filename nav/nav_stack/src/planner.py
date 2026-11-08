@@ -1,7 +1,6 @@
 import rclpy
 import time
-from nav_msgs.msg import Path
-from geometry_msgs.msg import PoseStamped, Twist
+from nav_msgs.msg import Path, Odometry, OccupancyGrid
 from rclpy.node import Node
 from rclpy.action import ActionServer, CancelResponse, GoalResponse
 from rclpy.callback_groups import ReentrantCallbackGroup
@@ -15,8 +14,7 @@ class NavPlanner(Node):
         # Gets all the parameters from config specified in launch file
         self.declare_parameter('configuration.map_update_frequency', 5.0)
         self.declare_parameter('configuration.controller_update_frequency', 20.0)
-        self.declare_parameter('configuration.robot_position_topic', '/tracked_pose')
-        self.declare_parameter('configuration.robot_velocity_topic', '/odometry/local')
+        self.declare_parameter('configuration.robot_position_topic', 'odometry/global')
         self.declare_parameter('configuration.obstacle_map_topic', '/map')
         self.declare_parameter('configuration.path_map_topic', 'nav/planned_path')
         self.declare_parameter(
@@ -51,9 +49,6 @@ class NavPlanner(Node):
         )
         self.robot_position_topic = self.get_parameter(
             'configuration.robot_position_topic'
-        ).value
-        self.robot_velocity_topic = self.get_parameter(
-            'configuration.robot_velocity_topic'
         ).value
         self.obstacle_map_topic = self.get_parameter(
             'configuration.obstacle_map_topic'
@@ -108,17 +103,12 @@ class NavPlanner(Node):
 
         # Creates subscribers
         self.position_subscription = self.create_subscription(
-            PoseStamped,
+            Odometry,
             self.robot_position_topic,
             self.position_update_callback,
             10)
-        self.velocity_subscription = self.create_subscription(
-            PoseStamped,
-            self.robot_velocity_topic,
-            self.velocity_update_callback,
-            10)
         self.obstacle_subscription = self.create_subscription(
-            PoseStamped,
+            OccupancyGrid,
             self.obstacle_map_topic,
             self.obstacle_update_callback,
             10)
@@ -145,9 +135,6 @@ class NavPlanner(Node):
         pass
     
     def position_update_callback(self, msg):
-        pass
-
-    def velocity_update_callback(self, msg):
         pass
 
 

@@ -2,8 +2,7 @@ configuration:
   map_update_frequency: 5.0 # (Hz) Sets how often the obstacle map is refreshed with new sensor data
   controller_update_frequency: 20.0 # (Hz) Sets how often the controller calculates and publishes new velocity commands
   
-  robot_position_topic: "/tracked_pose" # Specifies the topic providing the rover's current position
-  robot_velocity_topic: "/odometry/local" # Specifies the topic providing the rover's measured movement velocity
+  robot_position_topic: "/odometry/global" # Specifies the topic providing the rover's current position
   obstacle_map_topic: "/map" # Specifies the topic providing the map used to identify obstacles
   path_map_topic: "nav/planned_path" # Specifies the topic on which the planner publishes its calculated route
   velocity_output_topic: "/twist_mux/cmd_vel" # Specifies the topic on which the controller publishes movement commands
