@@ -127,7 +127,6 @@ class NavController(Node):
 
         self.timer = self.create_timer(1/self.controller_update_frequency, self.main_loop_callback)
 
-    # TO ADD HERE
     def map_update_callback(self, msg):
         pass
 
