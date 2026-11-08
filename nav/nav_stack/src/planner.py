@@ -5,6 +5,10 @@ from rclpy.node import Node
 class NavPlanner(Node):
     def __init__(self):
         super().__init__('nav_planner')
+
+        # Gets all the parameters from config specified in launch file
+        
+
         # TO ADD HERE
 
     # TO ADD HERE
