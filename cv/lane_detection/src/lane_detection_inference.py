@@ -34,6 +34,7 @@ class CVModelInferencer(Node):
         self.pub_raw = self.create_publisher(Image, 'cv/model_output', 10) # Export lane detection debug image
 
         self.bridge = CvBridge()
+        self.last_cloud_stamp_ns = 0
 
         share_dir = get_package_share_directory('lane_detection')
         self.model_path = os.path.join(share_dir, 'models', 'best_model_int8.pt')
@@ -148,6 +149,13 @@ class CVModelInferencer(Node):
         if self.fx is None:
             self.get_logger().warn("No camera intrinsics yet, skipping frame", throttle_duration_sec=5.0)
             return
+
+        # Ignore and warn about out of order timestamps
+        stamp_ns = rgb_data.header.stamp.sec * 1000000000 + rgb_data.header.stamp.nanosec
+        if stamp_ns <= self.last_cloud_stamp_ns:
+            self.get_logger().warn("Dropping out-of-order frame (stamp not newer than last published)", throttle_duration_sec=5.0)
+            return
+        self.last_cloud_stamp_ns = stamp_ns
 
         raw = self.bridge.imgmsg_to_cv2(rgb_data, desired_encoding='bgr8')
         if raw is None:
