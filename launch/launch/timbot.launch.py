@@ -42,6 +42,8 @@ def launch_gazebo(config: dict, sim: bool, context: LaunchContext) -> list:
     gui = str(gazebo_cfg.get('gui', True)).lower()
     world_file = str(gazebo_cfg.get('world_file', 'track.world'))
     log_level = gazebo_cfg.get('log_level', 'info')
+    # '1' = CPU rendering (LIBGL_ALWAYS_SOFTWARE=1), '0' = GPU
+    software_rendering = str(gazebo_cfg.get('software_rendering', '1'))
 
     gazebo_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([
@@ -52,6 +54,7 @@ def launch_gazebo(config: dict, sim: bool, context: LaunchContext) -> list:
             'gui': gui,
             'world_file': world_file,
             'log_level': log_level,
+            'software_rendering': software_rendering,
         }.items()
     )
     return [gazebo_launch]
