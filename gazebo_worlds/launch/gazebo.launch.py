@@ -50,9 +50,11 @@ def _setup_gazebo(context: LaunchContext):
     env['LIBGL_ALWAYS_SOFTWARE'] = context.launch_configurations.get('software_rendering', '1')
     env['IGN_RENDERING_RESOURCE_PATH'] = _patched_rendering_media(pkg_share)
 
-    # Full GUI. The GUI defaults to ogre2, which crashes on WSL's GPU driver.
+    # Full GUI. ogre2 crashes on WSL's GPU driver, so use ogre there; under
+    # software rendering ogre randomly drops visuals, so use ogre2.
+    gui_engine = 'ogre2' if env['LIBGL_ALWAYS_SOFTWARE'] == '1' else 'ogre'
     gazebo_gui = ExecuteProcess(
-        cmd=['ign', 'gazebo', 'sim', '-r', '--render-engine-gui', 'ogre', world_file],
+        cmd=['ign', 'gazebo', 'sim', '-r', '--render-engine-gui', gui_engine, world_file],
         output='screen',
         env=env,
         on_exit=Shutdown(),
