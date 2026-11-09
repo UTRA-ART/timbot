@@ -1,5 +1,8 @@
 import rclpy
 import time
+import numpy as np
+from scipy import ndimage
+from math import ceil
 from nav_msgs.msg import Path, Odometry, OccupancyGrid
 from rclpy.node import Node
 from rclpy.action import ActionServer, CancelResponse, GoalResponse
@@ -22,6 +25,9 @@ class NavPlanner(Node):
         )
 
         self.declare_parameter('mapping.inflation_radius', 1.0)
+        self.declare_parameter('mapping.inflation_linear', False)
+        self.declare_parameter('mapping.inflation_max', 100)
+        self.declare_parameter('mapping.inflation_min', 20)
         self.declare_parameter('mapping.robot_radius', 1.0)
         self.declare_parameter('mapping.map_resolution', 1.0)
 
@@ -63,6 +69,15 @@ class NavPlanner(Node):
         self.inflation_radius = float(
             self.get_parameter('mapping.inflation_radius').value
         )
+        self.inflation_linear = bool(
+            self.get_parameter('mapping.inflation_linear').value
+        )
+        self.inflation_max = int(
+            self.get_parameter('mapping.inflation_max').value
+        )
+        self.inflation_min = int(
+            self.get_parameter('mapping.inflation_min').value
+        )
         self.robot_radius = float(self.get_parameter('mapping.robot_radius').value)
         self.map_resolution = float(
             self.get_parameter('mapping.map_resolution').value
@@ -101,6 +116,7 @@ class NavPlanner(Node):
         # Creates variables to store current state
         self.occupancy_grid = None
         self.pose = None
+        self.goal = None
 
         # Creates subscribers
         self.position_subscription = self.create_subscription(
@@ -133,8 +149,74 @@ class NavPlanner(Node):
         )
 
     def obstacle_update_callback(self, msg):
-        self.occupancy_grid = msg
-        # Add inflation radius and stuff here before saving it
+        # Fixing resolution
+        new_res = self.map_resolution
+        old_res = msg.info.resolution
+        old_w = msg.info.width
+        old_h = msg.info.height
+        
+        original_grid = np.array(msg.data, dtype=np.int8).reshape((old_h, old_w))
+        if old_res != new_res:
+            scale_factor = old_res / new_res
+            inflated_grid = ndimage.zoom(original_grid, scale_factor, order=0, prefilter=False)
+        else:
+            inflated_grid = original_grid.copy()
+        new_h, new_w = inflated_grid.shape
+
+        # Create masks for the two inflations
+        obstacles_mask = (inflated_grid >= 100)
+        lethal_cells = int(ceil(self.robot_radius / new_res))
+        soft_cells = int(ceil(self.inflation_radius / new_res))
+
+        # Adding No-Go zone based on robot radius
+        y, x = np.ogrid[-lethal_cells:lethal_cells+1, -lethal_cells:lethal_cells+1]
+        lethal_kernel = (x**2 + y**2 <= lethal_cells**2)
+        lethal_zone = ndimage.binary_dilation(obstacles_mask, structure=lethal_kernel)
+
+        # Adding discouragement based on inflation radius
+        total_radius_cells = lethal_cells + soft_cells
+        y_soft, x_soft = np.ogrid[-total_radius_cells:total_radius_cells+1, -total_radius_cells:total_radius_cells+1]
+        soft_kernel = (x_soft**2 + y_soft**2 <= total_radius_cells**2)
+        soft_zone = ndimage.binary_dilation(obstacles_mask, structure=soft_kernel)
+
+        # Make changes into the grid
+        free_space_mask = (inflated_grid >= 0) & (inflated_grid < 100)
+        distance_from_obstacle = ndimage.distance_transform_edt(
+            ~obstacles_mask,
+            sampling=new_res,
+        )
+        distance_fraction = np.clip(
+            (distance_from_obstacle - self.robot_radius)
+            / self.inflation_radius,
+            0.0,
+            1.0,
+        )
+
+        if not self.inflation_linear:
+            distance_fraction = 0
+
+        inflation_values = np.rint(
+            self.inflation_max
+            + (self.inflation_min - self.inflation_max) * distance_fraction
+        ).astype(np.int8)
+
+        inflated_grid[soft_zone & free_space_mask] = inflation_values[
+            soft_zone & free_space_mask
+        ]
+
+        inflated_grid[lethal_zone & free_space_mask] = 100
+
+        # Creating OccupancyGrid object
+        new_msg = OccupancyGrid()
+        new_msg.header = msg.header
+        new_msg.info.map_load_time = msg.info.map_load_time
+        new_msg.info.resolution = new_res
+        new_msg.info.width = new_w
+        new_msg.info.height = new_h
+        new_msg.info.origin = msg.info.origin
+        new_msg.data = inflated_grid.flatten().tolist()
+
+        self.occupancy_grid = new_msg
     
     def position_update_callback(self, msg):
         self.pose = msg
@@ -146,6 +228,7 @@ class NavPlanner(Node):
                                f'({goal_request.pose.pose.position.x:.2f}, '
                                f'{goal_request.pose.pose.position.y:.2f})')
         # Accept the goal. This triggers the client's `_current_goal_handle.accepted` logic.
+        self.goal = goal_request.pose.pose
         return GoalResponse.ACCEPT
     
     def cancel_callback(self, goal_handle):

@@ -19,6 +19,9 @@ class NavController(Node):
         )
 
         self.declare_parameter('mapping.inflation_radius', 1.0)
+        self.declare_parameter('mapping.inflation_linear', False)
+        self.declare_parameter('mapping.inflation_max', 100)
+        self.declare_parameter('mapping.inflation_min', 20)
         self.declare_parameter('mapping.robot_radius', 1.0)
         self.declare_parameter('mapping.map_resolution', 1.0)
 
@@ -59,6 +62,15 @@ class NavController(Node):
 
         self.inflation_radius = float(
             self.get_parameter('mapping.inflation_radius').value
+        )
+        self.inflation_linear = bool(
+            self.get_parameter('mapping.inflation_linear').value
+        )
+        self.inflation_max = int(
+            self.get_parameter('mapping.inflation_max').value
+        )
+        self.inflation_min = int(
+            self.get_parameter('mapping.inflation_min').value
         )
         self.robot_radius = float(self.get_parameter('mapping.robot_radius').value)
         self.map_resolution = float(
@@ -126,7 +138,44 @@ class NavController(Node):
         self.pose = msg
 
     def main_loop_callback(self):
-        pass
+        if self.path is None or self.pose is None:
+            return
+        if not self.path.poses:
+            return
+
+        robot_x = self.pose.pose.pose.position.x
+        robot_y = self.pose.pose.pose.position.y
+
+        closest_point = min(
+            self.path.poses,
+            key=lambda point: ((point.pose.position.x - robot_x)**2
+                               + (point.pose.position.y - robot_y)**2)
+        )
+
+        closest_index = self.path.poses.index(closest_point)
+
+        lookahead_point = self.path.poses[-1]
+
+        for point in self.path.poses[closest_index:]:
+            distance = ((point.pose.position.x - robot_x)**2 + (point.pose.position.y - robot_y)**2)**0.5
+            if distance >= self.lookahead_distance:
+                lookahead_point = point
+                break
+
+        orientation = self.pose.pose.pose.orientation
+
+        sin_yaw = 2 * (orientation.w * orientation.z
+                    + orientation.x * orientation.y)
+
+        cos_yaw = 1 - 2 * (orientation.y**2 + orientation.z**2)
+
+        robot_yaw = math.atan2(sin_yaw, cos_yaw)
+
+        dx = lookahead_point.pose.position.x - robot_x
+        dy = lookahead_point.pose.position.y - robot_y
+
+        local_x = dx * math.cos(robot_yaw) + dy * math.sin(robot_yaw)
+        local_y = -dx * math.sin(robot_yaw) + dy * math.cos(robot_yaw)
 
 def main(args=None):
     rclpy.init(args=args)

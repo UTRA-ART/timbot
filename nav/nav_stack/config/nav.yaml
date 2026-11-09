@@ -9,7 +9,10 @@ configuration:
 
 
 mapping:
-  inflation_radius: 1 # (m) Adds a safety buffer around obstacles so planned paths keep clear
+  inflation_radius: 1 # (m) Adds a safety buffer around obstacles so planned paths keep clear unless neccessary
+  inflation_linear: false # (Bool) Whether the inflation should linearly decrease with distance or stay constant at inflation_max
+  inflation_max: 100 # (unitless) The inflation value right at the boundary with the robot_radius (0-100)
+  inflation_min: 20 # (unitless) The inflation value at the end of the inflation (0-100)
   robot_radius: 1 # (m) Specifies the rover's approximate radius for collision checking
   map_resolution: 1 # (m) Defines the physical distance represented by one map grid cell
 
