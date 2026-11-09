@@ -769,11 +769,11 @@ def orchestrate_launch(context: LaunchContext) -> list:
     # Master CV switch: when false, force off every CV-dependent stage
     # regardless of their individual `enabled` flags, and fall back to
     # lidar-only localization / ramp detection.
-    cv_enabled = config.get('cv_enabled', True)
+    cv_enabled = config.get('cv_enabled', False)
     config['cv_enabled'] = cv_enabled
+    config.setdefault('lane_detection', {})['enabled'] = cv_enabled
+    config.setdefault('depth_detection', {})['enabled'] = cv_enabled
     if not cv_enabled:
-        config.setdefault('lane_detection', {})['enabled'] = False
-        config.setdefault('depth_detection', {})['enabled'] = False
         config['ramp_seg_using_lidar'] = True
         print("[timbot_launch] cv_enabled: false -> lane_detection, depth_detection disabled; ramp_seg_using_lidar forced true", flush=True)
 

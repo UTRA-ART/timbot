@@ -17,10 +17,9 @@
 sim: true
 use_topic_check: true  # Set to false to use blind delay_sec instead
 team_laptop: false
-cv_enabled: false  # Master CV switch. false forces lane_detection/depth_detection off,
+cv_enabled: true  # Master CV switch: runs lane_detection + depth_detection. false also
                     # skips the ZED driver on real hardware, and forces lidar-based
-                    # ramp detection + lidar-only Cartographer, regardless of the
-                    # per-stage `enabled` flags below.
+                    # ramp detection + lidar-only Cartographer.
 ramp_seg_using_lidar: true  # true = lidar publishes /ramp_seg, false = depth_detection publishes /ramp_seg
 
 # --- Launch Stages (order matters) ---
@@ -102,8 +101,7 @@ filter_lidar:
   expected_topics:
     - /scan_modified
 
-lane_detection:
-  enabled: false
+lane_detection:  # enabled by cv_enabled
   log_level: info
   lane_detection_mode: 1  # 0 = deep learning (YOLO), 1 = classical (HSV threshold)
   camera_fps: 10
@@ -124,8 +122,7 @@ lane_detection:
   # Normalized coordinates [x1, y1, x2, y2, ...] defining the rover's footprint
   roi_mask_points: [0.4, 1.0, 0.5, 0.6, 0.6, 0.6, 0.7, 1.0]
 
-depth_detection:
-  enabled: false
+depth_detection:  # enabled by cv_enabled
   log_level: info
   config_file: depth_detection.yaml
   delay_sec: 2.0
