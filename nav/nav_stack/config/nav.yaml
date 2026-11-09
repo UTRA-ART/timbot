@@ -4,7 +4,7 @@ configuration:
   
   robot_position_topic: "/odometry/global" # Specifies the topic providing the rover's current position
   obstacle_map_topic: "/map" # Specifies the topic providing the map used to identify obstacles
-  path_map_topic: "/nav/planned_path" # Specifies the topic on which the planner publishes its calculated route
+  path_map_topic: "/plan" # Specifies the topic on which the planner publishes its calculated route
   velocity_output_topic: "/nav_vel" # Consumed by nav_autonomous_relay before twist muxing
 
 

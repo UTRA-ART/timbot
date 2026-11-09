@@ -4,6 +4,7 @@ import numpy as np
 from scipy import ndimage
 from math import ceil
 from nav_msgs.msg import Path, Odometry, OccupancyGrid
+from nav2_msgs.msg import Costmap
 from rclpy.node import Node
 from rclpy.action import ActionServer, CancelResponse, GoalResponse
 from rclpy.callback_groups import ReentrantCallbackGroup
@@ -114,7 +115,7 @@ class NavPlanner(Node):
         self.kD = float(self.get_parameter('controller.kD').value)
 
         # Creates variables to store current state
-        self.occupancy_grid = None
+        self.costmap = None
         self.pose = None
         self.goal = None
 
@@ -134,6 +135,10 @@ class NavPlanner(Node):
         self.publisher = self.create_publisher(
             Path,
             self.path_map_topic,
+            10)
+        self.costmap_publisher = self.create_publisher(
+            Costmap,
+            "/global_costmap/costmap",
             10)
 
         # Action server setup
@@ -161,6 +166,7 @@ class NavPlanner(Node):
             inflated_grid = ndimage.zoom(original_grid, scale_factor, order=0, prefilter=False)
         else:
             inflated_grid = original_grid.copy()
+        inflated_grid = inflated_grid.astype(np.float32)
         new_h, new_w = inflated_grid.shape
 
         # Create masks for the two inflations
@@ -204,19 +210,30 @@ class NavPlanner(Node):
             soft_zone & free_space_mask
         ]
 
-        inflated_grid[lethal_zone & free_space_mask] = 100
+        inflated_grid[lethal_zone & free_space_mask] = np.inf
 
-        # Creating OccupancyGrid object
-        new_msg = OccupancyGrid()
-        new_msg.header = msg.header
-        new_msg.info.map_load_time = msg.info.map_load_time
-        new_msg.info.resolution = new_res
-        new_msg.info.width = new_w
-        new_msg.info.height = new_h
-        new_msg.info.origin = msg.info.origin
-        new_msg.data = inflated_grid.flatten().tolist()
+        # Create a costmap message compatible with Nav2 consumers.
+        costmap = Costmap()
+        costmap.header = msg.header
+        costmap.metadata.map_load_time = msg.info.map_load_time
+        costmap.metadata.update_time = self.get_clock().now().to_msg()
+        costmap.metadata.layer = 'global_costmap'
+        costmap.metadata.resolution = new_res
+        costmap.metadata.size_x = int(new_w)
+        costmap.metadata.size_y = int(new_h)
+        costmap.metadata.origin = msg.info.origin
 
-        self.occupancy_grid = new_msg
+        cost_values = np.nan_to_num(
+            inflated_grid,
+            nan=0.0,
+            posinf=255.0,
+            neginf=0.0,
+        )
+        cost_values = np.clip(cost_values, 0.0, 255.0).astype(np.uint8)
+        costmap.data = cost_values.flatten().tolist()
+
+        self.costmap = costmap
+        self.costmap_publisher.publish(costmap)
     
     def position_update_callback(self, msg):
         self.pose = msg
