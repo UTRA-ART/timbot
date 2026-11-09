@@ -24,10 +24,13 @@ Launch a simulation world:
 ros2 launch gazebo_worlds load_igvc_full.launch.py
 ```
 
-## Common World Types
+## File explanation
+- `track.world`: Standard map, has walls so LIDAR marks lane lines 
+- `track_cv.world`: Standard map, has no walls so CV marks lane lines
+- `ramp_track.world`: Test with ramp in front of robot on spawn
+- `track_old.world`: Before we adjusted the track (see below)
+- `empty.world`: Just the floor, with no obstacles
 
-- Empty worlds for basic testing
-- Indoor environments
-- Outdoor terrains
-- Obstacle courses
-- Competition arenas
+- `IGVC_pavement.png`: Modified map to widen areas which are clearly wrong
+- `IGVC_pavement_old.png`: Map of the obstacle course from the IGVC rules
+- `composite_preview.png`: A composite of the two above images for comparison

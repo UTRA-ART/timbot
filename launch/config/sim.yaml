@@ -51,7 +51,7 @@ robot_bringup:
 spawn:
   enabled: true
   log_level: error
-  x: "-19.5"
+  x: "-18.53"
   y: "0"
   z: "0.05"
   roll: "0"
