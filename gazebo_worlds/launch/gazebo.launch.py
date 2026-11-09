@@ -6,6 +6,22 @@ from launch.conditions import IfCondition, UnlessCondition
 from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
 import os
+import shutil
+
+
+def _patched_rendering_media(pkg_share: str) -> str:
+    """Return a copy of ign-rendering's media dir with rendering/ laid over it.
+
+    rendering/ holds a fixed ogre gpu_lidar shader: the stock one draws each ray
+    as a point on a pixel corner, which WSL's GPU driver drops (every ray then
+    reads range_min). Gazebo only reads media from one directory, hence the copy.
+    """
+    dst = os.path.join(os.path.expanduser('~'), '.cache', 'timbot', 'ignition-rendering6')
+    src = os.environ.get('IGN_RENDERING_RESOURCE_PATH', '/usr/share/ignition/ignition-rendering6')
+    if os.path.realpath(src) != os.path.realpath(dst):
+        shutil.copytree(src, dst, dirs_exist_ok=True)
+    shutil.copytree(os.path.join(pkg_share, 'rendering'), dst, dirs_exist_ok=True)
+    return dst
 
 
 def _setup_gazebo(context: LaunchContext):
@@ -32,10 +48,11 @@ def _setup_gazebo(context: LaunchContext):
     env = os.environ.copy()
     env['IGN_GAZEBO_RESOURCE_PATH'] = f"{gazebo_models_path}:{worlds_dir}:{description_resource_path}"
     env['LIBGL_ALWAYS_SOFTWARE'] = context.launch_configurations.get('software_rendering', '1')
+    env['IGN_RENDERING_RESOURCE_PATH'] = _patched_rendering_media(pkg_share)
 
-    # Full GUI
+    # Full GUI. The GUI defaults to ogre2, which crashes on WSL's GPU driver.
     gazebo_gui = ExecuteProcess(
-        cmd=['ign', 'gazebo', 'sim', '-r', world_file],
+        cmd=['ign', 'gazebo', 'sim', '-r', '--render-engine-gui', 'ogre', world_file],
         output='screen',
         env=env,
         on_exit=Shutdown(),

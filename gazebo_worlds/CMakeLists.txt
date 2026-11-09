@@ -15,4 +15,10 @@ install(DIRECTORY
   DESTINATION share/${PROJECT_NAME}/
 )
 
+# Patched ign-rendering media files, laid over the system copy at launch
+install(DIRECTORY
+  rendering
+  DESTINATION share/${PROJECT_NAME}/
+)
+
 ament_package()
