@@ -147,6 +147,13 @@ class NavController(Node):
         robot_x = self.pose.pose.pose.position.x
         robot_y = self.pose.pose.pose.position.y
 
+        goal = self.path.poses[-1].pose.position
+        goal_distance = math.hypot(goal.x - robot_x, goal.y - robot_y)
+
+        if goal_distance <= self.goal_tolerance:
+            self.publisher.publish(Twist())
+            return
+
         closest_point = min(
             self.path.poses,
             key=lambda point: ((point.pose.position.x - robot_x)**2
@@ -177,6 +184,52 @@ class NavController(Node):
 
         local_x = dx * math.cos(robot_yaw) + dy * math.sin(robot_yaw)
         local_y = -dx * math.sin(robot_yaw) + dy * math.cos(robot_yaw)
+
+        L_squared = local_x**2 + local_y**2
+
+        if L_squared < 1e-6:
+            self.publisher.publish(Twist())
+            return
+
+        curvature = 2 * local_y / L_squared
+
+        if abs(curvature) > 1e-6:
+            linear_velocity = min(
+                self.max_linear_velocity,
+                self.max_angular_velocity / abs(curvature),
+                math.sqrt(self.max_sideways_linear_acceleration / abs(curvature))
+            )
+        else:
+            linear_velocity = self.max_linear_velocity
+
+        angular_velocity = linear_velocity * curvature
+
+        current_linear_velocity = self.pose.twist.twist.linear.x
+        current_angular_velocity = self.pose.twist.twist.angular.z
+
+        dt = 1.0 / self.controller_update_frequency
+
+        max_linear_change = self.max_forwards_linear_acceleration * dt
+        max_angular_change = self.max_angular_acceleration * dt
+
+        linear_velocity = max(
+            current_linear_velocity - max_linear_change,
+            min(linear_velocity, current_linear_velocity + max_linear_change)
+        )
+
+        angular_velocity = max(
+            current_angular_velocity - max_angular_change,
+            min(angular_velocity, current_angular_velocity + max_angular_change)
+        )
+
+        # velcoity command
+        cmd = Twist()
+
+        cmd.linear.x = linear_velocity
+        cmd.angular.z = angular_velocity
+
+        self.publisher.publish(cmd)
+
 
 def main(args=None):
     rclpy.init(args=args)
