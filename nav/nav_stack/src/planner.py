@@ -211,7 +211,7 @@ class NavPlanner(Node):
             soft_zone & free_space_mask
         ]
 
-        inflated_grid[lethal_zone & free_space_mask] = np.inf
+        inflated_grid[lethal_zone & free_space_mask] = 100
 
         # Create an OccupancyGrid so RViz's Map display can render the costmap.
         costmap = OccupancyGrid()
