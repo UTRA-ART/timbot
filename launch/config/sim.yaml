@@ -155,11 +155,10 @@ teleop_key:
 # --- Stage 8: Nav2 Stack ---
 nav_stack:
   enabled: true
-  config_file: espresso_nav2_bkup.yaml
+  config_file: nav.yaml
   log_level: error
   delay_sec: 10.0
   expected_topics:
-    - /local_costmap/costmap
     - /global_costmap/costmap
 
 # --- Stage 9: Load Waypoints ---

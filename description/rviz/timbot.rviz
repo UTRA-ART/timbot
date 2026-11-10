@@ -361,7 +361,7 @@ Visualization Manager:
       Class: rviz_default_plugins/Map
       Color Scheme: costmap
       Draw Behind: false
-      Enabled: true
+      Enabled: false
       Name: Local Costmap
       Topic:
         Depth: 5

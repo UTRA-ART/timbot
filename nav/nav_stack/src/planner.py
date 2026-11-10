@@ -1,10 +1,11 @@
+#!/usr/bin/env python3
+
 import rclpy
 import time
 import numpy as np
 from scipy import ndimage
 from math import ceil
 from nav_msgs.msg import Path, Odometry, OccupancyGrid
-from nav2_msgs.msg import Costmap
 from rclpy.node import Node
 from rclpy.action import ActionServer, CancelResponse, GoalResponse
 from rclpy.callback_groups import ReentrantCallbackGroup
@@ -137,7 +138,7 @@ class NavPlanner(Node):
             self.path_map_topic,
             10)
         self.costmap_publisher = self.create_publisher(
-            Costmap,
+            OccupancyGrid,
             "/global_costmap/costmap",
             10)
 
@@ -199,7 +200,7 @@ class NavPlanner(Node):
         )
 
         if not self.inflation_linear:
-            distance_fraction = 0
+            distance_fraction = np.zeros_like(distance_from_obstacle)
 
         inflation_values = np.rint(
             self.inflation_max
@@ -212,24 +213,22 @@ class NavPlanner(Node):
 
         inflated_grid[lethal_zone & free_space_mask] = np.inf
 
-        # Create a costmap message compatible with Nav2 consumers.
-        costmap = Costmap()
+        # Create an OccupancyGrid so RViz's Map display can render the costmap.
+        costmap = OccupancyGrid()
         costmap.header = msg.header
-        costmap.metadata.map_load_time = msg.info.map_load_time
-        costmap.metadata.update_time = self.get_clock().now().to_msg()
-        costmap.metadata.layer = 'global_costmap'
-        costmap.metadata.resolution = new_res
-        costmap.metadata.size_x = int(new_w)
-        costmap.metadata.size_y = int(new_h)
-        costmap.metadata.origin = msg.info.origin
+        costmap.info.map_load_time = msg.info.map_load_time
+        costmap.info.resolution = new_res
+        costmap.info.width = int(new_w)
+        costmap.info.height = int(new_h)
+        costmap.info.origin = msg.info.origin
 
         cost_values = np.nan_to_num(
             inflated_grid,
             nan=0.0,
-            posinf=255.0,
+            posinf=100.0,
             neginf=0.0,
         )
-        cost_values = np.clip(cost_values, 0.0, 255.0).astype(np.uint8)
+        cost_values = np.clip(cost_values, 0.0, 100.0).astype(np.int8)
         costmap.data = cost_values.flatten().tolist()
 
         self.costmap = costmap
