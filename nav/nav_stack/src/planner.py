@@ -4,12 +4,12 @@ import rclpy
 import time
 import numpy as np
 from scipy import ndimage
-from math import ceil
 from nav_msgs.msg import Path, Odometry, OccupancyGrid
 from rclpy.node import Node
 from rclpy.action import ActionServer, CancelResponse, GoalResponse
 from rclpy.callback_groups import ReentrantCallbackGroup
 from rclpy.executors import MultiThreadedExecutor
+from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy
 from nav2_msgs.action import NavigateToPose
 
 class NavPlanner(Node):
@@ -25,7 +25,8 @@ class NavPlanner(Node):
         self.declare_parameter(
             'configuration.velocity_output_topic', '/nav_vel'
         )
-
+    
+        self.declare_parameter('mapping.obstacle_threshold', 50)
         self.declare_parameter('mapping.inflation_radius', 1.0)
         self.declare_parameter('mapping.inflation_linear', False)
         self.declare_parameter('mapping.inflation_max', 100)
@@ -68,6 +69,9 @@ class NavPlanner(Node):
             'configuration.velocity_output_topic'
         ).value
 
+        self.obstacle_threshold = float(
+            self.get_parameter('mapping.obstacle_threshold').value
+        )
         self.inflation_radius = float(
             self.get_parameter('mapping.inflation_radius').value
         )
@@ -137,10 +141,13 @@ class NavPlanner(Node):
             Path,
             self.path_map_topic,
             10)
+        costmap_qos = QoSProfile(depth=1)
+        costmap_qos.reliability = ReliabilityPolicy.RELIABLE
+        costmap_qos.durability = DurabilityPolicy.TRANSIENT_LOCAL
         self.costmap_publisher = self.create_publisher(
             OccupancyGrid,
             "/global_costmap/costmap",
-            10)
+            costmap_qos)
 
         # Action server setup
         self.cb_group = ReentrantCallbackGroup()
@@ -170,48 +177,41 @@ class NavPlanner(Node):
         inflated_grid = inflated_grid.astype(np.float32)
         new_h, new_w = inflated_grid.shape
 
-        # Create masks for the two inflations
-        obstacles_mask = (inflated_grid >= 100)
-        lethal_cells = int(ceil(self.robot_radius / new_res))
-        soft_cells = int(ceil(self.inflation_radius / new_res))
-
-        # Adding No-Go zone based on robot radius
-        y, x = np.ogrid[-lethal_cells:lethal_cells+1, -lethal_cells:lethal_cells+1]
-        lethal_kernel = (x**2 + y**2 <= lethal_cells**2)
-        lethal_zone = ndimage.binary_dilation(obstacles_mask, structure=lethal_kernel)
-
-        # Adding discouragement based on inflation radius
-        total_radius_cells = lethal_cells + soft_cells
-        y_soft, x_soft = np.ogrid[-total_radius_cells:total_radius_cells+1, -total_radius_cells:total_radius_cells+1]
-        soft_kernel = (x_soft**2 + y_soft**2 <= total_radius_cells**2)
-        soft_zone = ndimage.binary_dilation(obstacles_mask, structure=soft_kernel)
+        obstacles_mask = (inflated_grid >= self.obstacle_threshold)
+        free_space_mask = (inflated_grid >= 0) & (inflated_grid < 100)
+        inflated_grid = np.full_like(inflated_grid, -1)
+        
 
         # Make changes into the grid
-        free_space_mask = (inflated_grid >= 0) & (inflated_grid < 100)
-        distance_from_obstacle = ndimage.distance_transform_edt(
-            ~obstacles_mask,
-            sampling=new_res,
-        )
-        distance_fraction = np.clip(
-            (distance_from_obstacle - self.robot_radius)
-            / self.inflation_radius,
-            0.0,
-            1.0,
-        )
+        if np.any(obstacles_mask):
+            distance_from_obstacle = ndimage.distance_transform_edt(
+                ~obstacles_mask,
+                sampling=new_res,
+            )
+            lethal_zone = distance_from_obstacle <= self.robot_radius
+            soft_zone = distance_from_obstacle <= (
+                self.robot_radius + self.inflation_radius
+            )
+            distance_fraction = np.clip(
+                (distance_from_obstacle - self.robot_radius)
+                / self.inflation_radius,
+                0.0,
+                1.0,
+            )
 
-        if not self.inflation_linear:
-            distance_fraction = np.zeros_like(distance_from_obstacle)
+            if not self.inflation_linear:
+                distance_fraction = np.zeros_like(distance_from_obstacle)
 
-        inflation_values = np.rint(
-            self.inflation_max
-            + (self.inflation_min - self.inflation_max) * distance_fraction
-        ).astype(np.int8)
+            inflation_values = np.rint(
+                self.inflation_max
+                + (self.inflation_min - self.inflation_max) * distance_fraction
+            ).astype(np.int8)
 
-        inflated_grid[soft_zone & free_space_mask] = inflation_values[
-            soft_zone & free_space_mask
-        ]
-
-        inflated_grid[lethal_zone & free_space_mask] = 100
+            inflated_grid[soft_zone & free_space_mask] = inflation_values[
+                soft_zone & free_space_mask
+            ]
+            inflated_grid[lethal_zone & free_space_mask] = 100
+            inflated_grid[obstacles_mask] = 100
 
         # Create an OccupancyGrid so RViz's Map display can render the costmap.
         costmap = OccupancyGrid()
@@ -224,7 +224,7 @@ class NavPlanner(Node):
 
         cost_values = np.nan_to_num(
             inflated_grid,
-            nan=0.0,
+            nan=-1.0,
             posinf=100.0,
             neginf=0.0,
         )

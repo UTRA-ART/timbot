@@ -11,12 +11,13 @@
 
 
     mapping:
-      inflation_radius: 1.0 # (m) Adds a safety buffer around obstacles so planned paths keep clear unless neccessary
-      inflation_linear: false # (Bool) Whether the inflation should linearly decrease with distance or stay constant at inflation_max
-      inflation_max: 100 # (unitless) The inflation value right at the boundary with the robot_radius (0-100)
-      inflation_min: 20 # (unitless) The inflation value at the end of the inflation (0-100)
-      robot_radius: 1.0 # (m) Specifies the rover's approximate radius for collision checking
-      map_resolution: 1.0 # (m) Defines the physical distance represented by one map grid cell
+      obstacle_threshold: 50 # (unitless) The value above which a detected point counts as an obstacle
+      inflation_radius: 0.5 # (m) Adds a safety buffer around obstacles so planned paths keep clear unless neccessary
+      inflation_linear: true # (Bool) Whether the inflation should linearly decrease with distance or stay constant at inflation_max
+      inflation_max: 50 # (unitless) The inflation value right at the boundary with the robot_radius (0-100)
+      inflation_min: 10 # (unitless) The inflation value at the end of the inflation (0-100)
+      robot_radius: 0.5 # (m) Specifies the rover's approximate radius for collision checking
+      map_resolution: 0.05 # (m) Defines the physical distance represented by one map grid cell
 
     constraints:
       goal_tolerance: 1.0 # (m) Sets how close the rover must get to the target to count as arrived

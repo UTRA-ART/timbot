@@ -131,7 +131,7 @@ cartographer:
   enabled: true
   config_file: cartographer.lua
   log_level: error
-  delay_sec: 5.0
+  delay_sec: 10.0
   expected_topics:
     - /map
 
