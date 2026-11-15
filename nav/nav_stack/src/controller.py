@@ -187,24 +187,38 @@ class NavController(Node):
         local_x = dx * math.cos(robot_yaw) + dy * math.sin(robot_yaw)
         local_y = -dx * math.sin(robot_yaw) + dy * math.cos(robot_yaw)
 
-        L_squared = local_x**2 + local_y**2
+        if local_x < 0:
+            # Target is behind the rover: rotate in place
+            angle_error = math.atan2(local_y, local_x)
 
-        if L_squared < 1e-6:
-            self.publisher.publish(Twist())
-            return
-
-        curvature = 2 * local_y / L_squared
-
-        if abs(curvature) > 1e-6:
-            linear_velocity = min(
-                self.max_linear_velocity,
-                self.max_angular_velocity / abs(curvature),
-                math.sqrt(self.max_sideways_linear_acceleration / abs(curvature))
+            linear_velocity = 0.0
+            angular_velocity = max(
+                -self.max_angular_velocity,
+                min(self.kP * angle_error, self.max_angular_velocity)
             )
-        else:
-            linear_velocity = self.max_linear_velocity
 
-        angular_velocity = linear_velocity * curvature
+        else:
+            # Target is ahead: follow Pure Pursuit
+            L_squared = local_x**2 + local_y**2
+
+            if L_squared < 1e-6:
+                self.publisher.publish(Twist())
+                return
+
+            curvature = 2 * local_y / L_squared
+
+            if abs(curvature) > 1e-6:
+                linear_velocity = min(
+                    self.max_linear_velocity,
+                    self.max_angular_velocity / abs(curvature),
+                    math.sqrt(
+                        self.max_sideways_linear_acceleration / abs(curvature)
+                    )
+                )
+            else:
+                linear_velocity = self.max_linear_velocity
+
+            angular_velocity = linear_velocity * curvature
 
         current_linear_velocity = self.pose.twist.twist.linear.x
         current_angular_velocity = self.pose.twist.twist.angular.z
@@ -222,6 +236,14 @@ class NavController(Node):
         angular_velocity = max(
             current_angular_velocity - max_angular_change,
             min(angular_velocity, current_angular_velocity + max_angular_change)
+        )
+
+        if local_x < 0 and abs(linear_velocity) > 1e-3:
+            angular_velocity = 0.0
+
+        angular_velocity = max(
+            -self.max_angular_velocity,
+            min(angular_velocity, self.max_angular_velocity)
         )
 
         # velocity command
