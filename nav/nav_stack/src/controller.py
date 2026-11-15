@@ -42,7 +42,7 @@ class NavController(Node):
         self.declare_parameter('controller.lookahead_distance', 1.0)
         self.declare_parameter('controller.kP', 1.0)
         self.declare_parameter('controller.kI', 1.0)
-        self.declare_parameter('controller.kD', 1.0)
+        self.declare_parameter('controller.kD', 0.0)
 
         self.map_update_frequency = float(
             self.get_parameter('configuration.map_update_frequency').value
@@ -113,6 +113,7 @@ class NavController(Node):
         # Creates variables to store current state
         self.path = None
         self.pose = None
+        self.previous_angle_error = None
 
         # Creates subscribers
         self.path_subscription = self.create_subscription(
@@ -191,14 +192,31 @@ class NavController(Node):
             # Target is behind the rover: rotate in place
             angle_error = math.atan2(local_y, local_x)
 
+            dt = 1.0 / self.controller_update_frequency
+
+            if self.previous_angle_error is None:
+                derivative_error = 0.0
+            else:
+                error_change = math.atan2(
+                    math.sin(angle_error - self.previous_angle_error),
+                    math.cos(angle_error - self.previous_angle_error)
+                )
+                derivative_error = error_change / dt
+
+            self.previous_angle_error = angle_error
+
             linear_velocity = 0.0
             angular_velocity = max(
                 -self.max_angular_velocity,
-                min(self.kP * angle_error, self.max_angular_velocity)
+                min(
+                    self.kP * angle_error + self.kD * derivative_error,
+                    self.max_angular_velocity
+                )
             )
 
         else:
             # Target is ahead: follow Pure Pursuit
+            self.previous_angle_error = None
             L_squared = local_x**2 + local_y**2
 
             if L_squared < 1e-6:
@@ -240,6 +258,7 @@ class NavController(Node):
 
         if local_x < 0 and abs(linear_velocity) > 1e-3:
             angular_velocity = 0.0
+            self.previous_angle_error = None
 
         angular_velocity = max(
             -self.max_angular_velocity,
