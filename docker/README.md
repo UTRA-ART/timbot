@@ -62,6 +62,9 @@ Set before the command, e.g. `TIMBOT_CV=1 docker compose up dev`
   toolbar) → *Pose*, then click it and click-drag on the map (click = position,
   drag = heading). Like RViz's 2D Goal Pose. Works with Foxglove's default pose topic
   (`/move_base_simple/goal`, relayed in the container) or `/goal_pose`.
+- **After restarting the sim, reload the Foxglove tab.** Foxglove follows the sim's
+  clock, which restarts at 0, so plots otherwise stay stuck on the previous run.
+- **Plots** need a numeric field, e.g. `/cmd_vel.linear.x`, not just `/cmd_vel`.
 - **Drive manually:** a Teleop panel on `/key_vel` (overrides Nav2 via twist_mux).
 - **Camera:** an Image panel on `/zed_node/left/image` (needs `TIMBOT_CV=1`).
 
