@@ -1,0 +1,11 @@
+.git
+**/.git
+build
+install
+log
+**/__pycache__
+*.mp4
+*.mov
+rosbag2_*
+*.zip
+*.pdf

@@ -1,0 +1,44 @@
+# Headless Timbot sim; view it in Foxglove at ws://localhost:8765. See docker/README.md.
+#   docker compose up          prebuilt image (pulled from GHCR, or built locally)
+#   docker compose up dev      your checkout, rebuilt with colcon on every start
+# Options: TIMBOT_CV=1 docker compose up ...   (also TIMBOT_CONFIG=<file>)
+# Linux + NVIDIA GPU: add  -f compose.yaml -f docker/compose.gpu.yaml  after "docker compose".
+
+x-sim: &sim
+  init: true
+  shm_size: 1gb
+  ports:
+    - "8765:8765"
+  environment:
+    TIMBOT_CONFIG: ${TIMBOT_CONFIG:-sim_headless.yaml}
+    TIMBOT_CV: ${TIMBOT_CV:-0}
+
+services:
+  sim:
+    <<: *sim
+    image: ghcr.io/utra-art/timbot-sim:latest
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: sim
+
+  dev:
+    <<: *sim
+    profiles: [dev]
+    image: timbot-dev
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: dev
+    volumes:
+      - .:/ws/src/timbot
+      # Build output stays in Docker volumes: fast on macOS/Windows, and keeps
+      # root-owned files out of your checkout. `docker compose down -v` resets it.
+      - ws-build:/ws/build
+      - ws-install:/ws/install
+      - ws-log:/ws/log
+
+volumes:
+  ws-build:
+  ws-install:
+  ws-log:

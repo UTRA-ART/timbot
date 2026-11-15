@@ -1,0 +1,22 @@
+# Linux + NVIDIA only: render Gazebo's sensors on the GPU through your X display.
+# Needs the NVIDIA Container Toolkit, and once per login:  xhost +SI:localuser:root
+#   docker compose -f compose.yaml -f docker/compose.gpu.yaml up [dev]
+
+x-gpu: &gpu
+  environment:
+    TIMBOT_GPU: "1"
+    DISPLAY: ${DISPLAY:-:0}
+    NVIDIA_DRIVER_CAPABILITIES: all
+  volumes:
+    - /tmp/.X11-unix:/tmp/.X11-unix:ro
+  deploy:
+    resources:
+      reservations:
+        devices:
+          - driver: nvidia
+            count: all
+            capabilities: [gpu]
+
+services:
+  sim: *gpu
+  dev: *gpu
