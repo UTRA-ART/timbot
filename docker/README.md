@@ -65,6 +65,16 @@ Set before the command, e.g. `TIMBOT_CV=1 docker compose up dev`
 - **Drive manually:** a Teleop panel on `/key_vel` (overrides Nav2 via twist_mux).
 - **Camera:** an Image panel on `/zed_node/left/image` (needs `TIMBOT_CV=1`).
 
+## Gazebo window (Windows, optional)
+Foxglove is the main view, but on Windows (WSL 2) you can also open Gazebo's own
+window. Start the sim with the WSLg override, then open the window:
+```bash
+docker compose -f compose.yaml -f docker/compose.wslg.yaml up -d dev      # or: ... up -d (sim)
+docker compose exec dev bash src/timbot/docker/gazebo_gui.sh             # or: exec sim ...
+```
+It renders on the CPU, so it can be sluggish. Closing it leaves the sim running.
+Works from a WSL shell, PowerShell or Git Bash.
+
 ## Linux + NVIDIA GPU (optional)
 Not needed for the default sim, which runs at full speed on the CPU. The GPU
 halves Gazebo's CPU use and makes `TIMBOT_CV=1` cheap. Install the
@@ -76,6 +86,10 @@ docker compose -f compose.yaml -f docker/compose.gpu.yaml up        # or: ... up
 No window opens; Gazebo just uses your display's GPU to render its sensors.
 
 ## Troubleshooting
+- **`failed to connect to the docker API` (`npipe://` or `docker.sock`):** Docker
+  Desktop isn't running. Start it, wait until the engine is running, and retry (in a
+  WSL shell, run `hash -r` first). Settings → General → *Start Docker Desktop when you
+  sign in* avoids this.
 - **`exec /start_sim.sh: no such file or directory`, or colcon fails with
   `Syntax error: end of file unexpected` (Windows):** the clone has CRLF line
   endings. Run `git config --global core.autocrlf input`, delete the clone, clone it

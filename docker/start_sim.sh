@@ -38,7 +38,9 @@ else
     export DISPLAY=:99 LIBGL_ALWAYS_SOFTWARE=1
 fi
 
-ros2 launch foxglove_bridge foxglove_bridge_launch.xml address:=0.0.0.0 port:=8765 &
+# use_sim_time: Foxglove then stamps the goals it publishes with sim time, not the
+# wall clock (Nav2 can't plan for a goal stamped decades in the sim's future).
+ros2 launch foxglove_bridge foxglove_bridge_launch.xml address:=0.0.0.0 port:=8765 use_sim_time:=true &
 # Foxglove's 3D panel publishes poses to /move_base_simple/goal unless its layout
 # says otherwise; Nav2 only listens on /goal_pose.
 ros2 run topic_tools relay /move_base_simple/goal /goal_pose &

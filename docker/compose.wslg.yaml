@@ -1,0 +1,14 @@
+# Windows (WSL 2) only: lets docker/gazebo_gui.sh open the Gazebo window on your
+# desktop through WSLg. See docker/README.md, "Gazebo window (Windows)".
+#   docker compose -f compose.yaml -f docker/compose.wslg.yaml up dev     (or: up sim)
+# WSLg's X socket has a different path depending on whether docker is run from a
+# WSL shell or from PowerShell/Git Bash; both are mounted (the missing one is just
+# an empty folder) and the script uses whichever holds the socket.
+x-wslg: &wslg
+  volumes:
+    - /mnt/wslg/.X11-unix:/tmp/wslg/wsl
+    - /run/desktop/mnt/host/wslg/.X11-unix:/tmp/wslg/windows
+
+services:
+  sim: *wslg
+  dev: *wslg
