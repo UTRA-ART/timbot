@@ -224,7 +224,7 @@ class NavController(Node):
             min(angular_velocity, current_angular_velocity + max_angular_change)
         )
 
-        # velcoity command
+        # velocity command
         cmd = Twist()
 
         cmd.linear.x = linear_velocity
