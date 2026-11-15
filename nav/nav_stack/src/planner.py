@@ -5,6 +5,7 @@ import time
 import numpy as np
 from scipy import ndimage
 from nav_msgs.msg import Path, Odometry, OccupancyGrid
+from geometry_msgs.msg import PoseStamped
 from rclpy.node import Node
 from rclpy.action import ActionServer, CancelResponse, GoalResponse
 from rclpy.callback_groups import ReentrantCallbackGroup
@@ -261,22 +262,58 @@ class NavPlanner(Node):
         
         # Simulate navigation execution loop
         # In a real robot, you would monitor the robot's pose vs the goal pose here.
-        for i in range(1, 11):
+        while True:
             # 1. Check if the client requested cancellation (respawn/ramp interrupt)
             if goal_handle.is_cancel_requested:
                 self.get_logger().info('Goal canceled during execution!')
                 goal_handle.canceled()
                 return result
+
+            planned_path = Path()
+            planned_path.header.frame_id = 'map'
+            planned_path.header.stamp = self.get_clock().now().to_msg()
+            for y_position in range(5):
+                pose = PoseStamped()
+                pose.header = planned_path.header
+                pose.pose.position.y = float(y_position/2)
+                pose.pose.position.x = float(y_position/2)
+                pose.pose.orientation.w = 0.5**0.5
+                pose.pose.orientation.z = 0.5**0.5
+                planned_path.poses.append(pose)
+
+            # If the robot is at the target
+            condition_to_success = False
+            if self.pose is not None and self.goal is not None:
+                robot_position = self.pose.pose.pose.position
+                goal_position = self.goal.position
+                goal_distance = np.hypot(
+                    goal_position.x - robot_position.x,
+                    goal_position.y - robot_position.y,
+                )
+                condition_to_success = goal_distance <= self.goal_tolerance
+
+            if condition_to_success:
+                self.publisher.publish(planned_path)
+                self.get_logger().info('Goal reached successfully!')
+                goal_handle.succeed()
+                break
+
+            # Compute path here
+            path_found = True
+            # TODO
+
+            # If a path can't be computed
+            if (not path_found):
+                # Create a path that should move backwards / find a way to 
+                self.publisher.publish(planned_path)
+                self.get_logger().info('Path not found')
+                break
+
+            # Publish path
+            self.publisher.publish(planned_path)            
+            time.sleep(0.1)
             
-            # Simulate taking time to navigate (10 steps)
-            self.get_logger().info(f'Navigating... {i * 10}% complete')
-            time.sleep(0.5) 
-            
-        # 2. If we reach here without being canceled, the goal was successful
-        self.get_logger().info('Goal reached successfully!')
-        goal_handle.succeed()
-        
-        # 3. Return the result, triggering STATUS_SUCCEEDED in your client
+        # Return the result after the goal has been marked successful.
         return result
 
 def main(args=None):

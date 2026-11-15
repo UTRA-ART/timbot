@@ -156,15 +156,14 @@ teleop_key:
 nav_stack:
   enabled: true
   config_file: nav.yaml
-  log_level: error
+  log_level: info
   delay_sec: 10.0
-  expected_topics:
-    - /global_costmap/costmap
+  expected_topics: []
 
 # --- Stage 9: Load Waypoints ---
 load_waypoints:
   enabled: true
   config_file: sim_waypoints_fixed.json
-  log_level: error
+  log_level: info
   delay_sec: 2.0
   expected_topics: []
