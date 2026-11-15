@@ -1,14 +1,16 @@
 # Builds the headless sim image (docker/Dockerfile, target `sim`) for amd64 and
 # arm64 on native runners and publishes it to ghcr.io/utra-art/timbot-sim.
 #   push to main      -> :latest, :main, :sha-<short>
+#   push to docker    -> :docker, :sha-<short>     (trial branch; drop it here once merged)
 #   push to a v* tag  -> :<tag>
-#   manual run        -> :<branch>, :sha-<short>   (Actions tab > Docker image > Run workflow)
+#   manual run        -> :<branch>, :sha-<short>   (Actions tab > Docker image > Run workflow;
+#                        only available once this file is on main)
 #   pull request      -> build only, nothing published
 name: Docker image
 
 on:
   push:
-    branches: [main]
+    branches: [main, docker]
     tags: ["v*"]
   pull_request:
     paths:

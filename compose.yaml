@@ -1,7 +1,8 @@
 # Headless Timbot sim; view it in Foxglove at ws://localhost:8765. See docker/README.md.
 #   docker compose up          prebuilt image (pulled from GHCR, or built locally)
 #   docker compose up dev      your checkout, rebuilt with colcon on every start
-# Options: TIMBOT_CV=1 docker compose up ...   (also TIMBOT_CONFIG=<file>)
+# Options: TIMBOT_CV=1 docker compose up ...   (also TIMBOT_CONFIG=<file>,
+#          TIMBOT_TAG=<tag> to pull another published image, e.g. TIMBOT_TAG=docker)
 # Linux + NVIDIA GPU: add  -f compose.yaml -f docker/compose.gpu.yaml  after "docker compose".
 
 x-sim: &sim
@@ -16,7 +17,7 @@ x-sim: &sim
 services:
   sim:
     <<: *sim
-    image: ghcr.io/utra-art/timbot-sim:latest
+    image: ghcr.io/utra-art/timbot-sim:${TIMBOT_TAG:-latest}
     build:
       context: .
       dockerfile: docker/Dockerfile

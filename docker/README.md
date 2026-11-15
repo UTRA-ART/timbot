@@ -49,6 +49,7 @@ Set before the command, e.g. `TIMBOT_CV=1 docker compose up dev`
 |---|---|
 | `TIMBOT_CV=1` | Simulated ZED camera + lane/depth detection (`/zed_node/left/image`, `/cv/model_output`). Heavy without a GPU. |
 | `TIMBOT_CONFIG=<file>` | Launch config from `launch/config/` (default `sim_headless.yaml`: `sim.yaml` minus GUI/RViz). |
+| `TIMBOT_TAG=<tag>` | Which published image `docker compose up` pulls (default `latest`, built from `main`; `docker` = the `docker` branch). |
 
 ## Using it in Foxglove
 - **Send a nav goal:** 3D panel → publish button (arrow) set to *Pose* → click-drag on
@@ -79,9 +80,11 @@ No window opens; Gazebo just uses your display's GPU to render its sensors.
 ## Maintainers: the published image
 `.github/workflows/docker.yml` builds `--target sim` for amd64 and arm64 on native
 runners and pushes `ghcr.io/utra-art/timbot-sim`:
-`:latest` and `:main` on pushes to `main`, `:<tag>` for `v*` tags, `:<branch>`
-for manual runs (Actions → Docker image → Run workflow). Pull requests that touch
-the Docker files or any `package.xml` are built but not pushed.
+`:latest` and `:main` on pushes to `main`, `:docker` on pushes to the `docker`
+branch (temporary, while this is being trialled), `:<tag>` for `v*` tags, and
+`:<branch>` for manual runs (Actions → Docker image → Run workflow; only once the
+workflow is on `main`). Pull requests that touch the Docker files or any
+`package.xml` are built but not pushed.
 
 After the first publish, make the package public (GitHub → UTRA-ART → Packages →
 timbot-sim → Package settings → Change visibility), or members will need
