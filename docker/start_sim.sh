@@ -31,10 +31,16 @@ if [ "${TIMBOT_GPU:-0}" = 1 ]; then
     sed -i "s/software_rendering: '1'/software_rendering: '0'/" "$CONFIG"
 else
     # Gazebo's sensors need an OpenGL context even with no GUI.
+    # A restarted container keeps the last run's lock; its PID may now be
+    # another process, which makes Xvfb refuse to start.
+    rm -f /tmp/.X99-lock /tmp/.X11-unix/X99
     Xvfb :99 -screen 0 1280x1024x24 -nolisten tcp &
     export DISPLAY=:99 LIBGL_ALWAYS_SOFTWARE=1
 fi
 
 ros2 launch foxglove_bridge foxglove_bridge_launch.xml address:=0.0.0.0 port:=8765 &
+# Foxglove's 3D panel publishes poses to /move_base_simple/goal unless its layout
+# says otherwise; Nav2 only listens on /goal_pose.
+ros2 run topic_tools relay /move_base_simple/goal /goal_pose &
 
 exec ros2 launch timbot_launch timbot.launch.py config:="$CONFIG" "$@"

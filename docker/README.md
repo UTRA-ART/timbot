@@ -8,9 +8,14 @@ No ROS install or GPU needed on your machine.
 1. Install [Docker Desktop](https://www.docker.com/products/docker-desktop/)
    (Linux: Docker Engine + the compose plugin also works).
 2. Docker Desktop → Settings → Resources: give it **at least 4 GB memory and 4 CPUs**.
-3. Clone the repo with submodules:
+3. **Windows only**, before cloning: `git config --global core.autocrlf input`.
+   Git for Windows otherwise checks scripts out with CRLF line endings, which break
+   them inside the Linux container (the repo's `.gitattributes` can't cover the
+   submodules). Or clone from a WSL (Ubuntu) shell instead and run `docker compose`
+   there; both work and the dev build speed is similar.
+4. Clone the repo with submodules:
    `git clone --recurse-submodules https://github.com/UTRA-ART/timbot.git`
-4. Get access to the UTRA ART workspace on [Foxglove](https://app.foxglove.dev).
+5. Get access to the UTRA ART workspace on [Foxglove](https://app.foxglove.dev).
 
 ## Run the sim
 From the repo root:
@@ -19,7 +24,8 @@ docker compose up
 ```
 This pulls the prebuilt image (`ghcr.io/utra-art/timbot-sim`, built from `main`
 by CI) and starts the sim. Stop it with `Ctrl+C`. To get the latest image: `docker compose pull`.
-If the image isn't published (yet), you'll see `error from registry: denied` and it
+If the image isn't published (yet), you'll see `error from registry: denied` (Docker
+Desktop: `unauthorized`) and it
 builds locally instead (about 5–20 min, once). That's expected.
 
 Then open Foxglove → **Connect to a robot** → **Foxglove WebSocket** → `ws://localhost:8765`,
@@ -52,8 +58,10 @@ Set before the command, e.g. `TIMBOT_CV=1 docker compose up dev`
 | `TIMBOT_TAG=<tag>` | Which published image `docker compose up` pulls (default `latest`, built from `main`; `docker` = the `docker` branch). |
 
 ## Using it in Foxglove
-- **Send a nav goal:** 3D panel → publish button (arrow) set to *Pose* → click-drag on
-  the map. Publishes `/goal_pose`, like RViz's 2D Goal Pose.
+- **Send a nav goal:** in the 3D panel, right-click the publish button (⊕, right-hand
+  toolbar) → *Pose*, then click it and click-drag on the map (click = position,
+  drag = heading). Like RViz's 2D Goal Pose. Works with Foxglove's default pose topic
+  (`/move_base_simple/goal`, relayed in the container) or `/goal_pose`.
 - **Drive manually:** a Teleop panel on `/key_vel` (overrides Nav2 via twist_mux).
 - **Camera:** an Image panel on `/zed_node/left/image` (needs `TIMBOT_CV=1`).
 
@@ -68,6 +76,10 @@ docker compose -f compose.yaml -f docker/compose.gpu.yaml up        # or: ... up
 No window opens; Gazebo just uses your display's GPU to render its sensors.
 
 ## Troubleshooting
+- **`exec /start_sim.sh: no such file or directory`, or colcon fails with
+  `Syntax error: end of file unexpected` (Windows):** the clone has CRLF line
+  endings. Run `git config --global core.autocrlf input`, delete the clone, clone it
+  again, then `docker compose build` (and `docker compose down -v` for dev mode).
 - **Foxglove can't connect / sim has no sensor data, with a VPN on:** Cisco Secure
   Client (AnyConnect) blocks traffic to Docker's networks while connected. Disconnect
   it, or enable *Allow local (LAN) access* in its preferences if your profile allows.

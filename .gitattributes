@@ -1,0 +1,4 @@
+# Scripts run inside Linux containers / on the rover: a CRLF checkout (Git for
+# Windows default) breaks their #! lines. Keep them LF everywhere.
+*.sh text eol=lf
+*.py text eol=lf

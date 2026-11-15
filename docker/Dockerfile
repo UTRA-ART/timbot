@@ -29,10 +29,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         ros-humble-cartographer-ros \
         ros-humble-xacro \
         ros-humble-foxglove-bridge \
+        ros-humble-topic-tools \
+        ros-humble-rmw-cyclonedds-cpp \
         python3-pip python3-scipy \
         xvfb libgl1-mesa-dri \
         git \
     && rm -rf /var/lib/apt/lists/*
+
+# With the default Fast DDS, Nav2's lifecycle_manager intermittently loses a service
+# reply during bringup and Nav2 never activates (~1 start in 4 here). Cyclone avoids it.
+ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 
 # utm: GPS conversion in load_waypoints. torch is left out: the classical lane
 # detector (the sim default) doesn't need it, and it would triple the image size.
