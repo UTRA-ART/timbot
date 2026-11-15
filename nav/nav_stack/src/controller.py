@@ -271,6 +271,12 @@ class NavController(Node):
         cmd.linear.x = linear_velocity
         cmd.angular.z = angular_velocity
 
+        self.get_logger().info(
+                    f'local_x={local_x:.2f}, '
+                    f'v_cmd={cmd.linear.x:.2f}, '
+                    f'w_cmd={cmd.angular.z:.2f}, '
+                    f'v_actual={current_linear_velocity:.2f}'
+                )
         self.publisher.publish(cmd)
 
 
