@@ -161,6 +161,9 @@ class NavPlanner(Node):
             cancel_callback=self.cancel_callback,
             callback_group=self.cb_group
         )
+        self.get_logger().info(
+            'NavPlanner started; listening for goals on /navigate_to_pose'
+        )
 
     def obstacle_update_callback(self, msg):
         # Fixing resolution
@@ -310,6 +313,7 @@ class NavPlanner(Node):
                 break
 
             # Publish path
+            self.get_logger().info('Planning')
             self.publisher.publish(planned_path)            
             time.sleep(0.1)
             
