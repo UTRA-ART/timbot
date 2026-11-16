@@ -53,7 +53,9 @@ Set before the command, e.g. `TIMBOT_CV=1 docker compose up dev`
 
 | Variable | Effect |
 |---|---|
-| `TIMBOT_CV=1` | Simulated ZED camera + lane/depth detection (`/zed_node/left/image`, `/cv/model_output`). Heavy without a GPU. |
+| `TIMBOT_CV=1` | Simulated ZED camera + lane/depth detection (`/zed_node/left/image`, `/cv/model_output`). Best with the GPU setup below. On the CPU it still works, but the camera drops to ~3 Hz and the sim runs below real time (real-time factor ~0.6–0.9). |
+| `TIMBOT_LOG_LEVEL=info` | Sets every node's log level (`debug`, `info`, `warn`, `error`). The configs default most nodes to `error`; use `info` to see node logs in a Foxglove **Log** panel on `/rosout`. Launch and Gazebo output only appear in `docker compose logs -f`. |
+| `TIMBOT_WORLD=0` | Don't publish the ground-truth topics at all (`/gazebo_world*`); saves a little CPU in the container. |
 | `TIMBOT_CONFIG=<file>` | Launch config from `launch/config/` (default `sim_headless.yaml`: `sim.yaml` minus GUI/RViz). |
 | `TIMBOT_TAG=<tag>` | Which published image `docker compose up` pulls (default `latest`, built from `main`; `docker` = the `docker` branch). |
 
@@ -65,7 +67,22 @@ Set before the command, e.g. `TIMBOT_CV=1 docker compose up dev`
 - **After restarting the sim, reload the Foxglove tab.** Foxglove follows the sim's
   clock, which restarts at 0, so plots otherwise stay stuck on the previous run.
 - **Plots** need a numeric field, e.g. `/cmd_vel.linear.x`, not just `/cmd_vel`.
-- **Drive manually:** a Teleop panel on `/key_vel` (overrides Nav2 via twist_mux).
+- **Drive manually:** a Teleop panel publishing to `/joy_vel`. twist_mux starts in
+  "manual" mode (`joy_priority` = true, as on the rover until the controller's toggle
+  button is pressed), so only joystick-priority input gets through; `/key_vel` is
+  ignored until that's toggled. Nav2 publishes to `/cmd_vel` directly, so nav goals
+  work either way.
+- **Robot model:** `/robot_lowpoly` is a lightweight copy of the robot (about 25k
+  triangles instead of 1M; regenerate with `description/rover_model/meshes/lowpoly/make_lowpoly.py`).
+  The full-detail `/robot_description` is hidden by default; it's a 40 MB download.
+- **Ground truth (opt-in):** hidden by default, since they can lag weaker computers.
+  Tick them in the 3D panel's Topics list; hidden topics aren't downloaded at all.
+  - `/gazebo_world`: walls, ramps and barrels, placed from the robot's spawn pose.
+  - `/gazebo_world/ground`: the textured pavement (the heaviest; 8.6 MB texture).
+  - `/gazebo_world/ground_truth`: a green ghost of the robot at its true pose in Gazebo.
+
+  Where the ghost and the grey robot separate, or the lidar/map is offset from the
+  walls, the localization estimate is off by that much.
 - **Camera:** an Image panel on `/zed_node/left/image` (needs `TIMBOT_CV=1`).
 
 ## Gazebo window (Windows, optional)

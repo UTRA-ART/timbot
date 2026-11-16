@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 1 m x 1 m Z-up square textured with IGVC_pavement.png, matching how Gazebo maps the
+     texture onto the ground plane (image top = +y). Scaled to the plane's size by
+     world_markers.py. -->
+<COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1">
+  <asset>
+    <unit name="meter" meter="1"/>
+    <up_axis>Z_UP</up_axis>
+  </asset>
+  <library_images>
+    <image id="pavement-image"><init_from>IGVC_pavement.png</init_from></image>
+  </library_images>
+  <library_effects>
+    <effect id="pavement-effect">
+      <profile_COMMON>
+        <newparam sid="pavement-surface">
+          <surface type="2D"><init_from>pavement-image</init_from></surface>
+        </newparam>
+        <newparam sid="pavement-sampler">
+          <sampler2D><source>pavement-surface</source></sampler2D>
+        </newparam>
+        <technique sid="common">
+          <lambert>
+            <diffuse><texture texture="pavement-sampler" texcoord="UVMap"/></diffuse>
+          </lambert>
+        </technique>
+      </profile_COMMON>
+    </effect>
+  </library_effects>
+  <library_materials>
+    <material id="pavement-material"><instance_effect url="#pavement-effect"/></material>
+  </library_materials>
+  <library_geometries>
+    <geometry id="plane-mesh">
+      <mesh>
+        <source id="plane-positions">
+          <float_array id="plane-positions-array" count="12">-0.5 -0.5 0 0.5 -0.5 0 0.5 0.5 0 -0.5 0.5 0</float_array>
+          <technique_common>
+            <accessor source="#plane-positions-array" count="4" stride="3">
+              <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="plane-normals">
+          <float_array id="plane-normals-array" count="3">0 0 1</float_array>
+          <technique_common>
+            <accessor source="#plane-normals-array" count="1" stride="3">
+              <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="plane-uvs">
+          <float_array id="plane-uvs-array" count="8">0 0 1 0 1 1 0 1</float_array>
+          <technique_common>
+            <accessor source="#plane-uvs-array" count="4" stride="2">
+              <param name="S" type="float"/><param name="T" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="plane-vertices">
+          <input semantic="POSITION" source="#plane-positions"/>
+        </vertices>
+        <triangles material="pavement-material" count="2">
+          <input semantic="VERTEX" source="#plane-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#plane-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#plane-uvs" offset="2" set="0"/>
+          <p>0 0 0 1 0 1 2 0 2 0 0 0 2 0 2 3 0 3</p>
+        </triangles>
+      </mesh>
+    </geometry>
+  </library_geometries>
+  <library_visual_scenes>
+    <visual_scene id="scene">
+      <node id="plane">
+        <instance_geometry url="#plane-mesh">
+          <bind_material>
+            <technique_common>
+              <instance_material symbol="pavement-material" target="#pavement-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+            </technique_common>
+          </bind_material>
+        </instance_geometry>
+      </node>
+    </visual_scene>
+  </library_visual_scenes>
+  <scene><instance_visual_scene url="#scene"/></scene>
+</COLLADA>

@@ -1,34 +1,296 @@
 {
   "configById": {
-    "3D!timbot": {
-      "followTf": "base_link",
-      "followMode": "follow-position",
-      "scene": { "enableStats": false },
+    "Image!camera": {
+      "imageMode": {
+        "imageTopic": "/zed_node/left/image"
+      },
       "cameraState": {
-        "distance": 25,
+        "distance": 20,
         "perspective": true,
-        "phi": 45,
-        "thetaOffset": 90,
-        "targetOffset": [0, 0, 0],
-        "target": [0, 0, 0],
-        "targetOrientation": [0, 0, 0, 1],
+        "phi": 60,
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "targetOffset": [
+          0,
+          0,
+          0
+        ],
+        "targetOrientation": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "thetaOffset": 60,
         "fovy": 45,
         "near": 0.5,
         "far": 5000
       },
-      "transforms": { "editable": false },
+      "followMode": "follow-pose",
+      "scene": {},
+      "transforms": {},
+      "topics": {},
+      "layers": {},
+      "publish": {
+        "type": "point",
+        "poseTopic": "/move_base_simple/goal",
+        "pointTopic": "/clicked_point",
+        "poseEstimateTopic": "/initialpose",
+        "poseEstimateXDeviation": 0.5,
+        "poseEstimateYDeviation": 0.5,
+        "poseEstimateThetaDeviation": 0.26179939
+      },
+      "synchronize": false
+    },
+    "Image!lanes": {
+      "imageMode": {
+        "imageTopic": "/cv/model_output"
+      },
+      "cameraState": {
+        "distance": 20,
+        "perspective": true,
+        "phi": 60,
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "targetOffset": [
+          0,
+          0,
+          0
+        ],
+        "targetOrientation": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "thetaOffset": 60,
+        "fovy": 45,
+        "near": 0.5,
+        "far": 5000
+      },
+      "followMode": "follow-pose",
+      "scene": {},
+      "transforms": {},
+      "topics": {},
+      "layers": {},
+      "publish": {
+        "type": "point",
+        "poseTopic": "/move_base_simple/goal",
+        "pointTopic": "/clicked_point",
+        "poseEstimateTopic": "/initialpose",
+        "poseEstimateXDeviation": 0.5,
+        "poseEstimateYDeviation": 0.5,
+        "poseEstimateThetaDeviation": 0.26179939
+      },
+      "synchronize": false
+    },
+    "3D!main": {
+      "followTf": "base_link",
+      "followMode": "follow-position",
+      "cameraState": {
+        "perspective": true,
+        "distance": 14.595249488358293,
+        "phi": 41.76620076238913,
+        "thetaOffset": -105.15247776365953,
+        "targetOffset": [
+          0,
+          0,
+          0
+        ],
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "targetOrientation": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "fovy": 45,
+        "near": 0.5,
+        "far": 5000
+      },
+      "scene": {
+        "enableStats": false,
+        "meshUpAxis": "z_up",
+        "transforms": {
+          "showLabel": false,
+          "editable": false
+        }
+      },
+      "transforms": {
+        "frame:utm": {
+          "visible": false
+        }
+      },
       "layers": {
-        "grid": { "layerId": "foxglove.Grid", "visible": true, "frameId": "map", "size": 60, "divisions": 60 }
+        "grid": {
+          "layerId": "foxglove.Grid",
+          "instanceId": "grid",
+          "label": "Grid",
+          "visible": true,
+          "frameId": "map",
+          "size": 60,
+          "divisions": 60,
+          "lineWidth": 1,
+          "color": "#248eff33",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "order": 1
+        }
       },
       "topics": {
-        "/robot_description": { "visible": true },
-        "/map": { "visible": true, "colorMode": "map" },
-        "/global_costmap/costmap": { "visible": true, "colorMode": "costmap", "alpha": 0.5 },
-        "/local_costmap/costmap": { "visible": true, "colorMode": "costmap", "alpha": 0.6 },
-        "/scan_modified": { "visible": true, "pointSize": 4, "colorMode": "flat", "flatColor": "#ff3b30" },
-        "/plan": { "visible": true, "type": "line", "lineWidth": 0.08, "gradient": ["#2f7bff", "#2f7bff"] },
-        "/local_plan": { "visible": true, "type": "line", "lineWidth": 0.08, "gradient": ["#34c759", "#34c759"] },
-        "/goal_pose": { "visible": true }
+        "/robot_lowpoly": {
+          "visible": true
+        },
+        "/gazebo_world/ground_truth": {
+          "visible": false
+        },
+        "/gazebo_world/ground": {
+          "visible": false
+        },
+        "/gazebo_world": {
+          "visible": false
+        },
+        "/robot_description": {
+          "visible": false
+        },
+        "/map": {
+          "visible": true,
+          "colorMode": "map"
+        },
+        "/global_costmap/costmap": {
+          "visible": true,
+          "colorMode": "costmap",
+          "alpha": 0.45
+        },
+        "/local_costmap/costmap": {
+          "visible": true,
+          "colorMode": "costmap",
+          "alpha": 0.6
+        },
+        "/scan_modified": {
+          "visible": true,
+          "pointSize": 4,
+          "colorMode": "flat",
+          "flatColor": "#ff4d4d"
+        },
+        "/plan": {
+          "visible": true,
+          "type": "line",
+          "lineWidth": 0.06,
+          "gradient": [
+            "#2f80ff",
+            "#2f80ff"
+          ]
+        },
+        "/local_plan": {
+          "visible": true,
+          "type": "line",
+          "lineWidth": 0.06,
+          "gradient": [
+            "#34c759",
+            "#34c759"
+          ]
+        },
+        "/local_costmap/published_footprint": {
+          "visible": true,
+          "lineWidth": 0.04,
+          "color": "#ffd400"
+        },
+        "/global_costmap/published_footprint": {
+          "visible": false
+        },
+        "/goal_pose": {
+          "visible": true,
+          "type": "arrow",
+          "arrowScale": [
+            1,
+            0.2,
+            0.2
+          ],
+          "color": "#00e5ff"
+        },
+        "/ramp_seg": {
+          "visible": false,
+          "type": "arrow",
+          "arrowScale": [
+            0.8,
+            0.2,
+            0.2
+          ],
+          "gradient": [
+            "#b44dff",
+            "#b44dff"
+          ]
+        },
+        "/text_marker": {
+          "visible": true
+        },
+        "/zed_node/left/obstacle_points": {
+          "visible": true,
+          "pointSize": 4,
+          "colorMode": "colormap",
+          "flatColor": "#ff9500",
+          "colorField": "z",
+          "colorMap": "turbo"
+        },
+        "/cv/lane_detections_cloud": {
+          "visible": true,
+          "pointSize": 3,
+          "colorMode": "colormap",
+          "flatColor": "#f5f5f5",
+          "colorField": "z",
+          "colorMap": "turbo"
+        },
+        "/zed_node/left/ramp_points": {
+          "visible": true,
+          "pointSize": 4,
+          "colorMode": "colormap",
+          "flatColor": "#b44dff",
+          "colorField": "z",
+          "colorMap": "turbo"
+        },
+        "/zed_node/left/depth_points": {
+          "visible": false,
+          "pointSize": 2,
+          "colorMode": "flat",
+          "flatColor": "#8e8e93"
+        },
+        "/zed_node/left/points_rviz": {
+          "visible": false,
+          "pointSize": 2,
+          "colorMode": "rgb",
+          "colorField": "rgb"
+        },
+        "/zed_node/left/points": {
+          "visible": false
+        },
+        "/constraint_list": {
+          "visible": false
+        },
+        "/trajectory_node_list": {
+          "visible": false
+        },
+        "/scan_matched_points2": {
+          "visible": false
+        }
       },
       "publish": {
         "type": "pose",
@@ -37,54 +299,159 @@
         "poseEstimateTopic": "/initialpose",
         "poseEstimateXDeviation": 0.5,
         "poseEstimateYDeviation": 0.5,
-        "poseEstimateThetaDeviation": 0.26
+        "poseEstimateThetaDeviation": 0.26179939
       },
-      "imageMode": {}
+      "imageMode": {},
+      "synchronize": false
     },
-    "Teleop!timbot": {
-      "topic": "/key_vel",
-      "publishRate": 10,
-      "upButton": { "field": "linear-x", "value": 0.5 },
-      "downButton": { "field": "linear-x", "value": -0.5 },
-      "leftButton": { "field": "angular-z", "value": 0.6 },
-      "rightButton": { "field": "angular-z", "value": -0.6 }
-    },
-    "Plot!timbot": {
+    "Plot!speed": {
       "paths": [
-        { "value": "/cmd_vel.linear.x", "enabled": true, "timestampMethod": "receiveTime", "label": "cmd linear.x" },
-        { "value": "/cmd_vel.angular.z", "enabled": true, "timestampMethod": "receiveTime", "label": "cmd angular.z" }
+        {
+          "value": "/cmd_vel.linear.x",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "label": "commanded speed (m/s)",
+          "color": "#4e98e2"
+        },
+        {
+          "value": "/odometry/local.twist.twist.linear.x",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "label": "actual speed (m/s)",
+          "color": "#f5774d"
+        }
       ],
-      "showXAxisLabels": true,
-      "showYAxisLabels": true,
       "showLegend": true,
       "legendDisplay": "floating",
-      "followingViewWidth": 30
+      "showPlotValuesInLegend": false,
+      "showXAxisLabels": true,
+      "showYAxisLabels": true,
+      "isSynced": true,
+      "xAxisVal": "timestamp",
+      "followingViewWidth": 30,
+      "sidebarDimension": 240
     },
-    "RawMessages!timbot": {
-      "topicPath": "/odometry/global.pose.pose.position",
-      "diffEnabled": false,
-      "diffMethod": "custom",
-      "diffTopicPath": "",
-      "showFullMessageForDiff": false
+    "RawMessages!1jnxbhy": {
+      "defaultExpanded": false,
+      "topicPath": "/cmd_vel"
+    },
+    "Teleop!drive": {
+      "topic": "/joy_vel",
+      "publishRate": 10,
+      "upButton": {
+        "field": "linear-x",
+        "value": 0.5
+      },
+      "downButton": {
+        "field": "linear-x",
+        "value": -0.5
+      },
+      "leftButton": {
+        "field": "angular-z",
+        "value": 0.6
+      },
+      "rightButton": {
+        "field": "angular-z",
+        "value": -0.6
+      },
+      "autoSendStopOnRelease": false,
+      "stopButton": {
+        "field": "linear-x",
+        "value": 0
+      }
+    },
+    "RosOut!log": {
+      "topicToRender": "/rosout",
+      "minLogLevel": 2,
+      "searchTerms": [],
+      "nameFilter": {},
+      "fontSize": 12,
+      "showLevel": true,
+      "showDate": true,
+      "showTime": true,
+      "showTimezone": true,
+      "showName": true,
+      "showSourceLocation": false
+    },
+    "DiagnosticSummary!diag": {
+      "topicToRender": "/diagnostics",
+      "minLevel": 0,
+      "pinnedIds": [],
+      "hardwareIdFilter": "",
+      "sortByLevel": true,
+      "secondsUntilStale": 5
+    },
+    "Plot!2ycofgd": {
+      "paths": [
+        {
+          "value": "/cmd_vel.angular.z",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "label": "commanded turn (rad/s)",
+          "color": "#f7df71"
+        },
+        {
+          "value": "/odometry/local.twist.twist.angular.z",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "label": "actual turn (rad/s)",
+          "color": "#5cd6a9"
+        }
+      ],
+      "showLegend": true,
+      "legendDisplay": "floating",
+      "showPlotValuesInLegend": false,
+      "showXAxisLabels": true,
+      "showYAxisLabels": true,
+      "isSynced": true,
+      "xAxisVal": "timestamp",
+      "followingViewWidth": 30,
+      "sidebarDimension": 240
     }
   },
   "globalVariables": {},
   "userNodes": {},
-  "playbackConfig": { "speed": 1 },
+  "playbackConfig": {
+    "speed": 1
+  },
   "layout": {
-    "first": "3D!timbot",
-    "second": {
-      "first": "Teleop!timbot",
-      "second": {
-        "first": "Plot!timbot",
-        "second": "RawMessages!timbot",
+    "direction": "column",
+    "splitPercentage": 72,
+    "first": {
+      "direction": "row",
+      "splitPercentage": 22,
+      "first": {
         "direction": "column",
-        "splitPercentage": 60
+        "splitPercentage": 50,
+        "first": "Image!camera",
+        "second": "Image!lanes"
       },
-      "direction": "column",
-      "splitPercentage": 40
+      "second": {
+        "direction": "row",
+        "splitPercentage": 72,
+        "first": "3D!main",
+        "second": {
+          "first": {
+            "first": "Plot!speed",
+            "second": "Plot!2ycofgd",
+            "direction": "column"
+          },
+          "second": "RawMessages!1jnxbhy",
+          "direction": "column",
+          "splitPercentage": 72.00742042569811
+        }
+      }
     },
-    "direction": "row",
-    "splitPercentage": 72
+    "second": {
+      "direction": "row",
+      "splitPercentage": 56.05468586215691,
+      "first": {
+        "first": "Teleop!drive",
+        "second": "RosOut!log",
+        "direction": "row",
+        "splitPercentage": 39.303244565104514
+      },
+      "second": "DiagnosticSummary!diag"
+    }
   }
 }

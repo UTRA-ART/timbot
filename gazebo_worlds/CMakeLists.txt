@@ -21,4 +21,10 @@ install(DIRECTORY
   DESTINATION share/${PROJECT_NAME}/
 )
 
+# Publishes the world's scenery as markers (used by the Docker/Foxglove sim)
+install(PROGRAMS
+  scripts/world_markers.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 ament_package()

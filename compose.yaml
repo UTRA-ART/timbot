@@ -1,7 +1,7 @@
 # Headless Timbot sim; view it in Foxglove at ws://localhost:8765. See docker/README.md.
 #   docker compose up          prebuilt image (pulled from GHCR, or built locally)
 #   docker compose up dev      your checkout, rebuilt with colcon on every start
-# Options: TIMBOT_CV=1 docker compose up ...   (also TIMBOT_CONFIG=<file>,
+# Options: TIMBOT_CV=1 docker compose up ...   (also TIMBOT_CONFIG=<file>, TIMBOT_LOG_LEVEL=info, TIMBOT_WORLD=0,
 #          TIMBOT_TAG=<tag> to pull another published image, e.g. TIMBOT_TAG=docker)
 # Linux + NVIDIA GPU: add  -f compose.yaml -f docker/compose.gpu.yaml  after "docker compose".
 
@@ -13,6 +13,8 @@ x-sim: &sim
   environment:
     TIMBOT_CONFIG: ${TIMBOT_CONFIG:-sim_headless.yaml}
     TIMBOT_CV: ${TIMBOT_CV:-0}
+    TIMBOT_LOG_LEVEL: ${TIMBOT_LOG_LEVEL:-}
+    TIMBOT_WORLD: ${TIMBOT_WORLD:-1}
 
 services:
   sim:
@@ -31,6 +33,8 @@ services:
       context: .
       dockerfile: docker/Dockerfile
       target: dev
+    # Run the checkout's entrypoint, so edits to it apply without rebuilding the image.
+    entrypoint: ["bash", "/ws/src/timbot/docker/start_sim.sh"]
     volumes:
       - .:/ws/src/timbot
       # Build output stays in Docker volumes: fast on macOS/Windows, and keeps
