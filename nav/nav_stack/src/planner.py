@@ -2,6 +2,8 @@
 
 import rclpy
 import time
+import heapq
+import math
 import numpy as np
 from scipy import ndimage
 from nav_msgs.msg import Path, Odometry, OccupancyGrid
@@ -34,6 +36,8 @@ class NavPlanner(Node):
         self.declare_parameter('mapping.inflation_min', 20)
         self.declare_parameter('mapping.robot_radius', 1.0)
         self.declare_parameter('mapping.map_resolution', 1.0)
+        self.declare_parameter('planning.curvature_cost_weight', 1.0)
+        self.declare_parameter('planning.max_search_distance', 20.0)
 
         self.declare_parameter('constraints.goal_tolerance', 1.0)
         self.declare_parameter(
@@ -88,6 +92,12 @@ class NavPlanner(Node):
         self.robot_radius = float(self.get_parameter('mapping.robot_radius').value)
         self.map_resolution = float(
             self.get_parameter('mapping.map_resolution').value
+        )
+        self.curvature_cost_weight = float(
+            self.get_parameter('planning.curvature_cost_weight').value
+        )
+        self.max_search_distance = float(
+            self.get_parameter('planning.max_search_distance').value
         )
 
         self.goal_tolerance = float(
@@ -257,6 +267,150 @@ class NavPlanner(Node):
         # You must return ACCEPT, otherwise the client's cancel request is ignored.
         return CancelResponse.ACCEPT
 
+    def _world_to_grid(self, x, y, costmap):
+        origin = costmap.info.origin.position
+        return (
+            int(math.floor((x - origin.x) / costmap.info.resolution)),
+            int(math.floor((y - origin.y) / costmap.info.resolution)),
+        )
+
+    def _grid_to_world(self, x, y, costmap):
+        origin = costmap.info.origin.position
+        resolution = costmap.info.resolution
+        return (
+            origin.x + (x + 0.5) * resolution,
+            origin.y + (y + 0.5) * resolution,
+        )
+
+    def _find_path(self, start, goal, costmap):
+        """Find a collision-free path in the current costmap with A*."""
+        width = int(costmap.info.width)
+        height = int(costmap.info.height)
+        costs = np.asarray(costmap.data, dtype=np.int16).reshape((height, width))
+        start_x, start_y = start
+        goal_x, goal_y = goal
+
+        if not (0 <= start_x < width and 0 <= start_y < height
+                and 0 <= goal_x < width and 0 <= goal_y < height):
+            return None
+
+        # A cost of 100 is lethal; -1 is unknown and is not safe to traverse.
+        traversable = (costs >= 0) & (costs < 100)
+        if not traversable[start_y, start_x] or not traversable[goal_y, goal_x]:
+            return None
+
+        resolution = float(costmap.info.resolution)
+        distance_to_goal = math.hypot(
+            (goal_x - start_x) * resolution,
+            (goal_y - start_y) * resolution,
+        )
+        search_radius = max(distance_to_goal, self.max_search_distance)
+        search_radius_squared = search_radius ** 2
+        directions = (
+            (-1, -1), (0, -1), (1, -1),
+            (-1, 0),            (1, 0),
+            (-1, 1),  (0, 1),  (1, 1),
+        )
+        def heuristic(x, y):
+            return math.hypot(goal_x - x, goal_y - y)
+
+        # Include the incoming direction in the state so a turn penalty is
+        # evaluated without making the path cost dependent on search order.
+        start_state = (start_x, start_y, -1)
+        open_set = [(heuristic(start_x, start_y), 0.0, start_state)]
+        best_cost = {start_state: 0.0}
+        came_from = {}
+
+        while open_set:
+            _, current_cost, current = heapq.heappop(open_set)
+            if current_cost > best_cost.get(current, float('inf')):
+                continue
+
+            x, y, incoming_direction = current
+            if (x, y) == (goal_x, goal_y):
+                states = [current]
+                while states[-1] != start_state:
+                    states.append(came_from[states[-1]])
+                states.reverse()
+                return [(state[0], state[1]) for state in states]
+
+            for direction_index, (dx, dy) in enumerate(directions):
+                next_x, next_y = x + dx, y + dy
+                if not (0 <= next_x < width and 0 <= next_y < height):
+                    continue
+                if not traversable[next_y, next_x]:
+                    continue
+
+                offset_x = (next_x - start_x) * resolution
+                offset_y = (next_y - start_y) * resolution
+                if offset_x ** 2 + offset_y ** 2 > search_radius_squared:
+                    continue
+
+                # Do not let a diagonal step cut through the corner of an
+                # obstacle.
+                if dx and dy and (
+                    not traversable[y, next_x] or not traversable[next_y, x]
+                ):
+                    continue
+
+                step_distance = math.hypot(dx, dy)
+                cell_cost = float(costs[next_y, next_x]) / 100.0
+                turn_cost = 0.0
+                if incoming_direction >= 0:
+                    previous_dx, previous_dy = directions[incoming_direction]
+                    dot = previous_dx * dx + previous_dy * dy
+                    previous_length = math.hypot(previous_dx, previous_dy)
+                    turn_cost = self.curvature_cost_weight * (
+                        1.0 - dot / (previous_length * step_distance)
+                    )
+
+                next_state = (
+                    next_x,
+                    next_y,
+                    direction_index,
+                )
+                next_cost = current_cost + step_distance + cell_cost + turn_cost
+                if next_cost >= best_cost.get(next_state, float('inf')):
+                    continue
+                best_cost[next_state] = next_cost
+                came_from[next_state] = current
+                heapq.heappush(
+                    open_set,
+                    (next_cost + heuristic(next_x, next_y), next_cost, next_state),
+                )
+
+        return None
+
+    def _path_message(self, grid_path, costmap, goal, start_position):
+        path = Path()
+        path.header.frame_id = costmap.header.frame_id or 'map'
+        path.header.stamp = self.get_clock().now().to_msg()
+
+        for index, (grid_x, grid_y) in enumerate(grid_path):
+            x, y = self._grid_to_world(grid_x, grid_y, costmap)
+            if index == 0:
+                x, y = start_position.x, start_position.y
+            elif index == len(grid_path) - 1:
+                x, y = goal.position.x, goal.position.y
+            if index + 1 < len(grid_path):
+                next_x, next_y = self._grid_to_world(
+                    grid_path[index + 1][0], grid_path[index + 1][1], costmap
+                )
+                if index + 1 == len(grid_path) - 1:
+                    next_x, next_y = goal.position.x, goal.position.y
+                yaw = math.atan2(next_y - y, next_x - x)
+            else:
+                yaw = 2.0 * math.atan2(goal.orientation.z, goal.orientation.w)
+
+            pose = PoseStamped()
+            pose.header = path.header
+            pose.pose.position.x = x
+            pose.pose.position.y = y
+            pose.pose.orientation.z = math.sin(yaw / 2.0)
+            pose.pose.orientation.w = math.cos(yaw / 2.0)
+            path.poses.append(pose)
+        return path
+
     def execute_callback(self, goal_handle):
         """The main execution loop for the navigation task."""
         self.get_logger().info('Executing goal...')
@@ -265,6 +419,10 @@ class NavPlanner(Node):
         
         # Simulate navigation execution loop
         # In a real robot, you would monitor the robot's pose vs the goal pose here.
+
+        refreshing = False
+        target_goal = self.goal
+
         while True:
             # 1. Check if the client requested cancellation (respawn/ramp interrupt)
             if goal_handle.is_cancel_requested:
@@ -273,47 +431,66 @@ class NavPlanner(Node):
                 return result
 
             planned_path = Path()
-            planned_path.header.frame_id = 'map'
-            planned_path.header.stamp = self.get_clock().now().to_msg()
-            for y_position in range(5):
-                pose = PoseStamped()
-                pose.header = planned_path.header
-                pose.pose.position.y = float(y_position/2)
-                pose.pose.position.x = float(y_position/2)
-                pose.pose.orientation.w = 0.5**0.5
-                pose.pose.orientation.z = 0.5**0.5
-                planned_path.poses.append(pose)
-
             # If the robot is at the target
             condition_to_success = False
-            if self.pose is not None and self.goal is not None:
+            if self.pose is not None and target_goal is not None:
                 robot_position = self.pose.pose.pose.position
-                goal_position = self.goal.position
+                goal_position = target_goal.position
                 goal_distance = np.hypot(
                     goal_position.x - robot_position.x,
                     goal_position.y - robot_position.y,
                 )
                 condition_to_success = goal_distance <= self.goal_tolerance
 
+            done_refreshing = False
             if condition_to_success:
-                self.publisher.publish(planned_path)
-                self.get_logger().info('Goal reached successfully!')
-                goal_handle.succeed()
-                break
+                if refreshing:
+                    refreshing = False
+                    done_refreshing = True
+                    target_goal = self.goal
+                else:
+                    self.publisher.publish(planned_path)
+                    self.get_logger().info('Goal reached successfully!')
+                    goal_handle.succeed()
+                    break
 
-            # Compute path here
-            path_found = True
+            path_found = False
+            if self.costmap is not None and self.pose is not None and target_goal is not None:
+                robot_position = self.pose.pose.pose.position
+                start = self._world_to_grid(
+                    robot_position.x, robot_position.y, self.costmap
+                )
+                goal = self._world_to_grid(
+                    target_goal.position.x, target_goal.position.y, self.costmap
+                )
+                grid_path = self._find_path(start, goal, self.costmap)
+                if grid_path is not None:
+                    planned_path = self._path_message(
+                        grid_path, self.costmap, target_goal, robot_position
+                    )
+                    path_found = True
+
+            # Does not need to consider turning rates / acceleration since a differential drive can do this.
+            # Instead, we can add a cost that includes curvature so less curvature is better inside regular A*
+            # We also need to include a max search distance, limits the field to only consider a circle centered at the robot to the goal
+
             # TODO
 
             # If a path can't be computed
             if (not path_found):
-                # Create a path that should move backwards / find a way to 
-                self.publisher.publish(planned_path)
-                self.get_logger().info('Path not found')
-                break
+                if refreshing or done_refreshing:
+                    pass # Clear costmap
+                else:
+                    # Find a target goal in the opposite direction
+                    target_goal = self.goal
+                    refreshing = True
+
+                    # self.publisher.publish(planned_path)
+                    self.get_logger().info('Path not found')
+                    break
 
             # Publish path
-            self.get_logger().info('Planning')
+            # self.get_logger().info('Planning')
             self.publisher.publish(planned_path)            
             time.sleep(0.1)
             
