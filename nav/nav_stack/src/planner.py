@@ -282,6 +282,34 @@ class NavPlanner(Node):
             origin.y + (y + 0.5) * resolution,
         )
 
+    def _resolve_goal_cell(self, goal, costmap):
+        """Return a goal cell, allowing goals outside the mapped costmap."""
+        width = int(costmap.info.width)
+        height = int(costmap.info.height)
+        costs = np.asarray(costmap.data, dtype=np.int16).reshape((height, width))
+        traversable = (costs >= 0) & (costs < 100)
+
+        goal_x, goal_y = goal
+        in_bounds = 0 <= goal_x < width and 0 <= goal_y < height
+        if not in_bounds:
+            return (goal_x, goal_y), True
+
+        if in_bounds and traversable[goal_y, goal_x]:
+            return (goal_x, goal_y), False
+
+        if not np.any(traversable):
+            return None, False
+
+        clamped_x = min(max(goal_x, 0), width - 1)
+        clamped_y = min(max(goal_y, 0), height - 1)
+        candidates = np.argwhere(traversable)
+        nearest_index = np.argmin(
+            (candidates[:, 1] - clamped_x) ** 2
+            + (candidates[:, 0] - clamped_y) ** 2
+        )
+        nearest_y, nearest_x = candidates[nearest_index]
+        return (int(nearest_x), int(nearest_y)), True
+
     def _find_path(self, start, goal, costmap):
         """Find a collision-free path in the current costmap with A*."""
         width = int(costmap.info.width)
@@ -290,13 +318,18 @@ class NavPlanner(Node):
         start_x, start_y = start
         goal_x, goal_y = goal
 
-        if not (0 <= start_x < width and 0 <= start_y < height
-                and 0 <= goal_x < width and 0 <= goal_y < height):
-            return None
+        def cell_cost(x, y):
+            if 0 <= x < width and 0 <= y < height:
+                return int(costs[y, x])
+            return 0
+
+        def is_traversable(x, y):
+            cost = cell_cost(x, y)
+            # Outside the finite costmap is virtual free space with cost 0.
+            return 0 <= cost < 100
 
         # A cost of 100 is lethal; -1 is unknown and is not safe to traverse.
-        traversable = (costs >= 0) & (costs < 100)
-        if not traversable[start_y, start_x] or not traversable[goal_y, goal_x]:
+        if not is_traversable(start_x, start_y) or not is_traversable(goal_x, goal_y):
             return None
 
         resolution = float(costmap.info.resolution)
@@ -336,9 +369,7 @@ class NavPlanner(Node):
 
             for direction_index, (dx, dy) in enumerate(directions):
                 next_x, next_y = x + dx, y + dy
-                if not (0 <= next_x < width and 0 <= next_y < height):
-                    continue
-                if not traversable[next_y, next_x]:
+                if not is_traversable(next_x, next_y):
                     continue
 
                 offset_x = (next_x - start_x) * resolution
@@ -349,12 +380,13 @@ class NavPlanner(Node):
                 # Do not let a diagonal step cut through the corner of an
                 # obstacle.
                 if dx and dy and (
-                    not traversable[y, next_x] or not traversable[next_y, x]
+                    not is_traversable(next_x, y)
+                    or not is_traversable(x, next_y)
                 ):
                     continue
 
                 step_distance = math.hypot(dx, dy)
-                cell_cost = float(costs[next_y, next_x]) / 100.0
+                next_cell_cost = float(cell_cost(next_x, next_y)) / 100.0
                 turn_cost = 0.0
                 if incoming_direction >= 0:
                     previous_dx, previous_dy = directions[incoming_direction]
@@ -369,7 +401,7 @@ class NavPlanner(Node):
                     next_y,
                     direction_index,
                 )
-                next_cost = current_cost + step_distance + cell_cost + turn_cost
+                next_cost = current_cost + step_distance + next_cell_cost + turn_cost
                 if next_cost >= best_cost.get(next_state, float('inf')):
                     continue
                 best_cost[next_state] = next_cost
@@ -381,23 +413,35 @@ class NavPlanner(Node):
 
         return None
 
-    def _path_message(self, grid_path, costmap, goal, start_position):
+    def _path_message(
+        self, grid_path, costmap, goal, start_position, planned_goal_position=None
+    ):
         path = Path()
         path.header.frame_id = costmap.header.frame_id or 'map'
         path.header.stamp = self.get_clock().now().to_msg()
+        goal_x = (
+            goal.position.x
+            if planned_goal_position is None
+            else planned_goal_position[0]
+        )
+        goal_y = (
+            goal.position.y
+            if planned_goal_position is None
+            else planned_goal_position[1]
+        )
 
         for index, (grid_x, grid_y) in enumerate(grid_path):
             x, y = self._grid_to_world(grid_x, grid_y, costmap)
             if index == 0:
                 x, y = start_position.x, start_position.y
             elif index == len(grid_path) - 1:
-                x, y = goal.position.x, goal.position.y
+                x, y = goal_x, goal_y
             if index + 1 < len(grid_path):
                 next_x, next_y = self._grid_to_world(
                     grid_path[index + 1][0], grid_path[index + 1][1], costmap
                 )
                 if index + 1 == len(grid_path) - 1:
-                    next_x, next_y = goal.position.x, goal.position.y
+                    next_x, next_y = goal_x, goal_y
                 yaw = math.atan2(next_y - y, next_x - x)
             else:
                 yaw = 2.0 * math.atan2(goal.orientation.z, goal.orientation.w)
@@ -424,6 +468,54 @@ class NavPlanner(Node):
         target_goal = self.goal
 
         while True:
+            planned_path = Path()
+            planned_path.header.frame_id = 'map'
+            planned_path.header.stamp = self.get_clock().now().to_msg()
+            for y_position in range(5):
+                pose = PoseStamped()
+                pose.header = planned_path.header
+                pose.pose.position.y = float(y_position/2)
+                pose.pose.position.x = float(y_position/2)
+                pose.pose.orientation.w = 0.5**0.5
+                pose.pose.orientation.z = 0.5**0.5
+                planned_path.poses.append(pose)
+
+            # If the robot is at the target
+            condition_to_success = False
+            if self.pose is not None and self.goal is not None:
+                robot_position = self.pose.pose.pose.position
+                goal_position = self.goal.position
+                goal_distance = np.hypot(
+                    goal_position.x - robot_position.x,
+                    goal_position.y - robot_position.y,
+                )
+                condition_to_success = goal_distance <= self.goal_tolerance
+
+            if condition_to_success:
+                self.publisher.publish(planned_path)
+                self.get_logger().info('Goal reached successfully!')
+                goal_handle.succeed()
+                break
+
+            # Compute path here
+            path_found = True
+            # TODO
+
+            # If a path can't be computed
+            if (not path_found):
+                # Create a path that should move backwards / find a way to 
+                self.publisher.publish(planned_path)
+                self.get_logger().info('Path not found')
+                break
+
+            # Publish path
+            self.get_logger().info('Planning')
+            self.publisher.publish(planned_path)            
+            time.sleep(0.1)
+            continue
+
+
+
             # 1. Check if the client requested cancellation (respawn/ramp interrupt)
             if goal_handle.is_cancel_requested:
                 self.get_logger().info('Goal canceled during execution!')
@@ -463,10 +555,32 @@ class NavPlanner(Node):
                 goal = self._world_to_grid(
                     target_goal.position.x, target_goal.position.y, self.costmap
                 )
-                grid_path = self._find_path(start, goal, self.costmap)
+                resolved_goal, goal_projected = self._resolve_goal_cell(
+                    goal, self.costmap
+                )
+                grid_path = (
+                    self._find_path(start, resolved_goal, self.costmap)
+                    if resolved_goal is not None
+                    else None
+                )
                 if grid_path is not None:
+                    planned_goal_position = None
+                    if goal_projected and resolved_goal != goal:
+                        planned_goal_position = self._grid_to_world(
+                            resolved_goal[0], resolved_goal[1], self.costmap
+                        )
+                    if goal_projected and resolved_goal == goal:
+                        self.get_logger().info(
+                            'Goal is outside the current map; treating outside '
+                            'cells as free space with cost 0.',
+                            throttle_duration_sec=5.0,
+                        )
                     planned_path = self._path_message(
-                        grid_path, self.costmap, target_goal, robot_position
+                        grid_path,
+                        self.costmap,
+                        target_goal,
+                        robot_position,
+                        planned_goal_position,
                     )
                     path_found = True
 

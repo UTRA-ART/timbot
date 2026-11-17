@@ -109,6 +109,7 @@ class CVModelInferencer(Node):
         self.debug_overlay = np.zeros((self.camera_height, self.camera_width, 3), dtype=np.uint8)
         pts = mask_pts.reshape(-1, 2).astype(np.int32)
         cv2.polylines(self.debug_overlay, [pts], isClosed=True, color=(0, 0, 255), thickness=2)
+        self._last_cloud_stamp_ns = None
 
     def run(self):
         # Subscribe to camera info once to get intrinsics
@@ -208,10 +209,25 @@ class CVModelInferencer(Node):
             cloud.append((x, y, z))
 
         # Publish PointCloud2
+        stamp_ns = (
+            rgb_data.header.stamp.sec * 1_000_000_000
+            + rgb_data.header.stamp.nanosec
+        )
+        if (
+            self._last_cloud_stamp_ns is not None
+            and stamp_ns <= self._last_cloud_stamp_ns
+        ):
+            self.get_logger().warn(
+                'Dropping lane cloud with non-monotonic timestamp',
+                throttle_duration_sec=5.0,
+            )
+            return
+
         pt_header = Header(frame_id='left_camera_link_optical')
         pt_header.stamp = rgb_data.header.stamp
         pt_cloud = point_cloud2.create_cloud_xyz32(pt_header, cloud)
         self.pub_pt.publish(pt_cloud)
+        self._last_cloud_stamp_ns = stamp_ns
 
 
 def main(args=None):

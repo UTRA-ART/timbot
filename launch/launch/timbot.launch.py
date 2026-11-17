@@ -575,8 +575,8 @@ def build_hardware_driver_stages(config: dict) -> list:
 
 LAUNCH_STAGES = [
     ('Gazebo',         'gazebo',         launch_gazebo),
-    ('Spawn',          'spawn',          launch_spawn),
     ('Robot Bringup',  'robot_bringup',  launch_robot_bringup),
+    ('Spawn',          'spawn',          launch_spawn),
     ('Odom State',     'odom_state',     launch_odom_state),
     ('Filter Lidar',   'filter_lidar',   launch_filter_lidar),
     ('Lane Detection', 'lane_detection', launch_lane_detection),

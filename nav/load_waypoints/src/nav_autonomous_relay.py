@@ -35,7 +35,9 @@ class NavRelay(Node):
         self.nav_input_topic = self.create_subscription(Twist, nav_input_topic, self.nav_callback, 20)
         self.teleop_vel_sub = self.create_subscription(Twist, teleop_input_topic, self.teleop_callback, 1)
         self.mode_sub = self.create_subscription(Bool, pause_topic, self.pause_callback, 1)
-        self.is_paused = True # we default to being in keyboard mode
+        # Autonomous navigation is the active mode unless an explicit pause
+        # command switches control to teleoperation.
+        self.is_paused = False
 
         self.get_logger().info(
             f'Relaying {teleop_input_topic} and {nav_input_topic} → {output_topic} '
