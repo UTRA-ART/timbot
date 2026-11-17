@@ -173,17 +173,20 @@
         },
         "/map": {
           "visible": true,
-          "colorMode": "map"
+          "colorMode": "map",
+          "frameLocked": true
         },
         "/global_costmap/costmap": {
           "visible": true,
           "colorMode": "costmap",
-          "alpha": 0.45
+          "alpha": 0.45,
+          "frameLocked": true
         },
         "/local_costmap/costmap": {
           "visible": true,
           "colorMode": "costmap",
-          "alpha": 0.6
+          "alpha": 0.6,
+          "frameLocked": true
         },
         "/scan_modified": {
           "visible": true,
