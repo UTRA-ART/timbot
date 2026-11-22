@@ -93,6 +93,22 @@ def generate_launch_description():
         arguments=['--ros-args', '--log-level', log_level],
     )
 
+    custom_controller_node = Node(
+        package="nav_stack",
+        executable="custom_nav_controller",
+        name="custom_nav_controller",
+        output="screen",
+        parameters=[{
+            'use_sim_time': use_sim_time,
+            'odom_topic': '/odometry/global',
+            'plan_topic': '/plan',
+            'cmd_vel_topic': '/nav_vel',
+            'controller_frequency': 10.0,
+            'lookahead_distance': 0.2,
+            'goal_tolerance': 0.05,
+        }],
+    )
+
     behavior_server_node = Node(
         package='nav2_behaviors',
         executable='behavior_server',
@@ -150,6 +166,7 @@ def generate_launch_description():
         log_level_arg,         # Declares log_level argument
         planner_node,         # Global planner (includes global costmap)
         controller_node,      # Local controller/planner (includes local costmap)
+        custom_controller_node, # Custom Python path-following controller
         behavior_server_node, # Behavior server for recovery behaviors
         bt_navigator_node,    # Behavior tree navigator
         lifecycle_manager_node  # Lifecycle manager

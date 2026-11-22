@@ -22,7 +22,9 @@ install(DIRECTORY
 
 # Install debugging/testing scripts
 install(PROGRAMS
+  src/custom_nav_controller.py
   DESTINATION lib/${PROJECT_NAME}
+  RENAME custom_nav_controller
 )
 
 ament_package()
