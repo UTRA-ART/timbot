@@ -6,7 +6,6 @@ and publishes both a debug image with detected lanes overlaid and a PointCloud2 
 """
 
 import os
-import math
 
 import cv2
 import numpy as np
@@ -202,18 +201,16 @@ class CVModelInferencer(Node):
         cx = self.cx * sx
         cy = self.cy * sy
 
-        # Build 3D points from lane pixels using depth + intrinsics
-        lane_pixels = np.where(output == 255)
-        cloud = []
-        for v, u in zip(lane_pixels[0], lane_pixels[1]):
-            d = float(depth_resized[v, u])
-            if not math.isfinite(d) or d <= 0.0 or d > 10.0:
-                continue
-            # Optical frame: Z forward, X right, Y down
-            x = (u - cx) * d / fx
-            y = (v - cy) * d / fy
-            z = d
-            cloud.append((x, y, z))
+        # Build 3D points from lane pixels using depth + intrinsics (vectorised)
+        v, u = np.nonzero(output == 255)
+        d = depth_resized[v, u].astype(np.float64)
+        valid = np.isfinite(d) & (d > 0.0) & (d <= 10.0)
+        v, u, d = v[valid], u[valid], d[valid]
+        # Optical frame: Z forward, X right, Y down
+        cloud = np.empty((len(d), 3), np.float32)
+        cloud[:, 0] = (u - cx) * d / fx
+        cloud[:, 1] = (v - cy) * d / fy
+        cloud[:, 2] = d
 
         # Publish PointCloud2
         pt_header = Header(frame_id='left_camera_link_optical')

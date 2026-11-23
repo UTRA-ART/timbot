@@ -1,16 +1,38 @@
 #!/usr/bin/env python3
 
 import math
+import os
 
-import numpy as np
-import rclpy
-from geometry_msgs.msg import Pose, PoseArray
-from rcl_interfaces.msg import SetParametersResult
-from rclpy.node import Node
-from rclpy.qos import qos_profile_sensor_data
-from sensor_msgs.msg import PointCloud2
-from sensor_msgs_py import point_cloud2
-from std_msgs.msg import Header
+# numpy's OpenBLAS otherwise keeps a busy-waiting thread per core after each
+# matrix operation; this node's arrays are far too small to gain from threads.
+os.environ.setdefault('OPENBLAS_NUM_THREADS', '1')
+
+import numpy as np  # noqa: E402
+import rclpy  # noqa: E402
+from geometry_msgs.msg import Pose, PoseArray  # noqa: E402
+from rcl_interfaces.msg import SetParametersResult  # noqa: E402
+from rclpy.node import Node  # noqa: E402
+from rclpy.qos import qos_profile_sensor_data  # noqa: E402
+from scipy.sparse import coo_matrix  # noqa: E402
+from scipy.sparse.csgraph import connected_components  # noqa: E402
+from scipy.spatial import cKDTree  # noqa: E402
+from sensor_msgs.msg import PointCloud2  # noqa: E402
+from sensor_msgs_py import point_cloud2  # noqa: E402
+from std_msgs.msg import Header  # noqa: E402
+
+EMPTY_XYZ = np.zeros((0, 3), np.float64)
+
+
+def unique_rows_first(keys: np.ndarray):
+    """np.unique(keys, axis=0, return_index=True, return_inverse=True) for (N, d) int64
+    keys, much faster: packs each row into one int64 so numpy sorts 1-D integers."""
+    lo = keys.min(axis=0)
+    span = keys.max(axis=0) - lo + 1
+    flat = np.zeros(len(keys), np.int64)
+    for i in range(keys.shape[1]):
+        flat = flat * span[i] + (keys[:, i] - lo[i])
+    _, first, inverse = np.unique(flat, return_index=True, return_inverse=True)
+    return first, inverse.ravel()
 
 
 class PointCloudRVizFilter(Node):
@@ -226,148 +248,101 @@ class PointCloudRVizFilter(Node):
 
         return SetParametersResult(successful=True)
 
-    def effective_min_height(self, x_forward: float) -> float:
+    # Points are (N, 3) float64 arrays (x forward, y lateral, z height) throughout,
+    # vectorised with numpy; each step keeps the original per-point loop's results.
+
+    def effective_min_height(self, x_forward):
+        """Minimum obstacle height at forward distance x_forward (scalar or array)."""
         if not self.use_distance_height_filter:
             return self.min_height
 
-        extra_height = max(
+        extra_height = np.maximum(
             0.0,
             x_forward - self.height_filter_start_distance,
         ) * self.height_filter_slope
-        extra_height = min(extra_height, self.height_filter_max_extra)
+        extra_height = np.minimum(extra_height, self.height_filter_max_extra)
         return self.min_height + extra_height
 
-    def voxel_downsample(self, points: list) -> list:
-        if not self.voxel_downsample_obstacles or not points:
+    def voxel_downsample(self, points: np.ndarray) -> np.ndarray:
+        """Keep the first point (in input order) of every voxel_size cube."""
+        if not self.voxel_downsample_obstacles or len(points) == 0:
             return points
 
-        voxels = {}
-        for x, y, z in points:
-            key = (
-                math.floor(x / self.voxel_size),
-                math.floor(y / self.voxel_size),
-                math.floor(z / self.voxel_size),
-            )
-            if key not in voxels:
-                voxels[key] = (x, y, z)
-        return list(voxels.values())
+        first, _ = unique_rows_first(np.floor(points / self.voxel_size).astype(np.int64))
+        return points[np.sort(first)]
 
-    def cluster_points(self, points: list) -> list:
-        if not self.cluster_obstacles or not points:
+    def cluster_points(self, points: np.ndarray) -> np.ndarray:
+        """Drop points whose cluster is too small (or too big).
+
+        Clusters are the connected components of "within cluster_tolerance of each
+        other". Clusters come out in order of their first point, each cluster's
+        points in input order.
+        """
+        if not self.cluster_obstacles or len(points) == 0:
             return points
 
-        tolerance_sq = self.cluster_tolerance * self.cluster_tolerance
-        cell_size = self.cluster_tolerance
-        spatial_grid = {}
+        n = len(points)
+        pairs = cKDTree(points).query_pairs(self.cluster_tolerance, output_type='ndarray')
+        graph = coo_matrix((np.ones(len(pairs), np.int8), (pairs[:, 0], pairs[:, 1])), shape=(n, n))
+        _, labels = connected_components(graph, directed=False)
 
-        for index, (x, y, z) in enumerate(points):
-            key = (
-                math.floor(x / cell_size),
-                math.floor(y / cell_size),
-                math.floor(z / cell_size),
-            )
-            spatial_grid.setdefault(key, []).append(index)
+        sizes = np.bincount(labels)
+        keep = sizes >= self.min_cluster_points
+        if self.max_cluster_points:
+            keep &= sizes <= self.max_cluster_points
+        first_index = np.full(len(sizes), n)
+        np.minimum.at(first_index, labels, np.arange(n))
+        idx = np.nonzero(keep[labels])[0]
+        idx = idx[np.lexsort((idx, first_index[labels[idx]]))]
+        return points[idx]
 
-        visited = [False] * len(points)
-        clustered_points = []
-        neighbor_offsets = [
-            (dx, dy, dz)
-            for dx in (-1, 0, 1)
-            for dy in (-1, 0, 1)
-            for dz in (-1, 0, 1)
-        ]
-
-        for start_index in range(len(points)):
-            if visited[start_index]:
-                continue
-
-            visited[start_index] = True
-            queue = [start_index]
-            cluster_indices = []
-
-            while queue:
-                current_index = queue.pop()
-                cluster_indices.append(current_index)
-                x, y, z = points[current_index]
-                current_key = (
-                    math.floor(x / cell_size),
-                    math.floor(y / cell_size),
-                    math.floor(z / cell_size),
-                )
-
-                for dx, dy, dz in neighbor_offsets:
-                    neighbor_key = (
-                        current_key[0] + dx,
-                        current_key[1] + dy,
-                        current_key[2] + dz,
-                    )
-                    for neighbor_index in spatial_grid.get(neighbor_key, []):
-                        if visited[neighbor_index]:
-                            continue
-                        nx, ny, nz = points[neighbor_index]
-                        distance_sq = (
-                            (x - nx) * (x - nx)
-                            + (y - ny) * (y - ny)
-                            + (z - nz) * (z - nz)
-                        )
-                        if distance_sq <= tolerance_sq:
-                            visited[neighbor_index] = True
-                            queue.append(neighbor_index)
-
-            cluster_size = len(cluster_indices)
-            if cluster_size < self.min_cluster_points:
-                continue
-            if self.max_cluster_points and cluster_size > self.max_cluster_points:
-                continue
-
-            clustered_points.extend(points[index] for index in cluster_indices)
-
-        return clustered_points
-
-    def detect_ramp_points_from_elevation_grid(self, points: list) -> list:
-        if not self.classify_ramps or not points:
-            return []
+    def detect_ramp_points_from_elevation_grid(self, points: np.ndarray) -> np.ndarray:
+        if not self.classify_ramps or len(points) == 0:
+            return EMPTY_XYZ
 
         resolution = self.ramp_grid_resolution
-        grid = {}
-        for x, y, z in points:
-            if x < self.min_forward or x > self.max_ramp_detection_distance:
-                continue
-            if abs(y) > self.ramp_center_lateral_limit:
-                continue
-            if z < self.ramp_grid_min_height or z > self.ramp_grid_max_height:
-                continue
+        x, y, z = points[:, 0], points[:, 1], points[:, 2]
+        inside = ((x >= self.min_forward) & (x <= self.max_ramp_detection_distance)
+                  & (np.abs(y) <= self.ramp_center_lateral_limit)
+                  & (z >= self.ramp_grid_min_height) & (z <= self.ramp_grid_max_height))
+        pts = points[inside]
+        if len(pts) == 0:
+            return EMPTY_XYZ
 
-            key = (math.floor(x / resolution), math.floor(y / resolution))
-            cell = grid.setdefault(
-                key,
-                {
-                    'points': [],
-                    'heights': [],
-                },
-            )
-            cell['points'].append((x, y, z))
-            cell['heights'].append(z)
+        # Group into (x, y) grid cells: cells in order of their first point, each
+        # cell's points in input order (the order the per-point loop built them in).
+        keys = np.floor(pts[:, :2] / resolution).astype(np.int64)
+        first, inverse = unique_rows_first(keys)
+        by_first = np.argsort(first)
+        rank = np.empty(len(first), np.int64)
+        rank[by_first] = np.arange(len(first))
+        point_rank = rank[inverse]
+        if len(first) < np.iinfo(np.int16).max:
+            point_rank = point_rank.astype(np.int16)  # numpy's stable sort is a radix sort for int16
+        order = np.argsort(point_rank, kind='stable')
+        counts = np.bincount(point_rank, minlength=len(first))
+        cell_points = np.split(pts[order], np.cumsum(counts)[:-1])
+        cell_ids = keys[first[by_first]]
 
         valid_cells = {}
-        for key, cell in grid.items():
-            if len(cell['heights']) < self.ramp_grid_min_points_per_cell:
+        for (kx, ky), cell_pts in zip(cell_ids.tolist(), cell_points):
+            if len(cell_pts) < self.ramp_grid_min_points_per_cell:
                 continue
-            point_array = np.asarray(cell['points'], dtype=np.float32)
-            height = float(np.median(np.asarray(cell['heights'], dtype=np.float32)))
-            valid_cells[key] = {
+            point_array = cell_pts.astype(np.float32)
+            height = float(np.median(point_array[:, 2]))
+            valid_cells[(kx, ky)] = {
                 'height': height,
                 'center': (
                     float(np.mean(point_array[:, 0])),
                     float(np.mean(point_array[:, 1])),
                     height,
                 ),
-                'points': cell['points'],
-                'point_count': len(cell['points']),
+                'points': cell_pts,
+                'point_count': len(cell_pts),
             }
 
         if not valid_cells:
-            return []
+            return EMPTY_XYZ
 
         filtered_cells = {}
         for key, cell in valid_cells.items():
@@ -411,7 +386,7 @@ class PointCloudRVizFilter(Node):
                 }
 
         if not slope_cells:
-            return []
+            return EMPTY_XYZ
 
         visited = set()
         ramp_points = []
@@ -445,7 +420,7 @@ class PointCloudRVizFilter(Node):
             point_count = 0
             for key in component_keys:
                 cell = slope_cells[key]
-                component_points.extend(cell['points'])
+                component_points.append(cell['points'])
                 point_count += cell['point_count']
                 center = cell['center']
                 forward_values.append(center[0])
@@ -481,16 +456,11 @@ class PointCloudRVizFilter(Node):
 
             ramp_points.extend(component_points)
 
-        return ramp_points
+        return np.concatenate(ramp_points) if ramp_points else EMPTY_XYZ
 
     def cloud_callback(self, msg: PointCloud2):
-        points_iter = point_cloud2.read_points(msg, field_names=("x", "y", "z"), skip_nans=True)
-        points = []
-        for p in points_iter:
-            x, y, z = p
-            if not (math.isfinite(x) and math.isfinite(y) and math.isfinite(z)):
-                continue
-            points.append((float(x), float(y), float(z)))
+        points = point_cloud2.read_points_numpy(msg, field_names=('x', 'y', 'z'), skip_nans=True)
+        points = points[np.isfinite(points).all(axis=1)].astype(np.float64)
 
         header = Header()
         header.stamp = msg.header.stamp
@@ -498,39 +468,38 @@ class PointCloudRVizFilter(Node):
 
         # Apply ROI/height filtering directly on left_camera_link coordinates
         # (no optical_to_base transform; points_rviz frame is source of truth)
-        filtered = []
-        terrain_points = []
-        for x_cam, y_cam, z_cam in points:
-            # x_cam: forward (X in camera frame), y_cam: lateral, z_cam: height
-            if self.filter_by_roi:
-                if x_cam < self.min_forward or x_cam > self.max_forward:
-                    continue
-                if y_cam < self.min_lateral or y_cam > self.max_lateral:
-                    continue
-            terrain_points.append((x_cam, y_cam, z_cam))
-            if self.filter_by_height:
-                min_height = self.effective_min_height(x_cam)
-                if z_cam < min_height or z_cam > self.max_height:
-                    continue
-            filtered.append((x_cam, y_cam, z_cam))
+        # x: forward (X in camera frame), y: lateral, z: height
+        x, y, z = points[:, 0], points[:, 1], points[:, 2]
+        if self.filter_by_roi:
+            in_roi = ((x >= self.min_forward) & (x <= self.max_forward)
+                      & (y >= self.min_lateral) & (y <= self.max_lateral))
+            terrain_points = points[in_roi]
+        else:
+            terrain_points = points
+        filtered = terrain_points
+        if self.filter_by_height:
+            tz = terrain_points[:, 2]
+            in_height = ((tz >= self.effective_min_height(terrain_points[:, 0]))
+                         & (tz <= self.max_height))
+            filtered = terrain_points[in_height]
 
-        cloud_filtered = point_cloud2.create_cloud_xyz32(header, filtered)
+        cloud_filtered = point_cloud2.create_cloud_xyz32(header, filtered.astype(np.float32))
         self.pub_filtered.publish(cloud_filtered)
 
         obstacles = self.voxel_downsample(filtered)
         obstacles = self.cluster_points(obstacles)
-        cloud_obstacles = point_cloud2.create_cloud_xyz32(header, obstacles)
+        cloud_obstacles = point_cloud2.create_cloud_xyz32(header, obstacles.astype(np.float32))
         self.pub_obstacles.publish(cloud_obstacles)
 
         ramp_points = self.detect_ramp_points_from_elevation_grid(terrain_points)
-        cloud_ramps = point_cloud2.create_cloud_xyz32(header, ramp_points)
+        cloud_ramps = point_cloud2.create_cloud_xyz32(header, ramp_points.astype(np.float32))
         self.pub_ramps.publish(cloud_ramps)
 
-        if not self.ramp_seg_using_lidar and ramp_points:
+        if not self.ramp_seg_using_lidar and len(ramp_points):
             ramp_msg = PoseArray()
             ramp_msg.header.stamp = self.get_clock().now().to_msg()
             ramp_msg.header.frame_id = msg.header.frame_id
-            for x, y, z in ramp_points:
+            for x, y, z in ramp_points.tolist():
                 pose = Pose()
                 pose.position.x = x
                 pose.position.y = y
@@ -538,7 +507,6 @@ class PointCloudRVizFilter(Node):
                 pose.orientation.w = 1.0
                 ramp_msg.poses.append(pose)
             self.pub_ramp_seg.publish(ramp_msg)
-
 
 def main(args=None):
     rclpy.init(args=args)
